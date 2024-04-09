@@ -1,0 +1,83 @@
+<?php
+/**
+ * Encode data as JSON and optionally display it with preformatted HTML.
+ *
+ * @param mixed $data The data to be encoded as JSON.
+ * @param bool|null $kill_script (Optional) If true, terminate the script after displaying the JSON. Default is null.
+ * @return void
+ */
+function json($data, ?bool $kill_script = null): void {
+    echo '<pre>' . json_encode($data, JSON_PRETTY_PRINT) . '</pre';
+
+    if (isset($kill_script)) {
+        die();
+    }
+}
+
+/**
+ * Get a specific URL segment.
+ *
+ * @param int $num The segment number to retrieve.
+ * @param string|null $var_type (Optional) The desired data type of the segment value. Default is null.
+ * @return mixed The value of the specified URL segment.
+ */
+function segment(int $num, ?string $var_type = null) {
+    $segments = SEGMENTS;
+    if (isset($segments[$num])) {
+        $value = $segments[$num];
+    } else {
+        $value = '';
+    }
+
+    if (isset($var_type)) {
+        settype($value, $var_type);
+    }
+
+    return $value;
+}
+
+/**
+ * Get the current URL of the web page.
+ *
+ * @return string The current URL as a string.
+ */
+function current_url(): string {
+    $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI'];
+    return $current_url;
+}
+
+/**
+ * Generate an HTML anchor (link) element.
+ *
+ * @param string $target_url The URL to link to.
+ * @param mixed $text The link text or boolean value to indicate no link.
+ * @param array|null $attributes (Optional) An associative array of HTML attributes for the anchor element.
+ * @param string|null $additional_code (Optional) Additional HTML code to append to the anchor element.
+ * @return string The HTML anchor element as a string.
+ */
+function anchor(string $target_url, $text, ?array $attributes = null, ?string $additional_code = null): string {
+    $str = substr($target_url, 0, 4);
+    if ($str != 'http') {
+        $target_url = BASE_URL . $target_url;
+    }
+
+    $text_type = gettype($text);
+
+    if ($text_type === 'boolean') {
+        return $target_url;
+    }
+
+    $extra = '';
+    if (isset($attributes)) {
+        foreach ($attributes as $key => $value) {
+            $extra .= ' ' . $key . '="' . $value . '"';
+        }
+    }
+
+    if (isset($additional_code)) {
+        $extra .= ' ' . $additional_code;
+    }
+
+    $link = '<a href="' . $target_url . '"' . $extra . '>' . $text . '</a>';
+    return $link;
+}

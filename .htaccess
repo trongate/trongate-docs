@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /trongate-docs/
+
+# If the request is not for an existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite all requests to index.php
+RewriteRule ^(.*)$ index.php [L]

@@ -1,0 +1,25 @@
+body {
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: 1fr 5fr;
+	grid-gap: 1em;
+}
+
+aside {
+	min-height: 100vh;
+	background-color: navy;
+}
+
+main {
+	min-height: 100vh;
+	background-color: yellow;
+	padding: 33px;
+}
+
+footer {
+	width: 100%;
+	min-height: 120px;
+	background-color: black;
+	grid-column: span 2; /* Span across two columns */
+}
