@@ -9,6 +9,7 @@ body {
 aside {
 	min-height: 100vh;
 	background-color: navy;
+	color: #eee;
 }
 
 main {
