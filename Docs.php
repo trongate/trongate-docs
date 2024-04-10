@@ -8,8 +8,6 @@ class Docs {
 		$target_dir = APPPATH.'trongate-docs';
 		$directories = $this->get_directories($target_dir);
 
-
-
 		$table_of_contents = $this->add_pages_arary($target_dir, $directories);
 		return $table_of_contents;
 	}
@@ -66,6 +64,7 @@ class Docs {
 	public function get_directories($path) {
 
 		$ignore_dirs[] = 'css';
+		$ignore_dirs[] = 'images';
 
 	    // Initialize an empty array to store directories
 	    $directories = [];
