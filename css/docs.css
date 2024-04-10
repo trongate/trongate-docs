@@ -14,7 +14,6 @@ aside {
 
 main {
 	min-height: 100vh;
-	background-color: yellow;
 	padding: 33px;
 }
 
@@ -23,4 +22,12 @@ footer {
 	min-height: 120px;
 	background-color: black;
 	grid-column: span 2; /* Span across two columns */
+}
+
+section {
+	max-width: 900px;
+}
+
+img {
+	border: 5px silver solid;
 }

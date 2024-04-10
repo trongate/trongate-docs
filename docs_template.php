@@ -22,6 +22,11 @@
 				$dir_name = $docs->remove_first_x_characters($chapter_data['dir_name'], 4);
 				$page_name = $docs->remove_first_x_characters($page_name, 4);
 				$page_url = BASE_URL.strtolower($dir_name).'/'.$page_name;
+                $page_label = str_replace('rongate1', 'rongate #1', $page_label);
+                $page_label = str_replace('rongate2', 'rongate #2', $page_label);
+                $page_label = str_replace('rongate3', 'rongate #3', $page_label);
+                $page_label = str_replace('rongate4', 'rongate #4', $page_label);
+                $page_label = str_replace('rongate5', 'rongate #5', $page_label);
 				echo '<li>'.anchor($page_url, $page_label).'</li>';
 			}
 			echo '</ul>';
