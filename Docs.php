@@ -61,10 +61,16 @@ class Docs {
 		return $table_of_contents;
 	}
 
-	public function get_directories($path) {
-
-		$ignore_dirs[] = 'css';
-		$ignore_dirs[] = 'images';
+	/**
+	 * Retrieves directories from the specified path, excluding certain directories.
+	 *
+	 * @param string $path The path to the directory.
+	 * @return array An array containing directories within the specified path.
+	 */
+	public function get_directories(string $path): array
+	{
+	    // Directories to ignore
+	    $ignore_dirs = ['css', 'images'];
 
 	    // Initialize an empty array to store directories
 	    $directories = [];
@@ -81,9 +87,8 @@ class Docs {
 	                    if (is_dir($path . '/' . $item)) {
 	                        // Add the directory to the array
 	                        if (!in_array($item, $ignore_dirs)) {
-	                        	$directories[] = $item;
+	                            $directories[] = $item;
 	                        }
-	                        
 	                    }
 	                }
 	            }
@@ -98,13 +103,10 @@ class Docs {
 	        echo "Error: '$path' is not a valid directory.";
 	    }
 
-	    // Return the array of directories
+	    // Remove the first element of the array (current directory)
 	    unset($directories[0]);
 
-	    // foreach($directories as $key => $value) {
-	    // 	$directories[$key] = $this->remove_first_x_characters($value, 4);
-	    // }
-
+	    // Return the array of directories
 	    return $directories;
 	}
 
@@ -153,24 +155,38 @@ class Docs {
 	    return $data;
 	}
 
-	function remove_first_x_characters($string, $num) {
-	    // Check if the string length is greater than 3
+	/**
+	 * Removes the first x characters from the given string.
+	 *
+	 * @param string $string The input string.
+	 * @param int $num The number of characters to remove.
+	 * @return string The modified string.
+	 */
+	function remove_first_x_characters(string $string, int $num): string {
+	    // Check if the string length is greater than $num
 	    if (strlen($string) > $num) {
-	        // Remove the first 3 characters and return the result
+	        // Remove the first $num characters and return the result
 	        return substr($string, $num);
 	    } else {
-	        // Return the original string if its length is 3 characters or less
+	        // Return the original string if its length is $num or less
 	        return $string;
 	    }
 	}
 
-	function remove_last_x_characters($string, $num) {
+	/**
+	 * Removes the last x characters from the given string.
+	 *
+	 * @param string $string The input string.
+	 * @param int $num The number of characters to remove.
+	 * @return string The modified string.
+	 */
+	function remove_last_x_characters(string $string, int $num): string {
 	    // Check if the string length is greater than the specified number
 	    if (strlen($string) > $num) {
-	        // Remove the last x characters and return the result
+	        // Remove the last $num characters and return the result
 	        return substr($string, 0, -$num);
 	    } else {
-	        // Return the original string if its length is less than or equal to the specified number
+	        // Return the original string if its length is less than or equal to $num
 	        return $string;
 	    }
 	}

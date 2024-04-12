@@ -28,6 +28,27 @@ section {
 	max-width: 900px;
 }
 
+h1 {
+	text-align: center;
+}
+
 img {
 	border: 5px silver solid;
+}
+
+pre {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: auto;
+    background-color: #4d4d4d !important;
+    border-color: #6b6b6b !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 0 #444444 !important;
+    white-space: pre-wrap;
+    padding: 1em 1em;
+}
+
+.good-code {
+	background-color: #248663 !important;
+	color: #fff6ef !important;
 }

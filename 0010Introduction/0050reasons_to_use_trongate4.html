@@ -1,2 +1,55 @@
 <h1>Reasons To Use Trongate</h1>
 <h2>Reason #4 : Productivity</h2>
+<p>Trongate can make you a productivity powerhouse.   Getting up and running requires no Composer, no third-party libraries and no use of the command line.</p>
+<p>From a syntax perspective, Trongate uses pure PHP.  That means, it's simple, easy to learn and most importantly - it lets developers get up and running <i>quickly</i>.  </p>
+<p>For the purposes of comparison, let's compare some typical Trongate syntax with the the syntax of some other popular PHP frameworks.</p>
+<h2>Fetching A Single Record Of A Given 'id'</h2>
+<h3>Symfony</h3>
+<div class="code-block"><pre>$entityManager = $this->getDoctrine()->getManager();<br>
+$record_obj = $entityManager->getRepository(Entity::class)->find($id);
+</pre></div>
+<h3>CodeIgniter</h3>
+<div class="code-block"><pre>$this->db->where('id', $id);<br>
+$query = $this->db->get('table_name');<br>
+$record_obj = $query->row();</pre></div>
+
+<h3>CakePHP</h3>
+<pre><code>$record_obj = $this->ModelName->find('first', array(<br>
+    'conditions' => array('ModelName.id' => $id)<br>
+));</code></pre>
+
+<h3>Trongate</h3>
+<pre class="good-code"><code>$record_obj = $this->model->get('id');</code></pre>
+
+<h2>Reading a Value from the Third URL Segment</h2>
+
+<h3>Laravel</h3>
+<pre><code>use Illuminate\Http\Request;
+
+public function index(Request $request)
+{
+    $id = $request->segment(3);
+}
+</code></pre>
+
+<h3>Symfony</h3>
+<pre><code>use Symfony\Component\HttpFoundation\Request;
+
+public function index(Request $request)
+{
+    $id = $request->attributes->get('id');
+}
+</code></pre>
+
+<h3>Yii</h3>
+<pre><code>use yii\web\Request;
+
+public function actionIndex()
+{
+    $request = new Request();
+    $id = $request->getQueryParam('id');
+}
+</code></pre>
+
+<h3>Trongate</h3>
+<pre class="good-code"><code>$id = segment(3);</code></pre>
