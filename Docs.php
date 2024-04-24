@@ -4,6 +4,9 @@ require_once('helpers.php');
 
 class Docs {
 
+	public $local_base_url = 'http://localhost/trongate-docs/';
+	public $live_base_url = 'https://trongate.io/docs/';
+
 	public function fetch_table_of_contents() {
 		$target_dir = APPPATH.'trongate-docs';
 		$directories = $this->get_directories($target_dir);
@@ -29,6 +32,10 @@ class Docs {
 		return false;
 	}
 
+	function say_hello() {
+		echo 'hello';
+	}
+
 	public function get_dir_real_name($target_dir_name) {
 		$target_dir = strtolower($target_dir_name);
 		$root_dir = APPPATH.'trongate-docs';
@@ -48,6 +55,7 @@ class Docs {
 	}
 
 	public function add_pages_arary($app_dir, $directories) {
+
 		$table_of_contents = [];
 		foreach($directories as $directory) {
 			$row_data['dir_name'] = $directory;
@@ -55,11 +63,38 @@ class Docs {
 			
 			$row_data['dir_label'] = str_replace('_', ' ', $this->remove_first_x_characters($directory, 4));
 			$row_data['pages'] = $this->get_html_files($target_dir);
+
 			$table_of_contents[] = $row_data;
 		}
 
 		return $table_of_contents;
 	}
+
+	public function build_page_url($chapter_page, $directory_name) {
+		$directory_name = str_replace(APPPATH, '', $directory_name);
+
+		//$str = 'trongate-docs/';
+		$str_start = substr($directory_name, 0, 14);
+		
+		if ($str_start === 'trongate-docs/') {
+			$directory_name = $this->remove_first_x_characters($directory_name, 14);
+		}
+
+		if (strpos(current_url(), 'localhost') !== false) {
+			$base_url = $this->local_base_url;
+		} else {
+			$base_url = $this->live_base_url;
+		}
+
+	    // Remove the first 4 characters (.html) from the page name and directory name
+	    $page_name = $this->remove_first_x_characters($chapter_page['page_name'], 4);
+	    $dir_name = $this->remove_first_x_characters($directory_name, 4);
+
+	    // Construct and return the full URL for the page
+	    $page_url = $base_url . strtolower($dir_name) . '/' . $page_name;
+	    return $base_url . strtolower($dir_name) . '/' . $page_name;
+	}
+
 
 	/**
 	 * Retrieves directories from the specified path, excluding certain directories.
@@ -111,6 +146,7 @@ class Docs {
 	}
 
 	function get_html_files($directory) {
+
 	    // Initialize an empty array to store html files
 	    $html_files = [];
 
@@ -148,9 +184,10 @@ class Docs {
 	    	$row_data['page_label'] = str_replace('_', ' ', $this->remove_first_x_characters($html_file, 4));
 	    	$row_data['page_label'] = $this->remove_last_x_characters($row_data['page_label'], 5);
 	    	$row_data['page_label'] = ucwords($row_data['page_label']);
+
+	    	$row_data['page_url'] = $this->build_page_url($row_data, $directory);
 	    	$data[] = $row_data;
 	    }
-
 
 	    return $data;
 	}
