@@ -59,12 +59,13 @@ header {
 }
 
 .container-lg:nth-child(2) aside {
-	min-width: 360px;
+  padding-top: 33px;
+	min-width: max-content;
 	scrollbar-width: thin;
 	display: flex;
 	flex-grow: 1;
   overflow-y: scroll;
-	
+  padding-right: 12px;
 }
 
 main {
@@ -72,6 +73,19 @@ main {
 	min-height: 100%;
   padding-bottom: 90px;
   width: 100%;
+}
+
+aside ul {
+  margin-top: 0;
+}
+
+aside li {
+  font-size: .9em;
+}
+
+#chapter-nav > li {
+  font-size: 1em;
+  list-style-type: square;
 }
 
 footer {
@@ -158,6 +172,8 @@ button, .button {
 
 img {
   border: 1px #333 solid;
+  max-width: 90%;
+  margin: 1em 0;
 }
 
 img, figure {
