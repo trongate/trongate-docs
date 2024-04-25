@@ -1,0 +1,31 @@
+<h1>Returning Views Output As A Variable<br></h1>
+<p>There are times when you may wish to have the contents of a view file made available as a PHP variable - more specifically a <em>string</em>, instead of being immediately sent to the viewport. We can do this by simply adding<strong> , true</strong> onto the end of our 'view' command. For example:</p>
+<p><pre><code>
+function _get_information() { 
+  //create an array of cities 
+  $cities[] = "New York"; 
+  $cities[] = "London"; 
+  $cities[] = "Paris"; 
+   //add "cities" onto data array
+  $data["cities"] = $cities; 
+
+  //add "today" onto data array
+  $data["today"] = "Monday"; 
+
+   //return the view contents as a string
+  $html = $this-&gt;view("information", $data, true);
+  return $html;
+}
+</code></pre></p>
+<p>The idea of calling a view file but not <em>displaying</em> the view file on the screen may seem a little unusual - <em>and it is!  </em>However, occasionally, developers have a need to capture the <em>contents</em> that have been generated from a view file - <em>without</em> sending those contents to the browser. One example of such a scenario would be if you were building a feature for caching web pages.</p>
+<p>There are three steps required to make your view file contents available as a normal PHP variable:<br><br><strong>STEP 1: </strong>Add a variable plus an equals symbol before calling the view method. For example:<pre><code>$output = $this-&gt;view("greeting", $data...</code></pre></p>
+<p><strong>STEP 2:</strong> Pass the boolean of <em>true </em>into your view as the third argument. For example:<pre><code>$output = $this-&gt;view("greeting", $data, true);</code></pre></p>
+<p><strong>STEP 3:</strong> Finally, end your method by returning the variable that you have now created. For example:<pre><code>return $output;</code></pre></p>
+<div class="alert alert-success">
+    If you do <em>not</em> have any data array being passed into your view file but you'd like the contents to be treated and returned as a normal variable, simply pass an empty array into your view in the form of two square brackets.</p>
+    <p><pre><code>$code = $this-&gt;view("file", [], true);</code></pre>
+</div>
+<br><br>Once you've created your method for generating view output as a variable, you can easily call your variable - using just one line of ordinary PHP. For example:  <br><br><pre><code>
+$info = $this-&gt;_get_information();
+//now do something with the info!
+</code></pre></p>

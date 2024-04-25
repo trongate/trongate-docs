@@ -1,0 +1,62 @@
+<h1>Reading Values From The URL</h1>
+<p>Sometimes it's useful - or even essential - for web apps to be able to read values from the URL.  The Trongate Framework offers <em>two</em> techniques by which values can be easily read from the website URL.</p>
+<h2>The segment() method</h2>
+<p>The first technique is to Trongate's built-in URL helper class to declare the part(s) of the URL that you wish to read. As mentioned previously, Trongate uses a segment based approach to URLs. In this instance, a <em>segment</em> is defined as a character or block of characters that appear in the URL <strong>after</strong> the base URL.</p>
+<p>Segments are separated by the forward-slash character.</p>
+<p>Below is an example of a page URL that has three segments:</p>
+<p><strong>https://trongate.io/first/second/third</strong></p>
+<p>To read the <em>first</em> segment of the URL and assign it to a variable, we could use Trongate's inbuilt segment method like so:</p>
+<p><pre><code>
+$first_segment = segment(1);
+</code></pre><br></p>
+<p>Doing this would mean that our $first_segment variable would be assigned with a value of 'first'.</p>
+<p>Of course, the second segment could be read with:</p>
+<p><pre><code>
+$second_segment = segment(2);
+</code></pre></p>
+<p>..and the third with:</p>
+<p><pre><code>
+$third_segment = segment(3);
+</code></pre></p>
+<p>As you can see, the approach here involves simply calling the (in-built) segment() method and adding the number of the segment that you wish to fetch in parentheses.</p>
+<h2>Understanding The Segment Method</h2>
+<p>The segment() method accepts two arguments:</p>
+<ul>
+    <li><strong>FIRST ARGUMENT (required)</strong> : an integer representing the <em><strong>segment number</strong></em> to be checked</li>
+    <li><strong>SECOND ARGUMENT (optional)</strong> : a string that represents the <em><strong>type of variable</strong></em> that you expect to receive from the URL.</li>
+</ul>
+<div class="alert alert-success">
+    The optional second argument calls PHP's built-in settype() method to ensure that variables are converted to the <em>type</em> that is expected from the code. This is great for security! For example, whenever you expect (let's say) an integer from a URL segment then pass in a second argument of 'int'. Passing in a variable type will dramatically reduce your chances of having malicious code injected into your scripts via the URL.</p>
+    <p><pre><code>$id = segment(3, "int");</code></pre><br>
+</div>
+</p>
+<div class="alert alert-warning">
+    In very early versions of Trongate the syntax for reading values from the URL was slightly different. Older versions of Trongate used:</p>
+    <p><pre><code>
+    $var = $this-&gt;url-&gt;segment(3);
+    </code></pre></p>
+    <p>As you can see, the code being used today is a little more compact.
+</div>
+</p>
+<h2>The Third Segment As An Argument<br></h2>
+<p>Whenever you create a method inside a Trongate class, Trongate will assume that the third segment of your current URL contains a value that is to be passed into your method.</p>
+<p>For example. Consider the following URL:</p>
+<p><strong>example.com/items/display/88</strong></p>
+<p>Using Trongate's basic URL routing, this URL would:</p>
+<ul>
+    <li>load an 'items' module</li>
+    <li>load an 'items' class (from within the controllers folder)</li>
+    <li>invoke a method called 'display'</li>
+    <li>pass the value <strong>88</strong> into the display method as an argument</li>
+</ul>
+<p>Therefore, if our goal is to build a method that reads an ID from the URL we can two options. The first is to use the segment() method, like so:</p>
+<p><pre><code>
+function display() {
+  $id = segment(3);
+  echo $id; //outputs: 88
+}
+</code></pre><br><br>Our second option would be to take advantage of Trongate's assumption that the third segment should be automatically passed into the method. For example,<br><br><pre><code>
+function display($id) {
+  echo $id; //outputs: 88
+}
+</code></pre></p>

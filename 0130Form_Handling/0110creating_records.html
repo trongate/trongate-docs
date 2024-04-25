@@ -1,0 +1,79 @@
+<h1>Creating Records<br></h1>
+<p>Now, let's turn our attention to the business of inserting database records. To achieve this we'll be calling upon <em>the model</em> and specifically, we'll be invoking the <strong>insert()</strong> method. Full details about the model's insert method can be found at:</p>
+<p><a href="https://trongate.io/docs_m/information/the-insert-method">https://trongate.io/docs_m/information/the-insert-method</a></p>
+<p>If you're a developer who prefers to watch videos, here's everything that you need to know about this topic:<br>[youtube]{<br>"headline": "Video Tutorial",<br>"info": "In this video, we'll take a closer look at how to create new records.",<br>"videoId":"JFnNUHIK2aE"}<br>[/youtube]</p>
+<p>If you're the kind of developer who likes written text, here's everything that gets covered in the video:</p>
+<h2>Understanding How To Insert Records<br></h2>
+<p>In order to insert records, we can simply add the following two lines of PHP code.</p>
+<p><pre><code>
+$data = $this-&gt;_get_data_from_post();
+$this-&gt;model-&gt;insert($data);
+</code></pre></p>
+<div class="alert alert-warning">This code is presented with the assumption that you have created a _get_data_from_post() method, as explained <a href="https://trongate.io/docs_m/information/repopulating-forms">here</a>.</div>
+</p>
+<p>So, our <em>complete</em> submit method (on Books.php) might now look like this:</p>
+<p><pre><code>
+function submit() {
+ $submit = post("submit");
+
+ if ($submit == "Submit") {
+  $this-&gt;validation_helper-&gt;set_rules("title", "book title", "required|min_length[3]|max_length[75]");
+  $this-&gt;validation_helper-&gt;set_rules("description", "book description", "required");
+  $this-&gt;validation_helper-&gt;set_rules("author_id", "author", "required");
+
+  //run the validation tests
+  $result = $this-&gt;validation_helper-&gt;run(); //returns true or false
+
+  if ($result == true) {
+   $data = $this-&gt;_get_data_from_post();
+   $this-&gt;model-&gt;insert($data);
+   echo "record was successfully inserted";
+  } else {
+   $this-&gt;create();
+  }
+ }
+}</code></pre></p>
+<p>As a reminder, here's our _get_data_from_post() method:</p>
+<p><pre><code>
+function _get_data_from_post() {
+ $data["title"] = post("title", true);
+ $data["description"] = post("description", true);
+ $data["author_id"] = post("author_id", true);
+ $data["published"] = post("published", true);
+ return $data;
+}</code></pre></p>
+<h2>Fixing SQL Errors With SetType</h2>
+<p>If you attempt to create a books record that has the 'published' field left unticked then _get_data_from_post() will initialise an empty string for 'published'. Unfortunately, this may produce an SQL error - since the 'published' field, on the database table, has a type of 'tinyint'.</p>
+<p>To resolve those kinds of errors, we can use PHP's inbuilt <strong>settype()</strong> method.</p>
+<p>The settype() method comes with all installations of PHP. It accepts two arguments:</p>
+<ul>
+    <li>a variable name</li>
+    <li>the <em>type</em> that we'd like the variable to be set to</li>
+</ul>
+<p>For example, we could set 'published' to a type of integer with:</p>
+<p><pre><code>
+settype($data["published"], "integer");</code></pre></p>
+<p>So now, our submit method will be as follows:<br><pre><code>
+function submit() {
+ $submit = post("submit");
+
+ if ($submit == "Submit") {
+  $this-&gt;validation_helper-&gt;set_rules("title", "book title", "required|min_length[3]|max_length[75]");
+  $this-&gt;validation_helper-&gt;set_rules("description", "book description", "required");
+  $this-&gt;validation_helper-&gt;set_rules("author_id", "author", "required");
+
+  //run the validation tests
+  $result = $this-&gt;validation_helper-&gt;run(); //returns true or false
+
+  if ($result == true) {
+   $data = $this-&gt;_get_data_from_post();
+   settype($data["published"], "integer");
+   $this-&gt;model-&gt;insert($data);
+   echo "record was successfully inserted";
+  } else {
+   $this-&gt;create();
+  }
+ }
+}</code></pre></p>
+<div class="alert alert-warning">When a non-integer, such as an empty string, is passed through settype() and set to 'integer' then the value of the non-integer will be changed to a <strong>0</strong> (a zero).</div>
+</p>

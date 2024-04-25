@@ -105,7 +105,7 @@ class Docs {
 	public function get_directories(string $path): array
 	{
 	    // Directories to ignore
-	    $ignore_dirs = ['css', 'images'];
+	    $ignore_dirs = ['css', 'images', 'js', 'fonts', 'junk'];
 
 	    // Initialize an empty array to store directories
 	    $directories = [];

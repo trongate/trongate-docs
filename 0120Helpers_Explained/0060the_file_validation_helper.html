@@ -1,0 +1,52 @@
+<h1>The File Validation Helper</h1>
+<p>Trongate is loaded with a variety of features that can assist with the uploading of files such as images. Before exploring Trongate's file validation helper, let's have a reminder of how to draw a file uploader form using Trongate:</p>
+<p><pre><code>
+echo form_open_upload("members/submit_upload_picture/".$update_id);
+validation_errors();
+echo "Please choose a picture from your computer and then press \"Upload\".";
+echo form_file_select("picture");
+echo form_submit("submit", "Upload");
+echo form_close();
+</code></pre></p>
+<p>The code above could be used to produce a form that looks like this:</p>
+<p><img src="../images/29/pic_uploaQqj.png" alt="file uploader example"></p>
+<div class="alert alert-warning">The example shown in the screenshot contains some CSS and a little additional HTML to improve the appearance of the uploader form.</div>
+</p>
+<h2>Understanding The Uploader Form</h2>
+<p>The uploader form, above, starts by invoking the form_open_upload() method.</p>
+<p><pre><code>
+echo form_open_upload("members/submit_upload_picture/".$update_id);
+</code></pre></p>
+<p>As can see, an argument has been passed into the method. The argument represents the destination for the uploader form. The destination is the URL where the user is sent to when the form is submitted. The opening line produces the following HTML code:</p>
+<p><pre><code>[lt]form action="http://localhost/your_app/members/submit_upload_picture/1" method="post" enctype="multipart/form-data"[gt]
+</code></pre></p>
+<div class="alert alert-warning">The assumption being made with this example, is that an $update_id variable has been passed into the view file. We're also assuming that the BASE_URL value is set to <strong>http://localhost/your_app/</strong></div>
+</p>
+<p>Next, we invoked Trongate's <strong>validation_errors()</strong> method.</p>
+<p><pre><code>validation_errors();</code></pre></p>
+<p>The validation errors method displays form validation errors, if there are any.</p>
+<p>After displaying some text based instructions, the next important part of our form is:</p>
+<p><pre><code>echo form_file_select("picture");</code></pre></p>
+<p>The <strong>form_file_select</strong> method displays a form file uploader field. As you can see, the argument 'picture' has been passed into the method. The 'picture' argument represents the name of the file uploader form field. The HTML code that gets generated from our form_file_select method is shown below:</p>
+<p><pre><code>
+[lt]input type="file" name="picture" value=""[gt]
+</code></pre></p>
+<div class="alert alert-warning">
+    The form file select method can accept the following three arguments:</p>
+    <ul>
+        <li>name</li>
+        <li>attributes</li>
+        <li>additional code</li>
+    </ul>
+    <p>What these three attributes represent and how they behave is identical to how ordinary form_input() methods work. See <a href="https://trongate.io/docs_m/information/the-form-helper">The Form Helper Documentation</a> for details.
+</div>
+</p>
+<p>Finally, we end our uploader form by displaying a submit button and by drawing a closing 'form' tag. Here, our 'submit' button has the name 'submit' but the word 'Upload' appearing inside the button:</p>
+<p><pre><code>
+echo form_submit("submit", "Upload");
+echo form_close();
+</code></pre></p>
+<h2>Applying Form Validation Tests To Files</h2>
+<p>Validation for file uploading scenarios is handled in precisely the same manner as normal form validation.</p>
+<p>Below is a complete list of validation tests that are available for file uploading scenarios.</p>
+<p>[file-uploader-validation]</p>

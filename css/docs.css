@@ -1,54 +1,331 @@
-body {
-	margin: 0;
-	padding: 0;
-	display: grid;
-	grid-template-columns: 1fr 5fr;
-	grid-gap: 1em;
+:root {
+  --primary: #6767d1;
+  --primary-dark: #4040c5;
+  --primary-darker: #3131a1;
+  --primary-color: #fff;
+  --secondary: #25257a;
+  --border: #c5c5c5;
+  --alt: #fff;
+   --factor: 1.4;
+  --logo-width: calc(120px * var(--factor));
+  --logo-height: calc(48px * var(--factor));
+  --logo-box: calc(32px * var(--factor));
+  --logo-box-inner: calc(12px * var(--factor));
+  --dark-blue: #25257a;
+  --light-blue: #6767d1;
+  --white: #ffffff;
+  --font-size: calc(17.5px * var(--factor));
 }
 
-aside {
+@font-face {
+  font-family: 'TrongateFont';
+  src: url('../fonts/space_age.ttf')  format('truetype');
+}
+
+body {
+	font-family: "Inter", sans-serif;
+	color: #111;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: space-between;
 	min-height: 100vh;
-	background-color: navy;
+  background-color: #fefeff;
+}
+
+header {
+	background-color: var(--secondary);
+}
+
+#header-lg {
+	min-height: 85px;
 	color: #eee;
+	display: flex;
+	align-items: center;
+}
+
+#header-sm {
+	display: none;
+}
+
+.container-lg {
+	max-width: 1342px;
+}
+
+.container-lg:nth-child(2) {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.container-lg:nth-child(2) aside {
+	min-width: 360px;
+	scrollbar-width: thin;
+	display: flex;
+	flex-grow: 1;
+  overflow-y: scroll;
+	
 }
 
 main {
-	min-height: 100vh;
-	padding: 33px;
+	margin-left: 33px;
+	min-height: 100%;
+  padding-bottom: 90px;
+  width: 100%;
 }
 
 footer {
-	width: 100%;
-	min-height: 120px;
-	background-color: black;
-	grid-column: span 2; /* Span across two columns */
+	background-color: #000;
+	min-height: 180px;
 }
 
-section {
-	max-width: 900px;
+h1, h2, h3, h4 {
+	color: var(--primary);
+	font-weight: normal;
 }
 
 h1 {
-	text-align: center;
+  margin: 33px 0;
+	font-size: 42px;
+}
+
+h2 {
+  margin-top: 44px;
+	font-size: 29px;
+}
+
+h3 {
+	font-size: 23px;
+}
+
+h4 {
+	font-size: 19px;
+}
+
+button, .button {
+	transition: .3s;
+}
+
+.alert {
+    padding: 24px;
+    border-radius: 6px;
+    font-family: Georgia, serif;
+    font-size: 19px;
+    line-height: 1.6em;
+    background-color: #ddd;
+    border: 1px #aaa solid;
+    margin: 3em auto 1em auto;
+    max-width: 760px;
+}
+
+.alert-heading {
+	font-size: 33px;
+	font-weight: bold;
+	line-height: 46px;
+}
+
+.alert-body {
+	margin-top: 33px;
+}
+
+.alert-info {
+	background-color: var(--primary-dark);
+	color: #eee;
+    border: 1px var(--primary-darker) solid;
+    text-shadow: 1px 1px 4px var(--primary-darker);
+}
+
+.alert-success {
+	background-color: #31a131;
+	color: #eee;
+    border: 1px #247a24 solid;
+    text-shadow: 1px 1px 4px #247a24;
+}
+
+.alert-warning {
+	background-color: #c58340;
+	color: #fff;
+    border: 1px #966431 solid;
+    text-shadow: 1px 1px 4px #966431;
+}
+
+.alert-danger {
+	background-color: #c54040;
+	color: #eee;
+    border: 1px #a13535 solid;
+    text-shadow: 1px 1px 4px #966431;
 }
 
 img {
-	border: 5px silver solid;
+  border: 1px #333 solid;
+}
+
+img, figure {
+  box-shadow: 0 2px 4px rgba(0,0,0,.33);
 }
 
 pre {
     white-space: nowrap;
     max-width: 100%;
     overflow: auto;
-    background-color: #4d4d4d !important;
+    background-color: #333 !important;
     border-color: #6b6b6b !important;
     color: #ffffff !important;
     text-shadow: 0 1px 0 #444444 !important;
     white-space: pre-wrap;
     padding: 1em 1em;
+    border: 3px #6b6b6b solid;
 }
 
-.good-code {
-	background-color: #248663 !important;
-	color: #fff6ef !important;
+code {
+  line-height: 1.7em;
+}
+
+pre {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1em;
+}
+
+mark {
+  color: #fff !important;
+  background-color: #6767d1 !important;
+}
+
+figure {
+    display: inline-block; /* Ensures the figure only takes up as much width as its content */
+    max-width: 100%; /* Prevents the figure from exceeding the width of its containing element */
+    margin: 0 auto; /* Optional: Centers the figure within its container if desired */
+    transition: .3s;
+    border: 1px #333 solid;
+}
+
+figure:hover {
+    transform: scale(1.05); /* Slightly enlarges the figure on hover */
+}
+
+figcaption {
+  border-top: 1px #333 solid;
+  margin: 0;
+  padding: 1em .4em;
+  font-size: .7em;
+  background-color: #6767d122;
+  color: #000;
+  text-align: left;
+}
+
+figure img {
+  max-width: 100%;
+  border: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+.trongate-logo {
+  width: var(--logo-width);
+  height: var(--logo-height);
+  text-align: center;
+  /* border: .1px solid black; */
+}
+
+.trongate-logo:hover {
+  cursor: pointer;
+}
+
+#logo-box-container {
+  display: inline-flex;
+  gap: var(--logo-box-inner);
+}
+
+.trongate-logo p {
+  font-family: 'TrongateFont';
+/* light */
+  /* color: var(--dark-blue); */
+/* dark */
+  color: var(--white);
+  font-size: var(--font-size);
+  line-height: .9em;
+  margin: 0;
+  text-align: center;
+  text-indent: -.55%;
+  animation-name: logo-text-anim;
+  animation-duration: 1.6s;
+}
+
+#logo-box1 {
+  width: var(--logo-box);
+  height: var(--logo-box);
+  background-color: var(--light-blue);
+  position: relative;
+  animation-name: logo-box1-anim;
+  animation-duration: 1.6s;
+}
+
+#logo-box2 {
+  display: flex;
+  align-items: center;
+  width: var(--logo-box);
+  height: var(--logo-box);
+/* light */
+  /* background-color: var(--light-blue); */
+/* dark */
+  background-color: var(--white);
+  z-index: 1;
+}
+
+#logo-box2-inner {
+  width: var(--logo-box-inner);
+  height: var(--logo-box-inner);
+  background-color: var(--dark-blue);
+  margin: auto;
+  position: relative;
+  animation-name: logo-box2-inner-anim;
+  animation-duration: 3.2s;
+  transition: width 1s;
+  transition: height 1s;
+/* make the inner box move forever */
+  /* animation-iteration-count: infinite; */
+}
+
+#logo-box3 {
+  width: var(--logo-box);
+  height: var(--logo-box);
+  background-color: var(--light-blue);
+  position: relative;
+  animation-name: logo-box3-anim;
+  animation-duration: 1.6s;
+}
+
+
+@keyframes logo-box1-anim {
+  0% {background-color: var(--dark-blue); left:44px;}
+  100% {background-color: var(--light-blue); left:0rem;}
+}
+
+@keyframes logo-box3-anim {
+  0% {background-color: var(--dark-blue); left:-44px;}
+  100% {background-color: var(--light-blue); left:0;}
+}
+
+@keyframes logo-box2-inner-anim {
+  100% {transform: rotate(360deg);}
+}
+
+@keyframes logo-text-anim {
+/* get rid of the font-size if you don't like the zoom in */
+  0% {color: orange; font-size: 1px; ; opacity: 0;}
+  40% {color: gold;}
+  100% {color: var(--white); font-size: var(--font-size); opacity: 1;}
+}
+
+
+.card {
+  background-color: #fff;
 }

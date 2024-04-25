@@ -1,0 +1,33 @@
+<h1>The 'Get Many Where' Method <br> </h1>
+<p>The 'Get Many Where' method is for fetching rows of data from a database table. It accepts the following parameters:</p>
+<ul>
+    <li> <strong>$column</strong> (required) - the name of the table column referred to when results are fetched.</li>
+    <li> <strong>$value</strong> (required) - the value that should be matched against the target table column.</li>
+    <li> <strong>$target_table</strong> (optional) - the name of the database table to be queried. By default, the Model will assume the target table to be equal to the value on the first URL segment.</li>
+</ul>
+<div class="alert alert-success">Use PHP's inbuilt var_dump() method whenever you need to clarify the variable types from a given results set.</div>
+</p> 
+<h2>What Gets Returned?</h2>
+<p> <strong>WHEN MATCHING RECORDS ARE FOUND</strong> </p>
+<p>If matching records are found then a PHP array will be returned where each item on the array represents a row from a database table. Each row, within the array, will be a PHP object.</p>
+<p> <strong>WHEN MATCHING RECORDS ARE NOT FOUND</strong> </p>
+<p>If the query fails to find any matching records then an empty array will be returned.</p>
+<h2>Example 1 <br> </h2>
+<p>The syntax below shows the simplest Get Many Where example possible. In this example, we are passing in a column name of 'first_name' and a value of 'Bruce'.</p>
+<p><pre><code>$rows = $this-&gt;model-&gt;get_many_where("first_name", "Bruce");
+</code></pre></p>
+<p>The code above will produce the following SQL query:</p>
+<p><strong>SELECT * from <em><strong>tablename</strong></em> WHERE first_name = 'Bruce'</strong></p>
+<div class="alert alert-warning">In a working example, 'tablename' would be replaced with the first segment from the URL.</div>
+</p> 
+<p>Below is an example of a Members.php controller file that contains a test() method. Here we're invoking a basic 'Get Many Where' command and then immediately displaying the results using Trongate's json() method:</p>
+<p><pre><code>&lt;?php&lt;br /&gt; class Members extends Trongate {&lt;br /&gt; &lt;br /&gt;     function test() {&lt;br /&gt;         $rows = $this-&gt;model-&gt;get_many_where("first_name", "Bruce");&lt;br /&gt;         json($rows);&lt;br /&gt;     }&lt;br /&gt; &lt;br /&gt;&lt;br /&gt;</code></pre></p>
+<p>Below shows an example of the kind of output that we can expect to see from the above method, when Debug Mode is switched on:</p>
+<p><img src="../images/155/_where_mZTMC.png" alt="screenshot"></p>
+<h2>Example 2</h2>
+<p>Below is a more advanced example: </p>
+<p><pre><code>$rows = $this-&gt;model-&gt;get_many_where("type", "Trout", "fish");
+</code></pre></p>
+<p>The code above would produce the following SQL query:</p>
+<p><strong>SELECT * FROM fish WHERE type = 'Trout'</strong></p>
+<p> </p>

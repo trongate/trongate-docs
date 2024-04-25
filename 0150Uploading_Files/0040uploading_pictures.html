@@ -1,0 +1,30 @@
+<h1>Uploading Pictures</h1>
+<p>So far, in this chapter, we've focused on producing code that uses the 'upload_file' method. For uploading pictures, you may wish to use Trongate's 'upload_picture' method. The 'upload_picture' method is similar to, but not identical to, the 'upload_file' method. As you can see, both methods are similar and remarkably simple:</p>
+<p><pre><code>
+    public function upload_picture($data) {
+ $uploaded_file_info = $this-&gt;img_helper-&gt;upload($data);
+ return $uploaded_file_info;
+    }
+
+    public function upload_file($data) {
+ $uploaded_file_info = $this-&gt;file_helper-&gt;upload($data);
+ return $uploaded_file_info;
+    }
+</code></pre></p>
+<div class="alert alert-warning">The code snippet, displayed above, is taken from the internals of the Trongate framework. You don't have to understand precisely how the code above works. We're merely showing the two methods to illustrate how similar they are.</div>
+</p>
+<p>The general mechanism for uploading pictures, using 'upload_picture', is very similar to the mechanism for uploading <em>normal</em> files. Furthermore, the Trongate Desktop App has features that allow you to instantly create either single picture uploaders or multi-picture uploaders.</p>
+<p>In the next chapter you'll be given full instructions on how to use the 'upload_picture' method. As you might expect, the 'upload_picture' method has access to code that has been created specifically for image uploading situations.</p>
+<p><strong>However, even though we have a dedicated chapter covering the usage of the 'picture_upload' method, it might be worth keeping in mind that there are certain situations when you may wish to use the 'file_upload' method to handle picture uploading.</strong></p>
+<h2><strong>When </strong> <em><strong>Not</strong></em><strong> To Use The 'picture_upload' Method For Uploading Pictures</strong></h2>
+<p>To be clear, and for the record, there's nothing to stop you from using the 'file_upload' method for handling the uploading of pictures. If that's something that you'd like to do then all of the proceeding instructions in this chapter are applicable.</p>
+<p>One of the reasons why developers may wish to use the 'file_upload' method, to handle picture uploading, is because the 'file_upload' method offers fine-grained control over where the upload destination is going to be for pictures. With the 'picture_upload' method, developers can either upload to the <strong>public</strong> directory or to the <strong>assets</strong> directory of a predefined module. On the other hand, the 'file_upload' method lets you, the developer, choose the precise location where you'd like your pictures to be uploaded to.</p>
+<div class="alert alert-danger">
+    If you're building a website that lets your website visitors upload files - including pictures - then this represents a potentially severe security risk. In those types of scenarios, you should make sure uploaded files are given a random filename and are impossible to guess or access from the browser. The following should be considered as being 'okay', 'better' and 'best' security practices:</p>
+    <ul>
+        <li><strong>okay </strong>: full validation, including checking of file types and sizes is carried out pre-upload. Uploaded files are given a random name and stored in a directory containing an empty 'index' file so that it's impossible for users to navigate to a particular URL and view all of your uploaded files.</li>
+        <li><strong>better</strong> : all of the points above are carried out but your pictures are uploaded to a directory that is outside your 'public' folder (sometimes referred to as your 'web root').</li>
+        <li><strong>best</strong> : all of the points outlined in the 'better' scenario are carried out, however, all uploaded files are automatically sent to AWS S3 or some other external cloud storage service.</li>
+    </ul>
+    <p>If the only person who's going to be uploading files is the website owner then there's no need to be particularly over-cautious. After all, it's unlikely that they are going to want to upload malicious files to their own website! Nevertheless, if you are planning granting file uploading permissions to the general public then you should proceed with extreme caution. If in doubt, seek professional help.</p>
+</div>

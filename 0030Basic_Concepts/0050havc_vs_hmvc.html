@@ -1,0 +1,23 @@
+<h1>Isn't this the same as HMVC?</h1>
+<p>For some of you, HAVC may all sound a little familiar. There's a well known design pattern by the name of HMVC that has been getting used in the PHP community by a significant subsection of developers.</p>
+<p>Whilst HMVC is similar HAVC, they are not the same. For instance:</p>
+<ul>
+    <li>HMVC does <em>not</em> offer developers a truly modular app structure</li>
+    <li>HMVC apps are prone to code repetition - particularly within model files</li>
+    <li>HMVC (in its strict form) does <em>not</em> allow modules to be called from view files</li>
+</ul>
+<p>Let's imagine that you're building a discussion forum for a web app. Let's further imagine that your discussion forum contains CSS code, JavaScript and even an assortment of icons (in the form of images) to make your pages more interactive and attractive.</p>
+<p>HMVC leaves developers in the dark when it comes answering to the question:</p>
+<p> <em>'Where exactly are we going to store all of the assets that our discussion forum needs?'</em></p>
+<p><strong>Enter HAVC!</strong></p>
+<p>Do you see that little 'A' inside HAVC? Until now, we've been saying that it's for storing 'assets'. That's true and <em>it is</em>. However, for clarity, you can think of the 'A' as being a folder for storing <em>anything</em>.</p>
+<p><strong>This means that you now have a folder within each of your modules for storing </strong> <em><strong>anything you like</strong></em><strong>. This includes; JavaScript files, images, audio files, CSS files, movies and much more!</strong></p>
+<div class="alert alert-success">From time to time you may find yourself wondering where a particular asset should be stored. For example, let's say you're building a shopping cart and a part of the shopping cart contains an image of some credit card logos. There's a perfectly valid case for storing those kinds of images within your 'shopping cart' module. However, some developers might prefer to store all of their images in the 'public' folder - perhaps inside an 'images' directory. When you're using Trongate, the best answer to all of those kinds of questions is, "use the solution that feels good for you".</p></div>
+<p>As for the 'model'? Trongate has a model.php file. However, it's stored within the 'engine' folder.</p>
+<p>And finally...</p>
+<p>HAVC has one more trick up its sleeve that you will not find in HMVC.</p>
+<p>Modules within HAVC applications can contain... wait for it... <em>other modules!</em></p>
+<p>This means that for the first time, it's possible to have very advanced features (such as an entire online shop, for example) contained within <em>literally one folder</em>. Those advanced features can then, quite literally, be copied and pasted from one app to another. No 'vendor/autoload'. No Composer dot phar. No Packagist.</p>
+<p> <em><strong>For the first time, the PHP community has a framework that makes drag and drop web development a reality!</strong></em></p>
+<div class="alert alert-warning">If any of this seems confusing or if any of this has got you asking lots of questions about site structure... relax! The key takeaway is that Trongate has a very flexible structure that is very easy to work with. Even though lots of incredible things are possible with Trongate, that does not mean that you have to do them. With Trongate, there's not really a 'right' and 'wrong' way to structure an app. Instead, you get a general "framework" and <em>you</em> get to decide how you'd like to build <em>your</em> apps</div>
+</p>

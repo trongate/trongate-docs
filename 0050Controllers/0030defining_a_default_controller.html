@@ -1,0 +1,17 @@
+<h1>Defining A Default Controller<br></h1>
+<p>Trongate can be configured to load a default controller whenever your website homepage is loaded. To specify a default controller, open your config/config.php file and set your default module, controller and method as required.  For example:</p>
+<p><pre><code>
+define("DEFAULT_MODULE", "welcome");
+define("DEFAULT_CONTROLLER", "Welcome");
+define("DEFAULT_METHOD", "index");
+</code></pre></p>
+<p>In the example above, a module named 'welcome' is loaded by default. The welcome module then loads a controller file named 'Welcome.php'. Finally, a method named 'index' is invoked. So, this sequence of events will happen every time somebody visits the website homepage.</p>
+<div class="alert alert-warning">The values above happen to be the default values that come whenever you download the Trongate framework. So, these are the settings that result in the blue 'It totally works' Trongate home screen.</div>
+</p>
+<p><img src="../images/74/default_Cs2E.png" alt="the default Trongate home screen"></p>
+<div class="alert alert-info">
+    Since the controller file and the module always share the same name, there appears to be a legitimate case for just having <em>only</em> a default module and method declared in the settings.</p>
+    <p>However, whilst there is a good case for only declaring <em>two</em> values (for setting your homepage endpoint), the <em>three</em> values (1. module, 2. controller, 3, method) are required in case a hypothetical scenario emerges where there <em>is</em> a need for the main controller to have a different name from the module. At the time of writing, we're not aware of there being <em>any</em> such scenario.  However, if it <em>does</em> happen then at least the framework will be ready! This is one of the many instances where future-proofing has been built into the Trongate framework.</p>
+    <p>Remember, Trongate represents a genuine attempt to give the PHP community a much needed 'V1 forever' framework!
+</div>
+</p>

@@ -1,0 +1,41 @@
+<h1>Preventing Methods From Being Invoked Via The URL</h1>
+<p>Sometimes you may <em>not</em> want some of your methods to be accessible via the URL. For those situations, there are three ways to prevent your methods from being invoked (accessed / triggered) via the URL.  They are:</p>
+<h3><br>Method One: Private Methods</h3>
+<p>A private method is a method that can only be invoked when it is called directly from within the class where it resides.  In PHP, a method can be made private by simply adding the word 'private' before the function declaration.  For example:</p>
+<p><pre><code>
+private function apply_discount($price) {
+
+  if ($price&gt;100) {
+   $discount = $price*0.2;
+   $price = $price - $discount;
+  }
+
+  return $price;
+}</code></pre></p>
+<h3><br>Method Two: Protected Methods</h3>
+<p>A protected method is a method that can be invoked within its parent class and by classes derived from that class.  Methods can be made to be protected by simply adding the word 'protected' before the method declaration.  For example:</p>
+<p><pre><code>
+protected function apply_discount($price) {
+
+  if ($price&gt;100) {
+    $discount = $price*0.2;
+    $price = $price - $discount;
+  }
+
+  return $price;
+}
+</code></pre></p>
+<h3><br>Method Three:  The Underscore Shortcut</h3>
+<p>An easier and faster way to make methods impossible to invoke via the URL is simply to make the first character of the method name an underscore.  For example:</p>
+<p><pre><code>
+function _apply_discount($price) {
+  
+  if ($price&gt;100) {
+    $discount = $price*0.2;
+    $price = $price - $discount;
+  }
+
+  return $price;
+}</code></pre></p>
+<div class="alert alert-warning">The underscore shortcut technique produces methods that <strong>can</strong> be called from other classes and modules, anywhere in your application.  If you regard this as being a potential problem then making methods 'private' would be a more advisable approach.  Nevertheless, for the purposes of speed and convenience, this documentation will favour the 'Underscore Shortcut' technique.</div>
+</p>

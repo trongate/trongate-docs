@@ -12,18 +12,17 @@ include('Docs.php');
 <body>
 	<div class="container">
 		<h1 class="text-center">Docs Builder</h1>
+		<h2 class="text-center"></h2>
 		<p class="text-center"><button onclick="startBuilding()">Start</button></p>			
 	</div>
 <script>
+let targetChapterNum = <?= $_GET['chapter'] ?>;
+
 let chaptersDone = 0;
 
 function buildChapterDir(params, chapterCounter) {
-	params.chapterNum = chapterCounter + 1;
+	params.chapterNum = targetChapterNum;
 	const targetUrl = 'http://localhost/trongate-docs/docs_builder_chapters.php';
-
-	console.log('now posting to ' + targetUrl);
-	console.log(JSON.stringify(params));
-	return;
 
 	const http = new XMLHttpRequest();
 	http.open('post', targetUrl);
@@ -50,7 +49,7 @@ function startBuilding() {
 		Object.entries(allChapters).forEach(([key, params]) => {
 
 			chaptersDone++;
-			if (chaptersDone === 1) {
+			if (chaptersDone === targetChapterNum) {
 				console.log('chapters done is ' + chaptersDone);
 				buildChapterDir(params, chaptersDone);
 			}
@@ -61,17 +60,35 @@ function startBuilding() {
 
 }
 
+function estTargetDir() {
 
+    let chapterNumber = 0;
+	const targetUrl = 'http://localhost/trongate_live5/docs/get_chapters';
+	const http = new XMLHttpRequest();
+	http.open('get', targetUrl);
+	http.setRequestHeader('Content-type', 'application/json');
+	http.send();
+	http.onload = function() {
 
+		const allChapters = JSON.parse(http.responseText);
 
-// Loop through all of the chapter titles and...
+		Object.entries(allChapters).forEach(([key, params]) => {
 
-		// foreach chapter_title ->. {
-			// Create an appropriately named directory that represents the chapter.
+			chapterNumber++;
+			if (chapterNumber === targetChapterNum) {
+			    const subHeadlineEl = document.querySelector('h2');
+			    subHeadlineEl.innerText = params.chapter_title;
+			}
+			
+		});
 
-			// THEN Inside each chapter folder.  ->.  extract HTML for page content (view, true)   -> build .html file
-        //}
+	}
 
+}
+
+window.addEventListener('load', (ev) => {
+	estTargetDir();
+});
 </script>
 
 

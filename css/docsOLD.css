@@ -1,0 +1,135 @@
+body {
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: 1fr 5fr;
+	grid-gap: 1em;
+	background-color: #7a67d133;
+	color: black;
+	font-family: "Inter", sans-serif;
+}
+
+p {
+	font-size: 1em;
+}
+
+aside {
+	min-height: 100vh;
+	background-color: #25257a;
+	color: #eee;
+}
+
+main {
+	min-height: 100vh;
+	padding: 33px;
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+footer {
+	width: 100%;
+	min-height: 120px;
+	background-color: black;
+	grid-column: span 2; /* Span across two columns */
+}
+
+section {
+	max-width: 900px;
+}
+
+h1, h2 {
+	text-align: center;
+	font-family: Rockwell, Courier Bold, Courier, Georgia, Times, Times New Roman, serif;
+}
+
+h1 {
+	margin-top: 1em;
+	font-size: 47px;
+}
+
+h2 {
+	margin-top: 3em;
+}
+
+img {
+	border: 5px silver solid;
+}
+
+pre {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: auto;
+    background-color: #4d4d4d !important;
+    border-color: #6b6b6b !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 0 #444444 !important;
+    white-space: pre-wrap;
+    padding: 1em 1em;
+    border: 3px #6b6b6b solid;
+}
+
+code {
+	line-height: 1.7em;
+}
+
+pre {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 1em;
+}
+
+mark {
+	color: #fff !important;
+	background-color: #6767d1 !important;
+}
+
+.alert {
+    padding: 24px;
+    border-radius: 6px;
+    font-family: Georgia, serif;
+    font-size: 19px;
+    line-height: 1.6em;
+    background-color: #ddd;
+    border: 1px #aaa solid;
+    max-width: 810px;
+    margin: 1em auto;
+}
+
+.alert-heading {
+	font-size: 33px;
+	font-weight: bold;
+	line-height: 46px;
+}
+
+.alert-body {
+	margin-top: 33px;
+}
+
+.alert-info {
+	background-color: #53539dee;
+	color: #eee;
+    border: 1px #43437dee solid;
+    text-shadow: 1px 1px 4px #43437dee;
+}
+
+.alert-success {
+	background-color: #539d78;
+	color: #eee;
+    border: 1px #366950 solid;
+    text-shadow: 1px 1px 4px #366950;
+}
+
+.alert-warning {
+	background-color: #fcf7a1;
+	color: #55557e;
+    border: 1px #e4df95 solid;
+}
+
+.alert-danger {
+	background-color: #9d5353;
+	color: #eee;
+    border: 1px #6d3c3c solid;
+}
+
+.card {
+	background-color: #fff;
+}

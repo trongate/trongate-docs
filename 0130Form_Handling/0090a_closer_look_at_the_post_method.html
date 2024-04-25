@@ -1,0 +1,41 @@
+<h1>A Closer Look At The Post Method<br></h1>
+<p>If you've been following along then you will have already used Trongate's in-built post() method. Now, let's take a little time out and explore precisely how this method works. For those of you who prefer videos, here's everything you need to know:</p>
+<p>[youtube]{<br>"headline": "Video Tutorial",<br>"info": "In this video, we'll take a closer look at how Trongate's post() method works.",<br>"videoId":"rJdObk7S5GU"}<br>[/youtube]</p>
+<p>For those who prefer written docs, let's take a moment to compare pure PHP with Trongate's post() method.</p>
+<h2>Understanding How Pure PHP Fetches Posted Data<br></h2>
+<p>Let's assume that a user has submitted a form with a field called 'title'. In pure PHP we can fetch the posted title value by accessing a special kind of variable, in PHP, called a superglobal. The syntax for fetching a posted 'title' field, in pure PHP, would be:</p>
+<p><pre><code>
+$title = $_POST["title"];
+</code></pre><br><br>By adding a var_dump() onto our code, we can take a closer look at what has been submitted. For example:</p>
+<p><pre><code>
+$title = $_POST["title"];
+var_dump($title);</code></pre></p>
+<p>If a user then submitted a title of 'here we go', the following message would be sent to the screen:</p>
+<p><img src="../images/180/here_we_HGGu.png" alt="screenshot"></p>
+<p>No surprises. So, let's take a closer look at how Trongate's post() method works.</p>
+<h2>Understanding How The post() Method Fetches Data</h2>
+<p>Let's repeat the exercise above, only this time we'll use Trongate's <strong>post()</strong> method, instead of pure PHP.<br><pre><code>
+$title = post("title);
+var_dump($title);</code></pre><br>Once again, if a user were to submit a title value of 'here we go', then we'd have the same message sent to the screen as we had with pure PHP.<br><img src="../images/180/here_we_HGGu.png" alt="screenshot"></p>
+<p>With this being the case, you'd be forgiven for thinking that PHP's $_POST superglobal and Trongate's post() method did precisely the same thing. However, the key differences between these two things are revealed when we check for values that have <em>not</em> been posted.</p>
+<p>For example, let's use pure PHP again. This time, we'll check for a posted value of 'banana'.<br><pre><code>
+$banana = $_POST["banana"];
+var_dump($banana);</code></pre><br>Since we have <em>not</em> posted a form field with a name of 'banana', pure PHP will produce an error message:</p>
+<p><img src="../images/180/banana_eVbwV.png" alt="screenshot"></p>
+<p>However, if we test for the posted 'banana' field using Trongate's post() method, we get a completely different result:<br><pre><code>
+$banana = post("banana");
+var_dump($banana);</code></pre><br>This time, we don't get an error message. Instead a 'banana' variable will be initialised automatically. Our new 'banana' variable will be an empty string.</p>
+<p><img src="../images/180/banana_fJKjn.png" alt="screenshot"></p>
+<p>This difference is subtle. However, it's something that we can take advantage of when we're building forms using Trongate. In the next page you'll see how.</p>
+<h2>The Optional 'true' Argument<br></h2>
+<p>When you invoke Trongate's post method, you have the option of adding a second argument - a boolean of <strong>true</strong>.</p>
+<p>Here's an example:</p>
+<p><pre><code>
+$title = post("title", true);
+</code></pre><br>Passing in a second argument of true does two things:</p>
+<ul>
+    <li>It runs the fetched value through PHP's trim() function to remove whitespace from both the left hand side and right hand side of the string</li>
+    <li>It runs the fetched value through PHP's strip_tags() function. This removes tags (i.e., pairs of <em>less than</em> and <em>greater than</em> symbols) and the content <em>within</em> tags. Please refer to the video, above, for a demonstration.</li>
+</ul>
+<div class="alert alert-info">When you use PHP's strip_tags() function, you can declare tags that you are happy to <em>allow</em>. For full details, refer to: <a href="https://www.w3schools.com/php/func_string_strip_tags.asp">https://www.w3schools.com/php/func_string_strip_tags.asp</a></div>
+</p>

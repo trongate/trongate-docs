@@ -1,0 +1,46 @@
+<h1>Passing View Files Into Templates<br></h1>
+<p>Let's assume that you have an ordinary view file inside a module. We'll assume that our view file is called <strong>greeting.php</strong> and that it accepts a 'name' value as well as an 'age' value, from a <strong>greeting()</strong> method.</p>
+<p>This means that our greeting method may look like this:</p>
+<p><pre><code>
+function greeting() {
+  $data["name"] = "John";
+  $data["age"] = 21;
+  $this-&gt;view("greeting", $data);
+}
+</code></pre></p>
+<p>As for our view file? It might contain some simple HTML that may echo (display) our two variables. For example:</p>
+<p><img src="../images/97/simple_vLqem.png" alt="sample view file"></p>
+<p>Everything we've done here displays a view file and should work without any problems. However, if you'd like to have your entire view file displayed within a page template then this can be easily be achieved by following this simple two step process:</p>
+<p><strong>STEP 1:</strong> On your 'greeting' method, replace the line that loads the view file with three lines. These three lines should:</p>
+<ul>
+    <li>declare the name of your module directory</li>
+    <li>declare the name of the view file (stored within your module)</li>
+    <li>load the template</li>
+</ul>
+<p>The first line should declare a 'view_module' property and should be set to the folder name of your module. For example,</p>
+<p><pre><code>$data["view_module"] = "welcome";</code></pre></p>
+<p>The second line, 'view_file', should declare the name of your view file. For example:</p>
+<p><pre><code>$data["view_file"] = "greeting";</code></pre></p>
+<p>The third line should load your template, using Trongate's in-built <strong>template()</strong> method. This method accepts two arguments:</p>
+<ul>
+    <li>the name of the template that you'd like to load</li>
+    <li>the data array, containing the information you'd like to pass into the template</li>
+</ul>
+<p>For example,</p>
+<p><pre><code>$this-&gt;template("public", $data);</code></pre></p>
+<p>So, your complete greeting() method should now look like this:</p>
+<p><pre><code>
+function greeting() {
+  $data["name"] = "John";
+  $data["age"] = 21;
+  $data["view_module"] = "welcome"]
+  $data["view_file"] = "greeting";
+  $this-&gt;template("public", $data);
+}
+</code></pre></p>
+<p><strong>STEP 2:</strong> Now, open your template view file (public.php). Go to the area where you'd like your view file to be inserted and add the following line of code:</p>
+<p><pre><code>&lt;?= Template::display($data) ?&gt;</code></pre></p>
+<p>If you've followed along, then your template view file might look something like this:</p>
+<p><img src="../images/97/completeG2mU.png" alt="a template, ready to load a module&#039;s view file"></p>
+<p>Refresh your browser and you should now see your template appearing with your module's view file <em>inside</em> the template.</p>
+<div class="alert alert-success">If the first segment of your URL matches the name of the module that is calling the template, then there's no need to add the 'view_module' declaration to your method. You can simply leave that line out and Trongate will figure out where your view file is by evaluating the URL.</div>

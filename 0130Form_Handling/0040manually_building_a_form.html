@@ -1,0 +1,103 @@
+<h1>Manually Building A Form<br></h1>
+<p>Now, we're going to manually create a new module along with a form. If you're the kind of person who gets bored reading docs then here's a video showing you everything you need to know:</p>
+<p>[youtube]{<br>"headline": "Video Demo",<br>"info": "In this video I'm going to demonstrate how to manually create a module and then build a form.",<br>"videoId":"pZ7yONXXg4Y"}<br>[/youtube]</p>
+<p>If you're the kind of person who prefers reading then here's everything that gets covered in the video:</p>
+<h2>Step 1: Create A New Module</h2>
+<p>Our manual form building process kicks off with the creation of a new module. Remember, a module is just a folder that contains a bunch of stuff. That's all! In this case, we'll create a module called 'books'. Open your text editor and create a new module called '<strong>books</strong>' <em>inside</em> your 'modules' folder.</p>
+<p>Then, inside your 'books' module, create a folder called '<strong>controllers</strong>' and another folder called '<strong>views</strong>'.</p>
+<p><img src="../images/170/books_mofjqt.png" alt="showing the contents of the &#039;books&#039; module"></p>
+<h2>Step 2: Create A Books Controller File</h2>
+<p>Now, we're going to create a controller file called '<strong>Books.php</strong>'. Like all Trongate controller files, the filename for our controller file will begin with an uppercase first letter and the file will be stored inside a 'controllers' folder. Also, we'll open this file with a standard PHP class opening.</p>
+<p><pre><code>
+&lt;?php
+class Books extends Trongate {
+
+}
+</code></pre></p>
+<h2>Step 3: Add A 'Create' Method</h2>
+<p>Our form is going to be displayed when we go to the url:</p>
+<p><strong>http://localhost/books_repo/books/create</strong></p>
+<div class="alert alert-warning">Depending on your development environment, it's possible that you may have a different base URL to the one depicted above. It's that's the case then that's okay!</div>
+</p>
+<p>So, now we're going to create a basic '<strong>create()</strong>' method. The goal of our create method, initially, is to:</p>
+<ul>
+    <li>establish a form location (a web address to post our form to)</li>
+    <li>declare a view file that is to be loaded</li>
+    <li>load an 'admin' template</li>
+    <li>pass a data array into our template</li>
+</ul>
+<p>Here's the code:</p>
+<p><pre><code>
+function create() {
+  $data["form_location"] = str_replace("/create", "/submit", current_url());
+  $data["view_file"] = "create";
+  $this-&gt;template("admin", $data);
+}</code></pre></p>
+<h2>Step 4: Author Options</h2>
+<p>Our form is going to contain a dropdown menu that allows users to select an author for each individual book record. To achieve this, we're doing to build a <em>second</em> method onto our controller file. This method will be called <strong>_get_author_options()</strong>. The goal of this method is to simply build up an array of key, value pairs that can ultimately be passed into our 'create' view file and presented as options from a dropdown menu.</p>
+<p>Our <strong>_get_author_options()</strong> method starts by fetching all of the authors from the 'authors' table, on the database. Here we'll be ordering the authors by 'last_name'.</p>
+<p><pre><code>
+$rows = $this-&gt;model-&gt;get("last_name", "authors");</code></pre></p>
+<p>We're then going to start building an array of options. We'll initialise our array with an option that has an empty key. This option will have a text value that says, 'Select author...'.</p>
+<p><pre><code>
+$options[""] = "Select author...";
+</code></pre></p>
+<p>Then, we're going to loop through our <em>authors</em> records and for each record we're going to create a new (key, value pair) option and add it onto our <em>options</em> array.</p>
+<p><pre><code>
+foreach($rows as $row) {
+   $options[$row-&gt;id] = $row-&gt;first_name." ".$row-&gt;last_name;
+}</code></pre></p>
+<p>Finally, we're going to finish our _get_author_options() method by returning our $options array.</p>
+<p><pre><code>
+return $options;
+</code></pre></p>
+<p><strong>COMPLETE CONTROLLER FILE CODE</strong></p>
+<p>Now, all we have to do is fetch the 'author_options' from our create() method and pass those options into the 'create' view file. The complete code for our controller file therefore looks like this:</p>
+<p><pre><code>
+&lt;?php
+class Books extends Trongate {
+
+  function create() {
+    $data["form_location"] = str_replace("/create", "/submit", current_url());
+    $data["author_options"] = $this-&gt;_get_author_options();
+    $data["view_file"] = "create";
+    $this-&gt;template("admin", $data);
+  }
+
+  function _get_author_options() {
+    $rows = $this-&gt;model-&gt;get("last_name", "authors");
+    $options[""] = "Select author...";
+
+    foreach($rows as $row) {
+      $options[$row-&gt;id] = $row-&gt;first_name." ".$row-&gt;last_name;
+    }
+
+    return $options;
+  }
+}
+</code></pre></p>
+<h2>Step 5: The View File</h2>
+<p>Now, we're going to create a new view file called <strong>create.php</strong>. This view file should be saved inside the 'views' folder, <em>inside</em> the 'books' module.</p>
+<p>The complete code for the view file is as follows:</p>
+<p><pre><code>
+&lt;h1&gt;Create New Record&lt;/h1&gt;
+
+&lt;?php
+echo form_open($form_location);
+echo form_label("Book Title");
+echo form_input("title");
+echo form_label("Description");
+echo form_textarea("description");
+echo form_label("Author");
+echo form_dropdown("author_id", $author_options, "");
+echo "&lt;div&gt;Published: ";
+echo form_checkbox("published", 1, 0);
+echo "&lt;/div&gt;";
+echo form_submit("submit", "Submit");
+echo form_close();
+</code></pre></p>
+<div class="alert alert-success">All of the syntax for form creation is described in the 'Form Helper' section of these docs. The URL for this is: <a href="https://trongate.io/docs_m/information/the-form-helper">https://trongate.io/docs_m/information/the-form-helper</a></div>
+</p>
+<h2>How It Looks<br></h2>
+<p>If you've followed the instructions on this page, you should end up with a beautiful looking form that looks like this:</p>
+<p><img src="../images/170/create_fQZRF.png" alt="screenshot"></p>

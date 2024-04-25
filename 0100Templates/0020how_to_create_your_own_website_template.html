@@ -1,0 +1,37 @@
+<h1>How To Create Your Own Website Template</h1>
+<p>There now follows some instructions on how to create a basic HTML template, within the context of the Trongate framework. The example provided here will be basic but functional.</p>
+<h2>Where Are The Templates Stored?<br></h2>
+<p>The Trongate framework has a module called 'templates'. This module exists at the root directory level. The 'templates' module has the same general structure and features of any ordinary module. So, <em>all</em> the functionality that you'd expect to see in an ordinary Trongate controller file is available from <em>inside</em> the 'Templates.php' controller file. As well as having a 'controllers' directory, the 'templates' module also has a 'views' directory.</p>
+<p><img src="../images/92/templatezep4.png" alt="locating the &#039;templates&#039; module"></p>
+<p>Now you know where the templates are to be stored. So, let's create an HTML template! </p>
+<h3>Step 1: Come up with a meaningful name</h3>
+<p>The first part of building your own template is to come up with a meaningful and sensible name for your website template. A meaningful name is a name that tells you something about where the template appears and/or how the template has been built. For example, if the template happens to use a CSS framework like Bootstrap or Tailwind then it may be helpful to include those CSS framework names a part of your template name. Examples of good template names (in snake_case) are:</p>
+<ul>
+    <li>public_bootstrap</li>
+    <li>public_tailwind</li>
+    <li>members_area</li>
+    <li>login_page</li>
+    <li>admin</li>
+    <li>telesales</li>
+    <li>accounts</li>
+</ul>
+<p>In case you're wondering, the name of the template for the webpage that you are viewing is 'docs_template'.</p>
+<h3>Step 2: Create A Method For Your New Template</h3>
+<p>Let's assume that you have decided to call your template 'public'. With that decision made, you should now go into your 'templates' module and then open up your 'Templates.php' controller file.</p>
+<p>Your goal here is to add a new method onto the 'templates' controller. This new method will be used to load your template. Below is an example of the basic syntax required to load a custom HTML template. In this example, the name of the template will be 'public':</p>
+<p><pre><code>
+function public() { 
+  load("public");
+}
+</code></pre></p>
+<p>As you can see, our method is simple and - in this example - it contains only one line of code. The line of code, contained within our method, calls upon Trongate's inbuilt load() method. The load() method initiates a request to serve a view file called 'public.php'. This view file should be created and stored inside the <em><strong>views</strong></em> directory of our 'templates' module.</p>
+<div class="alert alert-warning">The "template" controller file (Templates.php) will <em>already</em> contain code for things like an 'admin' template and an 'error_404' template. Whatever the name of your template is going to be, make sure it's unique. Also, don't be intimidated by other code that's already on Template.php. Simply paste your own method into the Templates class and you'll be good to go!</div>
+</p>
+<h3>Step 3: Create A View File For Your Template</h3>
+<p>Now, create a file named <strong>public.php</strong> and store it inside the "views" directory, within your "templates" module. Your view file should contain the HTML code for generating an HTML webpage.</p>
+<p><img src="../images/92/public_tGhJv.png" alt="screenshot showing the location of the new template file (public.php)"></p>
+<p>The precise code that goes onto your HTML template is a matter for you to decide. Hopefully, you'll be able to design templates that look nice! For the purposes of demonstration, below is very a basic example of a template view file.</p>
+<p><img src="../images/92/public_tVCRk.png" alt="example of a template file"></p>
+<div class="alert alert-warning">In this example, we're saving the view file as <strong>public.php</strong>. However, if the template had a <em>different</em> name then our view file would be named differently. For example, if our template was called 'members_area' then the corresponding view file, for our template, would be saved as <strong>members_area.php</strong>.</div>
+</p>
+<p>Now, you've created a template. In the next page you'll learn how to load your template from any existing Trongate module.</p>

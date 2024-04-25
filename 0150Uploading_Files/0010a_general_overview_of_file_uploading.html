@@ -1,0 +1,13 @@
+<h1>A General Overview Of File Uploading</h1>
+<div class="alert alert-danger">Giving website visitors the ability to upload files onto your server represents a huge security risk. Some general guidance for best security practices, with regards to file uploading, is offered at the end of this chapter. However, if you are planning on building a file uploader and you aren't entirely sure about what you're doing, you are hereby <em>strongly encouraged</em> to seek expert, professional assistance.</div>
+</p>
+<p>Trongate provides the necessary tools to build custom file uploaders. The process of building a file uploader is similar to building any other form, but with a few additional steps to handle the file itself.</p>
+<p>Here is a list of the main components that make up a custom file uploader:</p>
+<li><strong>A webpage with a file upload form:</strong> This is the user interface that allows users to select a file and submit it to the server.</li>
+<li><strong>A method for receiving post requests from the uploader:</strong> This is the server-side code that handles the file once it has been submitted by the user.</li>
+<li><strong>Some validation tests:</strong> These are used to ensure that the submitted file meets the requirements set by the application (e.g. file type, size).</li>
+<li><strong>A means of gracefully dealing with errors:</strong> This includes handling errors that occur during validation, as well as errors that may happen during the file upload process.</li>
+<li><strong>A destination folder where files are to be uploaded to:</strong> This is the location on the server where the uploaded file will be saved.</li>
+<li><strong>A little bit of configuration:</strong> This includes setting up the destination folder, and any other settings that the uploader needs in order to function.</li>
+<li><strong>A success message or page:</strong> This is the message or page that is displayed to the user once the file has been successfully uploaded.</li>
+<p>As you can see, most of these components are similar to what you would expect in any form building scenario. The upcoming pages of the documentation will provide a detailed guide on how to build each of these components and put them together to create a custom file uploader using Trongate.</p>

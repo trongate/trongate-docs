@@ -1,0 +1,43 @@
+<h1>An Example Of A View File Being Used<br></h1>
+<p>Let's have a concrete example of a view file being used! Here, our goal is to add a 'greeting' method inside our (default) <em>welcome</em> controller.</p>
+<p>As a reminder, by default, a fresh installation of Trongate will load the 'welcome' module/controller. When you download the Trongate framework, your welcome controller file will contain the following code:</p>
+<p><pre><code>
+&lt;?php
+class Welcome extends Trongate {
+  function index() {
+    $this-&gt;view("welcome");
+  }
+}
+</code></pre></p>
+<p>Of course, in the instance above, our index() method would be invoked whenever somebody visits the app homepage. As you can see, the index() method simply loads up a view file. The view file being called is welcome.php. We know that this is the name of the file since 'welcome' is being passed into the view method as an argument.</p>
+<div class="alert alert-warning">When declaring what view file is to be loaded, simply enter the name of the file but without the .PHP suffix.</div>
+</p>
+<h2>Creating Our Own Method<br></h2>
+<p>Now we're going to write our own custom method and add it onto the welcome controller. We'll call our method 'greeting'. Below is the code for our 'greeting' method:</p>
+<p><pre><code>
+  function greeting() {
+    $this-&gt;view("greeting");
+  }
+</code></pre></p>
+<p>The greeting method, when invoked, looks inside the (module's) view folder for a file called 'greeting.php'. If the file is found then the file will be displayed on the screen.</p>
+<p>Adding our new greeting method onto the 'welcome' controller means that our controller will have the following code:</p>
+<p><pre><code>
+&lt;?php
+class Welcome extends Trongate {
+  function index() {
+    $this-&gt;view("welcome");
+  }
+  function greeting() {
+    $this-&gt;view("greeting");
+  }
+}
+</code></pre></p>
+<h2>Your First View File</h2>
+<p>Now, create a new file inside of your views directory called <strong>greeting.php</strong>. Then, add some HTML code onto your view file. Just a simple headline (using an h1 tag) and a paragraph will be sufficient. For example,</p>
+<p><img src="../images/78/greetingsPWd.png" alt="screenshot"></p>
+<p>So, if you have followed along then you should have a file called 'greeting.php' inside the <em>views</em> directory of your <em>welcome</em> module.</p>
+<h2>Displaying Your View File<br></h2>
+<p>To display your view file (strictly speaking, we'll be 'invoking the view method'), open your browser and navigate to your main website address followed by /welcome/greeting. For example:</p>
+<p><strong>http://localhost/your_app/welcome/greeting</strong></p>
+<p>This should produce output similar to the following:</p>
+<p><img src="../images/78/greetingPZK7.png" alt="an example of view file content being sent to the browser"></p>

@@ -1,0 +1,42 @@
+<h1>Loading View Files From Within Sub Modules<br></h1>
+<p>There may be situations where you'd like to load a view file from within a sub module - specifically, by calling (invoking) the view from within a sub module's controller. As a reminder, Trongate offers two methodologies for loading of view files. They are:<br></p>
+<li>To load a view file and have it display inside a template.</li>
+<li>To load a view file on its own - without loading a template.</li>
+<p><strong>LOADING VIEWS WITHIN TEMPLATES</strong></p>
+<p>Normal Trongate usage usually has view files displayed by defining a 'view_file' property, loading a template and passing the 'view_file'. property into the template request as part of a data array. To achieve this from within a sub module, the following two steps are required:</p>
+<p><strong>STEP 1</strong>: Declare a 'view_module' property, as part of a $data array, within your sub module controller file. Make sure your view module contains the name of the parent (super) module then a forward slash followed by the name of the sub (child) module.</p>
+<p><strong>STEP 2</strong>: Declare a 'view_file' property, as is normal, within your controller file.</p>
+<p><strong>EXAMPLE #1</strong></p>
+<p>Let's assume you have a super (parent) module called 'forums' and a sub (child) module called 'forum_threads'. Below is an example of syntax that could be used to load a view file from the 'forum_threads' controller.</p>
+<p><pre><code>
+function create() {
+  $data["view_module"] = "forums/forum_threads";
+  $data["view_file"] = "create";
+  $this-&gt;template("members_area", $data);
+}
+</code></pre><br>
+<div class="alert alert-warning">The code sample above would be a method contained within a 'forum_threads' controller file. The URL for invoking the method above would be the BASE_URL followed by forums-forum_threads/create.</div>
+</p>
+<p><strong>LOADING VIEWS </strong> <em><strong>WITHOUT</strong></em><strong> LOADING TEMPLATES</strong></p>
+<p>The example above show how to load a view file whilst loading a template. However, there may be instances where you'd like to load a view file <em>without</em> loading a template. Trongate's default blue page (with the headline "It Totally Works") is an example of scenario where a view file is being called without loading a template.<br></p>
+<p>To achieve this from a sub module, the following three steps should be followed:<br></p>
+<p><strong>STEP 1</strong>: At the top of your controller file (within your sub module), declare a parent and child module inside a constructor method. The parent module should be the name of the module that contains your sub module. The sub module should be the name of the module from where you are calling your view file.</p>
+<p><strong>STEP 2</strong>: At the bottom of your controller file (within your sub module), use a destructor method to reset the parent and child modules.</p>
+<p><strong>STEP 3</strong>: Load your view file, from within a method inside your sub module, as normal.</p>
+<p><strong><br>EXAMPLE #2<br></strong><br>Let's assume you have a super (parent) module called 'paypal' and a sub (child) module called 'shopping_basket'. We'll further assume that our goal is to invoke a method called '_draw_basket()'. The purpose of the _draw_basket() method is to display a view file. Below is an example of syntax that could be used to load a view file from the 'shopping_basket' controller.</p>
+<p><pre><code>
+&lt;?php
+    function __construct() {
+  parent::__construct();
+  $this-&gt;parent_module = "paypal";
+  $this-&gt;child_module = "shopping_basket";
+    }
+function _draw_basket($data) {
+  $this-&gt;view("basket", $data);
+}
+function __destruct() {
+  $this-&gt;parent_module = "";
+  $this-&gt;child_module = "";
+    }
+</code></pre></p>
+<div class="alert alert-warning">The parent::construct(); declaration - within the constructor - is required if you intend on making database queries from within your sub module.</div>

@@ -1,0 +1,28 @@
+<h1>The Structure Of A Controller<br></h1>
+<p>Below is an example of a basic Trongate controller file called 'Dice'.</p>
+<p><pre><code>
+&lt;?php
+class Dice extends Trongate {
+
+  function roll() {
+    $number = rand(1, 6);
+    echo $number;
+  }
+
+}
+</code></pre></p>
+<p>The controller would be named 'Dice.php' and would exist inside a module named 'dice'.</p>
+<p>As you can see, the Dice controller contains a PHP class that extends the (inbuilt) 'Trongate' class. The Trongate class is a class inside the 'engine' folder. Extending the Trongate class gives the Dice controller the power to access all of Trongate's hidden goodies like; form validation, a URL helper and much more.</p>
+<p>The Dice controller contains one method (a function inside a class). The name of the method is 'roll'.</p>
+<p>The roll() method can be invoked by going to your main website URL followed by 'dice/roll'. For example:</p>
+<p><pre><code>
+yoursite.com/dice/roll
+</code></pre></p>
+<p>The roll method generates a random number between one and six - using PHP's inbuilt rand() function. Then, the random number that has been generated is displayed on the screen.</p>
+<p><img src="../images/73/roll_theZzyt.png" alt="sample output"></p>
+<div class="alert alert-danger">
+    Remember to:</p>
+    <li>Always start your controller file name with a capital letter</li>
+    <li>Always start your controller class names with a capital letter</li>
+    <li>Always give your (main) controller class the same name as the module where it resides (keeping in mind that the module name can be all lowercase)</li>
+</div>

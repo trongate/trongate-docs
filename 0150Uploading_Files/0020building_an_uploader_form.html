@@ -1,0 +1,33 @@
+<h1>Building An Uploader Form<br></h1>
+<p>To create a file uploader form with the Trongate framework, we first need to build a method in a controller that will output the form. The method can be named anything, but it is generally recommended to use a name that reflects the purpose of the method, such as 'upload'. For example:</p>
+<p><pre><code>
+function upload() {
+  $this-&gt;module("trongate_security");
+  $this-&gt;trongate_security-&gt;_make_sure_allowed();
+  $data["form_location"] = str_replace("/upload", "/submit_upload", current_url());
+  $data["view_file"] = "upload";
+  $this-&gt;template("admin", $data);
+    }</code></pre></p>
+<div class="alert alert-warning">In OOP, a 'method' is the name given to a function that exists inside a class.</div>
+</p>
+<h2>Understanding The Upload Method</h2>
+<p>In the example above, we're using the <strong>trongate_security</strong> module to ensure that only users with the role of 'admin' can access the uploader form. We're then declaring a form location by performing a string replace on the current URL. This means that if the form is displayed on <strong>http://localhost/demo/users/upload/88</strong>, the form location will be <strong>http://localhost/demo/users/submit_upload/88</strong>.</p>
+<p>Finally, we're passing an instruction to load a page containing a view file called '<strong>upload</strong>'. The view file will contain the actual form code, which is similar to an ordinary HTML form, but with two key differences:</p>
+<li><strong>form_open_upload()</strong> is used to produce a form opening tag.</li>
+<li><strong>form_file_select('my_file')</strong> is used to create a file uploading field.</li>
+<p>The code for the view file might look something like this:</p>
+<p><pre><code>
+&lt;h1&gt;Upload File&lt;/h1&gt;
+&lt;p&gt;Choose a file and then hit "Upload".&lt;/p&gt;
+&lt;?php
+validation_errors();
+echo form_open_upload($form_location);
+echo form_file_select("my_file");
+echo form_submit("submit", "Upload");
+echo form_close();
+</code></pre></p>
+<p>The view file is similar to an ordinary HTML form but it uses Trongate specific functions such as 'form_open_upload()' to create the opening form tag and 'form_file_select()' to create the file input field.</p>
+<div class="alert alert-warning">The 'my_file' argument that gets passed into the form_file_select method gives our form field a name of 'my_file'. You could, of course, use another name if you wanted to.</div>
+</p>
+<p>Below is a screenshot, showing our uploader form within the context of an 'admin' template:</p>
+<p><img src="../images/196/upload_fw45c.png" alt="an example of a file uploader form"></p>

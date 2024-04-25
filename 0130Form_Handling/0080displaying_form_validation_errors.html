@@ -1,0 +1,49 @@
+<h1>Displaying Form Validation Errors<br></h1>
+<p>Let's deal with how to gracefully display form validation errors. For those of you who prefer videos, here's a video showing you everything you need to know:</p>
+<p>[youtube]{<br>"headline": "Video Tutorial",<br>"info": "In this video I'm going to demonstrate how to gracefully display form validation errors.",<br>"videoId":"oVJVMoKX4bE"}<br>[/youtube]</p>
+<h2>How It Works</h2>
+<p>Whenever a form is submitted that fails our pre-defined validation tests, the error messages for each of the validation errors can be display on the page by calling:</p>
+<p><pre><code>
+validation_errors();
+</code></pre></p>
+<p>Calling validation errors, with the <strong>validation_errors()</strong> method, results in each error being output to the screen inside a paragraph containing some red text.</p>
+<h2>Custom Error Tags</h2>
+<p>The validation_errors() method, which is built into the Trongate framework, can accept two optional arguments.</p>
+<ul>
+    <li>Opening HTML Tag</li>
+    <li>Closing HTML Tag</li>
+</ul>
+<p>As an option, you can use this feature to change the appearance of form validation error messages. For example, here's an example of validation_errors() being invoked where each error is going to be output inside a paragraph that contains a class of error.</p>
+<p><pre><code>
+validation_errors("&lt;p class="error"&gt;", "&lt;/p&gt;");
+</code></pre></p>
+<p>With a little CSS, it's easy to modify the appearance of our validation errors. For example,</p>
+<p><pre><code>
+&lt;style&gt;
+.error {
+  background-color: tomato;
+  color: white;
+  padding: 7px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+&lt;/style&gt;
+</code></pre></p>
+<h2>Re-Presenting The Form</h2>
+<p>Whenever form validation errors occur, it's a good practice to display the form once more, so that the end-user has an opportunity to try again. This can be easily achieved with a simple IF statement. For example,</p>
+<p><pre><code>
+$result = $this-&gt;validation_helper-&gt;run();
+
+if ($result == true) {
+  echo "Well done!";
+} else {
+  $this-&gt;create();
+}
+</code></pre></p>
+<p>As you can see, in the code above we call the create() method whenever there are validation errors. Doing this means that if there <em>are</em> validation errors then the end-user will immediately be taken back to the page that displays the form.</p>
+<p>From inside our 'create' view file, we can then activate the displaying of validation errors by adding the <strong>validation_errors()</strong> method. A good place to add this is under the page title. For example,</p>
+<p><pre><code>
+&lt;h1&gt;Create New Record&lt;/h1&gt;
+&lt;?=validation_errors() ?&gt;
+</code></pre></p>
+<p>Remember, the validation_errors() method will <em>only</em> display form validation errors when at least one form validation test has not been passed. In instances where there are no validation errors, the validation_errors() method will have no effect on the appearance or functionality of any web pages.</p>

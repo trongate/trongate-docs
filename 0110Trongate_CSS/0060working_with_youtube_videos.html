@@ -1,0 +1,21 @@
+<h1>Working With YouTube Videos<br></h1>
+<p>YouTube videos are an integral part of many modern day websites. So, we have recently added a couple of new classes to assist in making YouTube videos responsive.</p>
+<h2>What YouTube Normally Gives You</h2>
+<p>When you fetch video embed code from YouTube, you usually end up with code that looks like so:</p>
+<p><pre><code>
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/Sq9ZZ8zilDw" 
+title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; 
+clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;</code></pre></p>
+<p>The problem with this kind of code is that it doesn't display nicely on devices with small screens such as mobile phones.</p>
+<p>To make YouTube videos responsive, do the following two steps:</p>
+<p><strong>STEP 1:</strong> Add a class called 'video' onto the iframe code that has been obtained from YouTube.</p>
+<p><strong>STEP 2:</strong> Create a div around your YouTube iframe code. The div should have a class of 'video-container'.</p>
+<p>That's it!</p>
+<p><br><strong>EXAMPLE</strong></p>
+<p><pre><code>
+&lt;div class="video-container"&gt;
+&lt;iframe class="video" width="560" height="315" src="https://www.youtube.com/embed/Sq9ZZ8zilDw"
+title="YouTube video player" frameborder="0" allow="accelerometer; autoplay;
+clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+</code></pre></p>

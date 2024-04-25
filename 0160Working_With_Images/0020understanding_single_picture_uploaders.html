@@ -1,0 +1,91 @@
+<h1>Understanding Single Picture Uploaders<br></h1>
+<p>Whilst it's nice to have uploaders being generated automatically, it's important for Trongate to stand on its own - as a PHP framework - without the desktop app. It's also useful to understand how the uploader settings work for single picture uploaders. So, let's get into this!</p>
+<h2>Basic Concepts</h2>
+<p>Single picture uploaders are, broadly speaking, just ordinary forms - complete with submit buttons, form validation, validation errors, success messages and all of the usual things that you might expect when doing ordinary form building.</p>
+<p>The image sample below shows an example of the kind of HTML required to produce a single picture uploader.</p>
+<p><img src="../images/188/uploaderwSxE.png" alt="single picture uploader HTML"></p>
+<p>Below is an example of the kind of form that gets produced from the HTML code shown above.</p>
+<p><img src="../images/188/uploaderPbaf.png" alt="screenshot"></p>
+<p>Three things to notice from the code shown above are:</p>
+<ul>
+    <li>Uploaders have a different form opening tag to normal forms</li>
+    <li>Uploaders have a form field with a type of 'file'</li>
+    <li>Uploaders have ordinary submit buttons</li>
+</ul>
+<h2>The Steps Required For Building Single Picture Uploaders</h2>
+<p>The process for building your our own single picture uploaders would be:</p>
+<li>Build an HTML form similar to the one shown above.</li>
+<li>Create some settings (rules) that define how you'd like your uploader to behave.</li>
+<li>Manually create a directory (or directories) where your pictures will be uploaded to.</li>
+<li>Build an ordinary form submission and validation process for your uploader.</li>
+<div class="alert alert-success">Whilst image uploading might <em>look</em> complicated, it's essentially just the same as ordinary form building. Don't allow yourself to be overwhelmed by any of this. Think about building uploaders the same way you think about ordinary form building. That's basically all it is!</div>
+</p>
+<h2>Building The Uploader Form<br></h2>
+<p>Like any HTML form, you're going to need a form location. So, you could start by declaring a form location. This is the destination where your form will be posted to. For example,</p>
+<p><pre><code>
+$target_module = segment(1);
+$update_id = segment(3);
+settype($update_id, "int");
+$form_location = BASE_URL.$target_module."/submit_upload_picture/".$update_id;
+</code></pre></p>
+<p>You can see that the module/controller that will be dealing with uploading is taken from the first segment of the URL. The method that will be dedicated to processing the form submission will be called 'submit_upload_picture'. In this example, we've also read an update ID from the third segment of the URL. This update ID would represent the 'id' value from the record that is to receive a picture.</p>
+<div class="alert alert-warning">In a real working situation, you may wish to pass the form location in from the controller file. As usual, there are lots of different ways to produce the same kind of effect and the code here should be regarded as being just a rough guide.</div>
+</p>
+<p>Next, let's create a form opening tag for our uploader. We can do this with:</p>
+<p><pre><code>echo form_open_upload($form_location);</code></pre></p>
+<p>Now, we're going to add a form field that, when clicked, opens a popup window and lets the user choose an image from their computer. We can add this by calling Trongate's form_file_select() method:</p>
+<p><pre><code>echo form_file_select("picture");</code></pre></p>
+<p><strong>PLEASE NOTE:</strong> The form_file_select method accepts one argument - the name of the file-type input field. So, in the case of our example, form_file_select('picture') would produce the following HTML:</p>
+<p><pre><code>&lt;input type="file" name="picture" value=""&gt;</code></pre></p>
+<div class="alert alert-info">Whilst it <em>is</em> technically possible to upload a picture 'to a database', it's normal practice - in web development - to simply upload pictures to a folder and then reference the name of the pictures in a database table. That's precisely what we'll be doing here.</div>
+</p>
+<p>Now, we're going to finish off our form with a form submit button. We'll give our submit button a name of 'submit' and a value of 'Upload':</p>
+<p><pre><code>echo form_submit("submit", "Upload");</code></pre><br>..and, of course, a form closing tag:</p>
+<p><pre><code>echo form_close();</code></pre></p>
+<div class="alert alert-success">When you're building forms with Trongate, always give your submit button a name of 'submit' and always use the form_close() method to close your forms. If you do these two things then CSRF protection will automatically be built into your forms. This is a good practice for making your web apps more secure.</div>
+</p>
+<p>So, let's put everything together. Here's our code for displaying an uploader form:</p>
+<p><pre><code>
+$target_module = segment(1);
+$update_id = segment(3);
+settype($update_id, "int");
+$form_location = BASE_URL.$target_module."/submit_upload_picture/".$update_id;
+echo form_open_upload($form_location);
+echo form_file_select("picture");
+echo form_submit("submit", "Upload");
+echo form_close();
+</code></pre></p>
+<p>Of course, it may be a good idea to also add a helpful sentence so that your end-user knows what to do. For example:</p>
+<p><pre><code>&lt;p&gt;Please choose a picture from your computer and then press "Upload".&lt;/p&gt;</code></pre></p>
+<h2>Uploader Settings</h2>
+<p>Before we get into the business of processing our form submissions, we have to declare some uploader settings, inside our controller file. These settings determine how our uploader will behave. When you use the desktop app to generate single picture uploaders, the uploader settings are contained within a method. For example:</p>
+<p><pre><code>
+    function _init_picture_settings() {
+ $picture_settings["max_file_size"] = 2000;
+ $picture_settings["max_width"] = 1200;
+ $picture_settings["max_height"] = 1200;
+ $picture_settings["resized_max_width"] = 450;
+ $picture_settings["resized_max_height"] = 450;
+ $picture_settings["destination"] = "bands_pics";
+ $picture_settings["target_column_name"] = "picture";
+ $picture_settings["thumbnail_dir"] = "bands_pics_thumbnails";
+ $picture_settings["thumbnail_max_width"] = 120;
+ $picture_settings["thumbnail_max_height"] = 120;
+ return $picture_settings;
+    }</code></pre></p>
+<p>What these settings mean will be described later on. For the moment, however, it's enough to simply copy the code above and paste it into your controller file.</p>
+<h2>The Uploader Destination Directories</h2>
+<p>Have a close look at the settings above and you'll notice that a 'destination' has been declared. In our example, the destination is 'band_pics'. Of course, you can call your destination anything you like - provided you avoid spaces and other potentially problematic characters. The 'destination' is the name of the directory where your pictures will be uploaded to.</p>
+<p><strong>Before you move forward, create your destination directory and add it <em>inside</em> your 'public' folder.</strong> Please note, you may have to change the permissions so that PHP is able to write files to your destination folder.</p>
+<p>You can also see, in our code above, that we have a 'thumbnail_dir' declared. This is the folder where thumbnails would be stored. Thumbnails are optional, however, <strong>if you're planning on having thumbnails automatically generated then please ensure your thumbnail directory is <em>also</em> created and located inside your 'public' folder</strong>.</p>
+<h2>Preparing Your Database Table</h2>
+<p>In this kind of situation, each picture that gets uploaded will be associated with a record on a database table. Before moving forward, go to your target database table (in this example our target table is called 'bands') and add a column called 'picture' (or some other appropriate name of your choosing). Your new database column should be a variable character (varchar) of 255 characters in length.</p>
+<h2>The Submit Upload Method.</h2>
+<p>So, assuming:</p>
+<ul>
+    <li>You have built an uploader form</li>
+    <li>You have declared some uploader settings</li>
+    <li>You have created your destination folders</li>
+    <li>You have added a 'picture' column onto your database table</li>
+</ul>
+<p>...then it can only mean one thing - you're ready to write the code for processing form submissions. To process form submissions and ultimately upload pictures, we're going to create a 'submit upload' method. How the submit method works, is going to be covered in the next page.</p>

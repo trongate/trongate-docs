@@ -1,0 +1,105 @@
+<h1>The Pagination Helper<br></h1>
+<p>The Trongate framework comes with a built-in pagination helper to assist developers in producing numbered links in instances where multiple pages of the same type are available. Below is a screenshot, taken from a Trongate web app, indicating the kind of results that you can expect to see from Trongate's pagination helper.</p>
+<p><img src="../images/32/paginatiVwds.png" alt="pagination example"></p>
+<h2>How It Works</h2>
+<p>All of the main helpers that come with the Trongate framework are ready to use immediately. The pagination helper can be activated by going through the following three-step process:</p>
+<ul>
+    <li><strong>STEP 1</strong>: On a controller file, create an array of pagination data</li>
+    <li><strong>STEP 2:</strong> Pass the pagination data into a view file</li>
+    <li><strong>STEP 3:</strong> From the view file, invoke Trongate's paginator by calling a method and passing in the pagination data as an argument</li>
+</ul>
+<p><strong>BUILDING PAGINATION DATA</strong></p>
+<p>Below is an example of some PHP code that builds an array of useable pagination data:</p>
+<p><pre><code>$pagination_data["total_rows"] = count($rows);
+$pagination_data["page_num_segment"] = 3;
+$pagination_data["limit"] = 10;
+$pagination_data["pagination_root"] = "books/manage";
+$pagination_data["include_showing_statement"] = true;
+$pagination_data["record_name_plural"] = "books";
+$data["pagination_data"] = $pagination_data;
+</code></pre></p>
+<p>As you can see, the pagination helper does <em>not</em> have to interact with the database. It merely accepts some information relating to a pre-defined database results set. In the code above, we begin by passing in the total number of rows from our available results. Here's we're assuming an PHP array called $rows and we're using PHP's count() method to establish the total number of rows:</p>
+<p><pre><code>
+$pagination_data["total_rows"] = count($rows);
+</code></pre></p>
+<div class="alert alert-warning">The total_rows will often be greater than the total amount of rows that you would like to display on a particular page. For example, you may have five hundred total_rows, but you may limit your results to ten records per page.</div>
+</p>
+<p>Next, we declare a <strong>page_num_segment</strong> property. This should be an integer representing the URL segment number from which the 'current page number' should be fetched. For example, here we are declaring that the 'current page' should be read from the third URL segment:</p>
+<p><pre><code>
+$pagination_data["page_num_segment"] = 3;
+</code></pre></p>
+<p>Then, we declare a <strong>limit</strong> property. The <em>limit </em>should be an integer that represents the maximum number of results that you'd like to have displayed on a page.<br><pre><code>
+$pagination_data["limit"] = 10;</code></pre></p>
+<p>Another important property is the <strong>pagination_root</strong>. This property represents the URL segments that should be considered as a start point for viewing results. Below we declare a first segment of 'books' and a second segment of 'manage'. <br><pre><code>
+$pagination_data["pagination_root"] = "books/manage";</code></pre></p>
+<p>Next, we have an <strong>include_showing_statement</strong> property. A 'showing statement' is a short sentence that usually takes the form:</p>
+<p> <em><strong>"Showing x to y of z"</strong></em></p>
+<p>Showing statements are optional. If you'd like to have a showing statement, pass in an 'include_showing_statement' value of <strong>true</strong>. If you do not want to have a showing statement, pass in a value of <strong>false</strong>. In the example below, we are declaring that the <em>would</em> like to have a showing statement:</p>
+<p><pre><code>
+$pagination_data["including_showing_statement"] = true;</code></pre></p>
+<p>If you decide to have a showing statement, then it's a good idea to declare a <strong>record_name_plural</strong> property. The 'record_name_plural' property should be a word or phrase that represents <em>the plural of</em> your record type. Having a declaration of the plural helps the Trongate framework to generate more meaningful showing statements. In the example book, we declare that the plural for our records is, 'books':<br><pre><code>
+$pagination_data["record_name_plural"] = "books";</code></pre></p>
+<h2>Additional Pagination Properties</h2>
+<ul>
+    <li><strong>include_css</strong>: The 'include_css' property can be set to either <strong>true</strong> or <strong>false</strong>. If it's set to <em>true</em>, Trongate will write some CSS styling onto the page so that the pagination looks nice. If set to <em>false</em>, Trongate will generate pagination HTML but no CSS styling. For example:</li>
+</ul>
+<p><pre><code>
+$pagination_data["include_css"] = true;</code></pre><br>
+<div class="alert alert-success">There's no need to call upon the 'include_css' property if your webpage is already loading trongate.css.</div>
+</p>
+<ul>
+    <li><strong>num_links_per_page</strong>: The 'num_links' per page property should be an integer that represents the maximum number of pagination links that you'd like to appear on your page. For example:</li>
+</ul>
+<p><pre><code>
+$pagination_data["num_links_per_page"] = 10;</code></pre></p>
+<div class="alert alert-warning">If the 'num_links_per_page' property is not passed in, Trongate will assume a maximum of ten links per page.</div>
+</p>
+<h2>Passing Pagination Data Into A View File</h2>
+<p>Below, shows a full example of a PHP method where an array of pagination data has been declared and passed into a view file:</p>
+<p><pre><code>
+function manage() {
+  $data["headline"] = "Manage Books";
+  $all_rows = $this-&gt;model-&gt;get("book_title");
+
+  $pagination_data["total_rows"] = count($all_rows);
+  $pagination_data["page_num_segment"] = 3;
+  $pagination_data["limit"] = $this-&gt;_get_limit();
+  $pagination_data["pagination_root"] = "books/manage";
+  $pagination_data["record_name_plural"] = "books";
+   $pagination_data["include_showing_statement"] = true;
+  $data["pagination_data"] = $pagination_data;
+
+  $data["rows"] = $this-&gt;_reduce_rows($all_rows);
+  $data["view_module"] = "books";
+  $data["view_file"] = "manage";
+  $this-&gt;template("admin", $data);
+}
+</code></pre></p>
+<h2>Invoking Pagination From A View File</h2>
+<p>Having passed pagination data from a controller into a view file, you can then activate pagination by invoking the <strong>display()</strong> method of Trongate's pagination class. This can be achieved by adding the following line of PHP code onto your target view file:</p>
+<p><pre><code>Pagination::display($pagination_data);</code></pre></p>
+<h2>Advanced Pagination Templating</h2>
+<p>There is one final property that may be passed into an array of pagination data. This is the <strong>template</strong> property. This feature is recommended only for exceptional circumstances where may require alternative HTML syntax to that which has been provided by the default paginator.</p>
+<p>To understand how the template property works, consider the following method - which is an extract from the Trongate pagination class:</p>
+<p><img src="../images/32/paginatiW6Tj.png" alt="default pagination settings"></p>
+<p>Even without understanding every line of code, hopefully, you can appreciate that the method above is building up some settings that will enable the framework to draw some pagination links. This method happens to be called <strong>get_settings_default()</strong> and it gets automatically invoked whenever you call Trongate's pagination helper.</p>
+<p>However, let's assume that you have <em>your own</em> ideas about the kind of HTML code that gets produced whenever Trongate generates pagination. For example, let's assume that you'd like 'next' buttons to have the word 'next' and previous buttons to have the word 'prev'. This could be declared as a part of your own custom pagination template. So, the process for achieving this would be to build a pagination template method of your own and give it a name - for example, 'custom'.</p>
+<p>With that being the case, you could then add your <em>own</em> static method onto the pagination class. For example:</p>
+<p><pre><code>
+static public function get_settings_custom() {
+...
+</code></pre></p>
+<p>Then, you could simply copy and paste the contents from the default settings methods, but substitute your own ideas as required. For example:</p>
+<p><pre><code>
+$settings["prev_link"] = "prev";
+$settings["prev_link_open"] = "";
+$settings["prev_link_close"] = "";
+
+$settings["next_link"] = "next;";
+$settings["next_link_open"] = "";
+$settings["next_link_close"] = "";
+</code></pre></p>
+<p>To activate your pagination template, you would then pass in a template property:</p>
+<p><pre><code>$pagination_data["template"] = "custom";</code></pre></p>
+<div class="alert alert-danger">Updating or modifying anything that's inside the 'engine' folder is generally not a good practice. That's because whenever framework updates take place, via the Trongate Desktop App, then your engine folder will be over-written. If this is a concern then an alternative option would be to use JavaScript to manipulate pagination HTML.</div>
+</p>

@@ -1,0 +1,17 @@
+<h1>Passing Information Into Templates<br></h1>
+<p>In order to have our templates receive and display information from other modules, we have to do a little preparation work on our 'templates' module.</p>
+<p><strong>Step 1: </strong>Modify your template invoking method so that it accepts a $data array and then passes the area into the (template) view file. For example,</p>
+<p><pre><code>
+function public($data) {
+  load("public", $data);
+}
+</code></pre></p>
+<p><strong>Step 2: </strong>Pass a $data array, as an argument, when calling your template from another module. For example (on Welcome.php):</p>
+<p><pre><code>
+function greeting() {
+  $data["name"] = "David";
+  $data["age"] = 21;
+  $this-&gt;template("public", $data);
+}
+</code></pre><br><br>That's it! Now your data will be available from inside your template's view file. It's precisely the same mechanism as you would have with an ordinary <em>view</em> file.</p>
+<p>Let's take the idea a little further. In the next page, we'll cover how pass view files (complete with dynamic information) into templates.</p>

@@ -1,0 +1,25 @@
+<h1>The Structure of a Trongate Web App</h1>
+<p>The Trongate Framework - like any PHP framework - is essentially a collection of folders and files that have been created to make your life easier. There now follows a summary of what each of the folders is for.</p>
+<p><img src="../images/21/trongateS9Tm.png" alt="the contents of a basic Trongate web app"></p>
+<div class="alert alert-warning">Both the 'public' folder and the 'engine' folder contain license files. These license files serve a very important purpose. Whenever framework updates are made available, the desktop app reads the license files to ascertain what version of Trongate you're using. By having this facility, Trongate developers can have framework updates added (optionally, of course!) at the click of a button. It's therefore very important not to tamper with or move the license files.</div>
+</p>
+<h2>The Engine Folder</h2>
+<p>The 'engine' folder contains the main workings of the Trongate framework. This includes all of the files for loading classes and handling routes, as well as all of the helpers that come with the Trongate Framework.</p>
+<p>Please avoid changing any files within the engine folder - unless you <em>really</em> know what you're doing.</p>
+<h2>The Config Folder</h2>
+<p>The 'config' folder is where you store settings to do with your application. The most important file within this folder is the config.php file. This is where you would declare things like your website base URL, your environment, your default controllers and more. The values that you set in your config folder are available throughout your entire application.</p>
+<div class="alert alert-danger">Never launch a Trongate web app with the environment value ("ENV") set to "dev".</div>
+</p>
+<h2>The Modules Folder</h2>
+<p>The 'modules' folder is where you would store your modules. <em>Modules</em> are self-contained folders that contain assets that have been designed to carry out certain tasks. For example, if you were building an invoicing system, you may decide to create a module called 'invoices'. All of the code that relates to the generation and management of invoices could potentially be contained within your 'invoices' module.</p>
+<p>Modules (in Trongate) typically contain:</p>
+<ul>
+    <li>a 'controllers' folder</li>
+    <li>a 'views' folder</li>
+    <li>an 'assets' folder</li>
+</ul>
+<p>With Trongate, modules can be easily copied from one app to another. They can even contain <em>other</em> modules - but let's not get ahead of ourselves!</p>
+<h2>The Templates Folder</h2>
+<p>The 'templates' folder is where you store your HTML templates. Please note that the Trongate Framework does not have a templating engine. That's because PHP <em>is</em> a templating engine. So, that's one more thing that you don't have to learn and it's also another factor that makes Trongate faster than other PHP frameworks.</p>
+<h2>The Public Folder</h2>
+<p>The 'public' folder contains the main entry point for your Trongate web application - namely, a PHP file named 'index.php'. Normally, developers like to use the public folder to store things like CSS files, JavaScript files, images and things of that nature.</p>

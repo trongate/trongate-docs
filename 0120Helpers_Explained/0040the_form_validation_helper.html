@@ -1,0 +1,33 @@
+<h1>The Form Validation Helper</h1>
+<p>Trongate's validation helper uses server side validation to assist developers in validating submitted form values.</p>
+<p>All form validation procedures these following three steps:</p>
+<ul>
+    <li>Submitted form values are passed through some validation test.</li>
+    <li>The results from the validation tests are assigned a boolean value of <strong>true</strong> (if the submitted form <em>passes</em> validation tests) or <strong>false</strong> (if there was at least one form validation error).</li>
+    <li>The user is then presented with either a 'success' message or some validation errors, based on the results of the validation tests.</li>
+</ul>
+<div class="alert alert-warning">A complete walk-through of how form validation works is available in the 'Form Handling' chapter of these docs.</div>
+</p>
+<h2>How To Set Form Validation Rules</h2>
+<p>Form validation rules can be set by calling upon the validation helper and then invoking Trongate's inbuilt 'set_rules' method. This should be used on a line-by-line basis, whereby each form field that requires validation is processed via a line of code which takes the form:</p>
+<p><pre><code>
+$this-&gt;validation_helper-&gt;set_rules("name", "label", "rule");
+</code></pre></p>
+<h2>How To Pipe Multiple Rules Together</h2>
+<p>Trongate lets you apply multiple validation rules to a submitted value by joining rules together by use of the pipe symbol. For example:</p>
+<p><pre><code>
+$this-&gt;validation_helper-&gt;set_rules("name", "label", "rule1|rule2|rule3");
+</code></pre></p>
+<h2>Running Form Validation Tests</h2>
+<p>The form validation tests that you have created can be applied by calling the validation helper's <strong>run()</strong> method. Calling run() will produce <em>true</em> if the values passed validation tests and <em>false</em> if there was at least one form validation error.</p>
+<p><pre><code>
+$result = $this-&gt;validation_helper-&gt;run();
+</code></pre></p>
+<h2>Displaying Validation Errors</h2>
+<p>If there are validation errors, they can be displayed by calling Trongate's in-built validation_errors() method from within a view file. For example:</p>
+<p><pre><code>&lt;?= validation_errors() ?&gt;</code></pre></p>
+<h2>Formatting Validation Errors</h2>
+<p>By default, each validation error is displayed as a paragraph with red text. However, you can modify the appearance of validation errors by adding opening and closing tags inside your validation_errors() declaration. For example:</p>
+<p><pre><code>formatted-errors</code></pre></p>
+<h2>Validation Rules Reference</h2>
+<p>form-validation-table</p>

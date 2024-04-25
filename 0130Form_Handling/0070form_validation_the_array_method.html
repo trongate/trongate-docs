@@ -1,0 +1,43 @@
+<h1>Form Validation (The Array Method)<br></h1>
+<div class="alert alert-warning">The technique described on this page will only work on Trongate frameworks with a version number of 1.3.3027 or higher.</div>
+</p>
+<p>Sometimes, if you have lots of form validation rules, the <em>pipe method</em> - as described previously - can produce very longs lines of PHP code that can run off of the page. If this is something that bothers you then the good news is that there is an alternative syntax that you can use.</p>
+<p>Below is a short video showing you everything you need to know about this topic:</p>
+<p>[youtube]{<br>"headline": "Video Tutorial",<br>"info": "In this video I'm going to demonstrate form validation using the array method.",<br>"videoId":"LFzfiNdxyeM"}<br>[/youtube]</p>
+<p>If you happen to be the kind of developer who prefers written docs, here's a written summary of everything that gets covered in the video above.</p>
+<h2>How It Works</h2>
+<p>Let's assume that you have declared the following validation rules on a controller file:</p>
+<p><pre><code>
+$this-&gt;validation_helper-&gt;set_rules("title", "book title", "required|min_length[3]|max_length[75]");
+$this-&gt;validation_helper-&gt;set_rules("description", "book description", "required");
+$this-&gt;validation_helper-&gt;set_rules("author_id", "author", "required");</code></pre></p>
+<p>With the <em>array method</em>, we can use an alternative syntax for creating our validation rules. The array method involves building an array of validation rules and then passing our array into the validation helper's run() method.</p>
+<p>The array method could give us the same rules as above with the following syntax:</p>
+<p><pre><code>
+//set title rules
+$title_rules["required"] = true;
+$title_rules["min_length"] = 3;
+$title_rules["max_length"] = 75;
+$validation_rules["title"] = $title_rules;
+
+//set description rules
+$description_rules["required"] = true;
+$validation_rules["description"] = $description_rules;
+
+//set author_id rules
+$author_id_rules["label"] = "author";
+$author_id_rules["required"] = true;
+$validation_rules["author_id"] = $author_id_rules;
+
+//run the validation tests
+$result = $this-&gt;validation_helper-&gt;run($validation_rules);</code></pre></p>
+<h2>A Word About Labels</h2>
+<p>With the (previously discussed) pipe method, we actively declare form labels whenever we set validation rules. However, the array method is different. With the array method, Trongate will automatically assume form field labels to be equal to the form field names with underscores replaced with spaces.</p>
+<p>In most instances this will probably produce satisfactory form labels. However, if that's not the case then you can actively define labels by setting a 'label' property. For example:</p>
+<p><pre><code>
+//set author_id rules
+$author_id_rules["label"] = "author";
+$author_id_rules["required"] = true;
+$validation_rules["author_id"] = $author_id_rules;</code></pre></p>
+<div class="alert alert-danger">The array method will not work in the unlikely event that you have a form field with a name of 'label'. It's good practice to consider 'label' as being a forbidden form field name.</div>
+</p>

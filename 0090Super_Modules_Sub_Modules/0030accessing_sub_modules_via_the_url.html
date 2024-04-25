@@ -1,0 +1,10 @@
+<h1>Accessing Sub Modules Via The URL</h1>
+<p>The process of accessing super modules - either via the URL or via other modules - is entirely unchanged. So, nothing new to learn there! Just access your super modules the way you would normally access any normal Trongate modules.</p>
+<p>Sub modules are a little different.</p>
+<p>To access sub modules via the URL, prefix the first segment of the URL with the name of the parent module followed by a hyphen. For example, let's assume that we want to access our <em>accessories</em> sub module. More specifically, let's assume that we'd like to invoke the 'display()' method. We could invoke this by navigating to the URL:</p>
+<p><strong>http://localhost/app_name/cars-accessories/display</strong></p>
+<p>This would, of course, be assuming that 'accessories' is inside a super module called 'cars'.</p>
+<h2>Creating Links</h2>
+<p>To create a text link that invokes the display() method, inside accessories, we could use the following code:</p>
+<p><pre><code>&lt;?= anchor("cars-accessories/display", "view accessories") ?&gt;</code></pre></p>
+<p>Again, notice how the first segment of the URL contains the super module (in this case, 'cars') followed by a hyphen.</p>

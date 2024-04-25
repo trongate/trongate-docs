@@ -1,0 +1,42 @@
+<h1>Passing Data Into View Files</h1>
+<p>View files have access to a wide range of Trongate's inbuilt features. Of course, since view files are PHP files it means that they can have access to all of PHP's inbuilt functionality as well. However, the most commonly used method for passing data into view files is to pass an array of data via a controller file. For example:</p>
+<p><pre><code>
+$data["first_name"] = "David";
+$data["last_name"] = "Connelly";
+$this-&gt;view("welcome", $data);
+</code></pre></p>
+<p>When view files are loaded, the data array is immediately extracted and the properties of the data array may be treated like ordinary variables, from within the view file. You can also have other data types - such as objects, arrays and booleans - passed into your view files. Below is an example of an array of cities being passed into a view file, along with a day of the week:</p>
+<p><pre><code>
+function information() { 
+  //create an array of cities 
+  $cities[] = "New York"; 
+  $cities[] = "London"; 
+  $cities[] = "Paris";
+  //add "cities" onto data array  
+  $data["cities"] = $cities; 
+
+  $data["today"] = "Monday"; 
+  $this-&gt;view("information", $data);
+}
+</code></pre></p>
+<div class="alert alert-info">
+    Trongate view files have access to the original data array that has been passed in from the controller files. This is useful if you want to check what data properties are available inside your view file. You can easily find out what properties are available, inside a view file, by calling a simple var_dump().</p>
+    <p><pre><code>var_dump($data);</code></pre><br>
+</div>
+<br><br>
+<div class="alert alert-success">
+    Use the Trongate framework's built-in json() method to have all of your view data presented in a nice, easy to read format. For example,</p>
+    <p><pre><code>json($data);</code></pre><br>
+</div>
+</p>
+<p>The moment an array (such as $data) is passed into a view method, the array will be extracted immediately and all of the properties of the array can be treated like ordinary variables. For example, our greeting method could be modified so that it passes a name into the view file, like so:</p>
+<p><pre><code>
+function greeting() {
+  $data["name"] = "David Connelly";
+  $this-&gt;view("greeting", $data);
+}
+</code></pre></p>
+<p>To have the value from the 'name' variable displayed on our browser, we could use PHP short tags to echo the name variable. For example,<br></p>
+<p><img src="../images/75/hello_naW7Xc.png" alt="using pure PHP within a view file"></p>
+<p>This would produce,</p>
+<p><img src="../images/75/hello_daBye5.png" alt="screenshot"></p>
