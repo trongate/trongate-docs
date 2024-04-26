@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let alertIcon = '<i class="fa fa-star"></i>';
 
         if(alertEl.classList.contains('alert-info')) {
-        	alertHeadline = 'Did You Know?';
+        	alertHeadline = 'Just To Let You Know...';
         	alertIcon = '<i class="fa fa-info-circle"></i>';
         }
 

@@ -121,53 +121,67 @@ button, .button {
 }
 
 .alert {
-    padding: 24px;
-    border-radius: 6px;
-    font-family: Georgia, serif;
-    font-size: 19px;
-    line-height: 1.6em;
-    background-color: #ddd;
-    border: 1px #aaa solid;
-    margin: 3em auto 1em auto;
+    display: flex;
+    flex-direction: column;
     max-width: 760px;
+    margin: 2em auto 1em auto;
 }
 
-.alert-heading {
-	font-size: 33px;
-	font-weight: bold;
-	line-height: 46px;
+.alert > div {
+   padding: 12px;
+   border-radius: 9px;
 }
 
-.alert-body {
-	margin-top: 33px;
+.alert > div:nth-child(1) {
+    font-family: Georgia, serif;
+    background-color: #333;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1em;
+    color: #eee;
 }
 
-.alert-info {
-	background-color: var(--primary-dark);
-	color: #eee;
-    border: 1px var(--primary-darker) solid;
-    text-shadow: 1px 1px 4px var(--primary-darker);
+.alert > div:nth-child(2) {
+    margin-top: 3px;
+    border: 3px #333 solid;
+    font-family: verdana;
+    font-size: 14px;
 }
 
-.alert-success {
-	background-color: #31a131;
-	color: #eee;
-    border: 1px #247a24 solid;
-    text-shadow: 1px 1px 4px #247a24;
+.alert-info > div:nth-child(1) {
+  background-color: var(--primary-darker);
 }
 
-.alert-warning {
-	background-color: #c58340;
-	color: #fff;
-    border: 1px #966431 solid;
-    text-shadow: 1px 1px 4px #966431;
+.alert-info > div:nth-child(2) {
+    border-color: var(--primary-darker);
+    background-color: #3131a111;
 }
 
-.alert-danger {
-	background-color: #c54040;
-	color: #eee;
-    border: 1px #a13535 solid;
-    text-shadow: 1px 1px 4px #966431;
+.alert-success > div:nth-child(1) {
+  background-color: #31a131;
+}
+
+.alert-success > div:nth-child(2) {
+    border-color: #31a131;
+    background-color: #31a13111;
+}
+
+.alert-warning > div:nth-child(1) {
+  background-color: #c58340;
+}
+
+.alert-warning > div:nth-child(2) {
+    border-color: #c58340;
+    background-color: #c5834022;
+}
+
+.alert-danger > div:nth-child(1) {
+  background-color: #c54040;
+}
+
+.alert-danger > div:nth-child(2) {
+    border-color: #c54040;
+    background-color: #c5404022;
 }
 
 img {
@@ -209,8 +223,8 @@ mark {
 
 figure {
     display: inline-block; /* Ensures the figure only takes up as much width as its content */
-    max-width: 100%; /* Prevents the figure from exceeding the width of its containing element */
-    margin: 0 auto; /* Optional: Centers the figure within its container if desired */
+    max-width: 820px; /* Prevents the figure from exceeding the width of its containing element */
+    margin: 1em auto; /* Optional: Centers the figure within its container if desired */
     transition: .3s;
     border: 1px #333 solid;
 }
@@ -230,7 +244,7 @@ figcaption {
 }
 
 figure img {
-  max-width: 100%;
+  max-width: 96%;
   border: none;
 }
 
