@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let alertIcon = '<i class="fa fa-star"></i>';
 
         if(alertEl.classList.contains('alert-info')) {
-        	alertHeadline = 'Just To Let You Know...';
+        	alertHeadline = 'Further Information';
         	alertIcon = '<i class="fa fa-info-circle"></i>';
         }
 
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         if(alertEl.classList.contains('alert-success')) {
-        	alertHeadline = 'Top Tip';
+        	alertHeadline = 'Best Practices';
         }
 
         if(alertEl.classList.contains('alert-danger')) {
