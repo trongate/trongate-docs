@@ -37,7 +37,7 @@ $form_location = BASE_URL.$target_module."/submit_upload_picture/".$update_id;
 <p><pre><code>echo form_file_select("picture");</code></pre></p>
 <p><strong>PLEASE NOTE:</strong> The form_file_select method accepts one argument - the name of the file-type input field. So, in the case of our example, form_file_select('picture') would produce the following HTML:</p>
 <p><pre><code>&lt;input type="file" name="picture" value=""&gt;</code></pre></p>
-<div class="alert alert-info">Whilst it <em>is</em> technically possible to upload a picture 'to a database', it's normal practice - in web development - to simply upload pictures to a folder and then reference the name of the pictures in a database table. That's precisely what we'll be doing here.</div>
+<div class="alert alert-info">Whilst it <em>is</em> technically possible to upload a picture 'to a database', it's normal practice - in web development - to simply upload pictures to a directory and then reference the name of the pictures in a database table. That's precisely what we'll be doing here.</div>
 </p>
 <p>Now, we're going to finish off our form with a form submit button. We'll give our submit button a name of 'submit' and a value of 'Upload':</p>
 <p><pre><code>echo form_submit("submit", "Upload");</code></pre><br>..and, of course, a form closing tag:</p>
@@ -76,8 +76,8 @@ echo form_close();
 <p>What these settings mean will be described later on. For the moment, however, it's enough to simply copy the code above and paste it into your controller file.</p>
 <h2>The Uploader Destination Directories</h2>
 <p>Have a close look at the settings above and you'll notice that a 'destination' has been declared. In our example, the destination is 'band_pics'. Of course, you can call your destination anything you like - provided you avoid spaces and other potentially problematic characters. The 'destination' is the name of the directory where your pictures will be uploaded to.</p>
-<p><strong>Before you move forward, create your destination directory and add it <em>inside</em> your 'public' folder.</strong> Please note, you may have to change the permissions so that PHP is able to write files to your destination folder.</p>
-<p>You can also see, in our code above, that we have a 'thumbnail_dir' declared. This is the folder where thumbnails would be stored. Thumbnails are optional, however, <strong>if you're planning on having thumbnails automatically generated then please ensure your thumbnail directory is <em>also</em> created and located inside your 'public' folder</strong>.</p>
+<p><strong>Before you move forward, create your destination directory and add it <em>inside</em> your 'public' directory.</strong> Please note, you may have to change the permissions so that PHP is able to write files to your destination directory.</p>
+<p>You can also see, in our code above, that we have a 'thumbnail_dir' declared. This is the directory where thumbnails would be stored. Thumbnails are optional, however, <strong>if you're planning on having thumbnails automatically generated then please ensure your thumbnail directory is <em>also</em> created and located inside your 'public' directory</strong>.</p>
 <h2>Preparing Your Database Table</h2>
 <p>In this kind of situation, each picture that gets uploaded will be associated with a record on a database table. Before moving forward, go to your target database table (in this example our target table is called 'bands') and add a column called 'picture' (or some other appropriate name of your choosing). Your new database column should be a variable character (varchar) of 255 characters in length.</p>
 <h2>The Submit Upload Method.</h2>
@@ -85,7 +85,7 @@ echo form_close();
 <ul>
     <li>You have built an uploader form</li>
     <li>You have declared some uploader settings</li>
-    <li>You have created your destination folders</li>
+    <li>You have created your destination directories</li>
     <li>You have added a 'picture' column onto your database table</li>
 </ul>
 <p>...then it can only mean one thing - you're ready to write the code for processing form submissions. To process form submissions and ultimately upload pictures, we're going to create a 'submit upload' method. How the submit method works, is going to be covered in the next page.</p>

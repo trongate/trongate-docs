@@ -51,7 +51,7 @@ function submit_upload() {
   $validation_str = "allowed_types[gif,jpg,jpeg,png,zip]|max_size[2000]";
   $this-&gt;validation_helper-&gt;set_rules("my_file", "file", $validation_str);
 </code></pre></p>
-<p><strong>Please note that the allowed_types validation string should contain an array of allowed file types, inside square brackets, separated by commas. </strong> <br><br>If the validation passes, the method proceeds to upload the file. In doing so, it sets the destination folder to '../public/files' and makes the file name random using $config['make_rand_name'] = true;</p>
+<p><strong>Please note that the allowed_types validation string should contain an array of allowed file types, inside square brackets, separated by commas. </strong> <br><br>If the validation passes, the method proceeds to upload the file. In doing so, it sets the destination directory to '../public/files' and makes the file name random using $config['make_rand_name'] = true;</p>
 <p><pre><code>
 //upload the file
 $config["destination"] = "../public/files";

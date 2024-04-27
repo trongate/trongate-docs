@@ -10,7 +10,7 @@
     <li>a top navigation bar</li>
 </ul>
 <h2>So, you wanna use partials huh?</h2>
-<p>Using partials is as simple as saving a view file inside your partials folder and using Trongate's in-built 'Partial' method to load your partial. For example,</p>
+<p>Using partials is as simple as saving a view file inside your partials directory and using Trongate's in-built 'Partial' method to load your partial. For example,</p>
 <p><pre><code>
 &lt;?= Template::partial("partials/footer") ?&gt;
 </code></pre></p>
@@ -18,7 +18,7 @@
 <p><pre><code>
 &lt;?= Template::partial("partials/footer", $data) ?&gt;
 </code></pre></p>
-<div class="alert alert-warning">The 'partials' directory is to be found inside 'templates/views'. Strictly speaking, you do not <em>need</em> to store partials inside the partials folder. Simply declaring the path as 'footer' would work and would attempt to load a view file from your 'views' folder within your 'template' module.</div>
+<div class="alert alert-warning">The 'partials' directory is to be found inside 'templates/views'. Strictly speaking, you do not <em>need</em> to store partials inside the partials directory. Simply declaring the path as 'footer' would work and would attempt to load a view file from your 'views' directory within your 'template' module.</div>
 </p>
 <p>Below is an example of a template that does <em>not</em> use any partials:</p>
 <p><img src="../images/94/without_yXnM.png" alt="no partials to be found here"></p>

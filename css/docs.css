@@ -118,6 +118,7 @@ h4 {
 
 button, .button {
 	transition: .3s;
+  text-transform: uppercase;  
 }
 
 .alert {
@@ -194,6 +195,12 @@ img, figure {
   box-shadow: 0 2px 4px rgba(0,0,0,.33);
 }
 
+figure p {
+  max-width: 90%;
+  margin: 0 auto 1em auto;
+  font-family: 'Times New Roman', Times, serif;
+}
+
 pre {
     white-space: nowrap;
     max-width: 100%;
@@ -214,6 +221,13 @@ code {
 pre {
   font-family: 'Courier New', Courier, monospace;
   font-size: 1em;
+  width: 98%;
+  margin: 0 auto;
+}
+
+pre, code {
+    white-space: pre; /* This prevents the text from wrapping */
+    overflow-x: auto; /* This adds a horizontal scrollbar if needed */
 }
 
 mark {

@@ -3,11 +3,11 @@
 <p>[youtube]{<br>"headline": "Video Demo",<br>"info": "In this video I'm going to demonstrate how to manually create a module and then build a form.",<br>"videoId":"pZ7yONXXg4Y"}<br>[/youtube]</p>
 <p>If you're the kind of person who prefers reading then here's everything that gets covered in the video:</p>
 <h2>Step 1: Create A New Module</h2>
-<p>Our manual form building process kicks off with the creation of a new module. Remember, a module is just a folder that contains a bunch of stuff. That's all! In this case, we'll create a module called 'books'. Open your text editor and create a new module called '<strong>books</strong>' <em>inside</em> your 'modules' folder.</p>
-<p>Then, inside your 'books' module, create a folder called '<strong>controllers</strong>' and another folder called '<strong>views</strong>'.</p>
+<p>Our manual form building process kicks off with the creation of a new module. Remember, a module is just a directory that contains a bunch of stuff. That's all! In this case, we'll create a module called 'books'. Open your text editor and create a new module called '<strong>books</strong>' <em>inside</em> your 'modules' directory.</p>
+<p>Then, inside your 'books' module, create a directory called '<strong>controllers</strong>' and another directory called '<strong>views</strong>'.</p>
 <p><img src="../images/170/books_mofjqt.png" alt="showing the contents of the &#039;books&#039; module"></p>
 <h2>Step 2: Create A Books Controller File</h2>
-<p>Now, we're going to create a controller file called '<strong>Books.php</strong>'. Like all Trongate controller files, the filename for our controller file will begin with an uppercase first letter and the file will be stored inside a 'controllers' folder. Also, we'll open this file with a standard PHP class opening.</p>
+<p>Now, we're going to create a controller file called '<strong>Books.php</strong>'. Like all Trongate controller files, the filename for our controller file will begin with an uppercase first letter and the file will be stored inside a 'controllers' directory. Also, we'll open this file with a standard PHP class opening.</p>
 <p><pre><code>
 &lt;?php
 class Books extends Trongate {
@@ -77,7 +77,7 @@ class Books extends Trongate {
 }
 </code></pre></p>
 <h2>Step 5: The View File</h2>
-<p>Now, we're going to create a new view file called <strong>create.php</strong>. This view file should be saved inside the 'views' folder, <em>inside</em> the 'books' module.</p>
+<p>Now, we're going to create a new view file called <strong>create.php</strong>. This view file should be saved inside the 'views' directory, <em>inside</em> the 'books' module.</p>
 <p>The complete code for the view file is as follows:</p>
 <p><pre><code>
 &lt;h1&gt;Create New Record&lt;/h1&gt;
