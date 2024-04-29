@@ -1,41 +1,57 @@
-<h1>Preventing Methods From Being Invoked Via The URL</h1>
-<p>Sometimes you may <em>not</em> want some of your methods to be accessible via the URL. For those situations, there are three ways to prevent your methods from being invoked (accessed / triggered) via the URL.  They are:</p>
-<h3><br>Method One: Private Methods</h3>
-<p>A private method is a method that can only be invoked when it is called directly from within the class where it resides.  In PHP, a method can be made private by simply adding the word 'private' before the function declaration.  For example:</p>
-<p><pre><code>
-private function apply_discount($price) {
+<h1>Preventing URL Method Calls</h1>
+<p>Trongate provides a straightforward mechanism to prevent methods in controllers from being invoked through the URL, enhancing the security of your applications.</p>
 
-  if ($price&gt;100) {
-   $discount = $price*0.2;
-   $price = $price - $discount;
-  }
+<h2>The Underscore Convention</h2>
+<p>Trongate uses a simple naming convention to control access to methods. By prefixing a method name with an underscore ('_'), you can ensure that the method cannot be accessed directly via the URL. This convention is built into the Trongate framework's routing system and is enforced automatically.</p>
 
-  return $price;
-}</code></pre></p>
-<h3><br>Method Two: Protected Methods</h3>
-<p>A protected method is a method that can be invoked within its parent class and by classes derived from that class.  Methods can be made to be protected by simply adding the word 'protected' before the method declaration.  For example:</p>
-<p><pre><code>
-protected function apply_discount($price) {
+<h3>How It Works</h3>
+<p>When the Trongate router processes a request, it checks the target method's name in the controller. If the method name starts with an underscore, the router will not route the request to that method. Instead, an error will be generated, or the request will be redirected, depending on your application's error handling configuration.</p>
 
-  if ($price&gt;100) {
-    $discount = $price*0.2;
-    $price = $price - $discount;
-  }
+<h3>Example of Method Protection</h3>
+<p>Consider a controller named <code>Account</code> with a method designed to process user data internally. Here is how you might define a protected method within this controller:</p>
 
-  return $price;
+<pre><code>&lt;?php
+class Account extends Trongate {
+
+    function index() {
+        // This method can be accessed via URL
+        echo "Welcome to your account.";
+    }
+
+    function _process_data() {
+        // This method cannot be accessed via URL
+        echo "Processing data.";
+    }
 }
-</code></pre></p>
-<h3><br>Method Three:  The Underscore Shortcut</h3>
-<p>An easier and faster way to make methods impossible to invoke via the URL is simply to make the first character of the method name an underscore.  For example:</p>
-<p><pre><code>
-function _apply_discount($price) {
-  
-  if ($price&gt;100) {
-    $discount = $price*0.2;
-    $price = $price - $discount;
-  }
+</code></pre>
 
-  return $price;
-}</code></pre></p>
-<div class="alert alert-warning">The underscore shortcut technique produces methods that <strong>can</strong> be called from other classes and modules, anywhere in your application.  If you regard this as being a potential problem then making methods 'private' would be a more advisable approach.  Nevertheless, for the purposes of speed and convenience, this documentation will favour the 'Underscore Shortcut' technique.</div>
-</p>
+<p>In the above example, attempting to access <code>http://example.com/account/_process_data</code> directly would fail because the method name <code>_process_data</code> starts with an underscore. However, the <code>index</code> method remains publicly accessible.</p>
+
+<h2>Regarding Access Modifiers</h2>
+<p>In our example, we have omitted traditional access modifiers like <code>private</code> and <code>protected</code> to align with Trongate's simplified coding style, which minimizes the use of these modifiers to streamline development. For more detailed information on Trongate’s coding style, please refer to the following documentation: <a href="<?= BASE_URL ?>basic_concepts/regarding_coding_style.html">Regarding Coding Style</a>.</p>
+
+<p>It is important to note that using an underscore ('_') at the beginning of a method name in Trongate does not make the method private in the traditional sense used in PHP. While this convention prevents the method from being directly invoked via a URL, it does not restrict the method's visibility within the application:</p>
+
+<ul>
+    <li><strong>Private Method</strong>: A method that can only be called within its own class.</li>
+    <li><strong>Protected Method</strong>: A method that can be called within its own class and by subclasses or parent classes.</li>
+    <li><strong>Underscored Method</strong>: This method cannot be invoked directly via a URL but remains accessible from any part of the application that can access the class. It is not private or protected in the traditional object-oriented programming sense.</li>
+</ul>
+
+<p>This distinction is crucial for developers coming from other PHP frameworks who might be accustomed to the strict visibility controls provided by private and protected modifiers. The underscore method in Trongate is designed for simplicity and speed, offering an easy way to control access from URLs without the overhead of more complex visibility rules.</p>
+
+<div class="alert alert-info">
+    Remember, while the underscore technique prevents URL access, it does not provide encapsulation like private or protected methods do. If encapsulation or more stringent method visibility is required, consider using the traditional access modifiers.
+</div>
+
+<h2>Best Practices for Using Underscored Methods</h2>
+<p>Here are some guidelines for effectively using this feature:</p>
+<ul>
+    <li><strong>Internal Methods:</strong> Use underscored methods for operations that should only be called internally by other methods within the same controller or by extended classes.</li>
+    <li><strong>Security:</strong> Regularly review your controller methods to ensure that any method that should not be exposed publicly is properly underscored to prevent accidental exposure.</li>
+    <li><strong>Testing:</strong> Ensure thorough testing to verify that underscored methods are not accessible via the URL and that they function correctly when called internally.</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>By using the underscore convention, you can enhance the security of your Trongate applications by preventing the URL from invoking sensitive methods. This feature is an essential part of designing secure web applications and should be used judiciously to protect your code from unwanted external access.</p>
+

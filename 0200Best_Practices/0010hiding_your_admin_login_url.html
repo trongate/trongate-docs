@@ -5,7 +5,7 @@
 <h2>How To Create A Secret Admin Login URL</h2>
 <p><strong>STEP 1: Think of a word that is difficult to guess but meaningful and easy to remember for the site owner.</strong></p>
 <p>This could be an entirely made-up word or a word that's made of a combination of two words. Avoid spaces or any unusual characters. For the moment, let's assume that our secret word is going to be <strong>fantasticola</strong>. This means that to log into our site admin panel, the URL should be:</p>
-<p>The base URL, followed by 'fantasticola', e.g., www.example.com/fantasticola<br></p>
+<p>The base URL, followed by 'fantasticola', e.g., example.com/fantasticola<br></p>
 <p><strong>STEP 2: Modify custom_routing.php </strong></p>
 <p>The next step is to modify your custom_routing.php file, which is inside your config directory. Simply replace all instances of 'tg-admin' with 'fantasticola' (or whatever your secret world may be).</p>
 <p>For example, here's some sample code from custom_routing.php:</p>

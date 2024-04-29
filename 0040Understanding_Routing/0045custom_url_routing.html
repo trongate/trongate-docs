@@ -1,0 +1,59 @@
+<h1>Custom URL Routing</h1>
+<p>Custom URL routes may be defined inside the <code>custom_routing.php</code> file.  This file is located inside the 'config' directory.  The file contains an array of key-value pairs where each key represents a desired path and each value specifies the module and method to be invoked when URL patterns are successfully matched.</p>
+<p>Fresh installations of Trongate include a set of predefined custom routes. The following code sample displays the contents of custom_routing.php, as found in a new Trongate installation:</p>
+<pre><code>&lt;?php
+$routes = [
+    'tg-admin' => 'trongate_administrators/login',
+    'tg-admin/submit_login' => 'trongate_administrators/submit_login',
+    'trongate-pages' => 'trongate_pages/index'
+];
+define('CUSTOM_ROUTES', $routes);</code></pre>
+
+<h2>Understanding Default Custom Routes in Trongate</h2>
+<p>Trongate's pre-configured custom routes are designed to simplify URL patterns and direct user requests to specific controllers and methods efficiently. Here’s what each predefined route accomplishes:</p>
+<ul>
+    <li><code><b>'tg-admin' => 'trongate_administrators/login'</b></code>: This route redirects any request made to <code>/tg-admin</code> to the <code>login</code> method in the <code>trongate_administrators</code> controller. This route is used to handle the administration login page - making the default login URL more user friendly.</li>
+    <li class="mt-2"><code><b>'tg-admin/submit_login' => 'trongate_administrators/submit_login'</code></b>: Any request to <code>/tg-admin/submit_login</code> is mapped to the <code>submit_login</code> method in the <code>trongate_administrators</code> controller. This route is essential for processing the login submissions in the admin panel.</li>
+    <li class="mt-2"><code><b>'trongate-pages' => 'trongate_pages/index'</b></code>: This setting directs requests for <code>/trongate-pages</code> to the <code>index</code> method of the <code>trongate_pages</code> controller. This setting has been added to facilite convenient usage of Trongate's inbuilt content management system, <a href="https://www.youtube.com/watch?v=buHoHqNELu0" target="_blank">Trongate Pages.</a></li>
+</ul>
+<hr>
+<h2>Creating Custom Routes</h2>
+<h3>Basic Custom Routing</h3>
+<p>Custom routing in Trongate allows you to redirect simple URL patterns to specific modules and methods. This can make URLs more readable and easier to remember. Below is the most basic example of setting a custom route:</p>
+
+<pre><code>&lt;?php
+$routes = [
+    'login' => 'users/login'
+];
+define('CUSTOM_ROUTES', $routes);
+</code></pre>
+
+<p>In this example, a request to <code>https://example.com/login</code> will be redirected internally to the <code>login</code> method of the <code>users</code> module. This is accomplished without changing the URL in the browser, providing a clean and user-friendly URL.</p>
+
+<h3 class="mt-2">Advanced Custom Routing Using Wildcards</h3>
+<p>For URLs that need to dynamically accept parameters, Trongate supports the use of wildcards in route definitions. These wildcards make it possible to handle a variety of URL structures flexibly.</p>
+
+<p>Trongate supports two primary types of wildcards:</p>
+<ul>
+    <li><code>:num</code> - Matches a segment consisting entirely of digits. Use this for numerical parameters such as IDs.</li>
+    <li class="mt-1"><code>:any</code> - Matches any characters in a segment, up to the next slash (<code>/</code>). This is suitable for text-based parameters.</li>
+</ul>
+
+<p>Here are simplified examples using each wildcard type:</p>
+
+<pre><code>&lt;?php
+$routes = [
+    'product/(:num)' => 'catalog/item_details/$1',
+    'profile/(:any)' => 'users/show_profile/$1'
+];
+define('CUSTOM_ROUTES', $routes);
+</code></pre>
+
+<p>In these examples:</p>
+<ul>
+    <li>The route <code>'product/(:num)'</code> will match URLs like <code>https://example.com/product/123</code> and pass <code>123</code> as a parameter to the <code>item_details</code> method of the <code>catalog</code> module. This is commonly used for accessing specific product details where <code>123</code> represents the product ID.</li>
+    <li class="mt-1">The route <code>'profile/(:any)'</code> will match URLs such as <code>https://example.com/profile/john</code> and pass <code>john</code> as a parameter to the <code>show_profile</code> method of the <code>users</code> module. This is useful for user profiles or similar pages where the parameter is a username or another unique identifier.</li>
+</ul>
+
+<p>This approach to routing allows you to design URLs that are not only cleaner and more intuitive but also adaptable to various data types, enhancing the usability and maintainability of your application.</p>
+

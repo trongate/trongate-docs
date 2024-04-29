@@ -55,7 +55,9 @@
 	                $page_label = str_replace('rongate3', 'rongate #3', $page_label);
 	                $page_label = str_replace('rongate4', 'rongate #4', $page_label);
 	                $page_label = str_replace('rongate5', 'rongate #5', $page_label);
+	                $page_label = str_replace('Github', 'GitHub', $page_label);
 	                $page_label = str_replace('And', '&amp;', $page_label);
+	                $page_label = str_replace('Url ', 'URL ', $page_label);
 					echo '<li>'.anchor($page_url, $page_label).'</li>';
 				}
 				echo '</ul>';
