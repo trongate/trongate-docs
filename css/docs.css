@@ -230,6 +230,14 @@ pre, code {
     overflow-x: auto; /* This adds a horizontal scrollbar if needed */
 }
 
+li > code,
+p > code {
+    background-color: #555 !important;
+    border-color: #6b6b6b !important;
+    color: #ffffff !important;
+    padding: 3px 5px;
+}
+
 mark {
   color: #fff !important;
   background-color: #6767d1 !important;

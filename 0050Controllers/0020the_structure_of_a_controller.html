@@ -1,28 +1,64 @@
-<h1>The Structure Of A Controller<br></h1>
-<p>Below is an example of a basic Trongate controller file called 'Dice'.</p>
-<p><pre><code>
-&lt;?php
+<h1>The Structure of a Controller</h1>
+
+<p>Within the Trongate framework, controllers are PHP classes that extend the built-in 'Trongate' class. Extending this foundational class provides controllers with immediate access to all of Trongate's core functionalities, such as form validation, database interactions, URL helpers, and more, enabling them to efficiently manage application logic and user interactions.</p>
+
+<p>It is crucial to adhere to the following naming conventions when working with Trongate controllers:</p>
+<ol>
+    <li><strong>File Naming:</strong> Controller file names should start with a capital letter, reflecting their importance and usage within the module.</li>
+    <li><strong>Class Naming:</strong> Similarly, controller class names should begin with a capital letter, aligning with PHP's best practices for class definitions.</li>
+    <li><strong>Module Naming:</strong> The controller class name should correspond to the name of its module, which can be in all lowercase. This consistency aids in maintaining a clear and logical structure within the project.</li>
+</ol>
+
+<h2>Example: The Dice Controller</h2>
+<p>Below is an example of a simple Trongate controller file named 'Dice.php', located within a hypothetical module named 'dice'. This example demonstrates how a controller can encapsulate specific functionalities:</p>
+<pre><code>&lt;?php
 class Dice extends Trongate {
 
-  function roll() {
-    $number = rand(1, 6);
-    echo $number;
-  }
-
+    function roll() {
+        $number = rand(1, 6);
+        echo $number;
+    }
+    
 }
-</code></pre></p>
-<p>The controller would be named 'Dice.php' and would exist inside a module named 'dice'.</p>
-<p>As you can see, the Dice controller contains a PHP class that extends the (inbuilt) 'Trongate' class. The Trongate class is a class inside the 'engine' directory. Extending the Trongate class gives the Dice controller the power to access all of Trongate's hidden goodies like; form validation, a URL helper and much more.</p>
-<p>The Dice controller contains one method (a function inside a class). The name of the method is 'roll'.</p>
-<p>The roll() method can be invoked by going to your main website URL followed by 'dice/roll'. For example:</p>
-<p><pre><code>
-example.com/dice/roll
-</code></pre></p>
-<p>The roll method generates a random number between one and six - using PHP's inbuilt rand() function. Then, the random number that has been generated is displayed on the screen.</p>
-<p><img src="../images/73/roll_theZzyt.png" alt="sample output"></p>
-<div class="alert alert-danger">
-    Remember to:</p>
-    <li>Always start your controller file name with a capital letter</li>
-    <li>Always start your controller class names with a capital letter</li>
-    <li>Always give your (main) controller class the same name as the module where it resides (keeping in mind that the module name can be all lowercase)</li>
+</code></pre>
+
+<h2>Detailed Breakdown of the Dice Controller</h2>
+<p>The 'Dice' controller provides a demonstration of how controllers are structured and function within the Trongate framework. Let's examine each component of the controller:</p>
+
+<h3>PHP Opening Tag</h3>
+<p><code>&lt;?php</code> - This is the opening tag for any PHP script. It tells the server that the code following this tag should be interpreted as PHP code.</p>
+
+<h3>Class Declaration</h3>
+<p><code>class Dice extends Trongate</code> - This line declares a new class named 'Dice' which extends the 'Trongate' class. Extending a class in PHP is a fundamental aspect of object-oriented programming that allows the 'Dice' class to inherit all methods and properties of the Trongate framework's base class.</p>
+
+<h3>Function Declaration</h3>
+<p><code>function roll()</code> - This defines a method named 'roll' within the Dice class. Methods are functions that are defined inside a class and describe the behaviors or capabilities of objects created from the class. In Trongate, as in many MVC frameworks, these methods can be linked to specific routes (URLs).</p>
+
+<h3>Method Functionality</h3>
+<p><code>$number = rand(1, 6);</code> - Inside the 'roll' method, this line of code assigns a random number between 1 and 6 to the variable <code>$number</code>. The <code>rand()</code> function is a built-in PHP function used to generate random numbers.</p>
+<p><code>echo $number;</code> - This line outputs the value of <code>$number</code> to the webpage. In the context of a controller within a framework like Trongate, this typically means sending the data back to the client's browser where it can be rendered as part of the HTML or handled via JavaScript.</p>
+
+<h3>Class and Method Closure</h3>
+<p>The closing curly braces <code>}</code> signify the end of the class and method respectively. In PHP, as in many other programming languages, curly braces are used to define the scope of classes, methods, and other control structures, ensuring that the code enclosed within them is associated with that specific class or method.</p>
+
+<p>This breakdown highlights how the 'Dice' controller leverages both Trongate's and PHP's built-in functionalities to perform its tasks, generating a random number between one and six.</p>
+
+<h2>Accessing the Controller</h2>
+<p>The <code>roll()</code> method can be invoked by navigating to the following URL:</p>
+<pre><code>http://example.com/dice/roll</code></pre>
+
+<p>This URL structure would cause the 'roll' method to be invoked, generating a random number between one and six using PHP's inbuilt rand() function. The random number that has been generated would then be displayed on the screen.</p>
+
+<div class="text-center">
+    <figure>
+        <img src="../images/73/roll_theZzyt.png" alt="Sample output" style="width:100%">
+        <figcaption>Sample browser output (zoomed in for clarity)</figcaption>
+    </figure>    
 </div>
+
+<p>The URL provided adheres to Trongate's convention for URL mapping, which directly corresponds to specific modules, controllers, and their methods. In this scenario:</p>
+<ul>
+    <li>The first URL segment, <code>dice</code>, maps to a class named 'Dice'. This class is part of a module also named 'dice'.</li>
+    <li class="mt-1">The second URL segment, <code>roll</code>, specifies the method to be invoked. Thus, it triggers the <code>roll()</code> method within the loaded Dice class.</li>
+</ul>
+<p>This structured URL pattern ensures that requests are routed efficiently to the appropriate controller actions, making URL management straightforward and intuitive within the Trongate framework.</p>
