@@ -19,9 +19,9 @@
 <pre><code>&lt;?php
 class Greeting {
 
-    // Return a greeting message.
+    // Return a friendly greeting.
     function get_greeting($name) {
-        $greeting = 'Hello ' . $name;
+        $greeting = 'Hello '.$name.'. It\'s nice to see you!';
         return $greeting;
     }
 
@@ -51,8 +51,9 @@ require_once 'Greeting.php';
 
 class Welcome extends Trongate {
 
-    function hello($name) {
+    function test($name) {
         $greeting = new Greeting();
+        $name = 'John';
         $message = $greeting->get_greeting($name);
         echo $message;
     }

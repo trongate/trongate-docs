@@ -17,27 +17,31 @@
 namespace FriendlyGreeting;
 
 class Greeting {
+
+    // Return a friendly greeting.
     function get_greeting($name) {
-        return 'Hello ' . $name;
+        $greeting = 'Hello '.$name.'. It\'s nice to see you!';
+        return $greeting;
     }
+
 }
 </code></pre>
 <p>This update encapsulates the 'Greeting' class within the 'FriendlyGreeting' namespace, clearly signaling its positive, welcoming intent within the application.</p>
 
-<h3>Step 2: Creating the Unfriendly Greeting Class</h3>
+<h3>Step 2: Creating an Alternative Greeting Class</h3>
 <p>Next, create a new class that provides an unfriendly greeting. This class will be placed in its own file and namespace to demonstrate a different aspect of functionality.</p>
 
-<p>Create a new PHP file named <code>Unfriendly.php</code> and add the following code:</p>
+<p>Create a new PHP file named <code>Unfriendly.php</code>.  This new file should be located inside the 'controllers' sub-directory of your 'welcome' module.  Once you have created the file, add the following code:</p>
 <pre><code>&lt;?php
 namespace UnfriendlyGreeting;
 
 class Greeting {
     function get_greeting($name) {
-        return 'Hey, ' . $name . ', you have a lot of nerve showing your face around here';
+        return 'Hey, '.$name.', you have a lot of nerve showing your face around here!';
     }
 }
 </code></pre>
-<p>This class in the <code>UnfriendlyGreeting</code> namespace offers a stark contrast to the friendly version, providing an alternative interaction style within the application. Placing it under a different namespace ensures that both functionalities can coexist without conflict, despite sharing the same class name.</p>
+<p>This alternative greeting class uses the <code>UnfriendlyGreeting</code> namespace and it offers a stark contrast to the friendly version. Placing it under a different namespace ensures that both functionalities can coexist without conflict, despite sharing the same class name.</p>
 
 <h3>Step 3: Using the Namespaced Classes</h3>
 <p>These classes can now be utilized in other parts of your application. Here’s how you might use both in a single controller to demonstrate their different effects:</p>
@@ -49,16 +53,29 @@ use FriendlyGreeting\Greeting as FriendlyGreeting;
 use UnfriendlyGreeting\Greeting as UnfriendlyGreeting;
 
 class Welcome extends Trongate {
-    function greet_and_farewell($name) {
+
+    function test() {
+        $name = 'John';
         $friendly = new FriendlyGreeting();
         $unfriendly = new UnfriendlyGreeting();
         echo $friendly->get_greeting($name);
         echo '&lt;hr&gt;';
         echo $unfriendly->get_greeting($name);
     }
+
 }
 </code></pre>
 <p>By using the <code>use</code> statement with aliases, both classes are accessible under the same controller without any naming conflict, demonstrating the power of namespaces in PHP.</p>
+
+<div class="alert alert-info">
+    <p>When using namespaces to organize PHP classes, the <code>use</code> statement is employed to import a specific class from a namespace. This allows the code to maintain clarity and avoid naming conflicts when similar class names are used in different parts of a project.</p>
+    <ul>
+        <li><strong>Specifying the Class Name:</strong> The <code>\Greeting</code> in <code>use FriendlyGreeting\Greeting as FriendlyGreeting</code> specifies that the <code>Greeting</code> class is being imported from the <code>FriendlyGreeting</code> namespace. The part after the backslash indicates the exact class within that namespace that is being referred to.</li>
+        <li class="mt-3"><strong>Alias Usage:</strong> By stating <code>as FriendlyGreeting</code>, the class <code>Greeting</code> from the <code>FriendlyGreeting</code> namespace is given a local alias <code>FriendlyGreeting</code> in the file where it's used. This alias helps to distinguish it from other classes named <code>Greeting</code>, such as <code>UnfriendlyGreeting\Greeting</code>, which can be aliased as <code>UnfriendlyGreeting</code>.</li>
+        <li class="mt-3"><strong>Practical Example:</strong> When you instantiate <code>new FriendlyGreeting()</code> or <code>new UnfriendlyGreeting()</code>, PHP knows exactly which class to use because of these <code>use</code> statements, avoiding any confusion with other similarly named classes in different namespaces.</li>
+    </ul>
+</div>
+
 
 <h2>Conclusion</h2>
 <p>Namespaces are a powerful feature in PHP, essential for maintaining a well-organized codebase and preventing conflicts between similarly named classes across different parts of an application. By using namespaces, you can ensure that your classes are neatly packaged and do not interfere with others, even if they share the same name.</p>
