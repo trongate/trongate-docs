@@ -1,0 +1,59 @@
+<h1>Using Packagist With Trongate</h1>
+
+<p>This guide demonstrates how to integrate a third-party PHP library into your Trongate application using Packagist, the primary Composer package repository. We will use Guzzle, a PHP HTTP client, to showcase how to download and use a real third-party library.</p>
+
+<h2>What is Guzzle?</h2>
+<p>Guzzle is a PHP library designed to simplify the process of making HTTP requests. It is commonly used to interact with web APIs, handle the sending of forms, and manage the retrieval of web resources. As a robust solution for HTTP operations, Guzzle automates the complexity of coding numerous backend requests, allowing developers to focus more on building their application's functionality.</p>
+
+<h3>System Requirements</h3>
+<p>Before you start, make sure your system meets the following requirements:</p>
+<ul>
+    <li><strong>PHP:</strong> PHP 8 or newer is required to use the latest version of Trongate with Packagist.</li>
+    <li class="mt-1"><strong>Composer:</strong> Composer must be installed on your system for managing library dependencies. If Composer is not installed, visit <a href="https://getcomposer.org/" target="_blank">getcomposer.org</a> to download and install it.</li>
+    <li class="mt-1"><strong>Internet Connection:</strong> An active internet connection is necessary to download packages from Packagist.</li>
+</ul>
+
+<h2>Step 1: Setting Up Your Project with Composer</h2>
+<ol>
+    <li><strong>Initialize Composer:</strong> If you don't already have a <code>composer.json</code> file in your project, you can create one by running the following command in your project directory:
+        <pre><code>composer init</code></pre>
+        Follow the prompts to configure your project. This setup helps manage your project dependencies.</li>
+    <li class="mt-1"><strong>Install Guzzle:</strong> Add Guzzle to your project by running:
+        <pre><code>composer require guzzlehttp/guzzle</code></pre>
+        This command tells Composer to find Guzzle on Packagist and install it along with any necessary dependencies.</li>
+    <li class="mt-1"><strong>Verify Installation:</strong> Ensure that the Guzzle library has been added to your project by checking that your <code>composer.json</code> file includes Guzzle and that the <code>vendor</code> directory has been created with Guzzle files in it.</li>
+</ol>
+
+<h2>Step 2: Using Guzzle in Your Trongate Application</h2>
+<ol>
+    <li><strong>Autoload Dependencies:</strong> To use Guzzle, you need to include Composer's autoloader in your PHP script. Add the following line at the top of your PHP file:
+        <pre><code>require 'vendor/autoload.php';</code></pre>
+        This inclusion ensures that all dependencies, including Guzzle, are loaded and available for use.</li>
+    <li class="mt-1"><strong>Create an HTTP Client:</strong> Instantiate a new Guzzle client to make HTTP requests:
+        <pre><code>$client = new GuzzleHttp\Client();</code></pre></li>
+    <li class="mt-1"><strong>Make an HTTP Request:</strong> Use the client to send a request and retrieve the response:
+        <pre><code>$response = $client->request('GET', 'https://api.example.com/data');
+echo $response->getBody();</code></pre></li>
+</ol>
+
+<h3>Complete Example:</h3>
+<p>Here is a complete example using Guzzle to fetch user data from GitHub’s API:</p>
+<pre><code>&lt;?php
+require 'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+
+$client = new Client();
+try {
+    $response = $client->request('GET', 'https://api.github.com/users/github');
+    $data = json_decode($response->getBody(), true);
+    echo "GitHub User: " . $data['login'] . " has " . $data['followers'] . " followers.";
+} catch (GuzzleHttp\Exception\GuzzleException $e) {
+    echo 'Request failed: ' . $e's getMessage();
+}
+</code></pre>
+
+<h2>Conclusion</h2>
+<p>While Trongate has its own code-sharing platform, there are instances where downloading third-party code via Packagist can be beneficial. Packagist offers a vast repository of PHP libraries and packages that can significantly accelerate development and bring advanced functionality to your projects with minimal effort.</p>
+<p>However, the use of Packagist is not without its challenges. Relying on Packagist can lead to potential issues with stability, versioning, and dependencies. Moreover, developers considering using code from Packagist should be cognizant of potential <a href="https://news.google.com/search?q=Packagist" target="_blank">security vulnerabilities</a> associated with Packagist.</p>
+<p>The Trongate framework enables developers to selectively use Packagist for specific modules, providing precise integration without compromising the overall performance of the application. This targeted approach ensures that enhancements can be made where necessary without affecting the efficiency of the entire system.</p>

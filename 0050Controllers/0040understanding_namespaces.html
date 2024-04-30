@@ -1,0 +1,75 @@
+<h1>Understanding Namespaces</h1>
+
+<p>Namespaces in PHP are essential for encapsulating identifiers like classes, functions, and constants, preventing name collisions, and organizing code more efficiently. This is particularly important in applications where the same class names might be used in different parts of the project.</p>
+
+<div class="alert alert-warning">
+    <p>This example builds upon the 'Greeting' example from the previous page. It is advisable to familiarize yourself with <a href="<?= BASE_URL ?>controllers/multiple_classes_within_one_module.html">the previous example</a> before proceeding to ensure a full understanding of the content discussed here.</p>
+</div>
+
+<h2>Example: Applying Namespaces to Avoid Conflicts</h2>
+<p>We will expand on the 'Greeting' example from the previous page by modifying the existing class to include a namespace and introducing another 'Greeting' class under a different namespace to demonstrate how namespaces enhance modularity and prevent conflicts.</p>
+
+<h3>Step 1: Modifying the Existing Greeting Class</h3>
+<p>First, update the existing 'Greeting.php' file to include a namespace. This adjustment will organize the existing class within a specific context in your application, clarifying its role and grouping.</p>
+
+<p>Update the 'Greeting.php' file as follows:</p>
+<pre><code>&lt;?php
+namespace FriendlyGreeting;
+
+class Greeting {
+    function get_greeting($name) {
+        return 'Hello ' . $name;
+    }
+}
+</code></pre>
+<p>This update encapsulates the 'Greeting' class within the 'FriendlyGreeting' namespace, clearly signaling its positive, welcoming intent within the application.</p>
+
+<h3>Step 2: Creating the Unfriendly Greeting Class</h3>
+<p>Next, create a new class that provides an unfriendly greeting. This class will be placed in its own file and namespace to demonstrate a different aspect of functionality.</p>
+
+<p>Create a new PHP file named <code>Unfriendly.php</code> and add the following code:</p>
+<pre><code>&lt;?php
+namespace UnfriendlyGreeting;
+
+class Greeting {
+    function get_greeting($name) {
+        return 'Hey, ' . $name . ', you have a lot of nerve showing your face around here';
+    }
+}
+</code></pre>
+<p>This class in the <code>UnfriendlyGreeting</code> namespace offers a stark contrast to the friendly version, providing an alternative interaction style within the application. Placing it under a different namespace ensures that both functionalities can coexist without conflict, despite sharing the same class name.</p>
+
+<h3>Step 3: Using the Namespaced Classes</h3>
+<p>These classes can now be utilized in other parts of your application. Here’s how you might use both in a single controller to demonstrate their different effects:</p>
+<pre><code>&lt;?php
+require_once 'Greeting.php';
+require_once 'Unfriendly.php';
+
+use FriendlyGreeting\Greeting as FriendlyGreeting;
+use UnfriendlyGreeting\Greeting as UnfriendlyGreeting;
+
+class Welcome extends Trongate {
+    function greet_and_farewell($name) {
+        $friendly = new FriendlyGreeting();
+        $unfriendly = new UnfriendlyGreeting();
+        echo $friendly->get_greeting($name);
+        echo '&lt;hr&gt;';
+        echo $unfriendly->get_greeting($name);
+    }
+}
+</code></pre>
+<p>By using the <code>use</code> statement with aliases, both classes are accessible under the same controller without any naming conflict, demonstrating the power of namespaces in PHP.</p>
+
+<h2>Conclusion</h2>
+<p>Namespaces are a powerful feature in PHP, essential for maintaining a well-organized codebase and preventing conflicts between similarly named classes across different parts of an application. By using namespaces, you can ensure that your classes are neatly packaged and do not interfere with others, even if they share the same name.</p>
+
+<div class="alert alert-info">
+    <p><strong>Understanding Namespace Conventions in Trongate:</strong> Trongate's approach to namespaces aligns with broader PHP practices by adopting PascalCase or camelCase. This supports several key objectives:</p>
+    <ul>
+        <li><strong>Alignment with PHP and C:</strong> Trongate aims to produce a syntax that resonates with pure PHP and its underlying language, C. Given that C does not have namespaces, Trongate's flexible stance on namespace naming in PHP helps bridge traditional and modern programming paradigms.</li>
+        <li class="mt-1"><strong>Standard PHP Practices:</strong> In normal operational conditions, namespaces are primarily used when incorporating third-party code from a 'vendor' directory (often managed by Composer and acquired via Packagist).  It is common practice in the broader PHP community to use PascalCase for namespaces. This practice enhances integration with the broader ecosystem of PHP packages, where such naming conventions are standard.</li>
+        <li class="mt-1"><strong>Practicality and Functionality:</strong> Adopting widely recognized naming conventions for namespaces not only aids in clarity and functionality within complex applications but also ensures compatibility and ease of integration with external libraries and frameworks.</li>
+    </ul>
+    <p>Therefore, while Trongate generally recommends snake_case for internal consistency, the use of PascalCase or camelCase for namespaces is a practical exception. This approach underscores Trongate’s commitment to flexibility and pragmatism, supporting developers in creating applications that are both robust and compliant with external PHP standards.</p>
+</div>
+
