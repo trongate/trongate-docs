@@ -1,6 +1,13 @@
 <h1>Understanding View FIles</h1>
 <p>View files are files that contain <em>presentation code</em> - such as HTML code (though sometimes other types of code such as JavaScript and/or CSS).  The normal practice, when using Trongate, is to have a directory called 'views' inside each of your modules.</p>
-<p><img src="../images/37/trongatefMj9.png" alt="the structure of a Trongate module"></p>
+
+<div class="text-center">
+	<figure>
+	  <img src="../images/37/trongatefMj9.png" alt="The directory structure within a typical Trongate module." style="width:100%">
+	  <figcaption>The directory structure within a typical Trongate module.</figcaption>
+	</figure>	
+</div>
+
 <p> <em>Views</em> directories exist at the same directory level as 'controllers' directories, however, strictly speaking - views directories are optional.  In other words, sometimes you may have modules that contain no HTML whatsoever.  An example of such a module might be a 'Paypal' module that is designed to receive payment information from Paypal.</p>
 <h2>How View Files Work</h2>
 <p>View files usually get called from controller files.  In the Trongate Framework, view files are always .php files - however - the code within the .php files is mostly presentation code such as HTML.</p>

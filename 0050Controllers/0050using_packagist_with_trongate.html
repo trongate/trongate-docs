@@ -24,7 +24,7 @@
 <h3 class="mt-3">Step 2: Using Guzzle in Your Trongate Application</h3>
 <ol>
     <li><strong>Autoload Dependencies:</strong> To use Guzzle, you need to include Composer's autoloader in your PHP script. Add the following line at the top of your PHP file:
-        <pre><code>require '../vendor/autoload.php';</code></pre>
+        <pre><code>require_once APPPATH.'vendor/autoload.php';</code></pre>
         This inclusion ensures that all dependencies, including Guzzle, are loaded and available for use.</li>
     <li class="mt-1"><strong>Create an HTTP Client:</strong> Instantiate a new Guzzle client to make HTTP requests:
         <pre><code>$client = new GuzzleHttp\Client();</code></pre></li>
@@ -34,11 +34,11 @@ echo $response->getBody();</code></pre></li>
 </ol>
 
 <h2>Complete Example:</h2>
-<p>Below is an example of using Guzzle being used, within a Trongate controller file, to fetch user data from GitHub’s API:</p>
+<p>Below is an example of using Guzzle being used, within a Trongate controller file, to fetch data from GitHub’s API:</p>
 
 <pre><code>
 &lt;?php
-require '../vendor/autoload.php';
+require_once APPPATH.'vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
@@ -48,11 +48,15 @@ class Welcome extends Trongate {
 
         $client = new Client();
         try {
-            $response = $client->request('GET', 'https://api.github.com/users/trongate');
+            // Fetch repository details, for Trongate, from GitHub API
+            $target_url = 'https://api.github.com/repos/trongate/trongate-framework';
+            $response = $client->request('GET', $target_url);
             $data = json_decode($response->getBody(), true);
-            echo "GitHub User: " . $data['login'] . " has " . $data['followers'] . " followers.";
+
+            // Accessing the 'stargazers_count' to get the number of stars
+            echo "The Trongate framework has ".$data['stargazers_count']." stars on GitHub.";
         } catch (GuzzleHttp\Exception\GuzzleException $e) {
-            echo 'Request failed: ' . $e->getMessage();
+            echo 'Request failed: '.$e->getMessage();
         }
 
     }
@@ -61,12 +65,10 @@ class Welcome extends Trongate {
 </code></pre>
 
 <div class="alert alert-success">
-    <p>For simplicity, the example above uses <code>require '../vendor/autoload.php';</code> to load the Guzzle library along with any other potential Composer dependencies. While <code>require</code> is utilized in this instance, it is advisable to use <code>require_once</code> in scenarios where the same file might be included multiple times within an application. This approach prevents errors such as redeclaration of classes or functions and ensures that the file is included only once, safeguarding the application's stability.</p>
+    <p>In the example above, the <code>APPPATH</code> constant is used to specify the location of the <code>autoload.php</code> file. All Trongate controllers, view files, and templates have access to the <code>APPPATH</code> constant, which references the application's root directory. This provides a reliable method for specifying file paths.</p>
 
-    <p>Furthermore, it should be noted that Trongate controllers have access to an <code>APPPATH</code> constant. This constant references the application's root directory, providing a reliable method to specify file paths. Instead of using a relative path, <code>APPPATH</code> can be employed to ensure that the file path is always correctly resolved, regardless of where the script is executed within the application structure. Therefore, the autoload include statement used in the example above could be modified to:</p>
-   <p><code>require_once APPPATH.'vendor/autoload.php';</code></p>
+    <p>The example also utilizes PHP's <code>require_once</code> function, thereby ensuring that the file is included only once, safeguarding the application's stability.</p>
 </div>
-
 
 <h2>Conclusion</h2>
 <p>Even though Trongate has its own <a href="https://trongate.io/module-market" target="_blank">code-sharing platform</a>, there could be instances where downloading of third-party code via Packagist may be beneficial. Packagist offers a vast repository of PHP libraries and packages that can significantly accelerate development and bring advanced functionality to your projects with minimal effort.</p>
