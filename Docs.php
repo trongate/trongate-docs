@@ -15,6 +15,27 @@ class Docs {
 		return $table_of_contents;
 	}
 
+	public function fetch_chapter_name_num($url) {
+		$chapter_num = 0;
+		$table_of_contents = $this->fetch_table_of_contents();
+		foreach($table_of_contents as $chapter) {
+			$chapter_num++;
+			$chapter_pages = $chapter['pages'];
+			foreach($chapter_pages as $chapter_page) {
+
+				if (strpos($chapter_page['page_url'] , $url) !== false) {
+					$data['chapter_name'] = $chapter['dir_label'];
+					$data['chapter_num'] = $chapter_num;
+					return $data;					
+				}
+	
+			}
+
+		}
+
+		return false;
+	}
+
 	public function get_real_file_name($dir_real_name, $target_file_name) {
 		$target_file_name = strtolower($target_file_name);
 		$target_dir = $root_dir = APPPATH.'trongate-docs/'.$dir_real_name;
@@ -30,10 +51,6 @@ class Docs {
 			}
 		}
 		return false;
-	}
-
-	function say_hello() {
-		echo 'hello';
 	}
 
 	public function get_dir_real_name($target_dir_name) {

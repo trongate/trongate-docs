@@ -377,7 +377,66 @@ figure img {
   100% {color: var(--white); font-size: var(--font-size); opacity: 1;}
 }
 
-
 .card {
   background-color: #fff;
+}
+
+/* Breadcrumbs container styling */
+.breadcrumbs {
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-top: 20px; /* Space above the breadcrumbs */
+    font-family: Arial, sans-serif; /* Ensures a clean, modern font is used */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Styling individual breadcrumb items */
+.breadcrumbs a {
+    color: #0275d8; /* A nice blue that is commonly used for links */
+    text-decoration: none; /* Removes underline from links */
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline; /* Adds underline on hover for better interaction */
+}
+
+/* Styling the separator */
+.breadcrumbs .separator {
+    margin: 0 5px; /* Spacing around the separator */
+    color: #6c757d; /* A soft grey that doesn't dominate the link colors */
+}
+
+/* Accessibility enhancements */
+.breadcrumbs a:focus {
+    outline: 2px solid #0275d8; /* Adds a blue outline to focused links for visibility */
+    outline-offset: 2px; /* Ensures outline doesn't overlap text */
+}
+
+.breadcrumbs > span {
+  margin: 0 7px;
+}
+
+.page-nav-btns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chapter-num {
+  margin-top: 120px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.33em;
+}
+
+#ridiculously-huge {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 4em;
+  margin-bottom: 45vh;
 }

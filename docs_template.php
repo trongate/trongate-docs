@@ -74,10 +74,10 @@
 	    ?></main>		
 	</div>
 
-
 	<footer>&nbsp;</footer>
-
-
+	<script>
+		const baseUrl = '<?= BASE_URL ?>';
+	</script>
 	<script src="<?= BASE_URL ?>js/docs.js"></script>
 </body>
 </html>

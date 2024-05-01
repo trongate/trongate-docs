@@ -23,9 +23,18 @@ if ($url_string === '') {
 		die();
 	}
 
-	$target_file_name = $url_bits[1];
-	$real_file_name = $docs->get_real_file_name($dir_real_name, $target_file_name);
-	$view_file_path = APPPATH.'trongate-docs/'.$dir_real_name.'/'.$real_file_name;
+	if (!isset($url_bits[1])) {
+		$view_file_path = APPPATH.'trongate-docs/docs_chapter_intro.html';
+		$chapter_name_num = $docs->fetch_chapter_name_num(current_url());
+
+		$data['chapter_name'] = $chapter_name_num['chapter_name'];
+		$data['chapter_num'] = $chapter_name_num['chapter_num'];
+	} else {
+		$target_file_name = $url_bits[1];
+		$real_file_name = $docs->get_real_file_name($dir_real_name, $target_file_name);
+		$view_file_path = APPPATH.'trongate-docs/'.$dir_real_name.'/'.$real_file_name;
+	}
+
 }
 
 $data['view_file'] = $view_file_path;

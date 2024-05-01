@@ -1,3 +1,136 @@
+function attemptEmbelishPage() {
+
+    const currentUrl = getCurrentUrl();
+    const targetUrl = baseUrl + 'docs_api.php';
+
+    const params = {
+        action: 'attemptEmbelishPage',
+        currentUrl
+    }
+
+    const http = new XMLHttpRequest();
+    http.open('post', targetUrl);
+    http.setRequestHeader('Content-type', 'application/json');
+    http.send(JSON.stringify(params));
+    http.onload = function() {
+        const reponseObj = JSON.parse(http.responseText);
+        const breadcrumbs = reponseObj.breadcrumbs;
+
+        if (breadcrumbs !== false) {
+            drawBreadcrumbs(breadcrumbs);
+        }
+
+        const nextPrevBtns = reponseObj.next_prev_btns;
+
+        if (nextPrevBtns !== false) {
+            drawNextPrevBtns(nextPrevBtns);
+        }
+    }
+
+}
+
+function drawNextPrevBtns(nextPrevBtns) {
+    const prev = nextPrevBtns['prev'];
+    const prevUrl = prev.page_url;
+    const next = nextPrevBtns['next'];
+    const nextUrl = next.page_url;
+
+    const mainContainer = document.querySelector('main');
+    const firstMainChild = mainContainer.children[0];
+    
+    const pageNavBtnsContainer = document.createElement('div');
+    pageNavBtnsContainer.setAttribute('class', 'page-nav-btns');
+
+    if (!firstMainChild) {
+        return;
+    }
+
+    // Insert the pageNavBtnsContainer container into the container before the first child
+    const container = firstMainChild.parentNode;
+    container.insertBefore(pageNavBtnsContainer, firstMainChild);
+
+    // Build a 'Prev' button for navigating to the previous page.
+    const prevBtnDiv = document.createElement('div');
+    const prevBtn = document.createElement('a');
+
+    prevBtn.setAttribute('href', prevUrl);
+    prevBtn.setAttribute('class', 'button');
+    prevBtn.innerHTML = '<i class="fa fa-arrow-circle-left"></i> Prev';
+    prevBtnDiv.appendChild(prevBtn);
+
+    pageNavBtnsContainer.appendChild(prevBtnDiv);
+
+    // Build a 'Next' button for navigating to the next page.
+    const nextBtnDiv = document.createElement('div');
+    const nextBtn = document.createElement('a');
+    nextBtn.setAttribute('href', nextUrl);
+    nextBtn.setAttribute('class', 'button');
+    nextBtn.innerHTML = '<i class="fa fa-arrow-circle-right"></i> Next';
+    nextBtnDiv.appendChild(nextBtn);
+    pageNavBtnsContainer.appendChild(nextBtnDiv);
+
+    const ridiculouslyHugeEl = document.querySelector('#ridiculously-huge');
+
+    if (!ridiculouslyHugeEl) {
+        // Create a clone of the pageNavBtns element
+        const pageNavBtnsClone = pageNavBtnsContainer.cloneNode(true);
+
+        // Append the cloned element to the container
+        container.appendChild(pageNavBtnsClone);
+        pageNavBtnsClone.style.marginTop = '90px';
+    }
+
+}
+
+function drawBreadcrumbs(breadcrumbs) {
+    // Select the headline element where the breadcrumbs will be inserted before
+    const headlineEl = document.querySelector('h1');
+
+    // Create a breadcrumbs container element
+    const breadcrumbsContainer = document.createElement('div');
+    breadcrumbsContainer.setAttribute('aria-label', 'Breadcrumb');
+    breadcrumbsContainer.setAttribute('class', 'breadcrumbs sm');
+
+    let counter = 0;
+
+    breadcrumbs.forEach(row => {
+        const breadcrumbEl = document.createElement('div');
+        breadcrumbsContainer.appendChild(breadcrumbEl);
+
+        if ((counter >= 0) && (counter < breadcrumbs.length-1)) {
+            const dividerEl = document.createElement('span');
+            dividerEl.innerHTML = '&raquo;';
+            breadcrumbsContainer.appendChild(dividerEl);
+        }
+
+        if (row.active !== true) {
+            // Build a link
+            const linkEl = document.createElement('a');
+            linkEl.setAttribute('href', row.page_url);
+            linkEl.innerHTML = row.label;
+            breadcrumbEl.appendChild(linkEl);
+            counter++;
+        } else {
+            const spanEl = document.createElement('span');
+            spanEl.innerHTML = row.label;
+            breadcrumbEl.appendChild(spanEl);
+            counter++;
+        }
+
+    });
+
+    // Insert the breadcrumbs container into the container before the headline element
+    const container = headlineEl.parentNode;
+    container.insertBefore(breadcrumbsContainer, headlineEl);
+}
+
+
+
+
+function getCurrentUrl() {
+    return window.location.href;
+}
+
 function goToDocsHome(baseUrl) {
     window.location.href = baseUrl;
 }
@@ -8,7 +141,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Iterate through all collected <code> elements
     codeBlocks.forEach(function(code) {
-    	console.log(code);
         // Trim the whitespace and set the trimmed content back
         let newContent = code.innerHTML.trim();
         code.innerHTML = newContent;
@@ -59,7 +191,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const iframes = document.querySelectorAll('iframe');
     iframes.forEach(iframeEl => {
 
-        console.log(iframeEl.outerHTML);
         if (!iframeEl.classList.contains('.video')) {
             iframeEl.classList.add('video');
 
@@ -76,3 +207,5 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 });
+
+attemptEmbelishPage();
