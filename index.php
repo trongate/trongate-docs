@@ -32,6 +32,12 @@ if ($url_string === '') {
 	} else {
 		$target_file_name = $url_bits[1];
 		$real_file_name = $docs->get_real_file_name($dir_real_name, $target_file_name);
+
+		if($real_file_name === false) {
+			header("location: ".BASE_URL);
+			die();
+		}
+
 		$view_file_path = APPPATH.'trongate-docs/'.$dir_real_name.'/'.$real_file_name;
 	}
 

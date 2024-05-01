@@ -65,7 +65,7 @@ function drawNextPrevBtns(nextPrevBtns) {
     const nextBtn = document.createElement('a');
     nextBtn.setAttribute('href', nextUrl);
     nextBtn.setAttribute('class', 'button');
-    nextBtn.innerHTML = '<i class="fa fa-arrow-circle-right"></i> Next';
+    nextBtn.innerHTML = 'Next <i class="fa fa-arrow-circle-right"></i>';
     nextBtnDiv.appendChild(nextBtn);
     pageNavBtnsContainer.appendChild(nextBtnDiv);
 
