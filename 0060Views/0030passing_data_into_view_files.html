@@ -1,42 +1,65 @@
 <h1>Passing Data Into View Files</h1>
-<p>View files have access to a wide range of Trongate's inbuilt features. Of course, since view files are PHP files it means that they can have access to all of PHP's inbuilt functionality as well. However, the most commonly used method for passing data into view files is to pass an array of data via a controller file. For example:</p>
-<p><pre><code>
-$data["first_name"] = "David";
-$data["last_name"] = "Connelly";
-$this-&gt;view("welcome", $data);
-</code></pre></p>
-<p>When view files are loaded, the data array is immediately extracted and the properties of the data array may be treated like ordinary variables, from within the view file. You can also have other data types - such as objects, arrays and booleans - passed into your view files. Below is an example of an array of cities being passed into a view file, along with a day of the week:</p>
-<p><pre><code>
-function information() { 
-  //create an array of cities 
-  $cities[] = "New York"; 
-  $cities[] = "London"; 
-  $cities[] = "Paris";
-  //add "cities" onto data array  
-  $data["cities"] = $cities; 
+<p>The most common technique for passing data into view files involves creation of an associative array.  This array can be initialized from with a controller file and passed into the <code>view()</code> method, as a second argument.  As a reminder, the first argument that is required for usage of the <code>view()</code> method should be a string, representing the name of the view file to be loaded.</p>
 
-  $data["today"] = "Monday"; 
-  $this-&gt;view("information", $data);
+<p>The following code snippet initializes an associative array with user data and then passes this array to the `view` method to render the 'welcome' view:</p>
+<pre><code>
+$data = [
+    "first_name" => "John",
+    "last_name" => "Smith"
+];
+$this->view("welcome", $data);
+</code></pre>
+<p class="mt-2">Upon loading the view files, the data array is extracted automatically, allowing its elements to be accessed as variables within the view. It is also possible to pass various data types such as objects, arrays, and booleans into view files. Consider the following example, where an array of cities and a weekday are passed to a view:</p>
+<pre class="mt-2"><code>
+function information() {
+    // Create an array of cities 
+    $cities = ["New York", "London", "Paris"];
+    
+    // Prepare data array with cities and today's information
+    $data = [
+        "cities" => $cities,
+        "today" => "Monday"
+    ];
+    
+    // Load the view with the data
+    $this->view("information", $data);
 }
-</code></pre></p>
+
+</code></pre>
+
 <div class="alert alert-info">
-    Trongate view files have access to the original data array that has been passed in from the controller files. This is useful if you want to check what data properties are available inside your view file. You can easily find out what properties are available, inside a view file, by calling a simple var_dump().</p>
-    <p><pre><code>var_dump($data);</code></pre><br>
+    <p>View files can access the original data array passed from the controller, enabling developers to inspect available data properties using:</p>
+    <pre><code>var_dump($data);</code></pre>
 </div>
-<br><br>
+
 <div class="alert alert-success">
-    Use the Trongate framework's built-in json() method to have all of your view data presented in a nice, easy to read format. For example,</p>
-    <p><pre><code>json($data);</code></pre><br>
+    <p>For a well-formatted display of data within view files, utilize the Trongate framework's <code>json()</code> method:</p>
+    <pre><code>json($data);</code></pre>
 </div>
-</p>
-<p>The moment an array (such as $data) is passed into a view method, the array will be extracted immediately and all of the properties of the array can be treated like ordinary variables. For example, our greeting method could be modified so that it passes a name into the view file, like so:</p>
-<p><pre><code>
+
+<p class="mt-2">When data is passed into the <code>view()</code> method, as in the array <code>$data</code>, it is extracted immediately, allowing its properties to be used as standard variables. For example, enhancing the <a href="../views/basic_view_file_usage.html">previously described</a> <code>greeting()</code> method to pass a name into a view file could be achieved like so:</p>
+<pre><code>
 function greeting() {
   $data["name"] = "David Connelly";
-  $this-&gt;view("greeting", $data);
+  $this->view("greeting", $data);
 }
-</code></pre></p>
-<p>To have the value from the 'name' variable displayed on our browser, we could use PHP short tags to echo the name variable. For example,<br></p>
-<p><img src="../images/75/hello_naW7Xc.png" alt="using pure PHP within a view file"></p>
-<p>This would produce,</p>
-<p><img src="../images/75/hello_daBye5.png" alt="screenshot"></p>
+</code></pre>
+<p class="mt-3">To display the value assigned to the 'name' variable in a browser, one could implement PHP short tags to echo the variable directly in the view:</p>
+
+<pre><code>
+&lt;h1&gt;Hello <mark>&lt;?= $name ?&gt;</mark>&lt;h1&gt;
+&lt;p&gt;It's nice to see you!&lt;p&gt;
+</code></pre>
+
+<p class="mt-2">This produces the following output:</p>
+
+<div class="text-center">
+  <figure>
+    <img src="../images/75/hello_daBye5.png" alt="xxxx" style="width:100%">
+    <figcaption>Screenshot.</figcaption>
+  </figure> 
+</div>
+
+<div class="alert alert-danger">
+  <p>Extreme caution should be used when rendering data accepted from potentially untrustworthy sources, such as user inputs in online discussion forums. In those scenarios, it is advisable to use the Trongate framework's <code>out()</code> function. This function safely escapes and formats strings for various output contexts, thereby enhancing application security. By ensuring proper encoding for HTML, XML, JSON, JavaScript, or HTML attributes, the <code>out()</code> function helps prevent vulnerabilities such as cross-site scripting (XSS). Proper usage of <code>out()</code> can significantly improve the security of applications when rendering user-generated content.</p>
+</div>

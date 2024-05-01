@@ -60,6 +60,7 @@
 	                $page_label = str_replace('Url ', 'URL ', $page_label);
 	                $page_label = str_replace('Css', 'CSS', $page_label);
 	                $page_label = str_replace('themes', 'Themes', $page_label);
+	                $page_label = str_replace(' An Overview', ': An Overview', $page_label);
 
 					echo '<li>'.anchor($page_url, $page_label).'</li>';
 				}

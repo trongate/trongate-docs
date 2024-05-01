@@ -1,0 +1,88 @@
+<h1>Basic View File Usage</h1>
+<p>This page details a basic example of a view file being created and used.  The goal is to add a 'greeting' method inside Trongate's (default) 'welcome' controller.  This method will load a specific view file - the contents of which will be rendered in the browser.</p>
+<p>As a reminder, a fresh installation of Trongate will load the 'welcome' module/controller. When you download the Trongate framework, your welcome controller file will contain the following code:</p>
+<p><pre><code>
+&lt;?php
+class Welcome extends Trongate {
+
+  /**
+   * Renders the (default) 'welcome' webpage for public access.
+   *
+   * @return void
+   */
+  function index(): void {
+    $data['view_module'] = 'welcome'; // Indicates the module where the view file exists.
+    $data['view_file'] = 'welcome'; // Specifies the base name of the target PHP view file.
+    $this->template('public', $data); // Loads the 'welcome' view file within the public template.
+  }
+}
+</code></pre></p>
+
+<p>If the <a href="../understanding_routing/homepage_routing.html">default homepage routing configuration</a> is being applied, the <code>index()</code> method would be invoked whenever somebody visits the app homepage.  The default <code>index()</code> method loads a template, passing in a <code>$data</code> array which contains a 'view_file' property.</p>
+
+<div class="alert alert-info">
+  <p>The functionality of the <code>index()</code> method, shown above, is beyond the scope of basic view file usage.  Documetation for dealing with HTML templates is offered in the chapter:  <a href="../template_and_themes">Templates and Themes</a></p>
+</div>
+
+<h2>Creating A New Method</h2>
+
+<p>A straightforward approach to demonstrate basic view file usage involves adding a custom method to an existing controller. The following code snippet illustrates a custom method named 'greeting' that can be integrated into the 'Welcome' controller class:</p>
+<pre><code>
+function greeting() {
+  $this->view("greeting");
+}
+</code></pre>
+
+<h3>Introducing, The 'View' Method</h3>
+<p>In order to load view files, Trongate uses an internal method named '<b>view</b>'. </p>
+
+<p>In the example shown, an argument of 'greeting' is being passed into the <code>view()</code> method.  If the <code>view()</code> method is invoked, in this manner, the containing module's 'views' directory will be scanned for a file named 'greeting.php'.  If the file exists, the content of the file will be rendered and sent to the browser.</p>
+
+<div class="alert alert-warning">
+  <p>The Trongate <code>view()</code> method accepts an argument specifying the name of the view file to load. It is important to note that the file extension, such as '.php', should not be included in this argument.</p>
+</div>
+
+
+<p class="mt-3">With the addition of the <code>greeting()</code> method, the 'welcome' controller file will contain the following:</p>
+
+<p><pre><code>
+&lt;?php
+class Welcome extends Trongate {
+
+  /**
+   * Renders the (default) 'welcome' webpage for public access.
+   *
+   * @return void
+   */
+  function index(): void {
+    $data['view_module'] = 'welcome'; // Indicates the module where the view file exists.
+    $data['view_file'] = 'welcome'; // Specifies the base name of the target PHP view file.
+    $this->template('public', $data); // Loads the 'welcome' view file within the public template.
+  }
+
+  function greeting() {
+    $this->view("greeting");
+  }
+}
+</code></pre></p>
+
+<h2>Creating A Simple View File</h2>
+<p>Having created a method for loading a view file, the next step is to create a new PHP file inside the 'views' directory of the containing module - in this instance, the 'welcome' module.   The <strong>view file</strong> should be named as '<b>greeting.php</b>' and may contain some basic HTML for demonstration purposes.  For example:</p>
+
+<pre><code>
+&lt;h1&gt;Hello&lt;h1&gt;
+&lt;p&gt;It's nice to see you!&lt;p&gt;
+</code></pre>
+
+<h2>Rendering the View File</h2>
+<p>In order for the view file to be rendered, a user would be required to visit the application's <code>BASE_URL</code> followed by <b>welcome/greeting</b>.  If the <code>greeting()</code> method and the corresponding <b>greeting.php</b> view file have been created properly, output similar to the following will be sent to the browser:</p>
+
+<div class="text-center">
+  <figure>
+    <img src="../images/78/greetingPZK7.png" alt="Screenshot demonstrating the rendering of a simple view file." style="width:100%">
+    <figcaption>Screenshot, demonstrating the rendering of a simple view file.</figcaption>
+  </figure> 
+</div>
+
+<h2>Conclusion</h2>
+<p>The example above provides a detailed walkthrough of the basics of view file utilization within the Trongate framework. In the example shown, the default 'Welcome' controller class is expanded upon through the inclusion of a <code>greeting()</code> method. This method demonstrates a straightforward example of how to use Trongate's <code>view()</code> method to render HTML content from a view file. The <code>view()</code> method requires the name of the target view file as an argument, and adherence to the framework's convention of omitting the '.php' extension is necessary for its functionality.</p>
