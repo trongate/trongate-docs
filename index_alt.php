@@ -1,19 +1,38 @@
 <?php
+// Gets used for listing pages within sub directories such as 'Comprehensive Reference Guide'
 require_once('Docs.php');
 $docs = new Docs;
+$url_string = str_replace(BASE_URL, '', current_url());
+$dir_path = APPPATH.'trongate-docs/'.$url_string;
+$data['html_files'] = $docs->get_html_files_alpha($dir_path);
+
+foreach ($data['html_files'] as $key => $value) {
+	$data['html_files'][$key]['page_label'] = $value['page_label'].'()';
+}
+
+$reduced_url = str_replace(BASE_URL, '', current_url());
+$reduced_url = rtrim($reduced_url, '/');
+$url_segments = explode('/', $reduced_url);
+$num_segments = count($url_segments);
+
+$last_segment = $url_segments[$num_segments-1];
+
+$data['page_headline'] = $last_segment;
+$data['page_headline'] = str_replace('_', ' ', $data['page_headline']);
+
+$data['table_of_contents'] = $docs->fetch_table_of_contents();
+$data['view_file'] = 'docs_index_alt.php';
+$data['docs'] = $docs;
+$docs->view('docs_template', $data);
+
+// 
+
+
+
+/*
 $data['table_of_contents'] = $docs->fetch_table_of_contents();
 
 $url_string = str_replace(BASE_URL, '', current_url());
-
-if ($url_string === 'comprehensive_reference_guide') {
-	// $path =APPPATH.'trongate-docs/docs_reference_guide.php';
-	// require_once $path;
-	// die();
-	$data['docs'] = $docs;
-	$data['view_file'] = APPPATH.'trongate-docs/docs_reference_guide.php';
-    $docs->view('docs_template', $data);
-    die();
-}
 
 if ($url_string === '') {
 	// The view file will be the first file from the first directory.
@@ -56,3 +75,4 @@ if ($url_string === '') {
 $data['view_file'] = $view_file_path;
 $data['docs'] = $docs;
 $docs->view('docs_template', $data);
+*/

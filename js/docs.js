@@ -13,6 +13,9 @@ function attemptEmbelishPage() {
     http.setRequestHeader('Content-type', 'application/json');
     http.send(JSON.stringify(params));
     http.onload = function() {
+
+console.log(http.responseText);
+
         const reponseObj = JSON.parse(http.responseText);
         const breadcrumbs = reponseObj.breadcrumbs;
 
@@ -133,6 +136,60 @@ function getCurrentUrl() {
 
 function goToDocsHome(baseUrl) {
     window.location.href = baseUrl;
+}
+
+function initOpenInfo(targetUrl) {
+    openModal('temp-modal');
+
+        const http = new XMLHttpRequest();
+        http.open('get', targetUrl);
+        http.setRequestHeader('Content-type', 'application/json');
+        http.send();
+        http.onload = function() {
+            if (http.status === 200) {
+
+                const targetModalBody = document.querySelector('.modal-body');
+                while(targetModalBody.firstChild) {
+                    targetModalBody.removeChild(targetModalBody.firstChild);
+                }
+
+                targetModalBody.innerHTML = http.responseText;
+
+                // Build a close (modal) button.
+                const closeBtnPara = document.createElement('p');
+                closeBtnPara.setAttribute('class', 'text-center');
+                targetModalBody.appendChild(closeBtnPara);
+
+                const btn = document.createElement('button');
+                btn.setAttribute('type', 'button');
+                btn.setAttribute('class', 'alt');
+                btn.innerText = 'Close Window';
+                btn.addEventListener('click', (ev) => {
+                    closeModal();
+                });
+
+                closeBtnPara.appendChild(btn);
+
+                // Build a close window icon for the top rhs
+                const closeDiv = document.createElement('div');
+                closeDiv.setAttribute('class', 'text-right');
+
+                const btnSmall = document.createElement('button');
+                btnSmall.setAttribute('type', 'button');
+                btnSmall.style.marginTop = 0;
+                btnSmall.innerHTML = '<i class="fa fa-times"></i>';
+                btnSmall.addEventListener('click', (ev) => {
+                    closeModal();
+                });
+
+                closeDiv.appendChild(btnSmall);
+                targetModalBody.insertBefore(closeDiv, targetModalBody.firstChild);
+            }
+        }
+
+
+
+
 }
 
 document.addEventListener("DOMContentLoaded", function() {

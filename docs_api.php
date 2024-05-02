@@ -1,7 +1,6 @@
 <?php
 include('Docs.php');
 
-
 function returnTableOfContents() {
 	http_response_code(200);
 	$docs = new Docs;
@@ -155,6 +154,11 @@ function fetch_breadcrumbs_array($current_url, $table_of_contents) {
 	if (($first_segment !== '') && ($second_segment !== '')) {
 		// Find out which chapter (if any) this page belongs to.
 		foreach($table_of_contents as $chapter) {
+
+			if (!isset($chapter['pages'])) {
+				break;
+			}
+
 			$chapter_pages = $chapter['pages'];
 
 			foreach($chapter_pages as $chapter_page) {

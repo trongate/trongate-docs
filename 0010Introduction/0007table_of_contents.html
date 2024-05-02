@@ -1,298 +1,7 @@
 <div>
     <p class="text-center"><b>TRONGATE FRAMEWORK DOCUMENTATION</b></p>
     <h1>Table Of Contents</h1>
-    <div class="toc-grid"><div class="spinner mt-3"></div>
-        <?php
-        /*
-        <div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 1 -</span> Welcome</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/welcome-to-the-revolution">Welcome To The Revolution</a></span><span class="page-num">1</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/trongate-s-free-forever-promise">Trongate's Free Forever Promise</a></span><span class="page-num">2</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/about-these-docs">About These Docs</a></span><span class="page-num">3</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 2 -</span> Getting Started</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/a-word-about-mariadb-and-mysql">A Word About MariaDB And MySQL</a></span><span class="page-num">4</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/installing-php-and-mysql">Installing PHP and MySQL</a></span><span class="page-num">5</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/lets-get-trongate">Let's Get Trongate!</a></span><span class="page-num">6</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 3 -</span> Basics Concepts</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/a-few-words-about-coding-style">A Few Words About Coding Style</a></span><span class="page-num">7</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-structure-of-a-trongate-web-app">The Structure of a Trongate Web App</a></span><span class="page-num">8</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/introducing-modular-havc">Introducing Modular HAVC</a></span><span class="page-num">9</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-problem-with-mvc">The Problem With MVC</a></span><span class="page-num">10</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/isnt-this-the-same-as-hmvc">Isn't this the same as HMVC?</a></span><span class="page-num">11</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/whats-inside-a-module">What's Inside A Module?</a></span><span class="page-num">12</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 4 -</span> Understanding Routing</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/what-is-routing">What Is Routing?</a></span><span class="page-num">13</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/404-error-pages">404 Error Pages</a></span><span class="page-num">14</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-basic-url-routing-works">How Basic URL Routing Works</a></span><span class="page-num">15</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/reading-values-from-the-url">Reading Values From The URL</a></span><span class="page-num">16</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/preventing-methods-from-being-invoked-via-the-url">Preventing Methods From Being Invoked Via The URL</a></span><span class="page-num">17</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/advanced-custom-routing">Advanced Custom Routing</a></span><span class="page-num">18</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 5 -</span> Controllers</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/what-is-a-controller">What Is A Controller?</a></span><span class="page-num">19</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-structure-of-a-controller">The Structure Of A Controller</a></span><span class="page-num">20</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/defining-a-default-controller">Defining A Default Controller</a></span><span class="page-num">21</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 6 -</span> Views</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/understanding-view-files">Understanding View Files</a></span><span class="page-num">22</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/an-example-of-a-view-file-being-used">An Example Of A View File Being Used</a></span><span class="page-num">23</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/passing-data-into-view-files">Passing Data Into View Files</a></span><span class="page-num">24</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/returning-views-output-as-a-variable">Returning Views Output As A Variable</a></span><span class="page-num">25</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/best-practices">Best Practices</a></span><span class="page-num">26</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 7 -</span> The File Asset Manager</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/why-we-need-a-file-asset-manager">Why We Need A File Asset Manager</a></span><span class="page-num">27</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/basic-example--part-1">Basic Example - Part 1</a></span><span class="page-num">28</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/basic-example--part-2">Basic Example - Part 2</a></span><span class="page-num">29</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-module-assets-trigger">The Module Assets Trigger</a></span><span class="page-num">30</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/additional-information">Additional Information</a></span><span class="page-num">31</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 8 -</span> Modules Calling Modules</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/calling-another-module-from-a-controller">Calling Another Module From A Controller</a></span><span class="page-num">32</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/calling-another-module-from-a-view">Calling Another Module From A View</a></span><span class="page-num">33</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 9 -</span> Parent Modules &amp; Child Modules</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/complete-video-tutorial">Complete Video Tutorial</a></span><span class="page-num">34</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/what-are-super-modules-and-sub-modules">What Are Parent Modules And Child Modules?</a></span><span class="page-num">35</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/accessing-sub-modules-via-the-url">Accessing Child Modules Via The URL</a></span><span class="page-num">36</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/loading-view-files-from-within-sub-modules">Loading View Files From Within Child Modules</a></span><span class="page-num">37</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/accessing-sub-modules-from-other-modules">Accessing Child Modules From Other Modules</a></span><span class="page-num">38</span> </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 10 -</span> Templates</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/what-are-templates">What Are Templates?</a></span><span class="page-num">39</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-to-create-your-own-website-template">How To Create Your Own Website Template</a></span><span class="page-num">40</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/loading-templates">Loading Templates</a></span><span class="page-num">41</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/passing-information-into-templates">Passing Information Into Templates</a></span><span class="page-num">42</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/passing-view-files-into-templates">Passing View Files Into Templates</a></span><span class="page-num">43</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/template-partials">Template Partials</a></span><span class="page-num">44</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/about-the-admin-template">About The Admin Template</a></span><span class="page-num">45</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 11 -</span> Trongate CSS</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/introducing-trongate-css">Introducing Trongate CSS</a></span><span class="page-num">46</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/features-and-benefits">Features and Benefits</a></span><span class="page-num">47</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/trongate-css-examples">Trongate CSS Examples</a></span><span class="page-num">48</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/javascript-components">JavaScript Components</a></span><span class="page-num">49</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/trongate-css-video-tutorial">Trongate CSS Video Tutorial</a></span><span class="page-num">50</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/working-with-youtube-videos">Working With YouTube Videos</a></span><span class="page-num">51</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 12 -</span> Helpers Explained</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/helpers-introduction">Helpers Introduction</a></span><span class="page-num">52</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-url-helper">The URL Helper</a></span><span class="page-num">53</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-form-helper">The Form Helper</a></span><span class="page-num">54</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-form-validation-helper">The Form Validation Helper</a></span><span class="page-num">55</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-flashdata-helper">The Flashdata Helper</a></span><span class="page-num">56</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-file-validation-helper">The File Validation Helper</a></span><span class="page-num">57</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-pagination-helper">The Pagination Helper</a></span><span class="page-num">58</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/other-helpful-features">Other Helpful Features</a></span><span class="page-num">59</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 13 -</span> Form Handling</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/trongates-approach-to-form-handling">Trongate's Approach To Form Handling</a></span><span class="page-num">60</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/getting-started-with-form-building">Getting Started With Form Building</a></span><span class="page-num">61</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/creating-a-books-database-table">Creating A Books Database Table</a></span><span class="page-num">62</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/manually-building-a-form">Manually Building A Form</a></span><span class="page-num">63</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/improving-our-form">Improving Our Form</a></span><span class="page-num">64</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/form-validation-the-pipe-method">Form Validation (The Pipe Method)</a></span><span class="page-num">65</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/form-validation-the-array-method">Form Validation (The Array Method)</a></span><span class="page-num">66</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/displaying-form-validation-errors">Displaying Form Validation Errors</a></span><span class="page-num">67</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/a-closer-look-at-the-post-method">A Closer Look At The Post Method</a></span><span class="page-num">68</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/repopulating-forms">Repopulating Forms</a></span><span class="page-num">69</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/creating-records">Creating Records</a></span><span class="page-num">70</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/reading-records">Reading Records</a></span><span class="page-num">71</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/table-joins">Table Joins</a></span><span class="page-num">72</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/updating-records">Updating Records</a></span><span class="page-num">73</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/deleting-records">Deleting Records</a></span><span class="page-num">74</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/custom-validation-callbacks">Custom Validation Callbacks</a></span><span class="page-num">75</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/csrf-protection">CSRF Protection</a></span><span class="page-num">76</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 14 -</span> Database Interaction</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-trongate-works-with-databases">How Trongate Works With Databases</a></span><span class="page-num">77</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/getting-started">Getting Started</a></span><span class="page-num">78</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-to-use-debug-mode">How To Use Debug Mode</a></span><span class="page-num">79</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-get-method">The 'Get' Method</a></span><span class="page-num">80</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-get-where-method">The 'Get Where' Method</a></span><span class="page-num">81</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-get-where-custom-method">The 'Get Where Custom' Method</a></span><span class="page-num">82</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-get-one-where-method">The 'Get One Where' Method</a></span><span class="page-num">83</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-get-many-where-method">The 'Get Many Where' Method</a></span><span class="page-num">84</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-count-method">The 'Count' Method</a></span><span class="page-num">85</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-count-where-method">The 'Count Where' Method</a></span><span class="page-num">86</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-count-rows-method">The 'Count Rows' Method</a></span><span class="page-num">87</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-get-max-method">The 'Get Max' Method</a></span><span class="page-num">88</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-insert-method">The 'Insert' Method</a></span><span class="page-num">89</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-update-method">The 'Update' Method</a></span><span class="page-num">90</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-delete-method">The 'Delete' Method</a></span><span class="page-num">91</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-query-method">The 'Query' Method</a></span><span class="page-num">92</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-query-bind-method">The 'Query Bind' Method</a></span><span class="page-num">93</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-insert-batch-method">The 'Insert Batch' Method</a></span><span class="page-num">94</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/graphical-query-builder-video-tutorial">Graphical Query Builder Video Tutorial</a></span><span class="page-num">95</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 15 -</span> Uploading Files</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/a-general-overview-of-file-uploading">A General Overview Of File Uploading</a></span><span class="page-num">96</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/building-an-uploader-form">Building An Uploader Form</a></span><span class="page-num">97</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/understanding-the-upload-process">Understanding The Upload Process</a></span><span class="page-num">98</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/uploading-pictures">Uploading Pictures</a></span><span class="page-num">99</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 16 -</span> Working With Images</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-to-build-picture-uploaders--video-demo">How To Build Picture Uploaders - Video Demo</a></span><span class="page-num">100</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/understanding-single-picture-uploaders">Understanding Single Picture Uploaders</a></span><span class="page-num">101</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-submit-upload-method">The Submit Upload Method</a></span><span class="page-num">102</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/a-closer-look-at-picture-settings">A Closer Look At Picture Settings</a></span><span class="page-num">103</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-drag-n-drop-multi-file-uploader">The Drag 'n' Drop Multi File Uploader</a></span><span class="page-num">104</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/controlling-how-multifile-uploaders-behave">Controlling How Multi-File Uploaders Behave</a></span><span class="page-num">105</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 17 -</span> The Module Import Wizard</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/what-problem-does-this-solve">What Problem Does This Solve?</a></span><span class="page-num">106</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-to-use-the-module-import-wizard">How To Use The Module Import Wizard</a></span><span class="page-num">107</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 18 -</span> Authorization and Authentication</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/section-introduction">Section Introduction</a></span><span class="page-num">108</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/what-we-are-trying-to-achieve">What We Are Trying To Achieve</a></span><span class="page-num">109</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-trongates-token-system-works">How Trongate's Token System Works</a></span><span class="page-num">110</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/the-three-security-tables">The Three Security Tables</a></span><span class="page-num">111</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/generating-tokens-javascript-friendly-version">Generating Tokens (JavaScript Friendly Version)</a></span><span class="page-num">112</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/generating-tokens-php-friendly-version">Generating Tokens (PHP Friendly Version)</a></span><span class="page-num">113</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/fetching-user-data-from-tokens-javascript-friendly-version">Fetching User Data From Tokens (JavaScript friendly version)</a></span><span class="page-num">114</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/fetching-user-data-from-tokens-php-friendly-version">Fetching User Data From Tokens (PHP Friendly Version)</a></span><span class="page-num">115</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/more-useful-features">More Useful Features</a></span><span class="page-num">116</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/destroying-tokens-javascript-friendly-version">Destroying Tokens (JavaScript Friendly Version)</a></span><span class="page-num">117</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/destroying-tokens-php-friendly-version">Destroying Tokens (PHP Friendly Version)</a></span><span class="page-num">118</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/understanding-http-response-status-codes">Understanding HTTP Response Status Codes</a></span><span class="page-num">119</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 19 -</span> The API Explorer</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/an-introduction-to-the-trongate-api-explorer">An Introduction To The Trongate API Explorer</a></span><span class="page-num">120</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/api-terminology-explained">API Terminology Explained</a></span><span class="page-num">121</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/trongates-builtin-endpoints">Trongate's Built-In Endpoints</a></span><span class="page-num">122</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/getting-started-with-the-api-explorer">Getting Started With The API Explorer</a></span><span class="page-num">123</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/building-your-api-settings-file">Building Your Api Settings File</a></span><span class="page-num">124</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/testing-your-api-endpoints">Testing Your API Endpoints</a></span><span class="page-num">125</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/optional-additional-parameters">Optional Additional Parameters</a></span><span class="page-num">126</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/before-hooks-and-after-hooks--general-overview">Before Hooks And After Hooks - General Overview</a></span><span class="page-num">127</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/before-hooks--deep-dive">Before Hooks - Deep Dive</a></span><span class="page-num">128</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/after-hooks--deep-dive">After Hooks - Deep Dive</a></span><span class="page-num">129</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/querying-endpoints">Querying Endpoints</a></span><span class="page-num">130</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/understanding-api-authorization">Understanding API Authorization</a></span><span class="page-num">131</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/how-to-attach-tokens-to-requests">How To Attach Tokens To Requests</a></span><span class="page-num">132</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/wide-open-authorization">Wide Open Authorization</a></span><span class="page-num">133</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/role-based-authorization">Role Based Authorization</a></span><span class="page-num">134</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/id-based-authorization">ID Based Authorization</a></span><span class="page-num">135</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/user-id-segment-authorization">User ID Segment Authorization</a></span><span class="page-num">136</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/user-code-segment-authorization">User Code Segment Authorization</a></span><span class="page-num">137</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/user-owned-segment-authorization">User Owned Segment Authorization</a></span><span class="page-num">138</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/custom-api-endpoints">Custom API Endpoints</a></span><span class="page-num">139</span> </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 20 -</span> Before You Launch</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/hiding-your-admin-login-url">Hiding Your Admin Login URL</a></span><span class="page-num">140</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/pre-launch-checklist">Pre Launch Checklist</a></span><span class="page-num">141</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/web-hosting-advice">Web Hosting Advice</a></span><span class="page-num">142</span> </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        */
-        ?>
-    </div>
+    <div class="toc-grid"><div class="spinner mt-3"></div></div>
     <style>
         .toc-grid {
         margin-top: 33px;
@@ -345,18 +54,6 @@
 const tocGrid = document.querySelector('.toc-grid');
 let chapterCounter = 0;
 let pageCounter = 0;
-/*
-            <div class="card">
-                <div class="card-body">
-                    <h2><span>Chapter 1 -</span> Welcome</h2>
-                    <ul>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/welcome-to-the-revolution">Welcome To The Revolution</a></span><span class="page-num">1</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/trongate-s-free-forever-promise">Trongate's Free Forever Promise</a></span><span class="page-num">2</span> </li>
-                        <li><span><a href="http://localhost/trongate_live5/docs/information/about-these-docs">About These Docs</a></span><span class="page-num">3</span> </li>
-                    </ul>
-                </div>
-            </div>
-*/
 
 function buildTableOfContents(responseText) {
     const tableOfContents = JSON.parse(responseText);
@@ -367,8 +64,14 @@ function buildTableOfContents(responseText) {
     }
 
     tableOfContents.forEach(chapterObj => {
+        console.log('yes');
+    });
+
+
+
+    tableOfContents.forEach(chapterObj => {
         chapterCounter++;
-        console.log(chapterObj);
+ 
         const chapterCard = document.createElement('div');
         chapterCard.setAttribute('class', 'card');
         tocGrid.appendChild(chapterCard);
@@ -421,8 +124,8 @@ http.open('post', targetUrl);
 http.setRequestHeader('Content-type', 'application/json');
 http.send(JSON.stringify(params));
 http.onload = function() {
-    console.log(http.status);
-    console.log(http.responseText);
     buildTableOfContents(http.responseText);
 }
+
+
 </script>

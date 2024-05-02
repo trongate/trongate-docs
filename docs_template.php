@@ -42,29 +42,14 @@
 			foreach($table_of_contents as $chapter_data) {
 				$chapter_label = $chapter_data['dir_label'];
 				echo '<li>'.$chapter_label.'</li>';
-				$chapter_pages = $chapter_data['pages'];
-				echo '<ul>';
-				foreach($chapter_pages as $chapter_page) {
-					$page_name = $chapter_page['page_name'];
-					$page_label = $chapter_page['page_label'];
-					$dir_name = $docs->remove_first_x_characters($chapter_data['dir_name'], 4);
-					$page_name = $docs->remove_first_x_characters($page_name, 4);
-					$page_url = BASE_URL.strtolower($dir_name).'/'.$page_name;
-	                $page_label = str_replace('rongate1', 'rongate #1', $page_label);
-	                $page_label = str_replace('rongate2', 'rongate #2', $page_label);
-	                $page_label = str_replace('rongate3', 'rongate #3', $page_label);
-	                $page_label = str_replace('rongate4', 'rongate #4', $page_label);
-	                $page_label = str_replace('rongate5', 'rongate #5', $page_label);
-	                $page_label = str_replace('Github', 'GitHub', $page_label);
-	                $page_label = str_replace('And', '&amp;', $page_label);
-	                $page_label = str_replace('Url ', 'URL ', $page_label);
-	                $page_label = str_replace('Css', 'CSS', $page_label);
-	                $page_label = str_replace('themes', 'Themes', $page_label);
-	                $page_label = str_replace(' An Overview', ': An Overview', $page_label);
-
-					echo '<li>'.anchor($page_url, $page_label).'</li>';
+				
+				if (isset($chapter_data['pages'])) {
+					$docs->draw_pages_list($chapter_data);
+				} else {
+					// Draw a list of sub directories.
+					$docs->draw_sub_directories_list($chapter_data['dir_name'], $chapter_data['sub_directories']);
 				}
-				echo '</ul>';
+
 			}
 			?>
 		    </ul>
@@ -76,9 +61,18 @@
 	</div>
 
 	<footer>&nbsp;</footer>
+
+<div class="modal" id="temp-modal" style="display: none">
+	<div class="modal-body framework-ref">
+		<div class="spinner mt-3 mb-3"></div>
+	</div>
+</div>
+
+
 	<script>
 		const baseUrl = '<?= BASE_URL ?>';
 	</script>
+	<script src="<?= BASE_URL ?>js/app.js"></script>
 	<script src="<?= BASE_URL ?>js/docs.js"></script>
 </body>
 </html>

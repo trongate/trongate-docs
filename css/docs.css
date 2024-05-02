@@ -394,6 +394,16 @@ figure img {
     justify-content: flex-start;
 }
 
+.fake-link {
+  color: var(--primary);
+}
+
+.fake-link:hover {
+  color: var(--primary-darker);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Styling individual breadcrumb items */
 .breadcrumbs a {
     color: #0275d8; /* A nice blue that is commonly used for links */
@@ -439,4 +449,75 @@ figure img {
   text-align: center;
   font-size: 4em;
   margin-bottom: 45vh;
+}
+
+#temp-modal {
+  max-width: 1000px !important;
+}
+
+.modal .framework-ref h1 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 33px;
+}
+
+.modal .framework-ref h2 {
+  margin-top: 1.6em;
+  font-size: 21px;
+}
+
+.modal .framework-ref .signature {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-left: 5px solid #0056b3;
+  text-align: left;
+  font-weight: bold;
+  color: #555;
+}
+
+.modal .framework-ref p {
+  text-align: left;
+  font-size: 14px;
+}
+
+.modal .framework-ref table {
+  font-size: 14px;
+}
+
+.modal .framework-ref table:first-of-type tr > td:nth-child(even),
+.modal .framework-ref table:nth-of-type(2) tr > td:nth-child(1) {
+  text-align: center;
+}
+
+.modal .framework-ref .param,
+.modal .framework-ref .return {
+  background-color: #e0e0e0;
+  padding: 10px;
+  margin: 10px 0;
+  border-left: 3px solid #0056b3;
+}
+
+.modal .framework-ref .example {
+  background-color: #fff;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.modal .framework-ref pre {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 7px 10px 7px;
+  max-width: 100%;
+  line-height: 1.4em;
+  font-size: 15px;
+}
+
+.modal .framework-ref .note {
+  font-style: italic;
+}
+
+.modal .framework-ref .link a {
+  color: #007bff;
+  text-decoration: none;
 }

@@ -1,0 +1,54 @@
+<div class="container">
+  <h1>truncate_str()</h1>
+  <p class="signature">function truncate_str(string $value, int $max_length): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Truncates a string to a specified maximum length. If the string's length exceeds the maximum, it is shortened and an ellipsis (...) is appended.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$value</td>
+        <td>string</td>
+        <td>The input string to be truncated.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$max_length</td>
+        <td>int</td>
+        <td>The maximum length of the truncated string.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the truncated string with an ellipsis (...) if the original string's length exceeds the maximum length.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+echo truncate_str("Hello World! This is a Test String.", 11);
+// Output: Hello World...</pre>
+  </div>
+</div>

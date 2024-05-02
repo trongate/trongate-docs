@@ -1,0 +1,55 @@
+<div class="container">
+  <h1>truncate_words()</h1>
+  <p class="signature">function truncate_words(string $value, int $max_words): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Truncates a string to a specified maximum number of words. If the number of words in the string exceeds the maximum, the string is shortened to the maximum number of words and an ellipsis (...) is appended.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$value</td>
+        <td>string</td>
+        <td>The input string to be truncated.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$max_words</td>
+        <td>int</td>
+        <td>The maximum number of words allowed in the truncated string.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the truncated string with an ellipsis (...) if the original string's word count exceeds the maximum allowed.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+echo truncate_words("Hello World! This is a Test String for example purposes.", 5);
+// Output: Hello World! This is a...
+    </pre>
+  </div>
+</div>
