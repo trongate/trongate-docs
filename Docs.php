@@ -12,9 +12,12 @@ class Docs {
 		$directories = $this->get_directories($target_dir);
 		$table_of_contents = $this->add_pages_arary($target_dir, $directories);
 		$num_chapters = count($table_of_contents);
+
+//json($table_of_contents[$num_chapters-1]); die();
+
 		unset($table_of_contents[$num_chapters-1]);
 		$ref_chapter = $this->build_ref_chapter_tree();
-		$table_of_contents[] = $ref_chapter;
+		$table_of_contents[$num_chapters-1] = $ref_chapter;
 		return $table_of_contents;
 	}
 

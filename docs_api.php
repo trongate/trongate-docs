@@ -1,10 +1,19 @@
 <?php
 include('Docs.php');
 
-function returnTableOfContents() {
+function returnTableOfContents($params) {
 	http_response_code(200);
 	$docs = new Docs;
 	$table_of_contents = $docs->fetch_table_of_contents();
+
+	$num_chapters = count($table_of_contents);
+
+	$removeRefs = $params->removeRefs ?? false;
+
+	if ($removeRefs === true) {
+		unset($table_of_contents[$num_chapters]);
+	}
+
 	http_response_code(200);
 	echo json_encode($table_of_contents);
 }
@@ -20,7 +29,7 @@ function handleRequestedAction() {
 		$action = $params->action ?? false;
 
 		if ($action === 'return table of contents') {
-			returnTableOfContents();
+			returnTableOfContents($params);
 		}
 
 		if ($action === 'attemptEmbelishPage') {

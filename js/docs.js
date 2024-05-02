@@ -14,8 +14,6 @@ function attemptEmbelishPage() {
     http.send(JSON.stringify(params));
     http.onload = function() {
 
-console.log(http.responseText);
-
         const reponseObj = JSON.parse(http.responseText);
         const breadcrumbs = reponseObj.breadcrumbs;
 
@@ -63,14 +61,18 @@ function drawNextPrevBtns(nextPrevBtns) {
 
     pageNavBtnsContainer.appendChild(prevBtnDiv);
 
-    // Build a 'Next' button for navigating to the next page.
-    const nextBtnDiv = document.createElement('div');
-    const nextBtn = document.createElement('a');
-    nextBtn.setAttribute('href', nextUrl);
-    nextBtn.setAttribute('class', 'button');
-    nextBtn.innerHTML = 'Next <i class="fa fa-arrow-circle-right"></i>';
-    nextBtnDiv.appendChild(nextBtn);
-    pageNavBtnsContainer.appendChild(nextBtnDiv);
+    if (nextUrl) {
+
+        // Build a 'Next' button for navigating to the next page.
+        const nextBtnDiv = document.createElement('div');
+        const nextBtn = document.createElement('a');
+        nextBtn.setAttribute('href', nextUrl);
+        nextBtn.setAttribute('class', 'button');
+        nextBtn.innerHTML = 'Next <i class="fa fa-arrow-circle-right"></i>';
+        nextBtnDiv.appendChild(nextBtn);
+        pageNavBtnsContainer.appendChild(nextBtnDiv);
+
+    }
 
     const ridiculouslyHugeEl = document.querySelector('#ridiculously-huge');
 
