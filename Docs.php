@@ -37,50 +37,7 @@ class Docs {
 
 	}
 
-	private function attempt_extract_next_url($assumed_page_url, $table_of_contents) {
-
-		$found_assumed_page_url = false;
-		$next_url = '';
-		foreach($table_of_contents as $chapter) {
-			$chapter_pages = $chapter['files'];
-			foreach($chapter_pages as $chapter_page) {
-
-				if ($found_assumed_page_url === true) {
-					$next_url = $chapter_page['page_url'];
-					return $next_url;
-				}
-
-				if ($chapter_page['page_url'] === $assumed_page_url) {
-					$found_assumed_page_url = true;
-				}
-				
-			}
-
-		}
-
-		return $next_url;
-
-	}
-
-	function remove_last_segment() {
-	    // Get the current URL
-	    $current_url = current_url();
-
-	    // Remove the BASE_URL part to isolate the path
-	    $path = str_replace(BASE_URL, '', $current_url);
-
-	    // Trim leading and trailing slashes then split the path into segments
-	    $segments = explode('/', trim($path, '/'));
-
-	    // Remove the last segment
-	    array_pop($segments);
-
-	    // Reconstruct the URL without the last segment
-	    return BASE_URL . implode('/', $segments);
-	}
-
-
-	private function attempt_extract_prev_url($assumed_page_url, $table_of_contents) {
+	private function attempt_extract_prev_urlX($assumed_page_url, $table_of_contents) {
 
 		$prev_url = '';
 		foreach($table_of_contents as $chapter) {
@@ -98,6 +55,81 @@ class Docs {
 
 		}
 
+	}
+
+	private function attempt_extract_prev_url($assumed_page_url, $table_of_contents) {
+
+		$prev_url = '';
+		foreach($table_of_contents as $chapter_key => $chapter) {
+			$chapter_pages = $chapter['files'];
+			foreach($chapter_pages as $page_key => $chapter_page) {
+
+				if ($chapter_page['page_url'] === $assumed_page_url) {
+
+					if ($page_key === 0) {
+						
+						// Go to the chapter intro page
+						$next_url = $this->remove_last_segment($assumed_page_url);
+						return $next_url;
+
+					} elseif(isset($table_of_contents[$chapter_key]['files'][$page_key-1])) {
+						
+						// Go back one page (within this chapter)
+						$next_url = $table_of_contents[$chapter_key]['files'][$page_key-1]['page_url'];
+						return $next_url;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		return $prev_url;
+
+	}
+
+	private function attempt_extract_next_url($assumed_page_url, $table_of_contents) {
+		$next_url = '';
+		foreach($table_of_contents as $chapter_key => $chapter) {
+			$chapter_pages = $chapter['files'];
+			foreach($chapter_pages as $page_key => $chapter_page) {
+
+				if ($chapter_page['page_url'] === $assumed_page_url) {
+					if (isset($table_of_contents[$chapter_key]['files'][$page_key+1])) {
+						$next_url = $table_of_contents[$chapter_key]['files'][$page_key+1]['page_url'];
+						return $next_url;
+					} elseif (isset($table_of_contents[$chapter_key+1]['files'][0])) {
+
+						$next_url = $table_of_contents[$chapter_key+1]['files'][0]['page_url']; 
+						$next_url = $this->remove_last_segment($next_url);
+						return $next_url;			
+					}
+
+				}
+
+			}
+
+		}
+
+		return $next_url;
+
+	}
+
+	function remove_last_segment($page_url) {
+
+	    // Remove the BASE_URL part to isolate the path
+	    $path = str_replace(BASE_URL, '', $page_url);
+
+	    // Trim leading and trailing slashes then split the path into segments
+	    $segments = explode('/', trim($path, '/'));
+
+	    // Remove the last segment
+	    array_pop($segments);
+
+	    // Reconstruct the URL without the last segment
+	    return BASE_URL . implode('/', $segments);
 	}
 
 	public function est_docs_contents() {
