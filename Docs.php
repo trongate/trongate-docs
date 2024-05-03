@@ -37,26 +37,6 @@ class Docs {
 
 	}
 
-	private function attempt_extract_prev_urlX($assumed_page_url, $table_of_contents) {
-
-		$prev_url = '';
-		foreach($table_of_contents as $chapter) {
-			$chapter_pages = $chapter['files'];
-			$page_counter = 0;
-			foreach($chapter_pages as $chapter_page) {
-				$page_counter++;
-				if ($chapter_page['page_url'] === $assumed_page_url) {
-					return $prev_url;
-					break;
-				}
-
-				$prev_url = $chapter_page['page_url'];
-			}
-
-		}
-
-	}
-
 	private function attempt_extract_prev_url($assumed_page_url, $table_of_contents) {
 
 		$prev_url = '';
@@ -333,6 +313,11 @@ class Docs {
 	    }
 
 	    closedir($dir_handle);
+
+	    usort($html_files, function($a, $b) {
+	        return strcmp($a['filename'], $b['filename']);
+	    });
+
 	    return $html_files;
 	}
 
