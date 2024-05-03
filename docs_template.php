@@ -37,7 +37,9 @@
 		<aside>
 			<ul id="chapter-nav">
 				<?php
+				$table_of_contents = $docs_contents->table_of_contents;
 		    	foreach($table_of_contents as $chapter) {
+
 		    		echo '<li>'.$chapter['dir_label'].'</li>';
 		    		$files = $chapter['files'];
 
@@ -53,10 +55,13 @@
 		</aside>
 
 		<main><?php
+		include('docs_next_prev_btns.php');
+
 		if (!file_exists($view_file)) {
 			var_dump($view_file);
 		} else {
 			require_once($view_file);
+			include('docs_next_prev_btns.php');
 		}
 	    ?></main>		
 	</div>

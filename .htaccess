@@ -1,9 +1,15 @@
+# Turn on URL rewriting
 RewriteEngine On
-RewriteBase /trongate-docs/
 
-# If the request is not for an existing file or directory
+# Check if mod_headers is enabled, to set Content Security Policy
+<IfModule mod_headers.c>
+    # Prevent the website content from being framed from any source
+    Header set Content-Security-Policy "frame-ancestors 'none'"
+</IfModule>
+
+# Condition to ensure the file or directory is not actual file or directory
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Rewrite all requests to index.php
-RewriteRule ^(.*)$ index.php [L]
+# Route all requests through index.php
+RewriteRule ^ index.php [QSA,L]
