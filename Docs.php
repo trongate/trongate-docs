@@ -6,19 +6,20 @@ class Docs {
 
 	public function get_next_prev_array($docs_contents) {
 
-		$next_prev_array['prev'] = false;
-		$next_prev_array['next'] = false;
+			$next_prev_array['prev'] = false;
+			$next_prev_array['next'] = false;
 
-		$assumed_page_url = rtrim(current_url(), '/');
-		$reduced_base_url = rtrim(BASE_URL, '/');
+			$assumed_page_url = rtrim(current_url(), '/');
+			$reduced_base_url = rtrim(BASE_URL, '/');
+			// Do not add next prev for first page or table of contents
 
-		$exclude_these_segments[] = '';
-		$exclude_these_segments[] = 'introduction';
-		$exclude_these_segments[] = $this->remove_first_four_if_numeric(url_title(REF_DIR));
+			if (($assumed_page_url === $docs_contents->homepage['page_url']) || ($assumed_page_url === $reduced_base_url)) {
+				return $next_prev_array;
+			}
 
-		if (in_array(segment(1), $exclude_these_segments)) {
-			return $next_prev_array;
-		} else {
+			if (strpos($assumed_page_url, 'table-of-contents') !== false) {
+				return $next_prev_array;
+			}
 
 			$prev_url = $this->attempt_extract_prev_url($assumed_page_url, $docs_contents->table_of_contents);
 			$next_url = $this->attempt_extract_next_url($assumed_page_url, $docs_contents->table_of_contents);
@@ -32,8 +33,6 @@ class Docs {
 			}
 
 			return $next_prev_array;
-
-		}
 
 	}
 

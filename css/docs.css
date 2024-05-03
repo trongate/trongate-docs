@@ -150,7 +150,7 @@ button, .button {
 }
 
 .alert-info > div:nth-child(1) {
-  background-color: var(--primary-darker);
+  bxackground-color: var(--primary-darker);
 }
 
 .alert-info > div:nth-child(2) {
@@ -522,46 +522,57 @@ figure img {
   text-decoration: none;
 }
 
-        .toc-grid {
-        margin-top: 33px;
-        display: grid;
-        grid-template-columns: repeat(1fr);
-        grid-gap: 1em;
-        }
-        .toc-grid h4 {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        }
-        .toc-grid h2 {
-        margin-top: 0;
-        padding-top: 0;
-        }
-        .toc-grid ul {
-        list-style-type: none;
-        font-size: 0.9em;
-        font-weight: bold;
-        }
-        .toc-grid li {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px #111 dotted;
-        margin-bottom: 12px;
-        }
-        .toc-grid li a {
-        color: var(--primary);
-        }
-        .toc-grid li a {
-        text-decoration: none;
-        }
-        .toc-grid li a:hover {
-        color: var(--primary-darker);
-        }
-        .toc-grid .card-heading {
-        background-color: var(--primary-darker);
-        }
-        .page-num {
-        font-weight: bold;
-        font-size: 0.8em;
-        }
+.toc-grid {
+margin-top: 33px;
+display: grid;
+grid-template-columns: repeat(1fr);
+grid-gap: 1em;
+}
+.toc-grid h4 {
+margin-bottom: 0;
+padding-bottom: 0;
+}
+.toc-grid h2 {
+margin-top: 0;
+padding-top: 0;
+}
+.toc-grid h3 {
+  color: #111;
+}
+.toc-grid ul {
+list-style-type: none;
+font-size: 0.9em;
+font-weight: bold;
+}
+.toc-grid li {
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: space-between;
+border-bottom: 1px #111 dotted;
+margin-bottom: 12px;
+}
+.toc-grid li a {
+color: var(--primary);
+}
+.toc-grid li a {
+text-decoration: none;
+}
+.toc-grid li a:hover {
+color: var(--primary-darker);
+}
+.toc-grid .card-heading {
+background-color: var(--primary-darker);
+}
+.page-num {
+font-weight: bold;
+font-size: 0.8em;
+}
+
+.ref-sub-headline {
+  list-style-type: none;
+}
+
+.ref-sub-headline:first-of-type {
+  margin-top: 1em;
+}

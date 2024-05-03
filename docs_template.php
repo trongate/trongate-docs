@@ -38,7 +38,7 @@
 			<ul id="chapter-nav">
 				<?php
 				$table_of_contents = $docs_contents->table_of_contents;
-		    	foreach($table_of_contents as $chapter) {
+		    	foreach($table_of_contents as $chapter_key => $chapter) {
 
 		    		echo '<li>'.$chapter['dir_label'].'</li>';
 		    		$files = $chapter['files'];
@@ -47,6 +47,11 @@
 		    		foreach($files as $file) {
 		    			echo '<li>'.anchor($file['page_url'], $file['label']).'</li>';
 		    		}
+
+		    		if ($chapter_key === count($table_of_contents)-1) {
+		    			include('docs_ref_left_nav.php');
+		    		}
+
 		    		echo '</ul>';
 
 		    	}

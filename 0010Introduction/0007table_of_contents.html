@@ -3,110 +3,70 @@
     <h1>Table Of Contents</h1>
     <div class="toc-grid">
         <?php
-        foreach($table_of_contents as $chapter) {
-?>
-
-
-<div class="card">
-  <div class="card-body">
-    <h2><?= $chapter['dir_label'] ?></h2>
-
-    <ul>
-        <?php
-        $root_url = BASE_URL;
-        $files = $chapter['files'];
-
-        if (count($files) > 0) {
-            foreach($files as $file) {
-                $page_url = $root_url.'/'.$file;
-                $page_label = $file;
-                echo '<li><a href="'.$page_url.'">'.$page_label.'</a></li>';
-            }
-        }
+        $page_counter = 0;
+        foreach($table_of_contents as $chapter_key => $chapter) {
+            
         ?>
-    </ul>
-  </div>
-</div>
+        <div class="card">
+          <div class="card-body">
+            <h2><?= $chapter['dir_label'] ?></h2>
 
-<?php
+            <ul>
+                <?php
+                $root_url = BASE_URL;
+                $files = $chapter['files'];
+
+                if ($chapter_key === count($table_of_contents)-1) {
+                    // Comprehensive Reference Guide START
+
+                    $sub_directories = $chapter['sub_directories'];
+                    foreach($sub_directories as $sub_directory) {
+                        $dir_label = $sub_directory['dir_label'];
+                        echo '<h3>'.$dir_label.'</h3>';
+
+                        foreach($sub_directory['sub_directories'] as $dir) {
+
+                            if (isset($dir['files'][0])) {
+                               
+                                $page_url = $dir['files'][0]['page_url'];
+
+                                // Trim leading and trailing slashes then split the path into segments
+                                $segments = explode('/', trim($page_url, '/'));
+
+                                // Remove the last segment
+                                array_pop($segments);
+
+                                // Reconstruct the URL without the last segment
+                                $page_url = implode('/', $segments);
+
+                            } else {
+                                $page_url = '#';
+                            }
+
+                            $page_counter++;
+                            echo '<li><div><a href="'.$page_url.'">'.$dir['dir_label'].'</a></div><div>'.$page_counter.'</div></li>';
+                        }
+
+                    }
+
+
+                    // Comprehensive Reference Guide END
+                } else {
+
+                    foreach($files as $file) {
+                        $page_counter++;
+                         echo '<li><div><a href="'.$file['page_url'].'">'.$file['label'].'</a></div><div>'.$page_counter.'</div></li>';
+                    }
+
+                }
+                ?>
+            </ul>
+          </div>
+        </div>
+        <?php
         }
         ?>
     </div>
 
 </div>
 
-
-<script>
-const tocGrid = document.querySelector('.toc-grid');
-let chapterCounter = 0;
-let pageCounter = 0;
-
-function buildTableOfContents(responseText) {
-    const tableOfContents = JSON.parse(responseText);
-
-    // Clear the existing table of contents grid.
-    while(tocGrid.firstChild) {
-        tocGrid.removeChild(tocGrid.firstChild);
-    }
-
-    tableOfContents.forEach(chapterObj => {
-        chapterCounter++;
- 
-        const chapterCard = document.createElement('div');
-        chapterCard.setAttribute('class', 'card');
-        tocGrid.appendChild(chapterCard);
-
-        const cardBody = document.createElement('div');
-        cardBody.setAttribute('class', 'card-body');
-        chapterCard.appendChild(cardBody);
-
-        const cardHealineEl = document.createElement('h2');
-        const cardHeadline = '<span>Chapter ' + chapterCounter + ' -</span> ' + chapterObj.dir_label;
-        cardHealineEl.innerHTML = cardHeadline;
-        cardBody.appendChild(cardHealineEl);
-
-        const pages = chapterObj.pages;
-        if (pages.length > 0) {
-            // Build up a list of the pages that belong to the chapter.
-            const pageList = document.createElement('ul');
-            cardBody.appendChild(pageList);
-
-            pages.forEach(pageObj => {
-                pageCounter++;
-                const pageListItem = document.createElement('li');
-                const spanLhs = document.createElement('span');
-                const pageLink = document.createElement('a');
-                pageLink.setAttribute('href', pageObj.page_url);
-                pageLink.innerText = pageObj.page_label;
-                spanLhs.appendChild(pageLink);
-                pageListItem.appendChild(spanLhs);
-
-                const spanRhs = document.createElement('span');
-                spanRhs.setAttribute('class', 'page-num');
-                spanRhs.innerText = pageCounter;
-                pageListItem.appendChild(spanRhs);
-
-                pageList.appendChild(pageListItem);
-            });
-        }
-    });
-
-}
-
-const targetUrl = '../docs_api.php';
-
-const params = {
-    action: 'return table of contents',
-    removeRefs: true
-}
-
-const http = new XMLHttpRequest();
-http.open('post', targetUrl);
-http.setRequestHeader('Content-type', 'application/json');
-http.send(JSON.stringify(params));
-http.onload = function() {
-    buildTableOfContents(http.responseText);
-}
-
-
-</script>
