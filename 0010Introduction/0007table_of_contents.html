@@ -1,7 +1,37 @@
 <div>
     <p class="text-center"><b>TRONGATE FRAMEWORK DOCUMENTATION</b></p>
     <h1>Table Of Contents</h1>
-    <div class="toc-grid"><div class="spinner mt-3"></div></div>
+    <div class="toc-grid">
+        <?php
+        foreach($table_of_contents as $chapter) {
+?>
+
+
+<div class="card">
+  <div class="card-body">
+    <h2><?= $chapter['dir_label'] ?></h2>
+
+    <ul>
+        <?php
+        $root_url = BASE_URL;
+        $files = $chapter['files'];
+
+        if (count($files) > 0) {
+            foreach($files as $file) {
+                $page_url = $root_url.'/'.$file;
+                $page_label = $file;
+                echo '<li><a href="'.$page_url.'">'.$page_label.'</a></li>';
+            }
+        }
+        ?>
+    </ul>
+  </div>
+</div>
+
+<?php
+        }
+        ?>
+    </div>
 
 </div>
 

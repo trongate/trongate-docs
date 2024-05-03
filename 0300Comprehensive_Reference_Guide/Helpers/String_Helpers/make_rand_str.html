@@ -1,0 +1,56 @@
+<div class="container">
+  <h1>make_rand_str()</h1>
+  <p class="signature">function make_rand_str(int $length = 32, bool $uppercase = false): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates a random string of characters, customizable by length and whether to use uppercase. Ideal for generating secure and unique keys or tokens.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$length</td>
+        <td>int</td>
+        <td>Optional. The length of the random string to be generated.</td>
+        <td>32</td>
+      </tr>
+      <tr>
+        <td>$uppercase</td>
+        <td>bool</td>
+        <td>Optional. Whether the string should be returned in uppercase letters.</td>
+        <td>false</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the randomly generated string. The string will be in uppercase if the $uppercase parameter is set to true; otherwise, it will be in lowercase.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+echo make_rand_str(); // Output: jk7hjkmq89ph7nqmp89y3q4h3p89h3nq
+echo make_rand_str(10, true); // Output: JH7JKM9PQH
+    </pre>
+  </div>
+  
+</div>

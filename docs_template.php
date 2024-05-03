@@ -3,11 +3,9 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>css/trongate.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>css/docs.css">
@@ -38,25 +36,28 @@
 	<div class="container container-lg">
 		<aside>
 			<ul id="chapter-nav">
-			<?php
-			foreach($table_of_contents as $chapter_data) {
-				$chapter_label = $chapter_data['dir_label'];
-				echo '<li>'.$chapter_label.'</li>';
-				
-				if (isset($chapter_data['pages'])) {
-					$docs->draw_pages_list($chapter_data);
-				} else {
-					// Draw a list of sub directories.
-					$docs->draw_sub_directories_list($chapter_data['dir_name'], $chapter_data['sub_directories']);
-				}
+				<?php
+		    	foreach($table_of_contents as $chapter) {
+		    		echo '<li>'.$chapter['dir_label'].'</li>';
+		    		$files = $chapter['files'];
 
-			}
-			?>
+		    		echo '<ul>';
+		    		foreach($files as $file) {
+		    			echo '<li>'.anchor($file['page_url'], $file['label']).'</li>';
+		    		}
+		    		echo '</ul>';
+
+		    	}
+		    	?>
 		    </ul>
 		</aside>
 
 		<main><?php
-	    require_once($view_file);
+		if (!file_exists($view_file)) {
+			var_dump($view_file);
+		} else {
+			require_once($view_file);
+		}
 	    ?></main>		
 	</div>
 

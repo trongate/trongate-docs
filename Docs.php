@@ -4,85 +4,45 @@ require_once('helpers.php');
 
 class Docs {
 
-	public $local_base_url = 'http://localhost/trongate-docs/';
-	public $live_base_url = 'https://trongate.io/docs/';
+	public function return_table_of_contents() {
+        $path = APPPATH;
 
-	public function fetch_table_of_contents() {
-		$target_dir = APPPATH.'trongate-docs';
-		$directories = $this->get_directories($target_dir);
-		$table_of_contents = $this->add_pages_arary($target_dir, $directories);
-		$num_chapters = count($table_of_contents);
-
-//json($table_of_contents[$num_chapters-1]); die();
-
-		unset($table_of_contents[$num_chapters-1]);
-		$ref_chapter = $this->build_ref_chapter_tree();
-		$table_of_contents[$num_chapters-1] = $ref_chapter;
-		return $table_of_contents;
+        $result = $this->get_sub_directories($path, EXCLUDE_DIRS);
+        return $result;
 	}
 
-	function build_ref_chapter_tree() {
-
-/*
-{
-    "dir_name": "0010Introduction",
-    "dir_label": "Introduction",
-    "pages": [
-        {
-            "page_name": "0005home.html",
-            "page_label": "Home",
-            "page_url": "http:\/\/localhost\/trongate-docs\/introduction\/home.html"
-        },
-        {
-            "page_name": "0007table_of_contents.html",
-            "page_label": "Table Of Contents",
-            "page_url": "http:\/\/localhost\/trongate-docs\/introduction\/table_of_contents.html"
-        },
-        {
-            "page_name": "0010welcome.html",
-            "page_label": "Welcome",
-            "page_url": "http:\/\/localhost\/trongate-docs\/introduction\/welcome.html"
-        }
-    ]
-}
-*/
-	
-		$data['dir_name'] = '0300Comprehensive_Reference_Guide';
-		$data['dir_label'] = 'Comprehensive Reference Guide';
-
-		$dir_path = APPPATH.'trongate-docs/0300Comprehensive_Reference_guide';
-		$data['sub_directories'] = $this->get_sub_directories($dir_path);
-		return $data;
-
-	}
-
-	private function get_sub_directories($path) {
+	private function get_sub_directories($path, $exclude_dirs = null) {
 	    $sub_directories = [];
 
-	    
 	    // Check if the directory exists and is a directory
 	    if (is_dir($path)) {
 	        // Open the directory
 	        if ($dir_handle = opendir($path)) {
 	            // Loop through the directory entries
 	            while (false !== ($entry = readdir($dir_handle))) {
-	                // Skip '.' and '..' directories
+	                if (isset($exclude_dirs)) {
+	                    $first_char = substr($entry, 0, 1);
+	                    if ((in_array($entry, $exclude_dirs)) || ($first_char === '.')) {
+	                        continue;
+	                    }
+	                }
+
+	                // Skip '.' and '..' directories and ensure it is a directory
 	                if ($entry != "." && $entry != ".." && is_dir($path . DIRECTORY_SEPARATOR . $entry)) {
 	                    // Prepare directory label by removing leading numbers and replacing underscores
 	                    $label = preg_replace('/^\d+/', '', $entry);  // Remove leading digits
 	                    $label = str_replace('_', ' ', $label);       // Replace underscores with spaces
 	                    $label = trim($label);                       // Trim extra spaces
 
-	                    $sub_sub_dirs = $this->get_sub_directories($path.'/'.$entry);
+	                    $sub_sub_dirs = $this->get_sub_directories($path . '/' . $entry);
 	                    
 	                    // Append the directory name and label to the result array
-
 	                    $row_data['dir_name'] = $entry;
 	                    $row_data['dir_label'] = ucwords($label);
 	                    $row_data['sub_directories'] = $sub_sub_dirs;
+	                    $row_data['files'] = $this->fetch_html_files($path.'/'.$entry);
 
 	                    $sub_directories[] = $row_data;
-
 	                }
 	            }
 	            closedir($dir_handle);
@@ -91,280 +51,128 @@ class Docs {
 	        return "Error: The provided path is not a directory.";
 	    }
 
+	    // Sort the array alphabetically based on the directory name
+	    usort($sub_directories, function($a, $b) {
+	        return strcmp($a['dir_name'], $b['dir_name']);
+	    });
+
 	    return $sub_directories;
 	}
 
-	public function fetch_chapter_name_num($url) {
-		$chapter_num = 0;
-		$table_of_contents = $this->fetch_table_of_contents();
-		foreach($table_of_contents as $chapter) {
-			$chapter_num++;
-			$chapter_pages = $chapter['pages'];
-			foreach($chapter_pages as $chapter_page) {
-
-				if (strpos($chapter_page['page_url'] , $url) !== false) {
-					$data['chapter_name'] = $chapter['dir_label'];
-					$data['chapter_num'] = $chapter_num;
-					return $data;					
-				}
-	
-			}
-
-		}
-
-		return false;
-	}
-
-	public function get_real_file_name($dir_real_name, $target_file_name) {
-		$target_file_name = strtolower($target_file_name);
-		$target_dir = $root_dir = APPPATH.'trongate-docs/'.$dir_real_name;
-
-		$files_in_dir = $this->get_html_files($target_dir);
-		foreach($files_in_dir as $file_in_dir) {
-			$real_file_name = $file_in_dir['page_name'];
-			$nice_file_name = $this->remove_first_x_characters($real_file_name, 4);
-			$nice_file_name = strtolower($nice_file_name);
-
-			if ($target_file_name === $nice_file_name) {
-				return $real_file_name;
-			}
-		}
-		return false;
-	}
-
-	public function get_dir_real_name($target_dir_name) {
-		$target_dir = strtolower($target_dir_name);
-		$root_dir = APPPATH.'trongate-docs';
-		$directories = $this->get_directories($root_dir);
-		
-		foreach($directories as $directory) {
-			$nice_name = $this->remove_first_x_characters($directory, 4);
-			$nice_name = strtolower($nice_name);
-			
-			if ($nice_name === $target_dir) {
-				$real_dir_name = $directory;
-				return $real_dir_name;
-			}
-		}
-
-		return false;
-	}
-
-	public function add_pages_arary($app_dir, $directories) {
-
-		$table_of_contents = [];
-		foreach($directories as $directory) {
-			$row_data['dir_name'] = $directory;
-			$target_dir = $app_dir.'/'.$row_data['dir_name'];
-			
-			$row_data['dir_label'] = str_replace('_', ' ', $this->remove_first_x_characters($directory, 4));
-			$row_data['pages'] = $this->get_html_files($target_dir);
-
-			$table_of_contents[] = $row_data;
-		}
-
-		return $table_of_contents;
-	}
-
-	public function build_page_url($chapter_page, $directory_name) {
-		$directory_name = str_replace(APPPATH, '', $directory_name);
-
-		//$str = 'trongate-docs/';
-		$str_start = substr($directory_name, 0, 14);
-		
-		if ($str_start === 'trongate-docs/') {
-			$directory_name = $this->remove_first_x_characters($directory_name, 14);
-		}
-
-		if (strpos(current_url(), 'localhost') !== false) {
-			$base_url = $this->local_base_url;
-		} else {
-			$base_url = $this->live_base_url;
-		}
-
-	    // Remove the first 4 characters (.html) from the page name and directory name
-	    $page_name = $this->remove_first_x_characters($chapter_page['page_name'], 4);
-	    $dir_name = $this->remove_first_x_characters($directory_name, 4);
-
-	    // Construct and return the full URL for the page
-	    $page_url = $base_url . strtolower($dir_name) . '/' . $page_name;
-	    return $base_url . strtolower($dir_name) . '/' . $page_name;
-	}
-
-
-	/**
-	 * Retrieves directories from the specified path, excluding certain directories.
-	 *
-	 * @param string $path The path to the directory.
-	 * @return array An array containing directories within the specified path.
-	 */
-	public function get_directories(string $path): array
-	{
-	    // Directories to ignore
-	    $ignore_dirs = ['css', 'images', 'js', 'fonts', 'junk'];
-
-	    // Initialize an empty array to store directories
-	    $directories = [];
-
-	    // Check if the path is a valid directory
-	    if (is_dir($path)) {
-	        // Open the directory
-	        if ($handle = opendir($path)) {
-	            // Loop through each item in the directory
-	            while (($item = readdir($handle)) !== false) {
-	                // Exclude special directories (. and ..)
-	                if ($item != '.' && $item != '..') {
-	                    // Check if the item is a directory
-	                    if (is_dir($path . '/' . $item)) {
-	                        // Add the directory to the array
-	                        if (!in_array($item, $ignore_dirs)) {
-	                            $directories[] = $item;
-	                        }
-	                    }
-	                }
-	            }
-	            // Close the directory handle
-	            closedir($handle);
-
-	            // Sort the directories alphabetically
-	            sort($directories);
-	        }
-	    } else {
-	        // Output an error message if the path is not a valid directory
-	        echo "Error: '$path' is not a valid directory.";
-	    }
-
-	    // Remove the first element of the array (current directory)
-	    unset($directories[0]);
-
-	    // Return the array of directories
-	    return $directories;
-	}
-
-	function get_html_files_alpha($directory) {
-		// Similar to get_html_files() but returns files in alphabetical order
-
-		$found_files = [];
-
-	    // Check if the directory exists and is readable
-	    if (is_dir($directory) && is_readable($directory)) {
-	        // Open the directory
-	        if ($handle = opendir($directory)) {
-	            // Loop through each item in the directory
-	            while (($item = readdir($handle)) !== false) {
-	                // Exclude special directories (. and ..)
-	                if ($item != '.' && $item != '..') {
-	                    // Check if the item is a file ending with .html extension
-	                    if (is_file($directory . '/' . $item) && pathinfo($item, PATHINFO_EXTENSION) === 'html') {
-	                        // Add the html file to the array
-	                        $found_files[] = $item;
-	                    }
-	                }
-	            }
-	            // Close the directory handle
-	            closedir($handle);
-
-	            // Sort the html files alphabetically
-	            sort($found_files);
-	        }
-	    } else {
-	        // Output an error message if the directory is not valid or readable
-	        echo "Error: '$directory' is not a valid or readable directory.";
-	    }
-
+	private function fetch_html_files($directory) {
 	    $html_files = [];
-	    foreach($found_files as $found_file) {
-	    	$row_data['page_name'] = $found_file;
-	    	$row_data['page_label'] = $this->prep_page_label($found_file);
-	    	$row_data['page_url'] = current_url().$found_file;
-	    	$html_files[] = $row_data;
+
+	    // Check if the directory exists and is a directory
+	    if (is_dir($directory)) {
+	        // Open the directory
+	        if ($dir_handle = opendir($directory)) {
+	            // Loop through the directory entries
+	            while (false !== ($file = readdir($dir_handle))) {
+	                // Check if the file ends with .html
+	                if (substr($file, -5) === '.html') {
+
+	                	$row_data['filename'] = rtrim($file, '/');
+	                	$row_data['filepath'] = $directory.'/'.$file;
+	                	$row_data['filepath'] = str_replace(APPPATH.'/', APPPATH, $row_data['filepath']);
+	                	$row_data['label'] = $this->build_nice_label($file);
+
+	                	$page_url = str_replace(APPPATH, BASE_URL, $row_data['filepath']);
+	                	$page_url = str_replace(BASE_URL, '', $page_url);
+
+	                	$corrected_page_url = '';
+	                	$page_url_bits = explode('/', $page_url);
+	           	
+	                	foreach($page_url_bits as $key => $page_url_bit) {
+
+	                		$corrected_url_bit = strtolower($this->remove_first_four_if_numeric($page_url_bit));
+	                		if ($key > 0) {
+	                			$corrected_page_url.= '/';
+	                		}
+
+	                		$corrected_page_url.= $corrected_url_bit;
+	                	}
+
+	                	$corrected_page_url = BASE_URL.$corrected_page_url;
+	                	$corrected_page_url = str_replace(BASE_URL.'/', BASE_URL, $corrected_page_url);
+	                	$row_data['page_url'] = $corrected_page_url;
+
+	                    $html_files[] = $row_data;
+	                }
+	            }
+	            closedir($dir_handle);
+	        }
+	    } else {
+	        echo "Error: The provided path '{$directory}' is not a valid directory.";
 	    }
 
 	    return $html_files;
-
 	}
 
-	function get_html_files($directory) {
-
-	    // Initialize an empty array to store html files
-	    $html_files = [];
-
-	    // Check if the directory exists and is readable
-	    if (is_dir($directory) && is_readable($directory)) {
-	        // Open the directory
-	        if ($handle = opendir($directory)) {
-	            // Loop through each item in the directory
-	            while (($item = readdir($handle)) !== false) {
-	                // Exclude special directories (. and ..)
-	                if ($item != '.' && $item != '..') {
-	                    // Check if the item is a file ending with .html extension
-	                    if (is_file($directory . '/' . $item) && pathinfo($item, PATHINFO_EXTENSION) === 'html') {
-	                        // Add the html file to the array
-	                        $html_files[] = $item;
-	                    }
-	                }
-	            }
-	            // Close the directory handle
-	            closedir($handle);
-
-	            // Sort the html files alphabetically
-	            sort($html_files);
-	        }
-	    } else {
-	        // Output an error message if the directory is not valid or readable
-	        echo "Error: '$directory' is not a valid or readable directory.";
-	    }
-
-	    // Return the array of html files
-
-	    $data = [];
-	    foreach($html_files as $html_file) {
-	    	$row_data['page_name'] = $html_file;
-	    	$row_data['page_label'] = str_replace('_', ' ', $this->remove_first_x_characters($html_file, 4));
-	    	$row_data['page_label'] = $this->remove_last_x_characters($row_data['page_label'], 5);
-	    	$row_data['page_label'] = ucwords($row_data['page_label']);
-
-	    	$row_data['page_url'] = $this->build_page_url($row_data, $directory);
-	    	$data[] = $row_data;
-	    }
-
-	    return $data;
+	public function get_url_path() {
+		$url_path = str_replace(BASE_URL, '', current_url());
+		$url_path = rtrim($url_path, '/');
+		return $url_path;
 	}
 
-	/**
-	 * Removes the first x characters from the given string.
-	 *
-	 * @param string $string The input string.
-	 * @param int $num The number of characters to remove.
-	 * @return string The modified string.
-	 */
-	function remove_first_x_characters(string $string, int $num): string {
-	    // Check if the string length is greater than $num
-	    if (strlen($string) > $num) {
-	        // Remove the first $num characters and return the result
-	        return substr($string, $num);
-	    } else {
-	        // Return the original string if its length is $num or less
-	        return $string;
-	    }
+	function get_view_file_path($table_of_contents) {
+
+		$view_file_path = '';
+		foreach($table_of_contents as $chapter) {
+			$files = $chapter['files'];
+			foreach($files as $file) {
+				if ($file['page_url'] === current_url()) {
+					$view_file_path = $file['filepath'];
+				}
+			}
+		}
+
+		return $view_file_path;
 	}
 
-	/**
-	 * Removes the last x characters from the given string.
-	 *
-	 * @param string $string The input string.
-	 * @param int $num The number of characters to remove.
-	 * @return string The modified string.
-	 */
-	function remove_last_x_characters(string $string, int $num): string {
-	    // Check if the string length is greater than the specified number
-	    if (strlen($string) > $num) {
-	        // Remove the last $num characters and return the result
-	        return substr($string, 0, -$num);
-	    } else {
-	        // Return the original string if its length is less than or equal to $num
-	        return $string;
-	    }
+	private function get_real_file_name($containing_dir, $last_bit, $table_of_contents) {
+
+		// Get the files within this containing dir.
+		$containing_dir = rtrim($containing_dir, '/');
+		$last_bit = strtolower($last_bit);
+		$root_dir = APPPATH;
+
+		foreach($table_of_contents as $chapter) {
+			$chapter_dir = $root_dir.$chapter['dir_name'];
+			$chapter_dir = rtrim($chapter_dir, '/');
+
+			if ($chapter_dir === $containing_dir) {
+				$files = $chapter['files'];
+
+				foreach($files as $file) {
+
+					$file = strtolower($file);
+					$reduced_file = $this->remove_first_four_if_numeric($file);
+					if ($reduced_file === $last_bit) {
+						return $file;
+					}
+				}
+			}
+
+		}
+
+		return $last_bit;
+	}
+
+	private function get_real_dir_name($segment, $table_of_contents) {
+
+		$primary_dirs = [];
+		foreach($table_of_contents as $chapter) {
+			$real_dir_name = $chapter['dir_name'];
+			$temp_dir_name = strtolower($this->remove_first_four_if_numeric($real_dir_name));
+			$segment = strtolower($segment);
+
+			if ($temp_dir_name === $segment) {
+				return $real_dir_name;
+			}
+
+		}
+
+		return $segment;
 	}
 
     /**
@@ -382,7 +190,6 @@ class Docs {
     public function view(string $view, array $data = [], ?bool $return_as_str = null): ?string {
         $return_as_str = $return_as_str ?? false;
         
-
         $view_path = $view.'.php';
         extract($data);
 
@@ -398,22 +205,17 @@ class Docs {
         }
     }
 
-    static public function display($data = null) {
-
-        if (!isset($data['view_file'])) {
-            $data['view_file'] = 'index';
-        }
-
-        $data['view_file'].= '.php';
-
-        $file_path = APPPATH.$data['view_file'];
-
-//        $file_path = APPPATH . 'modules/' . $data['view_module'] . '/views/' . $data['view_file'] . '.php';
-        //self::attempt_include($file_path, $data);
-        include($file_path);
+    public function draw_left_nav($table_of_contents) {
+    	foreach($table_of_contents as $chapter) {
+    		echo '<li>'.$chapter['dir_label'].'</li>';
+    		$this->draw_pages_list($chapter, $table_of_contents);
+    	}
     }
 
-    private function prep_page_label($page_label) {
+    private function build_nice_label($str) {
+    	$page_label = $this->remove_first_four_if_numeric($str);
+    	$page_label = str_replace('_', ' ', $page_label);
+    	$page_label = ucwords($page_label);
     	$page_label = str_replace('.html', '', $page_label);
  		$page_label = str_replace('rongate1', 'rongate #1', $page_label);
         $page_label = str_replace('rongate2', 'rongate #2', $page_label);
@@ -426,68 +228,83 @@ class Docs {
         $page_label = str_replace('Css', 'CSS', $page_label);
         $page_label = str_replace('themes', 'Themes', $page_label);
         $page_label = str_replace(' An Overview', ': An Overview', $page_label);
-        
-        return $page_label;
+        $page_label = str_replace(' Of ', ' of ', $page_label);
+        $page_label = str_replace(' The ', ' the ', $page_label);
+        $page_label = str_replace(' A ', ' a ', $page_label);
+        $page_label = str_replace(' From ', ' from ', $page_label);
+    	return $page_label;
     }
 
-    private function draw_pages_list($chapter_data) {
-    	$chapter_pages = $chapter_data['pages'];
+	private function remove_first_four_if_numeric($string) {
+	    // Extract the first four characters
+	    $first_four = substr($string, 0, 4);
+
+	    // Check if these characters are numeric
+	    if (ctype_digit($first_four)) {
+	        // Remove the first four characters and return the rest of the string
+	        return substr($string, 4);
+	    }
+
+	    // Return the original string if the first four characters are not numeric
+	    return $string;
+	}
+
+	private function draw_alt_nav_list($directories) {
+		foreach($directories as $directory) {
+			foreach($directories as $sub_directory) {
+				echo '<li>'.$sub_directory['dir_label'].'</li>';
+
+				$files = $sub_directory['files'];
+				$sub_directories = $sub_directory['sub_directories'];
+
+				if (count($sub_directories) > 0) {
 					echo '<ul>';
-					foreach($chapter_pages as $chapter_page) {
-						$page_name = $chapter_page['page_name'];
-						$page_label = $chapter_page['page_label'];
-						$dir_name = $this->remove_first_x_characters($chapter_data['dir_name'], 4);
-						$page_name = $this->remove_first_x_characters($page_name, 4);
-						$page_url = BASE_URL.strtolower($dir_name).'/'.$page_name;
-		                $page_label = $this->prep_page_label($page_label);
-						echo '<li>'.anchor($page_url, $page_label).'</li>';
+					$this->draw_alt_nav_list($sub_directories);
+					echo '</ul>';
+				} else {
+					echo '<ul>';
+					foreach($files as $file) {
+						$page_label = str_replace('.html', '', $file);
+						echo '<li>'.anchor('#', $page_label).'</li>';
 					}
 					echo '</ul>';
+				}
+
+			}
+		}
+	}
+
+    private function draw_pages_list($chapter_data, $table_of_contents) {
+    	$chapter_pages = $chapter_data['files'];
+		echo '<ul>';
+
+		if ($chapter_data['dir_name'] === REF_DIR) {
+			$this->draw_alt_nav_list($chapter_data['sub_directories']);
+		} else {
+			$page_num = 0;
+			foreach($chapter_pages as $chapter_page) {
+				$page_num++;
+				$page_label = $this->build_nice_label($chapter_page);
+				$root_dir = APPPATH.$chapter_data['dir_name'].'/';
+				$page_url = $this->est_page_url($chapter_page, $root_dir);
+
+				if ($page_num === 1) {
+					$page_url = BASE_URL;
+				}
+				echo '<li>'.anchor($page_url, $page_label).'</li>';
+			}
+		}
+
+		echo '</ul>';
     }
 
-    private function draw_sub_directories_list($parent_dir_name, $sub_directories) {
-
-		/*
-			{
-			    "dir_name": "0300Comprehensive_Reference_Guide",
-			    "dir_label": "Comprehensive Reference Guide",
-			    "sub_directories": [
-			        {
-			            "dir_name": "Helpers",
-			            "dir_label": "Helpers",
-			            "sub_directories": [
-			                {
-			                    "dir_name": "String_Helpers",
-			                    "dir_label": "String Helpers",
-			                    "sub_directories": []
-			                }
-			            ]
-			        }
-			    ]
-			}
-		*/
-
-		echo '<ul>';
-		foreach($sub_directories as $sub_directory) {
-			$dir_name = $sub_directory['dir_name'];
-			$page_url = BASE_URL.$parent_dir_name.'/'.$dir_name;
-
-			$reduced_page_url = str_replace(BASE_URL, '', $page_url);
-			$reduced_page_url = rtrim($reduced_page_url, '/');
-			$url_segments = explode('/', $reduced_page_url);
-
-			if (count($url_segments) > 2) {
-				echo '<li>'.anchor($page_url, $dir_name).'</li>';
-			} else {
-				echo '<li><b>'.$dir_name.'</b></li>';
-			}
-			
-
-			$new_parent_dir_name = $parent_dir_name.'/'.$dir_name;
-
-			$this->draw_sub_directories_list($new_parent_dir_name, $sub_directory['sub_directories']);
-		}
-		echo '</ul>';
+    private function est_page_url($chapter_page, $root_dir=null) {
+    	$root_url = str_replace(APPPATH, '', $root_dir);
+    	$root_url = $this->remove_first_four_if_numeric($root_url);
+    	$root_url = BASE_URL.$root_url;
+    	$new_segment = $this->remove_first_four_if_numeric($chapter_page);
+    	$page_url = strtolower($root_url.$new_segment);
+    	return $page_url;
     }
 
 }
