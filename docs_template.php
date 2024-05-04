@@ -62,6 +62,8 @@
 		<main><?php
 		include('docs_next_prev_btns.php');
 
+		include('docs_breadcrumbs.php');
+
 		if (!file_exists($view_file)) {
 			var_dump($view_file);
 		} else {

@@ -35,6 +35,8 @@ if (strpos($view_file_path, 'docs_chapter_intro.php') !== false) {
 	$data['chapter_intro_data'] = $docs->get_chapter_intro_data($docs_contents);
 }
 
+$data['breadcrumbs_array'] = $docs->build_breadcrumbs_array($docs_contents);
+
 $data['next_prev_data'] = $docs->get_next_prev_array($docs_contents);
 $data['docs_contents'] = $docs_contents;
 $data['view_file'] = $view_file_path;

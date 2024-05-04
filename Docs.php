@@ -4,6 +4,70 @@ class Docs {
 	private $view_files = [];
 	private $feature_refs = [];
 
+	public function build_breadcrumbs_array($docs_contents) {
+		$current_page_label = 'Current Page';
+
+		$row_data['label'] = 'Home';
+		$row_data['page_url'] = BASE_URL;
+		$breadcrumbs_array[] = $row_data;
+
+		$view_files = $docs_contents->view_files;
+		$table_of_contents = $docs_contents->table_of_contents;
+
+		$assumed_page_url = rtrim(current_url(), '/');
+		// Is the assumed page_url inside the known view_files?
+		foreach($view_files as $view_key => $value) {
+			if ($value['page_url'] === $assumed_page_url) {
+				$matched_url_obj = (object) $value;
+				break;
+			}
+		}
+
+		if (!isset($matched_url_obj)) {
+			// Page not found within view files array
+			return [];
+		}
+
+		// We must be looking at a page that is inside a chapter of the docs!
+		$view_file_path = $matched_url_obj->view_file_path;
+		$chapter_dir_path = $this->remove_last_segment($view_file_path);
+
+		foreach($table_of_contents as $chapter_key => $chapter_value) {
+			$dir_path = $chapter_value['dir_path'];
+
+			if ($dir_path === $chapter_dir_path) {
+				// Found containing chapter!
+
+				if ($chapter_key === 0) {
+					return []; // No breadcrumbs on the first (intro) chapter!
+				}
+
+				$row_data['label'] = $chapter_value['dir_label'];
+				$row_data['page_url'] = $this->remove_last_segment($assumed_page_url);
+				$breadcrumbs_array[] = $row_data;
+
+				$chapter_pages = $chapter_value['files'];
+				foreach($chapter_pages as $chapter_page) {
+					if ($chapter_page['page_url'] === $assumed_page_url) {
+						$current_page_label = $chapter_page['label'];
+					}
+				}
+
+				$row_data['label'] = $current_page_label;
+				$row_data['page_url'] = '';
+				$breadcrumbs_array[] = $row_data;
+			}
+
+		}
+
+		if (count($breadcrumbs_array) === 1) {
+			return [];
+		} else {
+			return $breadcrumbs_array;
+		}
+		
+	}
+
 	public function est_docs_contents() {
 		// Scan all of the directories and return an array that contains:
 		// table_of_contents, view_files, feature_refs, homepage (info)
@@ -111,10 +175,19 @@ class Docs {
 
 	}
 
-	function remove_last_segment($page_url) {
+	function remove_last_segment($str) {
 
-	    // Remove the BASE_URL part to isolate the path
-	    $path = str_replace(BASE_URL, '', $page_url);
+		if (strpos($str, BASE_URL) !== false) {
+			$requires_base_url = true;
+			// Remove the BASE_URL part to isolate the path
+			$path = str_replace(BASE_URL, '', $str);
+
+		} else {
+			$requires_base_url = false;
+			$first_character = substr($str, 0, 1);
+			$str_start = ($first_character === '/') ? '/' : '';
+			$path = $str;
+		}
 
 	    // Trim leading and trailing slashes then split the path into segments
 	    $segments = explode('/', trim($path, '/'));
@@ -123,7 +196,12 @@ class Docs {
 	    array_pop($segments);
 
 	    // Reconstruct the URL without the last segment
-	    return BASE_URL . implode('/', $segments);
+	    if ($requires_base_url === true) {
+	    	return BASE_URL . implode('/', $segments);
+	    } else {
+	    	return $str_start.implode('/', $segments);
+	    }
+	    
 	}
 
 	function return_view_file_path($docs_contents) {
