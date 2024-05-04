@@ -1,4 +1,5 @@
 <h1>Basic View File Usage</h1>
+
 <p>This page details a basic example of a view file being created and used.  The goal is to add a 'greeting' method inside Trongate's (default) 'welcome' controller.  This method will load a specific view file - the contents of which will be rendered in the browser.</p>
 <p>As a reminder, a fresh installation of Trongate will load the 'welcome' module/controller. When you download the Trongate framework, your welcome controller file will contain the following code:</p>
 <p><pre><code>
@@ -34,7 +35,7 @@ function greeting() {
 </code></pre>
 
 <h3>Introducing, The 'View' Method</h3>
-<p>In order to load view files, Trongate uses an internal method named '<b><span class="fake-link" onclick="initOpenInfo('http://localhost/trongate-docs/0300Comprehensive_Reference_Guide/Helpers/String_Helpers/truncate_str.html')">view</span></b>'. </p>
+<p>In order to load view files, Trongate uses an internal method named <span class="feature-ref">url_title</span>. </p>
 
 <p>In the example shown, an argument of 'greeting' is being passed into the <code>view()</code> method.  If the <code>view()</code> method is invoked, in this manner, the containing module's 'views' directory will be scanned for a file named 'greeting.php'.  If the file exists, the content of the file will be rendered and sent to the browser.</p>
 

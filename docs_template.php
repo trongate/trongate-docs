@@ -73,15 +73,16 @@
 
 	<footer>&nbsp;</footer>
 
-<div class="modal" id="temp-modal" style="display: none">
-	<div class="modal-body framework-ref">
-		<div class="spinner mt-3 mb-3"></div>
+	<div class="modal" id="temp-modal" style="display: none">
+		<div class="modal-body framework-ref">
+			<div class="spinner mt-3 mb-3"></div>
+		</div>
 	</div>
-</div>
-
 
 	<script>
 		const baseUrl = '<?= BASE_URL ?>';
+		const refDir = '<?= REF_DIR ?>';
+		const existingFeatureRefs = <?= json_encode($existing_feature_refs) ?>	
 	</script>
 	<script src="<?= BASE_URL ?>js/app.js"></script>
 	<script src="<?= BASE_URL ?>js/docs.js"></script>

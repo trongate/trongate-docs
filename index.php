@@ -18,6 +18,19 @@ if ($view_file_path === '') {
 	die();
 }
 
+// Prepare an array of existingFeatureRefs
+$existing_feature_refs = [];
+
+foreach($docs_contents->feature_refs as $feature_ref_key => $existing_feature_ref) {
+	if (!isset($existing_feature_refs[$feature_ref_key])) {
+		$feature_ref_url = str_replace(BASE_URL, '', $existing_feature_ref['page_url']);
+		$feature_ref_url = str_replace(REF_DIR, '', $feature_ref_url);
+		$existing_feature_refs[$feature_ref_key] = $feature_ref_url;
+	}
+}
+
+$data['existing_feature_refs'] = $existing_feature_refs;
+
 if (strpos($view_file_path, 'docs_chapter_intro.php') !== false) {
 	$data['chapter_intro_data'] = $docs->get_chapter_intro_data($docs_contents);
 }

@@ -394,16 +394,6 @@ figure img {
     justify-content: flex-start;
 }
 
-.fake-link {
-  color: var(--primary);
-}
-
-.fake-link:hover {
-  color: var(--primary-darker);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 /* Styling individual breadcrumb items */
 .breadcrumbs a {
     color: #0275d8; /* A nice blue that is commonly used for links */
@@ -575,4 +565,33 @@ font-size: 0.8em;
 
 .ref-sub-headline:first-of-type {
   margin-top: 1em;
+}
+
+.feature-ref {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.feature-ref button {
+  margin-top: 0;
+  margin-left: 4px;
+  padding: 3px 7px 1px 6px;
+  line-height: 1.4em;
+}
+
+.feature-ref button.alt {
+  color: var(--primary);
+}
+
+.feature-ref button:hover {
+  color: var(--primary-darker);
+}
+
+.feature-ref button .fa {
+  font-size: 1.4em;
+}
+
+.modal-body {
+  max-height: 90vh;
+  overflow: auto;
 }

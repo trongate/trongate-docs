@@ -4,6 +4,21 @@ class Docs {
 	private $view_files = [];
 	private $feature_refs = [];
 
+	public function est_docs_contents() {
+		// Scan all of the directories and return an array that contains:
+		// table_of_contents, view_files, feature_refs, homepage (info)
+
+		// Establish an array of directories to be checked.
+		$reduced_apppath = rtrim(APPPATH, '/');
+		$docs_contents_array['table_of_contents'] = $this->get_sub_directories($reduced_apppath, EXCLUDE_DIRS);
+		$docs_contents_array['view_files'] = $this->view_files;
+		$docs_contents_array['feature_refs'] = $this->feature_refs;
+		$docs_contents_array['homepage'] = $this->get_homepage($docs_contents_array['table_of_contents']);
+	
+		$docs_contents = (object) $docs_contents_array;
+		return $docs_contents;
+	}
+
 	public function get_next_prev_array($docs_contents) {
 
 			$next_prev_array['prev'] = false;
@@ -109,21 +124,6 @@ class Docs {
 
 	    // Reconstruct the URL without the last segment
 	    return BASE_URL . implode('/', $segments);
-	}
-
-	public function est_docs_contents() {
-		// Scan all of the directories and return an array that contains:
-		// 1).  A table of contents array and 2).  An array of feature_refs.
-
-		// Establish an array of directories to be checked.
-		$reduced_apppath = rtrim(APPPATH, '/');
-		$docs_contents_array['table_of_contents'] = $this->get_sub_directories($reduced_apppath, EXCLUDE_DIRS);
-		$docs_contents_array['view_files'] = $this->view_files;
-		$docs_contents_array['feature_refs'] = $this->feature_refs;
-		$docs_contents_array['homepage'] = $this->get_homepage($docs_contents_array['table_of_contents']);
-	
-		$docs_contents = (object) $docs_contents_array;
-		return $docs_contents;
 	}
 
 	function return_view_file_path($docs_contents) {
@@ -278,12 +278,18 @@ class Docs {
 	        $label = ucwords(str_replace('_', ' ', basename($file, '.html')));
 	        $label = $this->build_nice_label($label);
 	        $file_relative_path = str_replace(APPPATH, '', $full_path);
+	        $file_relative_path = str_replace(DIRECTORY_SEPARATOR, '/', $file_relative_path);
 	        $file_relative_path = str_replace('\\', '/', $file_relative_path); // Ensure forward slashes
-	        $file_url_path = str_replace('_', '-', $file_relative_path); // Replace underscores with hyphens
-	        $file_url_path = $this->remove_first_four_if_numeric($file_url_path);
 
-	        $page_url = BASE_URL . ltrim($file_url_path, '/');
-	        $page_url = $this->format_page_url($page_url);
+	        if (strpos($file_relative_path, REF_DIR) === false) {
+		       $file_url_path = str_replace('_', '-', $file_relative_path); // Replace underscores with hyphens
+		       $file_url_path = $this->remove_first_four_if_numeric($file_url_path);
+		       $page_url = BASE_URL . ltrim($file_url_path, '/');
+		       $page_url = $this->format_page_url($page_url);
+	        } else {
+	        	$file_url_path = $file_relative_path;
+	        	$page_url = BASE_URL . ltrim($file_url_path, '/');
+	        }
 
 	        $row_data['view_file_path'] = $full_path;
 	        $row_data['page_url'] = $page_url;
