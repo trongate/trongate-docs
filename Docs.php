@@ -4,7 +4,61 @@ class Docs {
 	private $view_files = [];
 	private $feature_refs = [];
 
+	private function build_breadcrumbs_array_ref($docs_contents, $reduced_ref_dir) {
+		// Build a breadcrumbs array for the last chapter (ref guide)
+		$breadcrumbs_array = [];
+
+		$row_data['label'] = 'Home';
+		$row_data['page_url'] = BASE_URL;
+		$breadcrumbs_array[] = $row_data;
+
+		$table_of_contents = $docs_contents->table_of_contents;
+		$last_chapter = $table_of_contents[count($table_of_contents)-1];
+
+		$row_data['label'] = $last_chapter['dir_label'];
+		$row_data['page_url'] = BASE_URL.$reduced_ref_dir;
+		$breadcrumbs_array[] = $row_data;
+
+		if (segment(2) !== '') {
+			$last_chapter_sections = $last_chapter['sub_directories'];
+			foreach($last_chapter_sections as $last_chapter_section) {
+				$next_segment = url_title($last_chapter_section['dir_label']);
+				if ($next_segment === segment(2)) {
+					$row_data['label'] = $last_chapter_section['dir_label'];
+					$row_data['page_url'].= '/'.segment(2);
+					$breadcrumbs_array[] = $row_data;
+					break;
+				}
+			}
+		}
+
+		if ((segment(3) !== '') && ($last_chapter_section)) {
+
+			$section_sub_dirs = $last_chapter_section['sub_directories'];
+			foreach($section_sub_dirs as $section_sub_dir) {
+				$section_sub_dir_segment = url_title($section_sub_dir['dir_label']);
+				if ($section_sub_dir_segment === segment(3)) {
+					$row_data['label'] = $section_sub_dir['dir_label'];
+					$row_data['page_url'].= '/'.segment(3);
+					$breadcrumbs_array[] = $row_data;
+					break;
+				}
+
+			}
+
+		}
+
+		return $breadcrumbs_array;
+	}
+
 	public function build_breadcrumbs_array($docs_contents) {
+
+		$reduced_ref_dir = $this->remove_first_four_if_numeric(url_title(REF_DIR));
+		if ($reduced_ref_dir === segment(1)) {
+			$breadcrumbs_array = $this->build_breadcrumbs_array_ref($docs_contents, $reduced_ref_dir);
+			return $breadcrumbs_array;
+		}
+
 		$current_page_label = 'Current Page';
 
 		$row_data['label'] = 'Home';
@@ -232,6 +286,12 @@ class Docs {
 
 		if ((segment(1) !== '') && (segment(2) === '')) {
 			$view_file_path = APPPATH.'docs_chapter_intro.php';
+
+			$reduced_ref_dir = $this->remove_first_four_if_numeric(url_title(REF_DIR));
+			if ($reduced_ref_dir === segment(1)) {
+				$view_file_path = 'docs_ref_home.php';
+			}
+
 		}
 
 		if ($view_file_path === '') {

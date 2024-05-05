@@ -16,7 +16,7 @@
                 $files = $chapter['files'];
 
                 if ($chapter_key === count($table_of_contents)-1) {
-                    // Comprehensive Reference Guide START
+                    // Last (ref) Chapter START
                     $dir_name = $chapter['dir_name'];
                     $first_segment = url_title($dir_name);
 
@@ -46,7 +46,7 @@
 
                     }
 
-                    // Comprehensive Reference Guide END
+                    // Last (ref) Chapter END
                 } else {
 
                     foreach($files as $file) {
