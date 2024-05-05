@@ -85,6 +85,7 @@
 
 	<script>
 		const baseUrl = '<?= BASE_URL ?>';
+		const currentUrl = '<?= current_url() ?>';
 		const refDir = '<?= REF_DIR ?>';
 		const existingFeatureRefs = <?= json_encode($existing_feature_refs) ?>	
 	</script>

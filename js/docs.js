@@ -1,3 +1,66 @@
+const delayTime = 10;
+
+function fetchFeatureItemsInfo() {
+    
+    const targetFeatureRefs = [];
+    const featureItems = document.querySelectorAll('.feature-item');
+    featureItems.forEach(targetEl => {
+        const targetElId = targetEl.id;
+        const targetFeatureRef = targetElId.replace('feature-li-', '');
+        targetFeatureRefs.push(targetFeatureRef)
+    });
+
+    const params = {
+        targetFeatureRefs,
+        callingUrl: currentUrl
+    }
+
+    const targetUrl = baseUrl + 'docs_api.php';
+    const http = new XMLHttpRequest();
+    http.open('post', targetUrl);
+    http.setRequestHeader('Content-type', 'application/json');
+    http.send(JSON.stringify(params));
+    http.onload = function() {
+
+        if (http.status === 200) {
+
+            setTimeout(() => {
+                populateFeatureDescriptions(http.responseText);
+            }, delayTime);
+
+        }
+    }
+    
+}
+
+async function populateFeatureDescriptions(responseText) {
+    // Parse the JSON string to create a JavaScript object
+    const obj = JSON.parse(responseText);
+
+    // Convert the object to an array of key-value pairs
+    const keyValuePairArray = Object.entries(obj);
+
+    for (let i = 0; i < keyValuePairArray.length; i++) {
+        const row = keyValuePairArray[i];
+        const targetElId = 'feature-li-' + row[0];
+        const targetListItem = document.getElementById(targetElId);
+        const blinkingEl = targetListItem.querySelector('.blink');
+        const blinkingElParent = blinkingEl.parentNode;
+        blinkingEl.remove();
+
+        if (row[1] === 'fail') {
+            blinkingElParent.innerText = 'Description not available.';
+            blinkingElParent.style.color = 'red';
+        } else {
+            blinkingElParent.innerText = row[1];
+        }
+
+        // Wait for 1 second before continuing the loop
+        await new Promise(resolve => setTimeout(resolve, delayTime));
+    }
+}
+
+
 function buildFeatureRefs() {
     const featureRefs = document.querySelectorAll('.feature-ref');
 
@@ -9,27 +72,34 @@ function buildFeatureRefs() {
             featureRefEl.style.fontWeight = 'bold';
         } else {
 
-            const fullFeatureRefUrl = baseUrl + refDir + featureRefUrl;
+            const featurePath = refDir + featureRefUrl;
 
             // Build a 'more info' button
             const btn = document.createElement('button');
             btn.innerHTML = '<i class="fa fa-info-circle"></i>';
             btn.setAttribute('type', 'button');
             btn.setAttribute('class', 'alt');
-            btn.setAttribute('onclick', 'initOpenInfo(\'' + fullFeatureRefUrl + '\')');           
+            btn.setAttribute('onclick', 'initOpenInfo(\'' + featurePath + '\')');           
             featureRefEl.appendChild(btn);            
         }
 
     });
 }
 
-function initOpenInfo(targetUrl) {
+function initOpenInfo(featurePath) {
+
     openModal('temp-modal');
 
+        const targetUrl = baseUrl + 'docs_api.php';
+
+        const params = {
+            featurePath
+        }
+
         const http = new XMLHttpRequest();
-        http.open('get', targetUrl);
+        http.open('post', targetUrl);
         http.setRequestHeader('Content-type', 'application/json');
-        http.send();
+        http.send(JSON.stringify(params));
         http.onload = function() {
             if (http.status === 200) {
 

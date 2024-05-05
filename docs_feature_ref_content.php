@@ -41,7 +41,7 @@ foreach($last_chapter_sections as $last_chapter_section) {
 }
 
 if (segment(3) === '') {
-	$intro_text = 'Below is a list of '.$entity_type_plural.' within the Trongate framework that are accessible to developers:';
+	$intro_text = 'Below is a list of '.$entity_type_plural.' within the Trongate framework that are available for use:';
 } else {
 	$headline_text = $section_sub_dir['dir_label'];
 	$features_items = [];
@@ -56,7 +56,7 @@ if (segment(3) === '') {
 ?>
 <h1><?= $headline_text ?></h1>
 <p><?= $intro_text ?></p>
-<ol id="feature-ref-list" class="mt-2">
+<ul id="feature-ref-list" class="mt-2">
 	<?php
 	if (isset($section_links)) {
 		foreach($section_links as $section_link) {
@@ -66,9 +66,22 @@ if (segment(3) === '') {
 
 	if (isset($features_items)) {
 		foreach($features_items as $feature_item) {
-			echo '<li><span class="feature-ref">'.$feature_item.'</span></li>';
+			echo '<li class="feature-item" id="feature-li-'.$feature_item.'"><span class="feature-ref">'.$feature_item.'</span>';
+			echo '<div class="sm"><span class="blink">* fetching description *</span></div>';
+			echo '</li>';
 		}		
 	}
 	?>
-</ol>
+</ul>
 
+<?php
+if (isset($features_items)) {
+?>
+<script>
+window.addEventListener("load", function() {
+    fetchFeatureItemsInfo();
+});
+</script>
+<?php
+}
+?>
