@@ -219,6 +219,11 @@ class Docs {
 						return $next_url;			
 					}
 
+					if ($next_url === '') {
+						$reduced_ref_dir = $this->remove_first_four_if_numeric(url_title(REF_DIR));
+						$next_url = BASE_URL.$reduced_ref_dir;
+				    }					 
+
 				}
 
 			}

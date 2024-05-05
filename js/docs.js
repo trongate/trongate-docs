@@ -52,7 +52,7 @@ async function populateFeatureDescriptions(responseText) {
             blinkingElParent.innerText = 'Description not available.';
             blinkingElParent.style.color = 'red';
         } else {
-            blinkingElParent.innerText = row[1];
+            blinkingElParent.innerHTML = row[1];
         }
 
         // Wait for 1 second before continuing the loop
