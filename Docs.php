@@ -234,6 +234,15 @@ class Docs {
 			$view_file_path = APPPATH.'docs_chapter_intro.php';
 		}
 
+		if ($view_file_path === '') {
+			// Could this be an attempt to view a page from the reference section?
+			$ref_chapter_first_semgment = $this->remove_first_four_if_numeric(url_title(REF_DIR));
+			if (segment(1) === $ref_chapter_first_semgment) {
+				$view_file_path = 'docs_feature_ref_content.php';
+			}
+			
+		}
+
 		return $view_file_path;
 	}
 

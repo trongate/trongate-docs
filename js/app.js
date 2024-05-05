@@ -109,6 +109,6 @@ if (slideNavLinks !== null) {
 
 document.addEventListener('keydown', function(event) {
     if (event.key === "Escape") { // Checks if the key pressed is the Escape key
-        closeModal();
+        initCloseModal();
     }
 });
