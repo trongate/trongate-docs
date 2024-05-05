@@ -81,6 +81,8 @@
 		</div>
 	</div>
 
+	<button id="scrollToTopBtn" style="display: none;">↑</button>
+
 	<script>
 		const baseUrl = '<?= BASE_URL ?>';
 		const refDir = '<?= REF_DIR ?>';

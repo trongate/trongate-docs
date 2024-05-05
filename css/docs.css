@@ -600,3 +600,16 @@ font-size: 0.8em;
   max-height: 90vh;
   overflow: auto;
 }
+
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    display: none; /* Start with button hidden */
+    z-index: 1000; /* Make sure the button is above other content */
+}

@@ -181,4 +181,22 @@ document.addEventListener('click', function(event) {
     }
 });
 
+document.addEventListener('scroll', function() {
+    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+    // "window.innerHeight" gives the height of the viewport
+    // If scrolled more than one viewport height, show the button
+    if (window.scrollY > window.innerHeight) {
+        scrollToTopBtn.style.display = 'block';
+    } else {
+        scrollToTopBtn.style.display = 'none';
+    }
+});
+
+document.getElementById('scrollToTopBtn').addEventListener('click', function() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth' // Enable smooth scrolling
+    });
+});
+
 buildFeatureRefs();
