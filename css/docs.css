@@ -118,7 +118,7 @@ h4 {
 
 button, .button {
 	transition: .3s;
-  text-transform: uppercase;  
+  text-transform: uppercase;
 }
 
 .alert {
@@ -221,7 +221,7 @@ code {
 pre {
   font-family: 'Courier New', Courier, monospace;
   font-size: 1em;
-  width: 98%;
+  max-width: 98%;
   margin: 0 auto;
 }
 
