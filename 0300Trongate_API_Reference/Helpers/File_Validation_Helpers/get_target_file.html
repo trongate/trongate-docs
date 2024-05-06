@@ -1,10 +1,12 @@
 <div class="container">
   <h1>get_target_file()</h1>
-  <p class="signature">function get_target_file(): string</p>
+  <p class="signature">function get_target_file(): string </p>
   <h2>Description</h2>
   <div class="description">
-    <p>TBA</p>
+    <p>Returns the name of the target file from the $_FILES array.</p>
   </div>
+  <h2>Parameters</h2>
+  <p>This function does not accept any parameters.</p>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -16,13 +18,15 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>TBA</td>
+        <td>The name of the target file.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>TBA</pre>
+    <pre>
+$userfile = get_target_file();
+echo "Target file: " . $userfile;</pre>
   </div>
-
 </div>
+
