@@ -8,6 +8,10 @@
   --alt: #fff;
 }
 
+html {
+  background-color: #000;
+}
+
 body {
   font-family: Tahoma, Geneva, sans-serif;
   margin: 0;
