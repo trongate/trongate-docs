@@ -574,7 +574,7 @@ font-size: 0.8em;
 .feature-ref button {
   margin-top: 0;
   margin-left: 4px;
-  padding: 4px 7px 0px 6px;
+  padding: 0;
   line-height: 1.4em;
 }
 
