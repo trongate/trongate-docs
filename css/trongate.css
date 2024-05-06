@@ -130,8 +130,8 @@ button:hover,
 }
 
 .alt {
-  background-color: transparent;
-  border: 1px solid var(--primary);
+  background-color: transparent !important;
+  border: none !important;
   color: #333;
 }
 
