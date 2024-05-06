@@ -1,9 +1,9 @@
 <div class="container">
-  <h1>flashdata()</h1>
-  <p class="signature">function flashdata(string: $opening_html = null, string: $closing_html = null): string</p>
+  <h1>set_flashdata()</h1>
+  <p class="signature"> function set_flashdata(string $msg): void </p>
   <h2>Description</h2>
   <div class="description">
-    <p></p>
+    <p>Sets a flash message in the session.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -17,16 +17,10 @@
     </thead>
     <tbody>
       <tr>
-        <td>$opening_html</td>
+        <td>$msg</td>
         <td>string</td>
-        <td>TBA</td>
-        <td>TBA</td>
-      </tr>
-      <tr>
-        <td>$closing_html</td>
-        <td>string</td>
-        <td>TBA</td>
-        <td>TBA</td>
+        <td>The message to be set as flash data.</td>
+        <td>N/A</td>
       </tr>
     </tbody>
   </table>
@@ -40,14 +34,15 @@
     </thead>
     <tbody>
       <tr>
-        <td>string</td>
-        <td>TBA</td>
+        <td>void</td>
+        <td>This function does not return anything.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>TBA</pre>
+    <pre>
+set_flashdata("Your data has been saved successfully.");
+// This sets a flash message in the session.</pre>
   </div>
-
 </div>
