@@ -1,0 +1,55 @@
+<div class="container">
+  <h1>nice_price()</h1>
+  <p class="signature">function nice_price(float $num, ?string $currency_symbol = null): string|float</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Formats a number as a price with commas for thousands and optionally adds a currency symbol. If the formatted price is a whole number, decimals are removed.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$num</td>
+        <td>float</td>
+        <td>The number to be formatted as a price.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$currency_symbol</td>
+        <td>string|null</td>
+        <td>Optional. The currency symbol to prepend to the price.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|float</td>
+        <td>Returns the formatted price. If no decimals, returns as float, otherwise as string with currency symbol if specified.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+echo nice_price(123456.00); // Output: 123,456
+echo nice_price(123456.78, '$'); // Output: $123,456.78</pre>
+  </div>
+  
+</div>
