@@ -1,0 +1,45 @@
+<div class="container">
+  <h1>set_rules()</h1>
+  <p class="signature">public function set_rules(string $key, string $label, string|array $rules): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Set rules for form field validation.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$key</td>
+        <td>string</td>
+        <td>The form field name.</td>
+      </tr>
+      <tr>
+        <td>$label</td>
+        <td>string</td>
+        <td>The form field label.</td>
+      </tr>
+      <tr>
+        <td>$rules</td>
+        <td>string|array</td>
+        <td>The validation rules for the field.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <div class="description">
+    <p>This method does not return any value (void).</p>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$validation->set_rules('username', 'Username', 'required|min_length[5]|max_length[20]');
+$validation->set_rules('email', 'Email', ['required', 'valid_email']);</pre>
+  </div>
+</div>
