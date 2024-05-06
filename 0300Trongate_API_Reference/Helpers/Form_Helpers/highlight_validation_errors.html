@@ -1,0 +1,48 @@
+<div class="container">
+    <h1>highlight_validation_errors()</h1>
+    <p class="signature">function highlight_validation_errors(string $errors_json): string</p>
+    <h2>Description</h2>
+    <div class="description">
+      <p>Highlights validation errors using provided JSON data.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$errors_json</td>
+          <td>string</td>
+          <td>JSON data containing validation errors.</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>string</td>
+          <td>HTML code for highlighting validation errors.</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Example Usage</h2>
+    <div class="example">
+      <pre>
+  $errors = '{"username": "Username is required.", "password": "Password must be at least 8 characters long."}';
+  $highlighted_errors = highlight_validation_errors($errors);
+  echo $highlighted_errors;
+  // Output: (HTML code for highlighting validation errors)</pre>
+    </div>
+  </div>
