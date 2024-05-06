@@ -21,14 +21,14 @@
 Your IP Address is &lt;?= ip_address() ?&gt;.
 </code></pre></p>
 <h2>Generating Random Strings</h2>
-<p>Trongate has an inbuilt <strong>make_rand_str()</strong> function that can be used to generate random strings. An example of how to use this is shown below:</p>
+<p>Trongate has an inbuilt <span class="feature-ref">make_rand_str()</span> function that can be used to generate random strings. An example of how to use this is shown below:</p>
 <p><pre><code>$str = make_rand_str(32);</code></pre></p>
-<p>The numeric argument that has been passed in represents the length of the random string to be generated. If the boolean value of <strong>true </strong>is <em>also</em> passed into the make_rand_str() method, as a second argument, then the random string that's produced will be in upper case.</p>
+<p>The numeric argument that has been passed in represents the length of the random string to be generated. If the boolean value of <strong>true </strong>is <em>also</em> passed into the <span class="feature-ref">make_rand_str()</span> method, as a second argument, then the random string that's produced will be in upper case.</p>
 <p>For example,<br><pre><code>
 $code = make_rand_str(6, true);
 echo $code; //displays something like "A4WX28"
 </code></pre></p>
-<div class="alert alert-info">Trongate's make_rand_str() method produces strings that do <em>not</em> use problematic characters such as the zero character (0). The reason for avoiding usage of problematic characters is to offer clarity to end users. For example, if a customer called and read out an invoice reference number, over the phone, that contains problematic characters such as zeros, ones and the letter 'L' then this could lead to confusion. Trongate's make_rand_str() method chooses from the following characters, 23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ.</div>
+<div class="alert alert-info">Trongate's <span class="feature-ref">make_rand_str()</span> method produces strings that do <em>not</em> use problematic characters such as the zero character (0). The reason for avoiding usage of problematic characters is to offer clarity to end users. For example, if a customer called and read out an invoice reference number, over the phone, that contains problematic characters such as zeros, ones and the letter 'L' then this could lead to confusion. Trongate's <span class="feature-ref">make_rand_str()</span> method chooses from the following characters, 23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ.</div>
 </p>
 <h2>APPPATH</h2>
 <p>If you would like to get the file path (within your computer or server) that leads to your web application, you can do so by calling upon the APPPATH constant.  For example:</p>
@@ -70,4 +70,4 @@ echo "&lt;p&gt;Age: ".out($data["age"], "json")."&lt;/p&gt;";
 echo out($name);
 echo out($email);
 </code></pre></p>
-<div class="alert alert-warning">NOTE: The example above assumes usage within a webpage operating in English with the default UTF-8 character encoding. If your webpage operates in a different language or uses a non-default character encoding, consider supplying an additional argument specifying your desired character encoding for the out() function. This ensures proper handling and display of characters specific to your language or encoding set.</div>
+<div class="alert alert-warning">NOTE: The example above assumes usage within a webpage operating in English with the default UTF-8 character encoding. If your webpage operates in a different language or uses a non-default character encoding, consider supplying an additional argument specifying your desired character encoding for the <span class="feature-ref">out()</span> function. This ensures proper handling and display of characters specific to your language or encoding set.</div>
