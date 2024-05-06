@@ -118,71 +118,71 @@ h4 {
 
 button, .button {
 	transition: .3s;
-  text-transform: uppercase;  
+  text-transform: uppercase;
 }
 
 .alert {
-    display: flex;
-    flex-direction: column;
-    max-width: 760px;
-    margin: 2em auto 1em auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 760px;
+  margin: 2em auto 1em auto;
 }
 
-.alert > div {
-   padding: 12px;
-   border-radius: 9px;
+.alert>div {
+  padding: 22px;
 }
 
-.alert > div:nth-child(1) {
-    font-family: Georgia, serif;
-    background-color: #333;
-    font-size: 21px;
-    font-weight: bold;
-    line-height: 1em;
-    color: #eee;
+.alert-heading {
+  font-family: Georgia, serif;
+  background-color: #333;
+  font-size: 21px;
+  font-weight: bold;
+  line-height: 1em;
+  color: #eee;
+  border-radius: 9px 9px 0 0;
 }
 
-.alert > div:nth-child(2) {
-    margin-top: 3px;
-    border: 3px #333 solid;
-    font-family: verdana;
-    font-size: 14px;
+.alert-body {
+  border: 3px #333 solid;
+  font-family: verdana;
+  font-size: 14px;
+  border-radius: 0 0 9px 9px;
 }
 
-.alert-info > div:nth-child(1) {
-  bxackground-color: var(--primary-darker);
+.alert-info>div:nth-child(1) {
+  background-color: var(--primary-darker);
 }
 
-.alert-info > div:nth-child(2) {
-    border-color: var(--primary-darker);
-    background-color: #3131a111;
+.alert-info>div:nth-child(2) {
+  border-color: var(--primary-darker);
+  background-color: #3131a111;
 }
 
-.alert-success > div:nth-child(1) {
+.alert-success>div:nth-child(1) {
   background-color: #31a131;
 }
 
-.alert-success > div:nth-child(2) {
-    border-color: #31a131;
-    background-color: #31a13111;
+.alert-success>div:nth-child(2) {
+  border-color: #31a131;
+  background-color: #31a13111;
 }
 
-.alert-warning > div:nth-child(1) {
+.alert-warning>div:nth-child(1) {
   background-color: #c58340;
 }
 
-.alert-warning > div:nth-child(2) {
-    border-color: #c58340;
-    background-color: #c5834022;
+.alert-warning>div:nth-child(2) {
+  border-color: #c58340;
+  background-color: #c5834022;
 }
 
-.alert-danger > div:nth-child(1) {
+.alert-danger>div:nth-child(1) {
   background-color: #c54040;
 }
 
-.alert-danger > div:nth-child(2) {
-    border-color: #c54040;
-    background-color: #c5404022;
+.alert-danger>div:nth-child(2) {
+  border-color: #c54040;
+  background-color: #c5404022;
 }
 
 img {
