@@ -8,10 +8,6 @@
   --alt: #fff;
 }
 
-html {
-  background-color: #000;
-}
-
 body {
   font-family: Tahoma, Geneva, sans-serif;
   margin: 0;
@@ -134,8 +130,8 @@ button:hover,
 }
 
 .alt {
-  background-color: transparent !important;
-  border: none !important;
+  background-color: transparent;
+  border: 1px solid var(--primary);
   color: #333;
 }
 
