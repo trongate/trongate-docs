@@ -1,0 +1,54 @@
+<div class="container">
+  <h1>segment()</h1>
+  <p class="signature"> function segment(int $num, ?string $var_type = null): mixed </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Get a specific URL segment.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$num</td>
+        <td>int</td>
+        <td>The segment number to retrieve.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$var_type</td>
+        <td>string|null</td>
+        <td>Optional. The desired data type of the segment value. Default is null.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>The value of the specified URL segment.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+echo segment(1);
+// Output: example</pre>
+  </div>
+</div>
