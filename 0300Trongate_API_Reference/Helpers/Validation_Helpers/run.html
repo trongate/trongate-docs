@@ -1,0 +1,57 @@
+<div class="container">
+  <h1>run()</h1>
+  <p class="signature">public function run(?array $validation_array = null): ?bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Run form validation checks.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$validation_array</td>
+        <td>array|null</td>
+        <td>An array containing validation rules.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool|null</td>
+        <td>Returns a boolean value if validation completes, null if the script execution is potentially terminated.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$validation_array = [
+    // validation rules
+];
+$result = $validation->run($validation_array);
+if ($result === true) {
+    // validation passed
+} elseif ($result === false) {
+    // validation failed
+} else {
+    // script execution potentially terminated
+}</pre>
+  </div>
+</div>

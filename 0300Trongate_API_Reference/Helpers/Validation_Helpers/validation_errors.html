@@ -1,0 +1,57 @@
+<div class="container">
+  <h1>validation_errors()</h1>
+  <p class="signature">function validation_errors(?string $opening_html = null, ?string $closing_html = null): ?string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieve and display validation error messages.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$opening_html</td>
+        <td>string|null</td>
+        <td>Optional. The opening HTML tag for displaying individual field errors.</td>
+        <td>null</td>
+      </tr>
+      <tr>
+        <td>$closing_html</td>
+        <td>string|null</td>
+        <td>Optional. The closing HTML tag for displaying individual field errors.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|null</td>
+        <td>Returns the formatted validation error messages or null if no errors exist.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Displaying individual field errors with custom opening and closing HTML tags
+echo validation_errors('div', '</div>');
+
+// Example 2: Normal error reporting with default opening and closing HTML tags
+echo validation_errors();</pre>
+  </div>
+</div>

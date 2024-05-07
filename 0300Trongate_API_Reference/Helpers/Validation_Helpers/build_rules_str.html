@@ -1,0 +1,40 @@
+<div class="container">
+  <h1>build_rules_str()</h1>
+  <p class="signature">private function build_rules_str(array $value): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Build rules string based on the provided validation rules.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$value</td>
+        <td>array</td>
+        <td>An array representing validation rules.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <div class="description">
+    <p>Returns a string containing rules generated from the validation rules.</p>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$validation_rules = [
+    'required' => true,
+    'min_length' => 5,
+    // other validation rules
+];
+$rules_str = $validation->build_rules_str($validation_rules);
+echo $rules_str; // Output: required|min_length[5]</pre>
+  </div>
+</div>

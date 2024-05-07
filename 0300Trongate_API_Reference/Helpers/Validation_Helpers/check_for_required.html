@@ -1,0 +1,40 @@
+<div class="container">
+  <h1>check_for_required()</h1>
+  <p class="signature">private function check_for_required(array $validation_data): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Check for required fields in the validation data.</p>
+    <p>Required keys in the validation data array: 'key', 'label', 'posted_value'</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$validation_data</td>
+        <td>array</td>
+        <td>An array containing validation data.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <div class="description">
+    <p>This method does not return any value (void).</p>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$validation_data = [
+    'key' => 'field_name',
+    'label' => 'Field Label',
+    'posted_value' => $_POST['field_name']
+];
+$validation->check_for_required($validation_data);</pre>
+  </div>
+</div>
