@@ -1,0 +1,44 @@
+<div class="container">
+    <h1>save_that_pic()</h1>
+    <p class="signature">private function save_that_pic(array $data): void</p>
+    <h2>Description</h2>
+    <div class="description">
+      <p>Resizes and saves an image file based on provided parameters such as compression, permissions, maximum width, and maximum height.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$data</td>
+          <td>array</td>
+          <td>An associative array containing information necessary for resizing and saving the image.</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <div class="description">
+      <p>This method does not return any value; it performs operations on the image file directly.</p>
+    </div>
+    <h2>Example Usage</h2>
+    <div class="example">
+      <pre>
+  $data = [
+      'new_file_path' => 'uploads/image.jpg',
+      'compression' => 80,
+      'permissions' => 755,
+      'max_width' => 800,
+      'max_height' => 600,
+      'tmp_file_width' => 1024,
+      'tmp_file_height' => 768,
+      'image' => new Image('uploads/tmp_image.jpg'),
+  ];
+  save_that_pic($data);</pre>
+    </div>
+  </div>
