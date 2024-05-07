@@ -1,10 +1,9 @@
 <div class="container">
-  <h1>flashdata()</h1>
-  <p class="signature"> function flashdata(string $opening_html = null, string $closing_html = null): void </p>
+  <h1>set_flashdata()</h1>
+  <p class="signature"> function set_flashdata(string $msg): void </p>
   <h2>Description</h2>
   <div class="description">
-    <p>Outputs a flash message stored in the session, wrapped in specified HTML tags.</p>
-    <p>If no HTML tags are provided, it defaults to displaying the message within a paragraph tag with green color.</p>
+    <p>Sets a flash message in the session.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -18,16 +17,10 @@
     </thead>
     <tbody>
       <tr>
-        <td>$opening_html</td>
+        <td>$msg</td>
         <td>string</td>
-        <td>Optional. HTML tag(s) to wrap the flash message. If not provided, defaults to `&lt;p style="color: green;"&gt;`.</td>
-        <td>null</td>
-      </tr>
-      <tr>
-        <td>$closing_html</td>
-        <td>string</td>
-        <td>Optional. Closing HTML tag(s) if opening tag(s) are provided. If not provided, defaults to `&lt;/p&gt;`.</td>
-        <td>null</td>
+        <td>The message to be set as flash data.</td>
+        <td>N/A</td>
       </tr>
     </tbody>
   </table>
@@ -42,17 +35,14 @@
     <tbody>
       <tr>
         <td>void</td>
-        <td>This function does not return anything. It directly outputs the flash message.</td>
+        <td>This function does not return anything.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
   <div class="example">
     <pre>
-// Output flash message wrapped in custom HTML tags
-flashdata('&lt;div class="alert alert-success"&gt;', '&lt;/div&gt;');
-
-// Output flash message with default paragraph tags
-flashdata();</pre>
+set_flashdata("Your data has been saved successfully.");
+// This sets a flash message in the session.</pre>
   </div>
 </div>

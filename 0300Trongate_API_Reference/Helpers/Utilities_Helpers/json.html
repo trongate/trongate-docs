@@ -1,9 +1,9 @@
 <div class="container">
   <h1>json()</h1>
-  <p class="signature">function json(mixed $data, bool|null $kill_script = null): void</p>
+  <p class="signature">function json(mixed $data, ?bool $kill_script = null): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Encodes data as JSON and optionally displays it with preformatted HTML.</p>
+    <p>Outputs the given data as JSON in a prettified format, suitable for debugging and visualization. This function is especially useful during development for inspecting data structures in a readable JSON format directly in the browser. It optionally allows terminating the script immediately after output, which is useful in API development for stopping further processing.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -19,26 +19,43 @@
       <tr>
         <td>$data</td>
         <td>mixed</td>
-        <td>The data to be encoded as JSON.</td>
+        <td>The data to be encoded into JSON format. The data can be any type that is encodable into JSON, such as arrays or objects.</td>
         <td>N/A</td>
       </tr>
       <tr>
         <td>$kill_script</td>
         <td>bool|null</td>
-        <td>Optional. If true, terminate the script after displaying the JSON. Default is null.</td>
+        <td>Optional. Specifies whether to terminate the script after outputting the JSON. If true, the script execution is halted immediately.</td>
         <td>null</td>
       </tr>
     </tbody>
   </table>
   <h2>Return Value</h2>
-  <p>This function does not return a value; it echoes the JSON data.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Does not return any value; the output is directly written to the output buffer.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Example Usage</h2>
   <div class="example">
     <pre>
-json(['name' => 'John', 'age' => 30]);
-// Output: {
-//   "name": "John",
-//   "age": 30
-// }</pre>
+// Given a data array
+$data = ["name" => "John Doe", "age" => 30];
+
+// Display the JSON and continue execution
+json($data);
+
+// Output with termination after displaying
+json($data, true);</pre>
   </div>
+  
 </div>

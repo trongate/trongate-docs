@@ -3,7 +3,7 @@
   <p class="signature">function validation_errors(?string $opening_html = null, ?string $closing_html = null): ?string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Retrieve and display validation error messages.</p>
+    <p>Retrieves and displays validation error messages, if any, from the session. Error messages can be wrapped in custom HTML tags specified by the caller. If no HTML tags are specified, and constants ERROR_OPEN and ERROR_CLOSE are defined, these are used; otherwise, it defaults to paragraph tags with red text color.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -19,13 +19,13 @@
       <tr>
         <td>$opening_html</td>
         <td>string|null</td>
-        <td>Optional. The opening HTML tag for displaying individual field errors.</td>
+        <td>Optional. The opening HTML tag to use for each error message.</td>
         <td>null</td>
       </tr>
       <tr>
         <td>$closing_html</td>
         <td>string|null</td>
-        <td>Optional. The closing HTML tag for displaying individual field errors.</td>
+        <td>Optional. The closing HTML tag to use after each error message.</td>
         <td>null</td>
       </tr>
     </tbody>
@@ -41,17 +41,17 @@
     <tbody>
       <tr>
         <td>string|null</td>
-        <td>Returns the formatted validation error messages or null if no errors exist.</td>
+        <td>Returns formatted validation error messages if any exist; otherwise, returns null if no errors are found.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
   <div class="example">
     <pre>
-// Example 1: Displaying individual field errors with custom opening and closing HTML tags
-echo validation_errors('div', '</div>');
-
-// Example 2: Normal error reporting with default opening and closing HTML tags
-echo validation_errors();</pre>
+echo validation_errors('&lt;div class="error-message"&gt;', '&lt;/div&gt;');
+// Output might be something like:
+// &lt;div class="error-message"&gt;Field must not be empty&lt;/div&gt;
+// &lt;div class="error-message"&gt;Username must be at least 6 characters long&lt;/div&gt;</pre>
   </div>
+  
 </div>
