@@ -1,0 +1,71 @@
+<div class="container">
+    <h1>form_radio()</h1>
+    <p class="signature">function form_radio(string $name, string|null $value = null, bool $checked = false, ?array $attributes = null, ?string $additional_code = null): string</p>
+    <h2>Description</h2>
+    <div class="description">
+      <p>Generates an HTML input element with type "radio".</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$name</td>
+          <td>string</td>
+          <td>The name attribute for the input element.</td>
+        </tr>
+        <tr>
+          <td>$value</td>
+          <td>string|null</td>
+          <td>The value of the radio button.</td>
+        </tr>
+        <tr>
+          <td>$checked</td>
+          <td>bool</td>
+          <td>Whether the radio button should be checked (true) or unchecked (false).</td>
+        </tr>
+        <tr>
+          <td>$attributes</td>
+          <td>array|null</td>
+          <td>An associative array of HTML attributes for the input.</td>
+        </tr>
+        <tr>
+          <td>$additional_code</td>
+          <td>string|null</td>
+          <td>Additional HTML code to append to the input element.</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>string</td>
+          <td>The generated HTML input element with type "radio".</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Example Usage</h2>
+    <div class="example">
+      <pre>
+  $name = 'gender';
+  $value = 'male';
+  $checked = true;
+  $attributes = ['class' => 'radio-btn'];
+  $additional_code = 'id="maleRadio"';
+  echo form_radio($name, $value, $checked, $attributes, $additional_code);
+  // Output: '&lt;input type="radio" name="gender" value="male" checked class="radio-btn" id="maleRadio"&gt;'</pre>
+    </div>
+  </div>
