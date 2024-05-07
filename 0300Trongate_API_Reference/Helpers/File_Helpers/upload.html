@@ -1,0 +1,58 @@
+<div class="container">
+  <h1>upload()</h1>
+  <p class="signature"> public function upload(array $config): array|null </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Uploads a file to a specified destination, with optional configurations.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$config</td>
+        <td>array</td>
+        <td>An array containing upload configurations, including destination, target module, upload to module, and make random name.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array|null</td>
+        <td>Returns an array containing file information if the upload is successful. Returns null if an error occurs.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$config = [
+    'destination' => 'uploads',
+    'target_module' => 'your_module',
+    'upload_to_module' => true,
+    'make_rand_name' => true
+];
+$file_info = upload($config);
+if ($file_info !== null) {
+    echo "File uploaded successfully: " . $file_info['file_name'];
+} else {
+    echo "Error uploading file. Please check the configuration and try again.";
+}</pre>
+  </div>
+</div>
