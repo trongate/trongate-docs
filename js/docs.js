@@ -1,7 +1,7 @@
 const delayTime = 10;
 
 function fetchFeatureItemsInfo() {
-    
+
     const targetFeatureRefs = [];
     const featureItems = document.querySelectorAll('.feature-item');
     featureItems.forEach(targetEl => {
@@ -30,7 +30,7 @@ function fetchFeatureItemsInfo() {
 
         }
     }
-    
+
 }
 
 async function populateFeatureDescriptions(responseText) {
@@ -65,7 +65,7 @@ function buildFeatureRefs() {
     const featureRefs = document.querySelectorAll('.feature-ref');
 
     featureRefs.forEach(featureRefEl => {
-        const refName = featureRefEl.innerHTML;
+        const refName = featureRefEl.innerHTML.replace(/[()]/g, '');
         const featureRefUrl = existingFeatureRefs[refName] || false;
         if (featureRefUrl === false) {
             featureRefEl.classList.remove('feature-ref');
@@ -79,8 +79,8 @@ function buildFeatureRefs() {
             btn.innerHTML = '<i class="fa fa-info-circle"></i>';
             btn.setAttribute('type', 'button');
             btn.setAttribute('class', 'alt');
-            btn.setAttribute('onclick', 'initOpenInfo(\'' + featurePath + '\')');           
-            featureRefEl.appendChild(btn);            
+            btn.setAttribute('onclick', 'initOpenInfo(\'' + featurePath + '\')');
+            featureRefEl.appendChild(btn);
         }
 
     });

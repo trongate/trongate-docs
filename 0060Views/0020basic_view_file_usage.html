@@ -35,7 +35,7 @@ function greeting() {
 </code></pre>
 
 <h3>Introducing, The 'View' Method</h3>
-<p>In order to load view files, Trongate uses an internal method named <span class="feature-ref">url_title</span>. </p>
+<p>In order to load view files, Trongate uses an internal method named <span class="feature-ref">url_title()</span>. </p>
 
 <p>In the example shown, an argument of 'greeting' is being passed into the <code>view()</code> method.  If the <code>view()</code> method is invoked, in this manner, the containing module's 'views' directory will be scanned for a file named 'greeting.php'.  If the file exists, the content of the file will be rendered and sent to the browser.</p>
 
@@ -82,7 +82,7 @@ class Welcome extends Trongate {
   <figure>
     <img src="../images/78/greetingPZK7.png" alt="Screenshot demonstrating the rendering of a simple view file." style="width:100%">
     <figcaption>Screenshot, demonstrating the rendering of a simple view file.</figcaption>
-  </figure> 
+  </figure>
 </div>
 
 <h2>Conclusion</h2>

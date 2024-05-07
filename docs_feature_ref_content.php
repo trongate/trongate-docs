@@ -66,10 +66,10 @@ if (segment(3) === '') {
 
 	if (isset($features_items)) {
 		foreach($features_items as $feature_item) {
-			echo '<li class="feature-item" id="feature-li-'.$feature_item.'"><span class="feature-ref">'.$feature_item.'</span>';
+			echo '<li class="feature-item" id="feature-li-'.$feature_item.'"><span class="feature-ref">'.$feature_item.'()</span>';
 			echo '<div class="sm"><span class="blink">* fetching description *</span></div>';
 			echo '</li>';
-		}		
+		}
 	}
 	?>
 </ul>
