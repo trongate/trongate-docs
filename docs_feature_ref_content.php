@@ -42,6 +42,11 @@ foreach($last_chapter_sections as $last_chapter_section) {
 
 if (segment(3) === '') {
 	$intro_text = 'Below is a list of '.$entity_type_plural.' within the Trongate framework that are available for use:';
+
+	if ($entity_type_plural === 'helpers') {
+		$intro_text = 'Helpers in the Trongate framework are standalone functions designed to assist with common tasks across your applications. Unlike methods within classes, helper functions can be invoked directly, without the need to instantiate a class. This makes them both lightweight and easily accessible from anywhere within your project.  '.$intro_text;
+	}
+
 } else {
 	$headline_text = $section_sub_dir['dir_label'];
 	$features_items = [];
