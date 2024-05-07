@@ -1,4 +1,4 @@
-<h1>After Hooks - Deep Dive<br></h1>
+<h1>Using After Hooks<br></h1>
 <p>The goal of an after hook is to intercept an outbound HTTP response and then do <em>something</em> with it <em>before</em> the server issues a response to the end user.</p>
 <p>An after hook can be added onto an API endpoint by adding the 'afterHook' property onto an endpoint's settings. Below is an example of an after hook called '_prep_date' being declared for a 'Get' endpoint. This setting (which would be stored on an api.json file) would invoke a protected method named _prep_date() whenever the server is about to issue a response, after having invoked the 'Get' endpoint. </p>
 <p><pre><code>

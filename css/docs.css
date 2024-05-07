@@ -116,6 +116,23 @@ h4 {
 	font-size: 19px;
 }
 
+ul#chapter-nav a,
+main a {
+  text-decoration: none; /* Remove default underline */
+  border-bottom: 1px solid var(--primary); /* Add a bottom border to simulate underline */
+  padding-bottom: 0.05em;
+}
+
+ul#chapter-nav a:hover,
+main a:hover {
+  color: var(--primary-darker);
+}
+
+ul#chapter-nav li {
+  list-style-type: disc;
+  color: var(--primary-darker);
+}
+
 button, .button {
 	transition: .3s;
   text-transform: uppercase;
@@ -396,12 +413,15 @@ figure img {
 
 /* Styling individual breadcrumb items */
 .breadcrumbs a {
-    color: #0275d8; /* A nice blue that is commonly used for links */
+    color: #0275d8 !important; /* A nice blue that is commonly used for links */
     text-decoration: none; /* Removes underline from links */
+    border: none;
+    padding-bottom: 0.05em;
 }
 
 .breadcrumbs a:hover {
-    text-decoration: underline; /* Adds underline on hover for better interaction */
+  text-decoration: none; /* Remove default underline */
+  border-bottom: 1px solid #0275d8; /* Add a bottom border to simulate underline */
 }
 
 /* Styling the separator */
@@ -544,8 +564,7 @@ margin-bottom: 12px;
 }
 .toc-grid li a {
 color: var(--primary);
-}
-.toc-grid li a {
+border: none;
 text-decoration: none;
 }
 .toc-grid li a:hover {
