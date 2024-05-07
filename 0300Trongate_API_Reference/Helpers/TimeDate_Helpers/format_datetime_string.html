@@ -1,0 +1,49 @@
+<div class="container">
+    <h1>format_datetime_str()</h1>
+    <p class="signature"> function format_datetime_str(string $stored_datetime_str): string </p>
+    <h2>Description</h2>
+    <div class="description">
+      <p>Formats a date-time string.</p>
+      <p>Accepts a date-time string ($stored_datetime_str) expected in 'yyyy-mm-dd HH:ii:ss' format and formats it according to the DEFAULT_DATE_FORMAT constant.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$stored_datetime_str</td>
+          <td>string</td>
+          <td>The date-time string to be formatted (expected format: 'yyyy-mm-dd HH:ii:ss').</td>
+          <td>N/A</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>string</td>
+          <td>The formatted date-time string as per the DEFAULT_DATE_FORMAT or the original string if an error occurs.</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Example Usage</h2>
+    <div class="example">
+      <pre>
+  echo format_datetime_str("2024-05-06 14:30:00");
+  // Output: 05/06/2024, 14:30</pre>
+    </div>
+  </div>

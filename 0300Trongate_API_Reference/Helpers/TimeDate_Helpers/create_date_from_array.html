@@ -1,0 +1,62 @@
+<div class="container">
+    <h1>create_date_from_array()</h1>
+    <p class="signature"> function create_date_from_array(array $day_vars): DateTime|false </p>
+    <h2>Description</h2>
+    <div class="description">
+      <p>Attempts to create a DateTime object from provided date and time components.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$day_vars</td>
+          <td>array</td>
+          <td>An array containing 'day', 'month', 'year', 'hours', and 'minutes' components of the date and time.</td>
+          <td>N/A</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>DateTime|false</td>
+          <td>Returns a DateTime object if successful, otherwise returns false.</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>Example Usage</h2>
+    <div class="example">
+      <pre>
+  $day_vars = [
+      'day' => 12,
+      'month' => 5,
+      'year' => 2024,
+      'hours' => 14,
+      'minutes' => 30
+  ];
+  $result = create_date_from_array($day_vars);
+  if ($result !== false) {
+      echo $result->format('Y-m-d H:i:s');
+  } else {
+      echo "Unable to create a valid DateTime object.";
+  }
+  // Output: 2024-05-12 14:30:00</pre>
+    </div>
+
+    </div>
+  </div>
