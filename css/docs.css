@@ -580,12 +580,13 @@ font-size: 0.8em;
 
 .feature-ref button.alt {
   color: var(--primary);
-  background-color: #fff;
+  background-color: transparent;
+  border: none;
 }
 
 .feature-ref button:hover {
   color: var(--primary-darker);
-  background-color: #fff;
+  background-color: transparent;
 }
 
 .feature-ref button .fa {
