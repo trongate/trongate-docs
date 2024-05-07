@@ -1,0 +1,44 @@
+<div class="container">
+  <h1>json()</h1>
+  <p class="signature">function json(mixed $data, bool|null $kill_script = null): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Encodes data as JSON and optionally displays it with preformatted HTML.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$data</td>
+        <td>mixed</td>
+        <td>The data to be encoded as JSON.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$kill_script</td>
+        <td>bool|null</td>
+        <td>Optional. If true, terminate the script after displaying the JSON. Default is null.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <p>This function does not return a value; it echoes the JSON data.</p>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+json(['name' => 'John', 'age' => 30]);
+// Output: {
+//   "name": "John",
+//   "age": 30
+// }</pre>
+  </div>
+</div>
