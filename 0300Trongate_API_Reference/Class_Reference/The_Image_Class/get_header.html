@@ -1,0 +1,39 @@
+<div class="container">
+  <h1>get_header()</h1>
+  <p class="signature">function get_header(): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>This method returns the MIME type corresponding to the image format of the loaded image, which is essential for setting correct HTTP Content-Type headers when serving images directly from PHP scripts. If no image is loaded or the image type has not been set, this method throws a <strong>Nothing_loaded_exception</strong> to prevent misuse and aid in debugging.</p>
+  </div>
+  <h2>Parameters</h2>
+  <p>This method does not take any parameters.</p>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws a <strong>Nothing_loaded_exception</strong> if no image has been loaded or the image type is not set, indicating that operations requiring an image cannot proceed.</p>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the MIME type of the image, suitable for HTTP Content-Type headers, e.g., 'image/jpeg'.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+try {
+    $mime_type = $image->get_header();
+    header("Content-Type: " . $mime_type);
+} catch (Nothing_loaded_exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+</div>

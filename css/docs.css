@@ -633,3 +633,14 @@ font-size: 0.8em;
     display: none; /* Start with button hidden */
     z-index: 1000; /* Make sure the button is above other content */
 }
+
+table.properties-table > tbody > tr > td,
+.properties-table > tr > td:nth-child(1) {
+    text-align: center !important;
+}
+
+table.properties-table > tbody > tr > td:nth-child(1),
+table.properties-table > tbody > tr > td:nth-child(3) {
+    text-align: left !important;
+}
+
