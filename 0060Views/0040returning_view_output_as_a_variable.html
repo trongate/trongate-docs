@@ -1,8 +1,8 @@
-<h1>Returning Views Output as a Variable</h1>
+<h1>Returning View Output as a Variable</h1>
 <p>In certain scenarios, it may be necessary to capture the output of a view file as a string variable rather than directly sending it to the output stream. This can be achieved in Trongate by appending a boolean value of <strong>true</strong> as the third argument to the <code>view()</code> method. Here is an example:</p>
 <pre><code>
-function _get_information() { 
-  // Create an array of cities 
+function _get_information() {
+  // Create an array of cities
   $cities = ["New York", "London", "Paris"];
   $data = [
     "cities" => $cities,
