@@ -1,53 +1,53 @@
 <div class="container">
-    <h1>upload()</h1>
-    <p class="signature"> public function upload(array $data): array </p>
-    <h2>Description</h2>
-    <div class="description">
-      <p>Handles the uploading of files, including image processing and thumbnail creation.</p>
-    </div>
-    <h2>Parameters</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>$data</td>
-          <td>array</td>
-          <td>An associative array containing upload parameters such as destination, maximum width, maximum height, thumbnail directory, and more.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Return Value</h2>
-    <div class="description">
-      <p>An associative array containing information about the uploaded file, including its name, path, type, size, and optionally, the thumbnail path.</p>
-    </div>
-    <h2>Exceptions</h2>
-    <div class="description">
-      <p>This method may throw an exception if any errors occur during the upload process, such as invalid directory, file already exists, or other file-related issues.</p>
-    </div>
-    <h2>Example Usage</h2>
-    <div class="example">
-      <pre>
-  $data = [
-      'destination' => 'uploads',
-      'max_width' => 800,
-      'max_height' => 600,
-      'thumbnail_dir' => 'thumbnails',
-      'thumbnail_max_width' => 200,
-      'thumbnail_max_height' => 150,
-      'upload_to_module' => true,
-      'make_rand_name' => true,
-  ];
-  try {
-      $file_info = upload($data);
-      echo "File uploaded successfully: " . $file_info['file_name'];
-  } catch (Exception $e) {
-      echo "An error occurred: " . $e->getMessage();
-  }</pre>
-    </div>
+  <h1>upload()</h1>
+  <p class="signature"> public function upload(array $data): array </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Handles the uploading of files, including image processing and thumbnail creation.</p>
   </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>An associative array containing upload parameters such as destination, maximum width, maximum height, thumbnail directory, and more.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <div class="description">
+    <p>An associative array containing information about the uploaded file, including its name, path, type, size, and optionally, the thumbnail path.</p>
+  </div>
+  <h2>Exceptions</h2>
+  <div class="description">
+    <p>This method may throw an exception if any errors occur during the upload process, such as invalid directory, file already exists, or other file-related issues.</p>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$data = [
+    'destination' => 'uploads',
+    'max_width' => 800,
+    'max_height' => 600,
+    'thumbnail_dir' => 'thumbnails',
+    'thumbnail_max_width' => 200,
+    'thumbnail_max_height' => 150,
+    'upload_to_module' => true,
+    'make_rand_name' => true,
+];
+try {
+    $file_info = upload($data);
+    echo "File uploaded successfully: " . $file_info['file_name'];
+} catch (Exception $e) {
+    echo "An error occurred: " . $e->getMessage();
+}</pre>
+  </div>
+</div>
