@@ -1,4 +1,4 @@
-The following HTML code represents what I consider to be perfect documentation for a function or method that is found within the Trongate framework:    ---    
+The following HTML code represents what I consider to be perfect documentation for a function or method that is found within the Trongate framework:    ---
 
 
 <div class="container">
@@ -55,11 +55,9 @@ echo url_title("Hello World! This is a Test String.");
 // Output: hello-world-this-is-a-test-string
         </pre>
   </div>
-  
+
   </div>
 </div>
 
-Please produce some HTML content of the same format as shown above, but for the following function/method:    ---    
-
-
+Please produce some HTML content of the same format as shown above, but for the following function/method:    ---
 

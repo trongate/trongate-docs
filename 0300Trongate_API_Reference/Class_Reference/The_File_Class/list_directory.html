@@ -1,0 +1,77 @@
+<div class="container">
+  <h1>list_directory()</h1>
+  <p class="signature">public function list_directory(string $directory_path, bool $recursive = false): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Lists files and directories within a specified directory.</p>
+    <p>This method returns an array containing the names of files and directories within the specified directory. It has an option to perform a recursive listing, which includes all subdirectories and their contents.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$directory_path</td>
+        <td>string</td>
+        <td>The path to the directory whose contents are to be listed.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$recursive</td>
+        <td>bool</td>
+        <td>Optional. Determines whether the listing should be recursive.</td>
+        <td>false</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Throws</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Exception</td>
+        <td>If the specified directory does not exist or is not a directory, or if access to the directory is restricted.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An array of file and directory names from the specified directory.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+<div class="example">
+  <pre>
+$obj = new YourClass();
+$directory_path = "/path/to/directory";
+$recursive = true;
+try {
+    $result = $obj->list_directory($directory_path, $recursive);
+    echo "Contents of directory $directory_path:<br>";
+    print_r($result);
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+</div>

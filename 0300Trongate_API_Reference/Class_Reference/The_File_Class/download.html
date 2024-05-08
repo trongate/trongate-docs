@@ -1,0 +1,49 @@
+<div class="container">
+  <h1>download()</h1>
+  <p class="signature">public function download(string $file_path, bool $as_attachment = true): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Initiates a file download or displays inline from the server or an external URL.</p>
+    <p>This method prepares and sends headers based on the parameters to either initiate a file download from the server's local storage or display it inline. It checks if the file exists and is readable before proceeding.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The path or URL of the file.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$as_attachment</td>
+        <td>bool</td>
+        <td>Optional. Determines whether to force the file download (true) or display inline (false).</td>
+        <td>true</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Throws</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Exception</td>
+        <td>If the file does not exist, cannot be read, or if access to the file is restricted.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,76 @@
+<div class="container">
+  <h1>info()</h1>
+  <p class="signature"> public function info(string $file_path): array </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves metadata about a file, including its size, last modification time, permissions, file name, and MIME type.</p>
+    <p>This method provides information about a file including its size, last modification time, and permissions. Additionally, it now returns the file name and MIME type.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The path to the file.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>Returns an array with file metadata.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Throws</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Exception</td>
+        <td>If the file does not exist.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$info = $obj->info("/path/to/file.txt");
+print_r($info);
+/* Output:
+Array
+(
+    [file_name] => file.txt
+    [size] => 1024
+    [modified_time] => 1620379200
+    [permissions] => 33206
+    [mime_type] => text/plain
+    [readable_permissions] => 0646
+    [human_readable_size] => 1.00 KB
+)
+*/</pre>
+  </div>
+</div>
