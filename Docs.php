@@ -432,7 +432,8 @@ class Docs {
 	        $file_relative_path = str_replace(APPPATH, '', $full_path);
 	        $file_relative_path = str_replace(DIRECTORY_SEPARATOR, '/', $file_relative_path);
 	        $file_relative_path = str_replace('\\', '/', $file_relative_path); // Ensure forward slashes
-
+		$file_relative_path = str_replace(APPPATH, '', $file_relative_path);
+		    
 	        if (strpos($file_relative_path, REF_DIR) === false) {
 		       $file_url_path = str_replace('_', '-', $file_relative_path); // Replace underscores with hyphens
 		       $file_url_path = $this->remove_first_four_if_numeric($file_url_path);
