@@ -516,6 +516,7 @@ class Docs {
         $page_label = str_replace(' The ', ' the ', $page_label);
         $page_label = str_replace(' A ', ' a ', $page_label);
         $page_label = str_replace(' From ', ' from ', $page_label);
+        $page_label = str_replace('What Are Templates', 'What Are Templates?', $page_label);
     	return $page_label;
     }
 
