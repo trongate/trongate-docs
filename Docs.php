@@ -497,30 +497,37 @@ class Docs {
 		return $new_page_url;
 	}
 
-    private function build_nice_label($str) {
-    	$page_label = $this->remove_first_four_if_numeric($str);
-    	$page_label = str_replace('_', ' ', $page_label);
-    	$page_label = ucwords($page_label);
-    	$page_label = str_replace('.html', '', $page_label);
- 		$page_label = str_replace('rongate1', 'rongate #1', $page_label);
-        $page_label = str_replace('rongate2', 'rongate #2', $page_label);
-        $page_label = str_replace('rongate3', 'rongate #3', $page_label);
-        $page_label = str_replace('rongate4', 'rongate #4', $page_label);
-        $page_label = str_replace('rongate5', 'rongate #5', $page_label);
-        $page_label = str_replace('Github', 'GitHub', $page_label);
-        $page_label = str_replace('And', '&amp;', $page_label);
-        $page_label = str_replace('Url ', 'URL ', $page_label);
-        $page_label = str_replace('Css', 'CSS', $page_label);
-        $page_label = str_replace('themes', 'Themes', $page_label);
-        $page_label = str_replace(' An Overview', ': An Overview', $page_label);
-        $page_label = str_replace(' Of ', ' of ', $page_label);
-        $page_label = str_replace(' The ', ' the ', $page_label);
-        $page_label = str_replace(' A ', ' a ', $page_label);
-        $page_label = str_replace(' From ', ' from ', $page_label);
-        $page_label = str_replace('What Are Templates', 'What Are Templates?', $page_label);
-    	return $page_label;
-    }
+	private function build_nice_label($str) {
+	    $page_label = $this->remove_first_four_if_numeric($str);
+	    $page_label = str_replace('_', ' ', $page_label);
+	    $page_label = str_replace('.html', '', $page_label);
+	    $page_label = ucwords($page_label);
 
+	    $replacements = [
+	        'rongate1' => 'rongate #1',
+	        'rongate2' => 'rongate #2',
+	        'rongate3' => 'rongate #3',
+	        'rongate4' => 'rongate #4',
+	        'rongate5' => 'rongate #5',
+	        'Github' => 'GitHub',
+	        'And' => '&amp;',
+	        'Url ' => 'URL ',
+	        'Css' => 'CSS',
+	        'themes' => 'Themes',
+	        ' An Overview' => ': An Overview',
+	        ' Of ' => ' of ',
+	        ' The ' => ' the ',
+	        ' A ' => ' a ',
+	        ' From ' => ' from ',
+	        'What Are Templates' => 'What Are Templates?'
+	    ];
+
+	    foreach ($replacements as $search => $replace) {
+	        $page_label = str_replace($search, $replace, $page_label);
+	    }
+
+	    return $page_label;
+	}
 
 	private function remove_first_four_if_numeric($string) {
 	    // Extract the first four characters
