@@ -4,6 +4,38 @@ class Docs {
 	private $view_files = [];
 	private $feature_refs = [];
 
+	private function build_nice_label($str) {
+	    $page_label = $this->remove_first_four_if_numeric($str);
+	    $page_label = str_replace('_', ' ', $page_label);
+	    $page_label = str_replace('.html', '', $page_label);
+	    $page_label = ucwords($page_label);
+
+	    $replacements = [
+	        'rongate1' => 'rongate #1',
+	        'rongate2' => 'rongate #2',
+	        'rongate3' => 'rongate #3',
+	        'rongate4' => 'rongate #4',
+	        'rongate5' => 'rongate #5',
+	        'Github' => 'GitHub',
+	        'And' => '&amp;',
+	        'Url ' => 'URL ',
+	        'Css' => 'CSS',
+	        'themes' => 'Themes',
+	        ' An Overview' => ': An Overview',
+	        ' Of ' => ' of ',
+	        ' The ' => ' the ',
+	        ' A ' => ' a ',
+	        ' From ' => ' from ',
+	        'What Are Templates' => 'What Are Templates?'
+	    ];
+
+	    foreach ($replacements as $search => $replace) {
+	        $page_label = str_replace($search, $replace, $page_label);
+	    }
+
+	    return $page_label;
+	}
+
 	private function build_breadcrumbs_array_ref($docs_contents, $reduced_ref_dir) {
 		// Build a breadcrumbs array for the last chapter (ref guide)
 		$breadcrumbs_array = [];
@@ -495,38 +527,6 @@ class Docs {
 		$new_page_url = rtrim($new_page_url, '/');
 		$new_page_url.= '.html';
 		return $new_page_url;
-	}
-
-	private function build_nice_label($str) {
-	    $page_label = $this->remove_first_four_if_numeric($str);
-	    $page_label = str_replace('_', ' ', $page_label);
-	    $page_label = str_replace('.html', '', $page_label);
-	    $page_label = ucwords($page_label);
-
-	    $replacements = [
-	        'rongate1' => 'rongate #1',
-	        'rongate2' => 'rongate #2',
-	        'rongate3' => 'rongate #3',
-	        'rongate4' => 'rongate #4',
-	        'rongate5' => 'rongate #5',
-	        'Github' => 'GitHub',
-	        'And' => '&amp;',
-	        'Url ' => 'URL ',
-	        'Css' => 'CSS',
-	        'themes' => 'Themes',
-	        ' An Overview' => ': An Overview',
-	        ' Of ' => ' of ',
-	        ' The ' => ' the ',
-	        ' A ' => ' a ',
-	        ' From ' => ' from ',
-	        'What Are Templates' => 'What Are Templates?'
-	    ];
-
-	    foreach ($replacements as $search => $replace) {
-	        $page_label = str_replace($search, $replace, $page_label);
-	    }
-
-	    return $page_label;
 	}
 
 	private function remove_first_four_if_numeric($string) {
