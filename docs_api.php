@@ -89,13 +89,14 @@ function extract_content($string, $start, $end) {
 }
 
 function extract_feature_description($filepath) {
-
+	$filepath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filepath);
 	if (!file_exists($filepath)) {
 		http_response_code(400);
 		die();
 	}
 
 	$must_have = APPPATH.REF_DIR;
+	$must_have = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $must_have);
 
 	if (strpos($filepath, $must_have) === false) {
 		http_response_code(400);
