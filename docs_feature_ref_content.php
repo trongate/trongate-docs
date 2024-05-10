@@ -50,6 +50,23 @@ if (segment(3) === '') {
 } else {
 	$headline_text = $section_sub_dir['dir_label'];
 	$features_items = [];
+
+	if (isset($section_sub_dir['files'][0])) {
+		$class_view_url = $section_sub_dir['files'][0]['page_url'] ?? '';
+
+		// Establish the name of the class where the feature ref exists.
+		$class_url_segments = explode('/', $class_view_url);
+
+		$second_last_segment = strtolower($class_url_segments[count($class_url_segments)-2]);
+		$last_six_chars = substr($second_last_segment, -6);
+		if ($last_six_chars === '_class') {
+			$second_last_segment = str_replace('_class', '', $second_last_segment);
+			$target_segment_bits = explode('_', $second_last_segment);
+			$target_class_name = $target_segment_bits[count($target_segment_bits)-1];
+		}
+
+	}
+
 	foreach($section_sub_dir['files'] as $target_file) {
 		$page_url_segments = explode('/', $target_file['page_url']);
 		$feature_name = $page_url_segments[count($page_url_segments)-1];
@@ -70,8 +87,9 @@ if (segment(3) === '') {
 	}
 
 	if (isset($features_items)) {
+		$additional_code = (isset($target_class_name)) ? ' data-class="'.$target_class_name.'"' : '';
 		foreach($features_items as $feature_item) {
-			echo '<li class="feature-item" id="feature-li-'.$feature_item.'"><span class="feature-ref">'.$feature_item.'()</span>';
+			echo '<li class="feature-item" id="feature-li-'.$feature_item.'"><span class="feature-ref"'.$additional_code.'>'.$feature_item.'()</span>';
 			echo '<div class="sm"><span class="blink">* fetching description *</span></div>';
 			echo '</li>';
 		}

@@ -60,6 +60,14 @@ async function populateFeatureDescriptions(responseText) {
     }
 }
 
+function getDataClassValue(element) {
+    // Check if the element exists and has the 'data-class' attribute
+    if (element && element.hasAttribute('data-class')) {
+        return element.getAttribute('data-class');
+    } else {
+        return false;
+    }
+}
 
 function buildFeatureRefs() {
     const featureRefs = document.querySelectorAll('.feature-ref');
@@ -67,6 +75,8 @@ function buildFeatureRefs() {
     featureRefs.forEach(featureRefEl => {
         const refName = featureRefEl.innerHTML.replace(/[()]/g, '');
         const featureRefUrl = existingFeatureRefs[refName] || false;
+        const containingClass = getDataClassValue(featureRefEl);
+
         if (featureRefUrl === false) {
             featureRefEl.classList.remove('feature-ref');
             featureRefEl.style.fontWeight = 'bold';
@@ -79,14 +89,17 @@ function buildFeatureRefs() {
             btn.innerHTML = '<i class="fa fa-info-circle"></i>';
             btn.setAttribute('type', 'button');
             btn.setAttribute('class', 'alt');
-            btn.setAttribute('onclick', 'initOpenInfo(\'' + featurePath + '\')');
+
+            // Use template literals for clearer and safer string construction
+            const onClickValue = `initOpenInfo('${featurePath}'${containingClass !== false ? `, '${containingClass}'` : ''})`;
+            btn.setAttribute('onclick', onClickValue);            
             featureRefEl.appendChild(btn);
         }
 
     });
 }
 
-function initOpenInfo(featurePath) {
+function initOpenInfo(featurePath, containingClass = false) {
 
     openModal('temp-modal');
 
@@ -96,8 +109,13 @@ function initOpenInfo(featurePath) {
             featurePath
         }
 
+        if (containingClass !== false) {
+            params.containingClass = containingClass;
+        }
+
         const http = new XMLHttpRequest();
         http.open('post', targetUrl);
+
         http.setRequestHeader('Content-type', 'application/json');
         http.send(JSON.stringify(params));
         http.onload = function() {

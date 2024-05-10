@@ -16,7 +16,7 @@ if ($params !== null) {
 	$docs_contents = $docs->est_docs_contents();
 
 	if (isset($params->featurePath)) {
-		attempt_serve_feature_details($params->featurePath, $docs_contents);
+		attempt_serve_feature_details($params, $docs_contents);
 		return;
 	}
 
@@ -142,7 +142,8 @@ function out($input, $encoding = 'UTF-8', $output_format = 'html') {
     return htmlspecialchars($input, $flags, $encoding);
 }
 
-function attempt_serve_feature_details($feature_path, $docs_contents) {
+function attempt_serve_feature_details($params, $docs_contents) {
+	$feature_path = $params->featurePath;
 	$path_bits = explode('/', $feature_path);
 
 	if (($path_bits[0] !== REF_DIR) || (count($path_bits) !== 4)) {
@@ -180,6 +181,7 @@ function attempt_serve_feature_details($feature_path, $docs_contents) {
 	die();
 
 }
+
 
 
 
