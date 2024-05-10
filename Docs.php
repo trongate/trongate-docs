@@ -404,7 +404,7 @@ class Docs {
 	            continue;
 	        }
 
-	        $full_path = $path . DIRECTORY_SEPARATOR . $entry;
+	        $full_path = $path . '/' . $entry;
 	        if (is_dir($full_path)) {
 	            $label = $this->format_directory_name($entry);
 	            $sub_sub_dirs = $this->get_sub_directories($full_path);
@@ -454,7 +454,7 @@ class Docs {
 	            continue;
 	        }
 
-	        $full_path = $directory_path . DIRECTORY_SEPARATOR . $file;
+	        $full_path = $directory_path . '/' . $file;
 	        if (!is_file($full_path)) {
 	            continue;
 	        }
@@ -464,7 +464,7 @@ class Docs {
 	        $file_relative_path = str_replace(APPPATH, '', $full_path);
 	        $file_relative_path = str_replace(DIRECTORY_SEPARATOR, '/', $file_relative_path);
 	        $file_relative_path = str_replace('\\', '/', $file_relative_path); // Ensure forward slashes
-		$file_relative_path = str_replace(APPPATH, '', $file_relative_path);
+					$file_relative_path = str_replace(APPPATH, '', $file_relative_path);
 		    
 	        if (strpos($file_relative_path, REF_DIR) === false) {
 		       $file_url_path = str_replace('_', '-', $file_relative_path); // Replace underscores with hyphens
