@@ -437,6 +437,19 @@ class Docs {
 	    return trim(str_replace('_', ' ', $name));
 	}
 
+	private function est_feature_type($full_path_bits) {
+
+		$third_from_last = strtolower($full_path_bits[count($full_path_bits)-3]);
+
+		if (strpos($third_from_last, 'class') !== false) {
+			$feature_type = 'class';
+		} else {
+			$feature_type = 'helper';
+		}
+
+		return $feature_type;
+	}
+
 	private function fetch_html_files($directory_path) {
 
 	    $html_files = [];
@@ -481,16 +494,15 @@ class Docs {
 
 	        $this->view_files[] = $row_data;
 
-	        if (strpos($full_path, REF_DIR)) {
-
+	        if (strpos($full_path, REF_DIR) !== false) {
 	        	$full_path_bits = explode('/', $full_path);
 	        	$last_path_segment = $full_path_bits[count($full_path_bits)-1];
 	        	$last_path_segment = str_replace('.html', '', $last_path_segment);
 
-	        	if (!isset($this->feature_refs[$last_path_segment])) {
-	        		$this->feature_refs[$last_path_segment] = $row_data;
-	        	}
-
+	        	$feature_data['feature_type'] = $this->est_feature_type($full_path_bits);
+	        	$feature_data['feature_ref_dir'] = $full_path_bits[count($full_path_bits)-2];
+	        	$feature_data['name'] = $last_path_segment;
+	        	$this->feature_refs[] = $feature_data;
 	        }
 
 	        $html_files[] = [
@@ -571,6 +583,71 @@ class Docs {
             require $view_path;
             return null;
         }
+    }
+
+    private function extract_feature_ref($target_feature, $docs_contents) {
+
+	    $target_feature_type = $target_feature->feature_type ?? '';
+	    $target_feature_ref_dir = $target_feature->feature_ref_dir ?? '';
+	    $target_feature_name = $target_feature->name ?? '';
+
+    	$last_chapter = $docs_contents->table_of_contents[count($docs_contents->table_of_contents)-1];
+    	$target_sections = [];
+    	// Extract the section(s) that may contain the target feature ref.
+    	foreach($last_chapter['sub_directories'] as $last_chapter_section) {
+
+    		    $target_str = strtolower($last_chapter_section['dir_label']);
+    			if (($target_feature_type !== '') && (strpos($target_str, $target_feature_type) !== false)) {
+    				$target_sections[] = $last_chapter_section;
+    			} elseif($target_feature_type === '') {
+    				$target_sections[] = $last_chapter_section;
+    			}
+    	}
+
+    	// Fetch and return all target sub directories that may contain the target feature ref.
+    	$sub_directory_files = [];
+    	foreach($target_sections as $target_section) {
+    		
+    		$section_sub_directories = $target_section['sub_directories'];
+    		foreach($section_sub_directories as $section_sub_directory) {
+
+    			if (($target_feature_ref_dir !== '') && ($section_sub_directory['dir_name'] === $target_feature_ref_dir)) {
+    				$sub_directory_files[] = $section_sub_directory['files'];
+    			} elseif($target_feature_ref_dir === '') {
+    				$sub_directory_files[] = $section_sub_directory['files'];
+    			}
+
+    		}
+
+    		// Check the target sub directories for files that match our target feature ref.
+    		foreach($sub_directory_files as $files_array) {
+
+    			foreach($files_array as $target_file) {
+    				$target_file_str = str_replace('.html', '', $target_file['filename']);
+    				if ($target_file_str === $target_feature_name) {
+    					return $target_file;
+    				}
+    			}
+
+    		}
+    	}
+    	return false;
+    }
+
+    public function extract_feature_refs($target_features, $docs_contents, $include_details = false) {
+    	$feature_refs = [];
+    	foreach($target_features as $target_feature_key => $target_feature) {
+    		$feature_refs[$target_feature_key] = $this->extract_feature_ref($target_feature, $docs_contents);
+    	}
+
+    	if ($include_details === true) {
+    		foreach ($feature_refs as $key => $value) {
+    			$target_filepath = $value['filepath'];
+    			$feature_refs[$key]['information'] = file_get_contents($target_filepath);
+    		}
+    	}
+
+    	return $feature_refs;
     }
 
 

@@ -1,18 +1,16 @@
 const delayTime = 10;
 
 function fetchFeatureItemsInfo() {
-
     const targetFeatureRefs = [];
     const featureItems = document.querySelectorAll('.feature-item');
     featureItems.forEach(targetEl => {
-        const targetElId = targetEl.id;
-        const targetFeatureRef = targetElId.replace('feature-li-', '');
+        const featureRefSpan = targetEl.querySelector('.feature-ref');
+        const targetFeatureRef = pluckFeatureRef(featureRefSpan);
         targetFeatureRefs.push(targetFeatureRef)
     });
 
     const params = {
-        targetFeatureRefs,
-        callingUrl: currentUrl
+        targetFeatureRefs
     }
 
     const targetUrl = baseUrl + 'docs_api.php';
@@ -20,6 +18,7 @@ function fetchFeatureItemsInfo() {
     http.open('post', targetUrl);
     http.setRequestHeader('Content-type', 'application/json');
     http.send(JSON.stringify(params));
+
     http.onload = function() {
 
         if (http.status === 200) {
@@ -30,24 +29,20 @@ function fetchFeatureItemsInfo() {
 
         }
     }
-
 }
 
-async function populateFeatureDescriptions(responseText) {
-    // Parse the JSON string to create a JavaScript object
+function populateFeatureDescriptions(responseText) {
     const obj = JSON.parse(responseText);
 
     // Convert the object to an array of key-value pairs
     const keyValuePairArray = Object.entries(obj);
+    const blinkingEls = document.querySelectorAll('#feature-ref-list li .blink');
 
-    for (let i = 0; i < keyValuePairArray.length; i++) {
+    for (var i = 0; i < keyValuePairArray.length; i++) {
         const row = keyValuePairArray[i];
-        const targetElId = 'feature-li-' + row[0];
-        const targetListItem = document.getElementById(targetElId);
-        const blinkingEl = targetListItem.querySelector('.blink');
-        const blinkingElParent = blinkingEl.parentNode;
-        blinkingEl.remove();
-
+        const blinkingElParent = blinkingEls[i].parentNode;
+        blinkingEls[i].remove();
+        
         if (row[1] === 'fail') {
             blinkingElParent.innerText = 'Description not available.';
             blinkingElParent.style.color = 'red';
@@ -55,9 +50,8 @@ async function populateFeatureDescriptions(responseText) {
             blinkingElParent.innerHTML = row[1];
         }
 
-        // Wait for 1 second before continuing the loop
-        await new Promise(resolve => setTimeout(resolve, delayTime));
     }
+
 }
 
 function getDataClassValue(element) {
@@ -69,56 +63,73 @@ function getDataClassValue(element) {
     }
 }
 
+function pluckFeatureRef(featureRefEl) {
+    // Attempt to return an item from existingFeatureRefs that can be matched with the element
+    let matchingFeatureRef = false;
+
+    let featureRefName = featureRefEl.innerText;
+    featureRefName = featureRefName.replace('()', '');
+    const containingClass = getDataClassValue(featureRefEl);
+
+    existingFeatureRefs.forEach(existingFeatureRef => {
+        
+        if (existingFeatureRef.name === featureRefName) {
+            if (containingClass === false) {
+                matchingFeatureRef = existingFeatureRef;
+            } else {
+                const existingFeatureRefDir = existingFeatureRef['feature_ref_dir'];
+                const featureRefDirLc = existingFeatureRefDir.toLowerCase();
+                if (featureRefDirLc.includes(containingClass)) {
+                    matchingFeatureRef = existingFeatureRef;
+                }
+            }
+        }
+
+    });
+
+    return matchingFeatureRef;
+ 
+}
+
 function buildFeatureRefs() {
     const featureRefs = document.querySelectorAll('.feature-ref');
 
     featureRefs.forEach(featureRefEl => {
-        const refName = featureRefEl.innerHTML.replace(/[()]/g, '');
-        const featureRefUrl = existingFeatureRefs[refName] || false;
-        const containingClass = getDataClassValue(featureRefEl);
 
-        if (featureRefUrl === false) {
+        const refName = featureRefEl.innerHTML.replace(/[()]/g, '');
+        const targetFeatureRef = pluckFeatureRef(featureRefEl);
+
+        if (targetFeatureRef === false) {
             featureRefEl.classList.remove('feature-ref');
             featureRefEl.style.fontWeight = 'bold';
         } else {
-
-            const featurePath = refDir + featureRefUrl;
 
             // Build a 'more info' button
             const btn = document.createElement('button');
             btn.innerHTML = '<i class="fa fa-info-circle"></i>';
             btn.setAttribute('type', 'button');
             btn.setAttribute('class', 'alt');
-
-            // Use template literals for clearer and safer string construction
-            const onClickValue = `initOpenInfo('${featurePath}'${containingClass !== false ? `, '${containingClass}'` : ''})`;
+            const onClickValue = 'initOpenInfo(\'' + JSON.stringify(targetFeatureRef) + '\')';
             btn.setAttribute('onclick', onClickValue);            
             featureRefEl.appendChild(btn);
         }
 
     });
+
 }
 
-function initOpenInfo(featurePath, containingClass = false) {
-
+function initOpenInfo(targetFeatureParams) {
     openModal('temp-modal');
 
-        const targetUrl = baseUrl + 'docs_api.php';
+    const targetUrl = baseUrl + 'docs_api.php';
 
-        const params = {
-            featurePath
-        }
+    const http = new XMLHttpRequest();
+    http.open('post', targetUrl);
+    http.setRequestHeader('Content-type', 'application/json');
+    http.send(targetFeatureParams);
 
-        if (containingClass !== false) {
-            params.containingClass = containingClass;
-        }
-
-        const http = new XMLHttpRequest();
-        http.open('post', targetUrl);
-
-        http.setRequestHeader('Content-type', 'application/json');
-        http.send(JSON.stringify(params));
         http.onload = function() {
+
             if (http.status === 200) {
 
                 const targetModalBody = document.querySelector('.modal-body');
@@ -126,7 +137,9 @@ function initOpenInfo(featurePath, containingClass = false) {
                     targetModalBody.removeChild(targetModalBody.firstChild);
                 }
 
-                targetModalBody.innerHTML = http.responseText;
+                const results = JSON.parse(http.responseText);
+
+                targetModalBody.innerHTML = results[0];
 
                 // Build a close (modal) button.
                 const closeBtnPara = document.createElement('p');
