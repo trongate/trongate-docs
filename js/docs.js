@@ -165,6 +165,11 @@ function initCloseModal() {
 
 }
 
+function goToDocsHome(url) {
+    // Redirect to the specified URL
+    window.location.href = url;
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // Make the <code> elements look beautiful!
     beautifyCodeBlocks();

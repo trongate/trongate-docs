@@ -404,7 +404,7 @@ class Docs {
 	            continue;
 	        }
 
-	        $full_path = $path . DIRECTORY_SEPARATOR . $entry;
+	        $full_path = $path . '/' . $entry;
 	        if (is_dir($full_path)) {
 	            $label = $this->format_directory_name($entry);
 	            $sub_sub_dirs = $this->get_sub_directories($full_path);
@@ -454,7 +454,7 @@ class Docs {
 	            continue;
 	        }
 
-	        $full_path = $directory_path . DIRECTORY_SEPARATOR . $file;
+	        $full_path = $directory_path . '/' . $file;
 	        if (!is_file($full_path)) {
 	            continue;
 	        }
