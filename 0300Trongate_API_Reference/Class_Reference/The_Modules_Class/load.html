@@ -42,6 +42,15 @@
   <h2>Example Usage</h2>
   <div class="example">
     <pre>
-$modules->load("example_module");</pre>
+$this->modules->load("welcome");</pre>
   </div>
+
+  <h2>Alternative Method</h2>
+  <div class="alternative">
+    <p>The main Trongate class provides the <code>module()</code> method as a convenient alias to <code>$this->modules->load()</code>. This method offers a semantically clear alternative for developers, ensuring the codebase remains expressive and maintainable while utilizing the same underlying functionality as the <code>load()</code> method.</p>
+
+    <h3>Example Usage of module()</h3>
+    <pre>$this->module('welcome');</pre>
+
+
 </div>
