@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>run()</h1>
+  <p class="signature"> function run(string $module_controller_method, mixed $first_value = null, mixed $second_value = null, mixed $third_value = null): mixed </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Dynamically invokes module's controller method and is specifically designed to be called from within presentation files, such as view files.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$module_controller_method</td>
+        <td>string</td>
+        <td>The format is "Module/Controller/Method".</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$first_value</td>
+        <td>mixed</td>
+        <td>Optional. First parameter for the method.</td>
+        <td>null</td>
+      </tr>
+      <tr>
+        <td>$second_value</td>
+        <td>mixed</td>
+        <td>Optional. Second parameter for the method.</td>
+        <td>null</td>
+      </tr>
+      <tr>
+        <td>$third_value</td>
+        <td>mixed</td>
+        <td>Optional. Third parameter for the method.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>The result of the controller method.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+&lt;?= Modules::run('Accounts/_display_profit', $data) ?&gt;</pre>
+  </div>
+  
+  </div>
+</div>
