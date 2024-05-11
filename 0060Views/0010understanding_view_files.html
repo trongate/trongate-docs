@@ -11,7 +11,9 @@
 <p>The <strong>views</strong> directory, positioned at the same hierarchical level as the <strong>Controllers</strong> directory within a module, is optional and depends on the module’s purpose. For example, a module designed for data processing tasks, such as handling API requests or performing background data synchronization, typically does not require a <strong>views</strong> directory since it operates without user interface elements.</p>
 
 <h2>Functionality of View Files</h2>
-<p>Within the Trongate Framework, view files are PHP files that contain primarily presentation code, most notably HTML. These files are typically invoked from controller files and are recommended to avoid complex PHP logic, adhering to the MVC best practices. This separation ensures that business logic remains within controllers, thereby keeping view files clean and focused solely on the user interface, enhancing maintainability and clarity.</p>
+<p>View files contain code that is designed to 'present' data to the end user of the application. Within the Trongate Frame these files are nominally PHP files but cre composed predominantly of HTML and  JavaScript and CSS where required.</p>
+
+<p>These files are not intended to contain complex procedural logic.  This promotes the concept of 'Seperation of Concerns' a key paradigm of the MVC design pattern. What this means in practice is that you can design view files that could work with a multitude of controllers that actually perform different parts of the business logic of your application. For example you may have several controllers whose purpose is to perform certain tasks on data that the application works with.  Each of those controllers outputs an array of data that would then be displayed to the end user in a table. Given that all the view is required to do is take data that is sent to it and display it in a table it really is of no consequence from which controller the data comes from.</p>
 
 <p>View files are loaded through controller methods using Trongate's built-in <code>view()</code> method. For example:</p>
 <pre><code>$this-&gt;view('welcome');</code></pre>

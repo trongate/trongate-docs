@@ -38,8 +38,7 @@ class Dice extends Trongate {
 <p><code>$number = rand(1, 6);</code> - Inside the 'roll' method, this line of code assigns a random number between 1 and 6 to the variable <code>$number</code>. The <code>rand()</code> function is a built-in PHP function used to generate random numbers.</p>
 <p><code>echo $number;</code> - This line outputs the value of <code>$number</code> to the webpage. In the context of a controller within a framework like Trongate, this typically means sending the data back to the client's browser where it can be rendered as part of the HTML or handled via JavaScript.</p>
 
-<h3>Class and Method Closure</h3>
-<p>The closing curly braces <code>}</code> signify the end of the class and method respectively. In PHP, as in many other programming languages, curly braces are used to define the scope of classes, methods, and other control structures, ensuring that the code enclosed within them is associated with that specific class or method.</p>
+
 
 <p>This breakdown highlights how the 'Dice' controller leverages both Trongate's and PHP's built-in functionalities to perform its tasks, generating a random number between one and six.</p>
 
@@ -62,3 +61,55 @@ class Dice extends Trongate {
     <li class="mt-1">The second URL segment, <code>roll</code>, specifies the method to be invoked. Thus, it triggers the <code>roll()</code> method within the loaded Dice class.</li>
 </ul>
 <p>This structured URL pattern ensures that requests are routed efficiently to the appropriate controller actions, making URL management straightforward and intuitive within the Trongate framework.</p>
+
+
+<h2>How Class, Method and Control Block Closure affects Scope</h2>
+<p>By convention in PHP code within a class, method or control block is surrounded by curly braces <code>{ }</code>. These serve not only to contain the code therein but more importantly they also serve to help define the accessibilty and scope of that code. This is a concept that it is vital to understand as it is often the reason behind why code can fail to execute in the way that might have been expected.</p>
+
+<p>In the code below the Dice controller has had a couple of additional methods added one of which contains a control block.  There are a number of variables within the code and the comments close to then explain their respective scopes.  If you are an experienced programmer this will be familiar to you but if you are new to this then take some time to understand how this actually works as it will save you many frustrating hours spent trying to work out why something you believe ought to work actually doesn't.</p>
+
+<p><pre><code>
+
+
+class Dice extends Trongate {
+    // Everything contained within the class's curly braces {}
+    // will fall withing the scope of the class and it's methods
+
+    private $classwideNumber = 0;  // this variable can be accessed from anywhere in the class.
+
+     function roll() {
+        $number = rand(1, 6);
+        echo $number;
+
+        // now we can store the value of number in the $claswideNumber variable.
+        $this -> $classwideNumber = $number;
+    }
+
+    function roll_again() {
+        $local = rand(1, 6);  // this variable is only accessible within roll_again
+        $this -> $classwideNumber = $local; // $classwideNumber is however accessible here as well
+    }
+
+    function roll_several_times() {
+        $local = rand(1, 6);
+        //this $local variable is different from the one above  and is only accessible within roll_several_times
+        $runningTally = 0;
+            for($i = 0; $i <= $local; $i++) {
+                $diceThrow = rand(1,6);
+                // The variable $i only has scope within this 'for' control block
+                // as does the variable $diceThrow.
+                // However as $runningTally was declared outside this block it is accessible
+                // meaning that we can set it's value through each iteration and effectively
+                // keep a running tally of the dice throws.
+
+                $runningTally += $diceThrow;
+            }
+
+        // Now we can once again set our classwide variable as it too is is scope in this method.
+
+        $this -> $classwideNumber = $runningTally;
+
+    }
+
+}
+</code></pre></p>

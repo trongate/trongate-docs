@@ -2,7 +2,7 @@
 <p>A Trongate module is typically organized into three primary directories, each serving a specific purpose:</p>
 
 <ul>
-    <li><strong>Controllers:</strong> This directory contains the business logic of the module. Typically, it includes one or more PHP files, each defining a PHP class. While it is common for this directory to contain only one PHP class file, there are cases where multiple files may be necessary.</li>
+    <li><strong>Controllers:</strong> This directory contains the business logic of the module. Typically, it includes one or more PHP files, each typically defining a PHP class. While it is common for this directory to contain only one PHP class file, there are cases where multiple files may be necessary.</li>
     <li class="mt-1"><strong>Views:</strong> The views directory houses the presentational content, primarily HTML. In Trongate, these are PHP files designed to integrate seamlessly with HTML, focusing mainly on the user interface rather than business logic. The inclusion of this directory is optional, since it's possible for modules to exist that do not produce presentational output.</li>
     <li class="mt-1"><strong>Assets:</strong> This directory is used for storing additional files such as CSS, JavaScript, images, and configuration files for API endpoints and more. Including this directory is optional, since it's possible for modules to exist that do not require additional assets.</li>
 </ul>
@@ -15,5 +15,5 @@
 </div>
 
 <div class="alert alert-info">
-    <p>To facilitate secure and efficient database interactions, all Trongate modules can access and utilize a 'Model' PHP class. This class is centrally located within the Trongate framework's 'engine' directory, rather than within individual modules. This centralization simplifies maintenance and enhances security, ensuring consistent database interaction across all modules.</p>
+    <p>To facilitate secure and efficient database interactions, all Trongate modules can access and utilize the 'Model' PHP class. This class is centrally located within the Trongate framework's 'engine' directory, rather than within individual modules. This centralization simplifies maintenance and enhances security, ensuring consistent database interaction across all modules.</p>
 </div>
