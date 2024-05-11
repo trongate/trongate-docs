@@ -1,0 +1,52 @@
+<div class="container">
+  <h1>exists()</h1>
+  <p class="signature"> function exists(string $path): bool </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Checks whether a file or directory exists at the specified path.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$path</td>
+        <td>string</td>
+        <td>The path to the file or directory.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns true if the file or directory exists, otherwise false.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$path = '/path/to/your/file_or_directory';
+if (exists($path)) {
+    echo 'File or directory exists!';
+} else {
+    echo 'File or directory does not exist!';
+}</pre>
+  </div>
+</div>

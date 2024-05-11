@@ -1,0 +1,62 @@
+<div class="container">
+  <h1>list_directory()</h1>
+  <p class="signature"> function list_directory(string $directory_path, bool $recursive = false): array </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Lists files and directories within a specified directory.</p>
+    <p>This method returns an array containing the names of files and directories within the specified directory. It has an option to perform a recursive listing, which includes all subdirectories and their contents.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$directory_path</td>
+        <td>string</td>
+        <td>The path to the directory whose contents are to be listed.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$recursive</td>
+        <td>bool</td>
+        <td>Optional. Determines whether the listing should be recursive.</td>
+        <td>false</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An array of file and directory names from the specified directory.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example without recursion:
+$directory_contents = list_directory("/path/to/directory");
+print_r($directory_contents);
+// Output: Array([0] => "file1.txt", [1] => "file2.jpg", [2] => "subdirectory" => Array([0] => "subfile1.txt", [1] => "subfile2.jpg"))
+
+// Example with recursion (recursive listing):
+$recursive_contents = list_directory("/path/to/directory", true);
+print_r($recursive_contents);
+// Output: Array([0] => "file1.txt", [1] => "file2.jpg", [2] => "subdirectory" => Array([0] => "subfile1.txt", [1] => "subfile2.jpg"))</pre>
+  </div>
+</div>
