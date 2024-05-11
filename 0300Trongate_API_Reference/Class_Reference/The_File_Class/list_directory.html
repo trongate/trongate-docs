@@ -50,12 +50,12 @@
   <div class="example">
     <pre>
 // Example without recursion:
-$directory_contents = list_directory("/path/to/directory");
+$directory_contents = $this->file->list_directory("/path/to/directory");
 print_r($directory_contents);
 // Output: Array([0] => "file1.txt", [1] => "file2.jpg", [2] => "subdirectory" => Array([0] => "subfile1.txt", [1] => "subfile2.jpg"))
 
 // Example with recursion (recursive listing):
-$recursive_contents = list_directory("/path/to/directory", true);
+$recursive_contents = $this->file->list_directory("/path/to/directory", true);
 print_r($recursive_contents);
 // Output: Array([0] => "file1.txt", [1] => "file2.jpg", [2] => "subdirectory" => Array([0] => "subfile1.txt", [1] => "subfile2.jpg"))</pre>
   </div>

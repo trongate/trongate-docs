@@ -49,7 +49,7 @@
     <pre>
 $file_path = '/path/to/your/file.txt';
 try {
-    $result = delete($file_path);
+    $result = $this->file->delete($file_path);
     if ($result) {
         echo 'File deleted successfully!';
     } else {

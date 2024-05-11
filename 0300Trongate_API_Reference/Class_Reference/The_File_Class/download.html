@@ -46,10 +46,10 @@
 $file_path = '/path/to/your/file.txt';
 try {
     // Force download
-    download($file_path);
+    $this->file->download($file_path);
 
     // Display inline
-    download($file_path, false);
+    $this->file->download($file_path, false);
 } catch (Exception $e) {
     echo 'Error: ' . $e->getMessage();
 }</pre>
