@@ -61,7 +61,7 @@
 $file_path = '/path/to/your/file.txt';
 $data = 'Hello, world!';
 try {
-    $result = write($file_path, $data);
+    $result = $this->file->write($file_path, $data);
     if ($result) {
         echo 'Data written successfully!';
     } else {

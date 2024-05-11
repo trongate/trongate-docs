@@ -60,7 +60,7 @@
     <pre>
 $directory_path = '/path/to/your/directory';
 try {
-    $result = create_directory($directory_path);
+    $result = $this->file->create_directory($directory_path);
     if ($result) {
         echo 'Directory created successfully!';
     } else {

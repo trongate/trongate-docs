@@ -30,7 +30,7 @@
   <div class="example">
     <pre>
 try {
-    $mime_type = $image->get_header();
+    $mime_type = $image->$this->image->get_header();
     header("Content-Type: " . $mime_type);
 } catch (Nothing_loaded_exception $e) {
     echo "Error: " . $e->getMessage();

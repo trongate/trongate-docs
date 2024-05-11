@@ -48,7 +48,7 @@
     <pre>
 $file_path = '/path/to/your/file.txt';
 try {
-    $file_info = info($file_path);
+    $file_info = $this->file->info($file_path);
     print_r($file_info);
 } catch (Exception $e) {
     echo 'Error: ' . $e->getMessage();
