@@ -75,39 +75,39 @@ class Dice extends Trongate {
     // Everything contained within the class's curly braces {}
     // will fall withing the scope of the class and it's methods
 
-    private $classwideNumber = 0;  // this variable can be accessed from anywhere in the class.
+    private $classwide_number = 0;  // this variable can be accessed from anywhere in the class.
 
      function roll() {
         $number = rand(1, 6);
         echo $number;
 
-        // now we can store the value of number in the $claswideNumber variable.
-        $this -> $classwideNumber = $number;
+        // now we can store the value of number in the $classwide_number variable.
+        $this -> $classwide_number = $number;
     }
 
     function roll_again() {
         $local = rand(1, 6);  // this variable is only accessible within roll_again
-        $this -> $classwideNumber = $local; // $classwideNumber is however accessible here as well
+        $this -> $classwide_number = $local; // $classwide_number is however accessible here as well
     }
 
     function roll_several_times() {
         $local = rand(1, 6);
         //this $local variable is different from the one above  and is only accessible within roll_several_times
-        $runningTally = 0;
+        $running_tally = 0;
             for($i = 0; $i <= $local; $i++) {
-                $diceThrow = rand(1,6);
+                $dice_throw = rand(1,6);
                 // The variable $i only has scope within this 'for' control block
-                // as does the variable $diceThrow.
-                // However as $runningTally was declared outside this block it is accessible
+                // as does the variable $dice_throw.
+                // However as $running_tally was declared outside this block it is accessible
                 // meaning that we can set it's value through each iteration and effectively
                 // keep a running tally of the dice throws.
 
-                $runningTally += $diceThrow;
+                $running_tally += $diceThrow;
             }
 
         // Now we can once again set our classwide variable as it too is is scope in this method.
 
-        $this -> $classwideNumber = $runningTally;
+        $this -> $classwide_number = $running_tally;
 
     }
 
