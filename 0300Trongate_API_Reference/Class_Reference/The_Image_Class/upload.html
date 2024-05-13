@@ -153,6 +153,7 @@ $config = [
     'upload_to_module' => true,
     'make_rand_name' => false
 ];
+
 try {
     $file_info = $this->image->upload($config);
     echo 'File uploaded successfully. Details: ';
@@ -179,6 +180,7 @@ try {
       'upload_to_module' => true,
       'make_rand_name' => false
   ];
+
   try {
       $file_info = $this->upload_picture($config);
       echo 'File uploaded successfully using upload_picture. Details: ';

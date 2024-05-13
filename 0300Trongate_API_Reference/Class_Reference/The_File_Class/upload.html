@@ -48,7 +48,9 @@ $config = [
     'upload_to_module' => true,
     'make_rand_name' => true
 ];
+
 $file_info = $this->file->upload($config);
+
 if ($file_info !== null) {
     echo "File uploaded successfully: " . $file_info['file_name'];
 } else {
