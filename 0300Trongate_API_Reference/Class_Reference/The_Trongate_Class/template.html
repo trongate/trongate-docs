@@ -1,0 +1,56 @@
+<div class="container">
+  <h1>template()</h1>
+  <p class="signature"> protected function template(string $template_name, array $data = []): void </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Renders a specific template view by calling a corresponding method in the Templates controller class.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$template_name</td>
+        <td>string</td>
+        <td>The name of the template method to be called.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>Optional. An associative array containing data to be passed to the template method.</td>
+        <td>[]</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This function does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$template_name = "my_template";
+$data = ['variable1' => 'value1', 'variable2' => 'value2'];
+template($template_name, $data);</pre>
+  </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="container">
+  <h1>view()</h1>
+  <p class="signature"> protected function view(string $view, array $data = [], ?bool $return_as_str = null): ?string </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Renders a view file with optional data. This method can either display the view on the browser or return the generated contents as a string.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$view</td>
+        <td>string</td>
+        <td>The name of the view file to render.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>Optional. An associative array of data to pass to the view. Default is an empty array.</td>
+        <td>Empty array</td>
+      </tr>
+      <tr>
+        <td>$return_as_str</td>
+        <td>bool|null</td>
+        <td>Optional. Whether to return the rendered view as a string. Default is null. If set to true, the view content will be returned as a string; if set to false or null, the view will be displayed on the browser. Default is null, which means the view will be displayed.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|null</td>
+        <td>If $return_as_str is true, the rendered view as a string; otherwise, null.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$view_content = $this->view("my_view", ["name" => "John Doe"], true);
+echo $view_content; // Output: HTML content of the rendered view</pre>
+  </div>
+</div>
