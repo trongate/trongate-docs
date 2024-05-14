@@ -1,0 +1,53 @@
+<div class="container">
+  <h1>load()</h1>
+  <p class="signature"> function load(string $template_file, ?array $data = null): void </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Loads a template file with optional data for use within the template.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$template_file</td>
+        <td>string</td>
+        <td>The filename of the template to load.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$data</td>
+        <td>array|null</td>
+        <td>(Optional) The data to be passed to the template as an associative array.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This function does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+load("template_file.php", ['variable' => 'value']);</pre>
+  </div>
+</div>
