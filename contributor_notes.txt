@@ -63,3 +63,23 @@ Please produce some HTML content of the same format as shown above, but for the 
 
 
 
+
+
+
+
+
+
+    /**
+     * Manages the display of the administrator records within the 'trongate_administrators' table.
+     * Retrieves necessary data such as admin ID, username rows from the model, and loads the management view.
+     *
+     * @return void
+     */
+    function manage(): void {
+        $token = $this->_make_sure_allowed();
+        $data['my_admin_id'] = $this->_get_my_id($token);
+        $data['rows'] = $this->model->get('username', 'trongate_administrators');
+        $data['view_module'] = 'trongate_administrators';
+        $data['view_file'] = 'manage';
+        $this->load_template($data);
+    }

@@ -1,0 +1,56 @@
+<div class="container">
+  <h1>_verify_hash()</h1>
+  <p class="signature"> function _verify_hash(string $plain_text_str, string $hashed_string): bool </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Verifies a plain text string against a hashed string.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$plain_text_str</td>
+        <td>string</td>
+        <td>The plain text string to verify.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$hashed_string</td>
+        <td>string</td>
+        <td>The hashed string to compare against.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns TRUE if the verification is successful, otherwise FALSE.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$plain_text_str = "password123";
+$hashed_string = "$2y$11$l7FuqN7Fip5PfZ3LJpGkcu2lFIEfLqCV8eBb5cCYoamP3gKvE6lWu"; // This is a sample hashed string
+$result = _verify_hash($plain_text_str, $hashed_string);
+// Example output: true</pre>
+  </div>
+</div>

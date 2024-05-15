@@ -12,6 +12,12 @@
   <h2>Example Usage</h2>
   <div class="example">
     <pre>
-login();</pre>
+function login() {
+    $data['form_location'] = BASE_URL . 'trongate_administrators/submit_login';
+    $data['username'] = post('username');
+    $data['view_module'] = 'trongate_administrators';
+    $data['view_file'] = 'login_form';
+    $this->load_template($data);
+}</pre>
   </div>
 </div>
