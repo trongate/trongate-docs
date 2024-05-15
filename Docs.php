@@ -443,6 +443,8 @@ class Docs {
 
 		if (strpos($third_from_last, 'class') !== false) {
 			$feature_type = 'class';
+		} elseif(strpos($third_from_last, 'module') !== false) {
+			$feature_type = 'module';
 		} else {
 			$feature_type = 'helper';
 		}

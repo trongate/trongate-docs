@@ -17,6 +17,9 @@ function fetchFeatureItemsInfo() {
     const http = new XMLHttpRequest();
     http.open('post', targetUrl);
     http.setRequestHeader('Content-type', 'application/json');
+
+console.log(targetUrl);
+console.log(JSON.stringify(params));
     http.send(JSON.stringify(params));
 
     http.onload = function() {
@@ -214,37 +217,37 @@ document.addEventListener("DOMContentLoaded", function() {
         let alertIcon = '<i class="fa fa-star"></i>';
 
         if(alertEl.classList.contains('alert-info')) {
-        	alertHeadline = 'Further Information';
-        	alertIcon = '<i class="fa fa-info-circle"></i>';
+            alertHeadline = 'Further Information';
+            alertIcon = '<i class="fa fa-info-circle"></i>';
         }
 
         if(alertEl.classList.contains('alert-warning')) {
-        	alertHeadline = 'Warning!';
-        	alertIcon = '<i class="fa fa-exclamation-circle"></i>';
+            alertHeadline = 'Warning!';
+            alertIcon = '<i class="fa fa-exclamation-circle"></i>';
         }
 
         if(alertEl.classList.contains('alert-success')) {
-        	alertHeadline = 'Best Practices';
+            alertHeadline = 'Best Practices';
         }
 
         if(alertEl.classList.contains('alert-danger')) {
-        	alertHeadline = 'Danger!';
-        	alertIcon = '<i class="fa fa-warning"></i>';
+            alertHeadline = 'Danger!';
+            alertIcon = '<i class="fa fa-warning"></i>';
         }
 
-		while(alertEl.firstChild) {
-			alertEl.removeChild(alertEl.firstChild);
-		}
+        while(alertEl.firstChild) {
+            alertEl.removeChild(alertEl.firstChild);
+        }
 
-		const alertHeading = document.createElement('div');
-		alertHeading.setAttribute('class', 'alert-heading');
-		alertHeading.innerHTML = alertIcon + ' ' + alertHeadline;
-		alertEl.appendChild(alertHeading);
+        const alertHeading = document.createElement('div');
+        alertHeading.setAttribute('class', 'alert-heading');
+        alertHeading.innerHTML = alertIcon + ' ' + alertHeadline;
+        alertEl.appendChild(alertHeading);
 
-		const alertBody = document.createElement('div');
-		alertBody.setAttribute('class', 'alert-body');
-		alertBody.innerHTML = alertBodyInner;
-		alertEl.appendChild(alertBody);
+        const alertBody = document.createElement('div');
+        alertBody.setAttribute('class', 'alert-body');
+        alertBody.innerHTML = alertBodyInner;
+        alertEl.appendChild(alertBody);
 
     });
 

@@ -7,6 +7,10 @@ if (strpos($this_url, 'helper')) {
     $entity_type = 'helper';
     $entity_type_plural = 'helpers';
     $item_type = 'function';
+} elseif (strpos($this_url, 'modules')) {
+    $entity_type = 'module';
+    $entity_type_plural = 'pre-installed modules';
+    $item_type = 'method';
 } else {
     $entity_type = 'class';
     $entity_type_plural = 'classes';
@@ -42,6 +46,9 @@ foreach($last_chapter_sections as $last_chapter_section) {
 
 if (segment(3) === '') {
 	$intro_text = 'Below is a list of '.$entity_type_plural.' within the Trongate framework that are available for use:';
+	if ($entity_type === 'module') {
+		$intro_text = 'Below is a list of pre-installed modules included with the Trongate framework.';
+	}
 
 	if ($entity_type_plural === 'helpers') {
 		$intro_text = 'Helpers in the Trongate framework are standalone functions designed to assist with common tasks across your applications. Unlike methods within classes, helper functions can be invoked directly, without the need to instantiate a class. This makes them both lightweight and easily accessible from anywhere within your project.  '.$intro_text;
