@@ -1,0 +1,48 @@
+<div class="container">
+  <h1>_create_user()</h1>
+  <p class="signature"> function _create_user(int $user_level_id): int </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Creates a new trongate user record with a specified user level ID.</p>
+    <p>Please note that this method cannot be invoked directly via the URL and is designed to be invoked by other modules, such as the Trongate Administrators module.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$user_level_id</td>
+        <td>int</td>
+        <td>The user level ID for the new user.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int</td>
+        <td>The Trongate user ID of the newly created user.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>$this->module('trongate_users');
+$trongate_user_id = $this->trongate_users->_create_user(3);</pre>
+  </div>
+</div>

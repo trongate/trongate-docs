@@ -1,0 +1,20 @@
+<div class="container">
+  <h1>index()</h1>
+  <p class="signature"> function index(): void </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Renders the (default) 'welcome' homepage for public access.</p>
+  </div>
+  <h2>Parameters</h2>
+  <p>This method does not accept any parameters.</p>
+  <h2>Return Value</h2>
+  <p>This method does not return a value.</p>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>function index() {
+    $data['view_module'] = 'welcome'; // Indicates the module where the view file exists.
+    $data['view_file'] = 'welcome'; // Specifies the base name of the target PHP view file.
+    $this->template('public', $data); // Loads the 'welcome' view file within the public template.
+}</pre>
+  </div>
+</div>
