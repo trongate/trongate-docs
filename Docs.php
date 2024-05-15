@@ -4,6 +4,21 @@ class Docs {
 	private $view_files = [];
 	private $feature_refs = [];
 
+	public function est_docs_contents() {
+		// Scan all of the directories and return an array that contains:
+		// table_of_contents, view_files, feature_refs, homepage (info)
+
+		// Establish an array of directories to be checked.
+		$reduced_apppath = rtrim(APPPATH, '/');
+		$docs_contents_array['table_of_contents'] = $this->get_sub_directories($reduced_apppath, EXCLUDE_DIRS);
+		$docs_contents_array['view_files'] = $this->view_files;
+		$docs_contents_array['feature_refs'] = $this->feature_refs;
+		$docs_contents_array['homepage'] = $this->get_homepage($docs_contents_array['table_of_contents']);
+	
+		$docs_contents = (object) $docs_contents_array;
+		return $docs_contents;
+	}
+
 	private function build_nice_label($str) {
 	    $page_label = $this->remove_first_four_if_numeric($str);
 	    $page_label = str_replace('_', ' ', $page_label);
@@ -26,7 +41,8 @@ class Docs {
 	        ' The ' => ' the ',
 	        ' A ' => ' a ',
 	        ' From ' => ' from ',
-	        'What Are Templates' => 'What Are Templates?'
+	        'What Are Templates' => 'What Are Templates?',
+	        'Pre Installed' => 'Pre-Installed'
 	    ];
 
 	    foreach ($replacements as $search => $replace) {
@@ -57,6 +73,7 @@ class Docs {
 				$next_segment = url_title($last_chapter_section['dir_label']);
 				if ($next_segment === segment(2)) {
 					$row_data['label'] = $last_chapter_section['dir_label'];
+					$row_data['label'] = $this->build_nice_label($row_data['label']);
 					$row_data['page_url'].= '/'.segment(2);
 					$breadcrumbs_array[] = $row_data;
 					break;
@@ -152,21 +169,6 @@ class Docs {
 			return $breadcrumbs_array;
 		}
 		
-	}
-
-	public function est_docs_contents() {
-		// Scan all of the directories and return an array that contains:
-		// table_of_contents, view_files, feature_refs, homepage (info)
-
-		// Establish an array of directories to be checked.
-		$reduced_apppath = rtrim(APPPATH, '/');
-		$docs_contents_array['table_of_contents'] = $this->get_sub_directories($reduced_apppath, EXCLUDE_DIRS);
-		$docs_contents_array['view_files'] = $this->view_files;
-		$docs_contents_array['feature_refs'] = $this->feature_refs;
-		$docs_contents_array['homepage'] = $this->get_homepage($docs_contents_array['table_of_contents']);
-	
-		$docs_contents = (object) $docs_contents_array;
-		return $docs_contents;
 	}
 
 	public function get_next_prev_array($docs_contents) {
@@ -412,7 +414,7 @@ class Docs {
 
 	            $sub_directories[] = [
 	                'dir_name' => $entry,
-	                'dir_label' => ucwords($label),
+	                'dir_label' => ucwords($this->build_nice_label($label)),
 	                'dir_path' => $full_path,  // Adding the full path of the directory
 	                'sub_directories' => $sub_sub_dirs,
 	                'files' => $files

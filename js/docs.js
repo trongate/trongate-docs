@@ -18,8 +18,6 @@ function fetchFeatureItemsInfo() {
     http.open('post', targetUrl);
     http.setRequestHeader('Content-type', 'application/json');
 
-console.log(targetUrl);
-console.log(JSON.stringify(params));
     http.send(JSON.stringify(params));
 
     http.onload = function() {
