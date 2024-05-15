@@ -1,0 +1,69 @@
+<div class="container">
+  <h1>_pre_insert()</h1>
+  <p class="signature"> function _pre_insert(array $input): array </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Pre-insert hook to be invoked by API manager before inserting a comment.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$input</td>
+        <td>array</td>
+        <td>The input data for insertion.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>Processed input data with additional parameters.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$input = [
+    'token' => 'some_token_string',
+    'params' => [
+        'user_id' => 123,
+        'date_created' => 1621105200,
+        'code' => 'abc123'
+    ]
+];
+$processed_input = _pre_insert($input);
+var_dump($processed_input);
+/* Output:
+array(1) {
+  ["params"]=>
+  array(3) {
+    ["user_id"]=>
+    int(123)
+    ["date_created"]=>
+    int(1621242005)
+    ["code"]=>
+    string(6) "xY8zBh"
+  }
+}
+*/</pre>
+  </div>
+</div>

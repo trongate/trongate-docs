@@ -1,0 +1,55 @@
+<div class="container">
+  <h1>_prep_comments()</h1>
+  <p class="signature"> function _prep_comments(array $output): array </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Prepare comments data with formatted dates and user information. This method is typically called via admin.js.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$output</td>
+        <td>array</td>
+        <td>The output data containing comments.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>Processed output data with formatted comments.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$output = ['body' => '[{"comment":"This is a comment.","user_id":1,"date_created":1621105200,"target_table":"pages","update_id":1,"code":"abc123"}]'];
+$processed_output = _prep_comments($output);
+var_dump($processed_output);
+/* Output:
+array(1) {
+  ["body"]=>
+  string(134) "[{"comment":"This is a comment.","date_created":"Posted by user123 on Thursday 15th of May 2024 at 10:00:00 AM","user_id":1,"target_table":"pages","update_id":1,"code":"abc123"}]"
+}
+*/</pre>
+  </div>
+</div>
