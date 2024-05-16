@@ -1,59 +1,59 @@
 <div class="container">
-    <h1>form_hidden()</h1>
-    <p class="signature">function form_hidden(string $name, string|null $value = null, ?string $additional_code = null): string</p>
-    <h2>Description</h2>
-    <div class="description">
-      <p>Generates an HTML hidden input field.</p>
-    </div>
-    <h2>Parameters</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>$name</td>
-          <td>string</td>
-          <td>The name attribute for the hidden input field.</td>
-        </tr>
-        <tr>
-          <td>$value</td>
-          <td>string|null</td>
-          <td>The initial value of the hidden input field. If not provided, it will be empty.</td>
-        </tr>
-        <tr>
-          <td>$additional_code</td>
-          <td>string|null</td>
-          <td>Additional HTML code to append to the hidden input field.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Return Value</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>string</td>
-          <td>The generated HTML hidden input field.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Example Usage</h2>
-    <div class="example">
-      <pre>
-  $name = 'user_id';
-  $value = '123';
-  $additional_code = 'class="hidden-field"';
-  echo form_hidden($name, $value, $additional_code);
-  // Output: '&lt;input type="hidden" name="user_id" value="123" class="hidden-field"&gt;'</pre>
-    </div>
+  <h1>form_hidden()</h1>
+  <p class="signature">function form_hidden(string $name, string|null $value = null, ?string $additional_code = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an HTML hidden input field.</p>
   </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the hidden input field.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>string|null</td>
+        <td>The initial value of the hidden input field. If not provided, it will be empty.</td>
+      </tr>
+      <tr>
+        <td>$additional_code</td>
+        <td>string|null</td>
+        <td>Additional HTML code to append to the hidden input field.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML hidden input field.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$name = 'user_id';
+$value = '123';
+$additional_code = 'class="hidden-field"';
+echo form_hidden($name, $value, $additional_code);
+// Output: '&lt;input type="hidden" name="user_id" value="123" class="hidden-field"&gt;'</pre>
+  </div>
+</div>
