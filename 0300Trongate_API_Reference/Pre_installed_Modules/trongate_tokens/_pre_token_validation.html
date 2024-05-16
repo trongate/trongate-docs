@@ -1,0 +1,46 @@
+<div class="container">
+  <h1>_pre_token_validation()</h1>
+  <p class="signature">function _pre_token_validation(array $input): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Ensures that an input data array contains a valid numeric 'user_id' property before proceeding with token generation. If the environment is not set to 'dev', pre-token validation is disabled, and token issuance is prevented. In such cases, appropriate HTTP response codes are set to indicate the failure reason.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$input</td>
+        <td>array</td>
+        <td>An array containing input data to be validated.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>The input data array after validation checks have been performed.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
+  </div>
+</div>

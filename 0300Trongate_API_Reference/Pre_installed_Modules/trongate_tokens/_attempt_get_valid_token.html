@@ -1,0 +1,44 @@
+<div class="container">
+  <h1>_attempt_get_valid_token()</h1>
+  <p class="signature"> function _attempt_get_valid_token(int|array|null $user_levels = null): string|false </p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Attempt to validate and return a token based on optional user level(s) condition. This method checks for a token in both the user's cookie and session. If no tokens are found, it returns false.</p>
+  </div>
+<h2>Parameters</h2>
+<div class="parameter-description">
+  <p>The <code>$user_levels</code> parameter specifies the user levels to filter tokens. It is an optional argument that can accept different types of inputs:</p>
+  <ul>
+    <li>
+      <strong>Integer:</strong> If an integer is passed, the method will attempt to match a token against records from the Trongate User Levels table ('trongate_user_levels') where the 'id' from the 'trongate_user_levels' table matches the integer value provided. In this scenario, a token will only be returned successfully if it can be matched against the required Trongate User Level ID.
+    </li>
+    <li class="mt-1">
+      <strong>Array:</strong> If an array of integers is passed, each array item represents a user level ID for which a token can be matched. The method will allow access for more than one user level type.
+    </li>
+    <li class="mt-1">
+      <strong>Null:</strong> If no argument is passed into '_attempt_get_valid_token()', any valid Trongate token (as confirmed by querying the 'trongate_tokens' table) will be returned, regardless of the corresponding user level.
+    </li>
+  </ul>
+</div>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|false</td>
+        <td>The valid token if found, or false if none is found.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example Usage not available for this method</pre>
+  </div>
+</div>
