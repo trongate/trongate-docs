@@ -1,65 +1,65 @@
 <div class="container">
-    <h1>form_input()</h1>
-    <p class="signature">function form_input(string $name, mixed $value = null, ?array $attributes = null, ?string $additional_code = null): string</p>
-    <h2>Description</h2>
-    <div class="description">
-      <p>Generates an HTML input element.</p>
-    </div>
-    <h2>Parameters</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>$name</td>
-          <td>string</td>
-          <td>The name attribute for the input element.</td>
-        </tr>
-        <tr>
-          <td>$value</td>
-          <td>mixed</td>
-          <td>(optional) The initial value for the input element. Default is null.</td>
-        </tr>
-        <tr>
-          <td>$attributes</td>
-          <td>array|null</td>
-          <td>(optional) Additional attributes for the input element. Default is null.</td>
-        </tr>
-        <tr>
-          <td>$additional_code</td>
-          <td>string|null</td>
-          <td>(optional) Additional code to include in the input element. Default is null.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Return Value</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>string</td>
-          <td>The HTML representation of the input element.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Example Usage</h2>
-    <div class="example">
-      <pre>
-  $name = 'username';
-  $value = 'john_doe';
-  $attributes = ['class' => 'form-control', 'id' => 'username-input'];
-  $additional_code = 'placeholder="Enter your username"';
-  echo form_input($name, $value, $attributes, $additional_code);
-  // Output: '&lt;input type="text" name="username" value="john_doe" class="form-control" id="username-input" placeholder="Enter your username"&gt;'</pre>
-    </div>
+  <h1>form_input()</h1>
+  <p class="signature">function form_input(string $name, mixed $value = null, ?array $attributes = null, ?string $additional_code = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an HTML input element.</p>
   </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the input element.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>mixed</td>
+        <td>(optional) The initial value for the input element. Default is null.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(optional) Additional attributes for the input element. Default is null.</td>
+      </tr>
+      <tr>
+        <td>$additional_code</td>
+        <td>string|null</td>
+        <td>(optional) Additional code to include in the input element. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The HTML representation of the input element.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$name = 'username';
+$value = 'john_doe';
+$attributes = ['class' => 'form-control', 'id' => 'username-input'];
+$additional_code = 'placeholder="Enter your username"';
+echo form_input($name, $value, $attributes, $additional_code);
+// Output: '&lt;input type="text" name="username" value="john_doe" class="form-control" id="username-input" placeholder="Enter your username"&gt;'</pre>
+  </div>
+</div>

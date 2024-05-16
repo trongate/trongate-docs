@@ -1,65 +1,65 @@
 <div class="container">
-    <h1>form_number()</h1>
-    <p class="signature">function form_number(string $name, int|float|string|null $value = null, ?array $attributes = null, ?string $additional_code = null): ?string</p>
-    <h2>Description</h2>
-    <div class="description">
-      <p>Generates an HTML input element with type "number".</p>
-    </div>
-    <h2>Parameters</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>$name</td>
-          <td>string</td>
-          <td>The name attribute for the input element.</td>
-        </tr>
-        <tr>
-          <td>$value</td>
-          <td>int|float|string|null</td>
-          <td>The initial value of the input element.</td>
-        </tr>
-        <tr>
-          <td>$attributes</td>
-          <td>array|null</td>
-          <td>An associative array of HTML attributes for the input.</td>
-        </tr>
-        <tr>
-          <td>$additional_code</td>
-          <td>string|null</td>
-          <td>Additional HTML code to append to the input element.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Return Value</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>string|null</td>
-          <td>The generated HTML input element with type "number", or null if not generated.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Example Usage</h2>
-    <div class="example">
-      <pre>
-  $name = 'quantity';
-  $value = 10;
-  $attributes = ['min' => 1, 'max' => 100];
-  $additional_code = 'step="1"';
-  echo form_number($name, $value, $attributes, $additional_code);
-  // Output: '&lt;input type="number" name="quantity" value="10" min="1" max="100" step="1"&gt;'</pre>
-    </div>
+  <h1>form_number()</h1>
+  <p class="signature">function form_number(string $name, int|float|string|null $value = null, ?array $attributes = null, ?string $additional_code = null): ?string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an HTML input element with type "number".</p>
   </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the input element.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>int|float|string|null</td>
+        <td>The initial value of the input element.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>An associative array of HTML attributes for the input.</td>
+      </tr>
+      <tr>
+        <td>$additional_code</td>
+        <td>string|null</td>
+        <td>Additional HTML code to append to the input element.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|null</td>
+        <td>The generated HTML input element with type "number", or null if not generated.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$name = 'quantity';
+$value = 10;
+$attributes = ['min' => 1, 'max' => 100];
+$additional_code = 'step="1"';
+echo form_number($name, $value, $attributes, $additional_code);
+// Output: '&lt;input type="number" name="quantity" value="10" min="1" max="100" step="1"&gt;'</pre>
+  </div>
+</div>
