@@ -644,3 +644,16 @@ table.properties-table > tbody > tr > td:nth-child(3) {
     text-align: left !important;
 }
 
+/* WebKit-based browsers */
+::-webkit-scrollbar {
+    background-color: #f1f1f1; /* Background color of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary-darker); /* Color of the thumb */
+}
+
+/* Firefox */
+* {
+    scrollbar-color: var(--primary-darker) #f1f1f1; /* Color of the thumb and the track */
+}
