@@ -60,12 +60,12 @@ header {
 
 .container-lg:nth-child(2) aside {
   padding-top: 33px;
-	min-width: max-content;
-	scrollbar-width: thin;
-	display: flex;
-	flex-grow: 1;
-  overflow-y: scroll;
   padding-right: 12px;
+  min-width: max-content;
+  height: 100%;
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 main {
