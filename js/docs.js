@@ -76,6 +76,7 @@ function pluckFeatureRef(featureRefEl) {
         
         if (existingFeatureRef.name === featureRefName) {
             if (containingClass === false) {
+                // No class specified, so return any feature ref with matching function/name.
                 matchingFeatureRef = existingFeatureRef;
             } else {
                 const existingFeatureRefDir = existingFeatureRef['feature_ref_dir'];
@@ -88,8 +89,7 @@ function pluckFeatureRef(featureRefEl) {
 
     });
 
-    return matchingFeatureRef;
- 
+    return matchingFeatureRef; 
 }
 
 function buildFeatureRefs() {

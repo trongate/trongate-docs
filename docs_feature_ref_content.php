@@ -66,10 +66,14 @@ if (segment(3) === '') {
 
 		$second_last_segment = strtolower($class_url_segments[count($class_url_segments)-2]);
 		$last_six_chars = substr($second_last_segment, -6);
+
 		if ($last_six_chars === '_class') {
 			$second_last_segment = str_replace('_class', '', $second_last_segment);
 			$target_segment_bits = explode('_', $second_last_segment);
 			$target_class_name = $target_segment_bits[count($target_segment_bits)-1];
+		} elseif (segment(2) === 'pre-installed-modules') {
+			$target_class_name = segment(3);
+			$target_class_name = str_replace('-', '_', $target_class_name);
 		}
 
 	}
@@ -94,6 +98,7 @@ if (segment(3) === '') {
 	}
 
 	if (isset($features_items)) {
+		//$target_class_name = 'trongate-pages';
 		$additional_code = (isset($target_class_name)) ? ' data-class="'.$target_class_name.'"' : '';
 		foreach($features_items as $feature_item) {
 			echo '<li class="feature-item" id="feature-li-'.$feature_item.'"><span class="feature-ref"'.$additional_code.'>'.$feature_item.'()</span>';
