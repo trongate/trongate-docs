@@ -1,53 +1,53 @@
 <div class="container">
-    <h1>filter_string()</h1>
-    <p class="signature">function filter_string(string $string, array $allowed_tags = []): string</p>
-    <h2>Description</h2>
-    <div class="description">
-      <p>Filters and sanitizes a string.</p>
-    </div>
-    <h2>Parameters</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>$string</td>
-          <td>string</td>
-          <td>The input string to be filtered and sanitized.</td>
-        </tr>
-        <tr>
-          <td>$allowed_tags</td>
-          <td>array</td>
-          <td>Optional. An array of allowed HTML tags. Default is an empty array.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Return Value</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>string</td>
-          <td>The filtered and sanitized string.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Example Usage</h2>
-    <div class="example">
-      <pre>
-  $input_string = '&lt;script&gt;alert("Hello");&lt;/script&gt;';
-  $allowed_tags = ['&lt;p&gt;', '&lt;a&gt;'];
-  echo filter_string($input_string, $allowed_tags);
-  // Output: 'alert("Hello");'</pre>
-    </div>
+  <h1>filter_string()</h1>
+  <p class="signature">function filter_string(string $string, array $allowed_tags = []): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Filters and sanitizes a string.</p>
   </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$string</td>
+        <td>string</td>
+        <td>The input string to be filtered and sanitized.</td>
+      </tr>
+      <tr>
+        <td>$allowed_tags</td>
+        <td>array</td>
+        <td>Optional. An array of allowed HTML tags. Default is an empty array.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The filtered and sanitized string.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$input_string = '&lt;script&gt;alert("Hello");&lt;/script&gt;';
+$allowed_tags = ['&lt;p&gt;', '&lt;a&gt;'];
+echo filter_string($input_string, $allowed_tags);
+// Output: 'alert("Hello");'</pre>
+  </div>
+</div>
