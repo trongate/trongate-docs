@@ -215,7 +215,7 @@ function adjustAsideHeight() {
 document.addEventListener("DOMContentLoaded", function() {
     // Make the <code> elements look beautiful!
     beautifyCodeBlocks();
-    // resize aside match main
+    // resize aside to match main
     adjustAsideHeight();
 
     // Make the alert divs fantasticola!
