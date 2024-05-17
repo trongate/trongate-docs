@@ -645,15 +645,15 @@ table.properties-table > tbody > tr > td:nth-child(3) {
 }
 
 /* WebKit-based browsers */
-::-webkit-scrollbar {
+.container-lg:nth-child(2) aside::-webkit-scrollbar {
     background-color: #f1f1f1; /* Background color of the scrollbar track */
 }
 
-::-webkit-scrollbar-thumb {
+.container-lg:nth-child(2) aside::-webkit-scrollbar-thumb {
     background-color: var(--primary-darker); /* Color of the thumb */
 }
 
 /* Firefox */
-* {
+.container-lg:nth-child(2) aside {
     scrollbar-color: var(--primary-darker) #f1f1f1; /* Color of the thumb and the track */
 }
