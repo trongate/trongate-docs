@@ -202,9 +202,21 @@ function goToDocsHome(url) {
     window.location.href = url;
 }
 
+function adjustAsideHeight() {
+    var mainHeight = document.querySelector('main').offsetHeight;
+    var aside = document.querySelector('aside');
+    var asideHeight = aside.offsetHeight;
+
+    if (mainHeight > asideHeight) {
+        aside.style.maxHeight = mainHeight + 'px';
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // Make the <code> elements look beautiful!
     beautifyCodeBlocks();
+    // resize aside match main
+    adjustAsideHeight();
 
     // Make the alert divs fantasticola!
     const alertEls = document.querySelectorAll('.alert');
@@ -304,6 +316,10 @@ document.getElementById('scrollToTopBtn').addEventListener('click', function() {
         top: 0,
         behavior: 'smooth' // Enable smooth scrolling
     });
+});
+
+document.addEventListener('resize', function() {
+    adjustAsideHeight();
 });
 
 buildFeatureRefs();
