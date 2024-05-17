@@ -1,9 +1,11 @@
 <div class="container">
-  <h1>attempt_display()</h1>
-  <p class="signature">function attempt_display(): void</p>
+  <h1>submit()</h1>
+  <p class="signature">function submit(): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Attempts to display a page by invoking the <b>display()</b> method of the Trongate Pages module. It is designed to be triggered automatically in instances where normal URL routing has failed to match a URL to a corresponding page and immediately before displaying a 404 (Not Found) page. This triggering behavior is governed by the INTERCEPT_404 constant, which is commonly configured within the config.php file of the Trongate framework.</p>
+    <p>
+      Handles form submission of <b>page_title</b> value and attempts to create new database record if form validation is successful.
+    </p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -19,7 +21,7 @@
     <tbody>
       <!-- This method does not take any parameters -->
       <tr>
-        <td colspan="5">This method does not take any parameters, however, it delegates the task of displaying a page to the display() method of the Trongate Pages module.</td>
+        <td colspan="5">This method does not take any parameters.</td>
       </tr>
     </tbody>
   </table>

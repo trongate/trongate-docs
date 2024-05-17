@@ -1,9 +1,11 @@
 <div class="container">
-  <h1>attempt_display()</h1>
-  <p class="signature">function attempt_display(): void</p>
+  <h1>display()</h1>
+  <p class="signature">function display(): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Attempts to display a page by invoking the <b>display()</b> method of the Trongate Pages module. It is designed to be triggered automatically in instances where normal URL routing has failed to match a URL to a corresponding page and immediately before displaying a 404 (Not Found) page. This triggering behavior is governed by the INTERCEPT_404 constant, which is commonly configured within the config.php file of the Trongate framework.</p>
+    <p>
+      Attempts to display a page by reading a value from the URL.  If the last segment of the URL is 'edit' the method also verifies if the user is an admin so that permissions may be granted for editing. If no matching record is found in the 'trongate_pages' table, a 404 error page is displayed. Additionally, it ensures that only published pages are displayed unless the page is being edited.
+    </p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -19,7 +21,7 @@
     <tbody>
       <!-- This method does not take any parameters -->
       <tr>
-        <td colspan="5">This method does not take any parameters, however, it delegates the task of displaying a page to the display() method of the Trongate Pages module.</td>
+        <td colspan="5">This method does not take any parameters, however, it does attempt to fetch a record from the 'trongate_pages' database table based on a value that is read from the URL.</td>
       </tr>
     </tbody>
   </table>
