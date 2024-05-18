@@ -322,4 +322,43 @@ document.addEventListener('resize', function() {
     adjustAsideHeight();
 });
 
+// Keyboard bindings for page navigation 
+document.addEventListener('keydown', function(event) {
+    const isAltKey = event.altKey;
+
+    if ((isAltKey && (event.key === 'ArrowUp')) || event.key === "h") {
+        window.location.href = baseUrl;
+    }
+
+    if (event.key === 't') {
+        window.location.href = baseUrl + 'introduction/table-of-contents.html';
+    }
+
+    if (event.key === 'w') {
+        window.location.href = baseUrl + 'introduction/welcome.html';
+    }
+
+    if ((isAltKey && event.key === 'ArrowDown') || (event.key === "r")) {
+        window.location.href = baseUrl + 'trongate-api-reference';
+    }
+
+    if (event.key === 'ArrowLeft') {
+        const prevButton = document.querySelector('.page-nav-btns .fa-arrow-circle-left');
+        if (prevButton) {
+            const prevAnchor = prevButton.closest('a');
+            if (prevAnchor) {
+                window.location.href = prevAnchor.href;
+            }
+        }
+    } else if (event.key === 'ArrowRight') {
+        const nextButton = document.querySelector('.page-nav-btns .fa-arrow-circle-right');
+        if (nextButton) {
+            const nextAnchor = nextButton.closest('a');
+            if (nextAnchor) {
+                window.location.href = nextAnchor.href;
+            }
+        }
+    }
+});
+
 buildFeatureRefs();
