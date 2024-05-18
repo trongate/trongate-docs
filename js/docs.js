@@ -322,7 +322,7 @@ document.addEventListener('resize', function() {
     adjustAsideHeight();
 });
 
-// Keyboard bindings bindings for page navigation 
+// Keyboard bindings for page navigation 
 document.addEventListener('keydown', function(event) {
     const isAltKey = event.altKey;
 
