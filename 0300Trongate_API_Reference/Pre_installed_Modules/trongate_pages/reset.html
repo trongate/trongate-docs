@@ -1,10 +1,10 @@
 <div class="container">
-  <h1>submit()</h1>
-  <p class="signature">function submit(): void</p>
+  <h1>reset()</h1>
+  <p class="signature">function reset(): void</p>
   <h2>Description</h2>
   <div class="description">
     <p>
-      Handles form submission of <b>page_title</b> value and attempts to create new database record if form validation is successful.
+      Restores the 'default' homepage content. This method checks the environment and responds with an HTTP 403 Forbidden status if it's not in 'dev' mode. It then determines whether to create a new homepage record or update the existing one based on the number of records in the 'trongate_pages' table.
     </p>
   </div>
   <h2>Parameters</h2>
@@ -19,9 +19,9 @@
       </tr>
     </thead>
     <tbody>
-      <!-- This method does not take any parameters -->
+      <!-- This method does not accept any parameters -->
       <tr>
-        <td colspan="5">This method does not take any parameters.</td>
+        <td colspan="5">This method does not accept any parameters.</td>
       </tr>
     </tbody>
   </table>
@@ -36,12 +36,13 @@
     <tbody>
       <tr>
         <td>void</td>
-        <td>This method does not return any value.</td>
+        <td>Returns nothing.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$this->module('trongate_pages');
+$this->trongate_pages->reset();</pre>
   </div>
 </div>
