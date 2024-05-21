@@ -1,0 +1,79 @@
+<div class="container">
+  <h1>query_bind()</h1>
+  <p class="signature">public function query_bind(string $sql, array $data, ?string $return_type = null): mixed</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Execute a custom SQL query with parameter binding. This method allows executing custom SQL queries with parameter binding. It takes the SQL query to execute as the first parameter, an associative array of parameters to bind to the query as the second parameter, and an optional parameter specifying the type of result to return ('object' or 'array'). It returns the result of the query based on the specified return type.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>sql</td>
+        <td>string</td>
+        <td>The SQL query to execute.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>An associative array of parameters to bind to the query.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>return_type</td>
+        <td>string|null</td>
+        <td>(optional) The type of result to return ('object' or 'array'). Default is null.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>Returns the result of the query based on the specified return type.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Throws</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Exception</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RuntimeException</td>
+        <td>If the query execution fails.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
+  </div>
+</div>

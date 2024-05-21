@@ -1,0 +1,64 @@
+<div class="container">
+  <h1>update()</h1>
+  <p class="signature">public function update(int $update_id, array $data, ?string $target_table = null): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Update a record in the database table. This method takes the ID of the record to update, an associative array containing column names as keys and their corresponding values, and an optional parameter specifying the name of the database table to update. It constructs and executes an SQL query to perform the update, returning true if the update was successful and false otherwise.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>update_id</td>
+        <td>int</td>
+        <td>The ID of the record to update.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>An associative array containing column names as keys and their corresponding values.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>target_table</td>
+        <td>string|null</td>
+        <td>(optional) The name of the database table to update. Default is null.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>True if the update was successful, false otherwise.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
+  </div>
+</div>

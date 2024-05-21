@@ -1,0 +1,79 @@
+<div class="container">
+  <h1>get_many_where()</h1>
+  <p class="signature">public function get_many_where(string $column, $value, ?string $target_table = null): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves multiple records from a database table based on custom conditions. This method constructs and executes an SQL query to retrieve rows where the specified column matches the provided value from the specified table. It returns an array of objects representing the fetched rows. If no records are found, an empty array is returned.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>column</td>
+        <td>string</td>
+        <td>The name of the table column referred to when fetching results.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>value</td>
+        <td>mixed</td>
+        <td>The value that should be matched against the target table column.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>target_table</td>
+        <td>string|null</td>
+        <td>The name of the database table to be queried. Default is null.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An array of objects representing the fetched rows. If no records are found, an empty array is returned.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Exception Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RuntimeException</td>
+        <td>Thrown if the query execution fails.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
+  </div>
+</div>

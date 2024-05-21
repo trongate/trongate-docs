@@ -1,0 +1,57 @@
+<div class="container">
+  <h1>insert()</h1>
+  <p class="signature">public function insert(array $data, ?string $target_table = null): ?int</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Insert a new record into the database table and return the ID of the newly inserted record. This method takes an associative array containing column names as keys and their corresponding values, along with an optional parameter specifying the name of the database table to insert into. It constructs and executes an SQL query to perform the insertion, returning the ID of the newly inserted record or null if insertion fails.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>An associative array containing column names as keys and their corresponding values.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>target_table</td>
+        <td>string|null</td>
+        <td>(optional) The name of the database table to insert into. Default is null.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int|null</td>
+        <td>The ID (int) of the newly inserted record, or null if insertion fails.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
+  </div>
+</div>
