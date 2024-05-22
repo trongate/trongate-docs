@@ -2,12 +2,12 @@ The following HTML code represents what I consider to be perfect documentation f
 
 
 <div class="container">
-  <h1>attempt_display()</h1>
-  <p class="signature">function attempt_display(): void</p>
+  <h1>get()</h1>
+  <p class="signature">public function get(): void</p>
   <h2>Description</h2>
   <div class="description">
     <p>
-      Attempts to display a page by reading a value from the URL.  If the last segment of the URL is 'edit' the method also verifies if the user is an admin so that permissions may be granted for editing. If no matching record is found in the 'trongate_pages' table, a 404 error page is displayed. Additionally, it ensures that only published pages are displayed unless the page is being edited.
+      This method is typically utilized by Trongate's API manager to process HTTP GET requests to API endpoints. Its usage is contingent upon appropriate endpoint settings and corresponding authorization rules defined within a file named <code>api.json</code>. This file is expected to reside within the 'assets' subdirectory of a module directory that shares the same name as the target database table.
     </p>
   </div>
   <h2>Parameters</h2>
@@ -24,7 +24,7 @@ The following HTML code represents what I consider to be perfect documentation f
     <tbody>
       <!-- This method does not take any parameters -->
       <tr>
-        <td colspan="5">This method does not take any parameters, however, it does attempt to fetch a record from the 'trongate_pages' database table based on a value that is read from the URL.</td>
+        <td colspan="5">This method does not take any parameters.</td>
       </tr>
     </tbody>
   </table>
@@ -50,72 +50,43 @@ The following HTML code represents what I consider to be perfect documentation f
 </div>.  --- What I've just shown you can be considered as being good HTML documentation for the following method:   ---   
 
     /**
-     * Attempt to display a page based on the URL segment.
+     * Handle GET requests for API endpoints.
      *
      * @return void
      */
-    function attempt_display(): void {
+    public function get(): void {
+        $request_type = $_SERVER['REQUEST_METHOD'];
 
-        $enable_page_edit = false;
-        $this_current_url = rtrim(current_url(), '/');
-        $target_segment = get_last_part($this_current_url, '/');
-
-        if ($target_segment === 'edit') {
-            $url_segments = explode('/', $this_current_url);
-            $target_segment_index = count($url_segments) - 2;
-            $target_segment = $url_segments[$target_segment_index];
-
-            // Is this user an 'admin' user?
-            $this->module('trongate_tokens');
-            $token = $this->trongate_tokens->_attempt_get_valid_token(1);
-
-            if (($token === false) && (strtolower(ENV) === 'dev')) {
-                redirect('trongate_pages/manage');
-            } else {
-                // User is now confirmed as being 'admin'.
-                $enable_page_edit = true;                
-            }
-
-        }
-
-        $record_obj = $this->model->get_one_where('url_string', $target_segment, 'trongate_pages');
-
-        if ($record_obj === false) {
-            // No matching record found on trongate_pages table.
-            $this->template('error_404', []);
+        if ($request_type !== 'GET') {
+            $this->search();
             return;
         }
 
-        $data = (array) $record_obj;
-        $data['enable_page_edit'] = $enable_page_edit;
-        $data['targetTable'] = 'trongate_pages';
-        $data['recordId'] = $record_obj->id;
-        $data['imgUploadApi'] = BASE_URL . 'trongate_pages/submit_image_upload';
+        require_once('Standard_endpoints.php');
+        $se = new Standard_endpoints();
 
-        // Produce a 404 page IF this page is not published.
-        if (($data['published'] === 0) && ($last_segment !== 'edit')) {
-            load('error_404');
-            die();
+        if (is_numeric(segment(4))) {
+            $se->find_one();
+        } else {
+            $se->get();
         }
-
-        $data['sample_text'] = $this->sample_text;
-        $data['view_module'] = 'trongate_pages';
-        $data['view_file'] = 'display';
-        $this->template($this->page_template, $data);
     }
 
 
----    Please produce some HTML content of the same format as shown above, but for the following function/method:    ---    
+---    Please produce some HTML content of the same format as shown above, but for the following function/method.  PLEASE NOTE:  The method shown is typically used by Trongate's API manager.  Usage of the method is dependant upon appropriate endpoint settings and their corresponding authorisation rules being defined within a file named api.json.  This file should exist within the 'assets' sub directory of a module directory that shares the same name as the target database table name.  The conditions of usage that I have described are applicable to the method below.  If you can, please try to avoid copying what I have just written.  I would like you to write in a manner that is professional and suitable for technical documentation - :    ---    
 
 
 
 
 
 
-
-
-
-
-
-
-
+    /**
+     * Handle search by POST requests for API endpoints.
+     *
+     * @return void
+     */
+    public function search(): void {
+        require_once('Standard_endpoints.php');
+        $se = new Standard_endpoints();
+        $se->search();
+    }

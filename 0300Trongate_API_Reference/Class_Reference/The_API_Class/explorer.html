@@ -1,0 +1,48 @@
+<div class="container">
+  <h1>explorer()</h1>
+  <p class="signature">function explorer(): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Renders the API explorer interface for development purposes. This method provides a user interface for exploring and testing API endpoints during development. If the application is not in 'dev' mode, the API explorer will be disabled with a 403 Forbidden response. The method attempts to identify the target database table by reading the third segment of the URL. If a table with a name matching the third URL segment is not found in the database, a 404 Not Found response will be returned.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return anything directly, but it outputs HTML content for the API explorer.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>To load the API Explorer, navigate to the BASE_URL followed by 
+api/explorer/[target_table_name].</pre>
+  </div>
+</div>

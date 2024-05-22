@@ -1,0 +1,50 @@
+<div class="container">
+  <h1>get_status_codes()</h1>
+  <p class="signature">public function get_status_codes(?int $status_code = null): array|string|null</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves HTTP status codes and their descriptions. This method provides a mapping of HTTP status codes to their respective descriptions. If a specific status code is provided, the corresponding description is returned as a string. If no status code is provided, an array containing all HTTP status codes and descriptions is returned. If the provided status code is not found, "Unknown HTTP Response Code" is returned.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$status_code</td>
+        <td>int|null</td>
+        <td>The HTTP status code to retrieve the description for. Defaults to null.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array|string|null</td>
+        <td>If a specific status code is provided, returns its description as a string. If no status code is provided, returns an array of all HTTP status codes and descriptions. If the provided status code is not found, returns "Unknown HTTP Response Code".</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
+  </div>
+</div>

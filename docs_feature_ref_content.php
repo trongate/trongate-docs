@@ -110,6 +110,33 @@ if (segment(3) === '') {
 </ul>
 
 <?php
+if (segment(3) === 'the-api-class') {
+	$additional_info = 'Trongate\'s API class also contains the following public methods:';
+	$additional_info.= '<ol>
+  <li>batch()</li>
+  <li>count()</li>
+  <li>create()</li>
+  <li>delete()</li>
+  <li>destroy()</li>
+  <li>exists()</li>
+  <li>explorer()</li>
+  <li>get()</li>
+  <li>insert()</li>
+  <li>search()</li>
+  <li>update()</li>
+  <li>validate_token()</li>
+</ol>';
+    $additional_info.= '<p>All of these methods are intended for use by Trongate\'s API Manager to handle HTTP requests made to predefined API endpoints. As they are integral components of the framework, customization or modification of these methods is not recommended. Consequently, detailed descriptions of these methods have been omitted from the documentation.';
+
+}
+
+if (isset($additional_info)) {
+	echo '<div class="alert alert-info">'.$additional_info.'</div>';
+}
+?>
+
+
+<?php
 if (isset($features_items)) {
 ?>
 <script>
