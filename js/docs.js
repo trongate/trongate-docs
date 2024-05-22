@@ -326,19 +326,11 @@ document.addEventListener('resize', function() {
 document.addEventListener('keydown', function(event) {
     const isAltKey = event.altKey;
 
-    if ((isAltKey && (event.key === 'ArrowUp')) || event.key === "h") {
-        window.location.href = baseUrl;
-    }
-
-    if (event.key === 't') {
-        window.location.href = baseUrl + 'introduction/table-of-contents.html';
-    }
-
-    if (event.key === 'w') {
+    if (isAltKey && event.key === 'ArrowUp') {
         window.location.href = baseUrl + 'introduction/welcome.html';
     }
 
-    if ((isAltKey && event.key === 'ArrowDown') || (event.key === "r")) {
+    if (isAltKey && event.key === 'ArrowDown') {
         window.location.href = baseUrl + 'trongate-api-reference';
     }
 
