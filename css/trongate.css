@@ -317,7 +317,7 @@ div.modal-body p.text-center {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  opacity: 1;
+  opacity: .9;
 }
 
 #modal-container {

@@ -31,8 +31,10 @@ function closeSlideNav() {
 }
 
 function openModal(modalId) {
-  var pageOverlay = document.getElementById("overlay");
+  var body = document.body;
 
+  // Create modal elements if they don't exist
+  var pageOverlay = document.getElementById("overlay");
   if (typeof pageOverlay == "undefined" || pageOverlay == null) {
     var modalContainer = document.createElement("div");
     modalContainer.setAttribute("id", "modal-container");
@@ -42,26 +44,24 @@ function openModal(modalId) {
     var overlay = document.createElement("div");
     overlay.setAttribute("id", "overlay");
     overlay.setAttribute("style", "z-index: 2");
-
     body.prepend(overlay);
 
-    var targetModal = _(modalId);
-    targetModalContent = targetModal.innerHTML;
+    var targetModal = document.getElementById(modalId);
+    var targetModalContent = targetModal.innerHTML;
     targetModal.remove();
 
-    //create a new model
     var newModal = document.createElement("div");
-    newModal.setAttribute("class", "modal");
+    newModal.setAttribute("class", "modal zoom-in-modal");
     newModal.setAttribute("id", modalId);
-
-    newModal.style.zIndex = 4;
     newModal.innerHTML = targetModalContent;
     modalContainer.appendChild(newModal);
 
     setTimeout(() => {
       newModal.style.opacity = 1;
+      newModal.style.transform = "scale(1)";
       newModal.style.marginTop = "2vh";
     }, 0);
+
   }
 }
 

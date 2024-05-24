@@ -657,3 +657,9 @@ table.properties-table > tbody > tr > td:nth-child(3) {
 .container-lg:nth-child(2) aside {
     scrollbar-color: var(--primary-darker) #f1f1f1; /* Color of the thumb and the track */
 }
+
+.zoom-in-modal {
+  opacity: 0;
+  transform: scale(0.1);
+  transition: opacity 0.3s, transform 0.3s;
+}
