@@ -64,8 +64,47 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+  <h2>Example Usage #1</h2>
+  <p>In this example, the table name is inferred from the first URL segment, and the update is performed based on the condition where the column 'status' equals 'active'.</p>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>// Data to update
+$data = [
+    'status' => 'inactive', // New status value
+    'updated_at' => date('Y-m-d H:i:s') // Updated timestamp
+];
+
+// Update rows where 'status' column equals 'active'
+$update_success = $this->model->update_where('status', 'active', $data);
+
+if ($update_success) {
+    echo "Rows updated successfully!";
+} else {
+    echo "Failed to update rows.";
+}
+</pre>
   </div>
+
+<h2>Example Usage #2</h2>
+<p>In this alternative example, the table name, 'products' has been passed into the method as an argument.  The method attempts to execute SQL that modifies table records by setting the 'status' to 'out of stock' and updating the 'updated_at' timestamp.  The update operation would <b>only</b> be applied to rows where the 'stock_quantity' equals 10.</p>
+<div class="example">
+  <pre>// Data to update
+$data = [
+    'status' => 'out of stock', // New status value
+    'updated_at' => date('Y-m-d H:i:s') // Updated timestamp
+];
+
+// Update rows in the 'products' table where 'stock_quantity' equals 10
+$update_success = $this->model->update_where('stock_quantity', 10, $data, 'products');
+
+if ($update_success) {
+    echo "Rows updated successfully!";
+} else {
+    echo "Failed to update rows.";
+}
+</pre>
+</div>
+
+
+
+
 </div>

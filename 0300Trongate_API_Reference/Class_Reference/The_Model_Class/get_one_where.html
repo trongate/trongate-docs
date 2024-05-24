@@ -72,8 +72,25 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>// Example Usage not available for this method</pre>
-  </div>
+<h2>Example Usage #1</h2>
+<p>The code sample below demonstrates how to fetch a single record from the 'users' table where the 'username' column matches the value 'john_doe'.</p>
+<div class="example">
+  <pre>
+$user_obj = $this->model->get_one_where('username', 'john_doe', 'users');</pre>
+</div>
+
+<h2>Example Usage #2</h2>
+<p>In this alternative example, no table name has been passed into the method. This means that the table name will be assumed to be the value of the first URL segment.</p>
+<div class="example">
+  <pre>
+$record_obj = $this->model->get_one_where('id', 123);</pre>
+</div>
+
+
+
+
+
+
+
+
 </div>

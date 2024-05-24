@@ -57,8 +57,50 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+  <h2>Example Usage #1</h2>
+  <p>In this example, the table name 'users' is inferred from the first URL segment.</p>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>// Assuming the URL is: example.com/users/update/123
+
+// Data to update
+$data = [
+    'name' => 'John Doe',
+    'email' => 'john@example.com'
+];
+
+// Update the user record with ID 123 using inferred table name
+$update_success = $this->model->update(123, $data);
+
+if ($update_success) {
+    echo "User record updated successfully!";
+} else {
+    echo "Failed to update user record.";
+}</pre>
   </div>
+
+<h2>Example Usage #2</h2>
+  <p>In this alternate example, the table name 'customers' is explicitly provided to the method. Additionally, the value for the record's 'id' is retrieved from the third URL segment and converted to an integer type using Trongate's '<b>segment</b>' method.</p>
+  <div class="example">
+    <pre>// Fetch record ID from URL.
+$update_id = segment(3, 'int');
+
+// Data to update
+$data = [
+    'name' => 'Alice Smith',
+    'email' => 'alice@example.com'
+];
+
+// Update the customer record in the 'customers' table
+$update_success = $this->model->update($update_id, $data, 'customers');
+
+if ($update_success) {
+    echo "Customer record updated successfully!";
+} else {
+    echo "Failed to update customer record.";
+}
+</pre>
+  </div>
+
+
+
 </div>

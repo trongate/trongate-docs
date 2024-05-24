@@ -52,6 +52,16 @@
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$id = 123; // Example ID of the record to delete
+$target_table = 'products'; // Example target table
+
+$is_deleted = $this->model->delete($id, $target_table);
+
+if ($is_deleted) {
+    echo "Record with ID {$id} was successfully deleted from the {$target_table} table.";
+} else {
+    echo "Failed to delete record with ID {$id} from the {$target_table} table.";
+}
+</pre>
   </div>
 </div>

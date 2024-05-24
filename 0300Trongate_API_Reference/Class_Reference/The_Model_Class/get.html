@@ -64,8 +64,25 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>// Example Usage not available for this method</pre>
-  </div>
+<h2>Example Usage #1</h2>
+<p>The code sample below demonstrates how to retrieve all rows from a table.  In this example, the table name is not explicitly passed into the method.  This means that the table name would be assumed to be the value of the first URL segment.</p>
+<div class="example">
+  <pre>
+$rows = $this->model->get();</pre>
+</div>
+
+<h2>Example Usage #2</h2>
+<p>The code sample below demonstrates how to retrieve rows from a specific table, ordered by 'id' descending.  In this example, the second argument ('orders') indicates the name of the table to be queried.</p>
+<div class="example">
+  <pre>
+$rows = $this->model->get('id desc', 'orders');</pre>
+</div>
+
+<h2>Example Usage #3</h2>
+<p>The code sample below demonstrates how to retrieve rows from a specific table, named 'products'.    The results, in this instance, would be ordered by 'name' and limited to 10 results, with an offset of 5.</p>
+<div class="example">
+  <pre>$rows = $this->model->get('name', 'products', 10, 5);</pre>
+</div>
+
+
 </div>

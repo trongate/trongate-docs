@@ -72,8 +72,33 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+  <h2>Example Usage #1</h2>
+  <p>The code sample below demonstrates how to execute a custom SQL query, using query binding with <b>named parameters</b>.</p>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>// Build the SQL query (using placeholders).
+$sql = "SELECT * FROM users WHERE age > :age AND city = :city";
+
+// Named parameters to bind to the query.
+$data = [
+    'age' => 30,
+    'city' => 'New York'
+];
+
+// Execute the query using the named parameters.
+$rows = $this->model->query_bind($sql, $data, 'object');</pre>
   </div>
+  <h2>Example Usage #2</h2>
+  <p>The code sample below demonstrates how to execute a custom SQL query, using query binding with <b>unnamed parameters</b>.</p>
+  <div class="example">
+    <pre>// Build the SQL query (using placeholders).
+$sql = "SELECT * FROM products WHERE category = ? AND price > ?";
+
+// Unnamed parameters to bind to the query.
+$data = ['Electronics', 100];
+
+// Execute the query using the unnamed parameters.
+$rows = $this->model->query_bind($sql, $data, 'array');
+</pre>
+  </div>
+
 </div>

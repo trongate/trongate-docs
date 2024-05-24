@@ -69,8 +69,34 @@
   <p>
     This method should only be used in controlled environments and not exposed to untrusted users.
   </p>
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>// Example Usage not available for this method</pre>
-  </div>
+
+<h2>Example Usage</h2>
+<p>Below is an example of how to insert three records into an 'employees' table in a single batch:</p>
+<div class="example">
+  <pre>
+$employee_records = [
+    [
+        'name' => 'John Doe',
+        'position' => 'Software Engineer',
+        'salary' => 80000
+    ],
+    [
+        'name' => 'Jane Smith',
+        'position' => 'UX Designer',
+        'salary' => 75000
+    ],
+    [
+        'name' => 'Mike Johnson',
+        'position' => 'Data Analyst',
+        'salary' => 70000
+    ]
+];
+
+$num_inserted = $this->model->insert_batch('employees', $employee_records);
+echo "Successfully inserted $num_inserted records into the 'employees' table.";
+  </pre>
+</div>
+
+
+
 </div>

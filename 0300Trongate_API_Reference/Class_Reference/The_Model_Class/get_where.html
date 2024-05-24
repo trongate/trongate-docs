@@ -65,8 +65,19 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>// Example Usage not available for this method</pre>
-  </div>
+
+<h2>Example Usage #1</h2>
+<p>The code sample below demonstrates how to fetch a single record from the 'products' table with the ID '123'.</p>
+<div class="example">
+  <pre>
+$product_obj = $this->model->get_where(123, 'products');</pre>
+</div>
+
+<h2>Example Usage #2</h2>
+<p>In this alternative example, no table name has been passed into the method. This means that the table name will be assumed to be the value of the first URL segment.</p>
+<div class="example">
+  <pre>
+$user_obj = $this->model->get_where(456);</pre>
+</div>
+
 </div>

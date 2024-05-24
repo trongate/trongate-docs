@@ -78,8 +78,17 @@
       It's important to ensure that the provided SQL query is properly sanitized to prevent SQL injection attacks.
     </p>
   </div>
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>// Example Usage not available for this method</pre>
-  </div>
+
+<h2>Example Usage</h2>
+<p>Below is an example of executing a custom SQL query involving a table join to retrieve information about employees and their corresponding departments:</p>
+<div class="example">
+  <pre>$sql = "SELECT e.name AS employee_name, e.position, d.name AS department_name
+        FROM employees e
+        JOIN departments d ON e.department_id = d.id";
+        
+$rows = $this->model->query($sql, 'object');</pre>
+</div>
+
+
+
 </div>

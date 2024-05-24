@@ -52,6 +52,23 @@
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$table_name = 'users'; // Example table name
+
+// Get detailed information about table columns
+$table_info = $this->model->describe_table($table_name);
+
+// Display the information
+json($table_info);</pre>
+</div>
+<h2>Alternative Example</h2>
+  <div class="example">
+    <pre>$table_name = 'users'; // Example table name
+
+// Get only column names
+$column_names = $this->model->describe_table($table_name, true);
+
+// Display the column names
+json($column_names);
+</pre>
   </div>
 </div>

@@ -85,6 +85,12 @@
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$column = 'status';
+$value = 'active';
+$operator = '=';
+$target_table = 'users';
+
+$num_active_users = $this->model->count_where($column, $value, $operator, $target_table);
+</pre>
   </div>
 </div>

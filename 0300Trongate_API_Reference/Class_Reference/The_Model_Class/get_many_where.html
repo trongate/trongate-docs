@@ -74,6 +74,11 @@
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>// Retrieve multiple records where the 'status' column equals 'active'
+$active_users = $this->model->get_many_where('status', 'active', 'users');
+
+// Display the fetched records
+json($active_users);
+</pre>
   </div>
 </div>
