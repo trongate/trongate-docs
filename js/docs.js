@@ -171,10 +171,51 @@ function initOpenInfo(targetFeatureParams) {
 
                 closeDiv.appendChild(btnSmall);
                 targetModalBody.insertBefore(closeDiv, targetModalBody.firstChild);
+
+improveTables();
             }
         }
 
 }
+
+function improveTables() {
+    // Step 1: Find all tables within a container with class 'framework-ref'
+    const tables = document.querySelectorAll('.framework-ref table');
+
+    // Step 2: Find all matching cells
+    tables.forEach(table => {
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+            const headerText = header.innerText.trim();
+            const columnIndex = header.cellIndex;
+            const colspan = header.getAttribute('colspan');
+            const cells = table.querySelectorAll(`td:nth-child(${columnIndex + 1})`);
+            cells.forEach(cell => {
+                if (headerText === 'Parameter') {
+
+                    const cellCode = cell.outerHTML;
+
+                    if (!cellCode.includes('td colspan=')) {
+                        cell.style.fontWeight = 'bold';
+                        cell.style.fontFamily = "'Courier New', Courier, monospace";
+
+                        if (cell.innerText.trim().charAt(0) !== '$') {
+                            cell.innerText = '$' + cell.innerText.trim();
+                        }
+                        
+                    }
+
+                } else if (headerText === 'Type' || headerText === 'Default' || headerText === 'Required') {
+                    cell.style.textAlign = 'center';
+                }
+            });
+        });
+    });
+}
+
+
+
+
 
 function beautifyCodeBlocks() {
     const codeBlocks = document.querySelectorAll('code');

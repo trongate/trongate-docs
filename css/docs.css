@@ -495,11 +495,6 @@ figure img {
   font-size: 14px;
 }
 
-.modal .framework-ref table:first-of-type tr > td:nth-child(even),
-.modal .framework-ref table:nth-of-type(2) tr > td:nth-child(1) {
-  text-align: center;
-}
-
 .modal .framework-ref .param,
 .modal .framework-ref .return {
   background-color: #e0e0e0;
