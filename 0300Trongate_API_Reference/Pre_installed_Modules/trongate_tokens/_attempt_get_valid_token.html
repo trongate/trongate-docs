@@ -49,25 +49,8 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage #1</h2>
-  <p>The code sample below demonstrates how to fetch <b>any</b> valid 'Trongate token' from <b>any</b> user level.</p>
-  <div class="example">
-    <pre><code>$this->module('trongate_tokens');
-$token = $this->trongate_tokens->_attempt_get_valid_token(); // Any user level</code></pre>
-  </div>
-  <h2>Example Usage #2</h2>
-  <p>The code below demonstrates how to fetch and return a valid 'Trongate token' for a logged-in user with an '<b>admin</b>' user level. This example assumes that the 'trongate_user_levels' database table contains a row with an 'id' of 1 and a 'level_title' of 'admin'.</p>
-  <div class="example">
-    <pre><code>$this->module('trongate_tokens');
-$token = $this->trongate_tokens->_attempt_get_valid_token(1); // admin</code></pre>
-  </div>
-  <h2>Example Usage #3</h2>
-  <p>In the final example, the code attempts to fetch and return a valid 'Trongate token' for a user with <b>either an 'admin' or a 'member'</b> user level. This example assumes that the 'trongate_user_levels' database table contains two specific rows: one with an 'id' of 1 and a 'level_title' of 'admin', and another with an 'id' of 2 and a 'level_title' of 'member'.</p>
-  <div class="example">
-    <pre><code>$this->module('trongate_tokens');
-$token = $this->trongate_tokens->_attempt_get_valid_token([1, 2]); // admin or member</code></pre>
-  </div>
-  <h2>Using XMLHttpRequest</h2>
+  
+  <h2>Attaching Tokens To Headers Using XMLHttpRequest</h2>
   <p>The code below demonstrates how to attach a 'Trongate token' to an <b>HTTP GET request</b> using JavaScript.  In the example, a PHP variable named <code>$trongate_token</code> has been made available within the JavaScript, and is being assigned to a JavaScript constant named, <b>token</b>.</p>
   <pre><code>&lt;script&gt;
 const targetUrl = 'your_api_endpoint_here';
@@ -105,7 +88,7 @@ http.onload = function() {
 }
 &lt;/script&gt;</code></pre>
 
-<h2>Using Fetch API</h2>
+<h2>Attaching Tokens To Headers Using Fetch API</h2>
 <p>The Fetch API provides an alternative method for making HTTP requests in JavaScript, offering a more modern and flexible approach. Below are examples of how to achieve the same functionality as demonstrated with XMLHttpRequest, but using the Fetch API instead.</p>
 <p>The code below demonstrates how to attach a 'Trongate token' to an <b>HTTP GET request</b> using the Fetch API.</p>
 <pre><code>&lt;script&gt;
@@ -150,5 +133,24 @@ fetch(targetUrl, {
 })
 .catch(error => console.error('Error:', error));
 &lt;/script&gt;</code></pre>
+
+<h2>Example Usage #1</h2>
+  <p>The PHP code sample below demonstrates how to fetch <b>any</b> valid 'Trongate token' from <b>any</b> user level.</p>
+  <div class="example">
+    <pre><code>$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token(); // Any user level</code></pre>
+  </div>
+  <h2>Example Usage #2</h2>
+  <p>The code below demonstrates how to fetch and return a valid 'Trongate token' for a logged-in user with an '<b>admin</b>' user level. This example assumes that the 'trongate_user_levels' database table contains a row with an 'id' of 1 and a 'level_title' of 'admin'.</p>
+  <div class="example">
+    <pre><code>$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token(1); // admin</code></pre>
+  </div>
+  <h2>Example Usage #3</h2>
+  <p>In the final example, the code attempts to fetch and return a valid 'Trongate token' for a user with <b>either an 'admin' or a 'member'</b> user level. This example assumes that the 'trongate_user_levels' database table contains two specific rows: one with an 'id' of 1 and a 'level_title' of 'admin', and another with an 'id' of 2 and a 'level_title' of 'member'.</p>
+  <div class="example">
+    <pre><code>$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token([1, 2]); // admin or member</code></pre>
+  </div>
 
 </div>
