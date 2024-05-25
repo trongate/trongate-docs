@@ -1,26 +1,39 @@
 <div class="container">
   <h1>_attempt_get_valid_token()</h1>
-  <p class="signature"> function _attempt_get_valid_token(int|array|null $user_levels = null): string|false </p>
+  <p class="signature">public function _attempt_get_valid_token(int|array|null $user_levels = null): string|bool</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Attempt to validate and return a token based on optional user level(s) condition. This method checks for a token in both the user's cookie and session. If no tokens are found, it returns false.</p>
+    <p>
+      Attempts to fetch, validate and return a token based on optional user level condition(s). This method checks for a valid token in the following locations, in order of priority:</p>
+      <ol>
+        <li>HTTP headers (specifically, <code>$_SERVER['HTTP_TRONGATETOKEN']</code>)</li>
+        <li>Cookies (specifically, <code>$_COOKIE['trongatetoken']</code>)</li>
+        <li>Session (specifically, <code>$_SESSION['trongatetoken']</code>)</li>
+      </ol>
+      <p>If a valid token is found, it is returned. Otherwise, the method returns <code>false</code>.
+    </p>
   </div>
-<h2>Parameters</h2>
-<div class="parameter-description">
-  <p>The <code>$user_levels</code> parameter specifies the user levels to filter tokens. It is an optional argument that can accept different types of inputs:</p>
-  <ul>
-    <li>
-      <strong>Integer:</strong> If an integer is passed, the method will attempt to match a token against records from the Trongate User Levels table ('trongate_user_levels') where the 'id' from the 'trongate_user_levels' table matches the integer value provided. In this scenario, a token will only be returned successfully if it can be matched against the required Trongate User Level ID.
-    </li>
-    <li class="mt-1">
-      <strong>Array:</strong> If an array of integers is passed, each array item represents a user level ID for which a token can be matched. The method will allow access for more than one user level type.
-    </li>
-    <li class="mt-1">
-      <strong>Null:</strong> If no argument is passed into '_attempt_get_valid_token()', any valid Trongate token (as confirmed by querying the 'trongate_tokens' table) will be returned, regardless of the corresponding user level.
-    </li>
-  </ul>
-</div>
-
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$user_levels</td>
+        <td>int|array|null</td>
+        <td>User levels to filter tokens.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -31,14 +44,111 @@
     </thead>
     <tbody>
       <tr>
-        <td>string|false</td>
-        <td>The valid token if found, or false if none is found.</td>
+        <td>string|bool</td>
+        <td>The valid token if found, or <code>false</code> if none is found.</td>
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+  <h2>Example Usage #1</h2>
+  <p>The code sample below demonstrates how to fetch <b>any</b> valid 'Trongate token' from <b>any</b> user level.</p>
   <div class="example">
-    <pre>
-// Example Usage not available for this method</pre>
+    <pre><code>$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token(); // Any user level</code></pre>
   </div>
+  <h2>Example Usage #2</h2>
+  <p>The code below demonstrates how to fetch and return a valid 'Trongate token' for a logged-in user with an '<b>admin</b>' user level. This example assumes that the 'trongate_user_levels' database table contains a row with an 'id' of 1 and a 'level_title' of 'admin'.</p>
+  <div class="example">
+    <pre><code>$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token(1); // admin</code></pre>
+  </div>
+  <h2>Example Usage #3</h2>
+  <p>In the final example, the code attempts to fetch and return a valid 'Trongate token' for a user with <b>either an 'admin' or a 'member'</b> user level. This example assumes that the 'trongate_user_levels' database table contains two specific rows: one with an 'id' of 1 and a 'level_title' of 'admin', and another with an 'id' of 2 and a 'level_title' of 'member'.</p>
+  <div class="example">
+    <pre><code>$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token([1, 2]); // admin or member</code></pre>
+  </div>
+  <h2>Using XMLHttpRequest</h2>
+  <p>The code below demonstrates how to attach a 'Trongate token' to an <b>HTTP GET request</b> using JavaScript.  In the example, a PHP variable named <code>$trongate_token</code> has been made available within the JavaScript, and is being assigned to a JavaScript constant named, <b>token</b>.</p>
+  <pre><code>&lt;script&gt;
+const targetUrl = 'your_api_endpoint_here';
+const token = '&lt;?= $trongate_token ?&gt;';
+
+const http = new XMLHttpRequest();
+http.open('GET', targetUrl);
+http.setRequestHeader('Content-type', 'application/json');
+http.setRequestHeader('trongateToken', token);
+http.send();
+http.onload = function() {
+  console.log(http.status);
+  console.log(http.responseText);
+}
+&lt;/script&gt;</code></pre>
+<p>The code below demonstrates similar usage of XMLHttpRequest.  However, in this example we are submitting values to an endpoint via an <b>HTTP POST request</b>, using JavaScript.</p>
+<pre><code>&lt;script&gt;
+const targetUrl = 'your_api_endpoint_here';
+const token = '&lt;?= $trongate_token ?&gt;';
+
+const params = {
+  firstName: 'John',
+  lastName: 'Smith',
+  age: 21
+}
+
+const http = new XMLHttpRequest();
+http.open('POST', targetUrl);
+http.setRequestHeader('Content-type', 'application/json');
+http.setRequestHeader('trongateToken', token);
+http.send(params);
+http.onload = function() {
+  console.log(http.status);
+  console.log(http.responseText);
+}
+&lt;/script&gt;</code></pre>
+
+<h2>Using Fetch API</h2>
+<p>The Fetch API provides an alternative method for making HTTP requests in JavaScript, offering a more modern and flexible approach. Below are examples of how to achieve the same functionality as demonstrated with XMLHttpRequest, but using the Fetch API instead.</p>
+<p>The code below demonstrates how to attach a 'Trongate token' to an <b>HTTP GET request</b> using the Fetch API.</p>
+<pre><code>&lt;script&gt;
+const targetUrl = 'your_api_endpoint_here';
+const token = '&lt;?= $trongate_token ?&gt;';
+fetch(targetUrl, {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+        'trongateToken': token
+    }
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data);
+})
+.catch(error => console.error('Error:', error));
+&lt;/script&gt;</code></pre>
+
+<p>The code below demonstrates similar usage of the Fetch API. However, in this example, we are submitting values to an endpoint via an <b>HTTP POST request</b>.</p>
+<pre><code>&lt;script&gt;
+const targetUrl = 'your_api_endpoint_here';
+const token = '&lt;?= $trongate_token ?&gt;';
+
+const params = {
+    firstName: 'John',
+    lastName: 'Smith',
+    age: 21
+}
+
+fetch(targetUrl, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'trongateToken': token
+    },
+    body: JSON.stringify(params)
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data);
+})
+.catch(error => console.error('Error:', error));
+&lt;/script&gt;</code></pre>
+
 </div>
