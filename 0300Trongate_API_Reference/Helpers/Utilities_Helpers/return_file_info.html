@@ -1,53 +1,52 @@
 <div class="container">
-    <h1>return_file_info()</h1>
-    <p class="signature">function return_file_info(string $file_string): array</p>
-    <h2>Description</h2>
-    <div class="description">
-      <p>Extracts file name and extension from a given file path.</p>
-    </div>
-    <h2>Parameters</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>$file_string</td>
-          <td>string</td>
-          <td>The file path from which to extract information.</td>
-          <td>N/A</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Return Value</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>array</td>
-          <td>An associative array containing the 'file_name' and 'file_extension'.</td>
-        </tr>
-      </tbody>
-    </table>
-    <h2>Example Usage</h2>
-    <div class="example">
-      <pre>
-  $file_info = return_file_info("/path/to/your/file.jpg");
-  echo "File Name: " . $file_info['file_name'] . "\n";
-  echo "File Extension: " . $file_info['file_extension'] . "\n";
-  // Output:
-  // File Name: file
-  // File Extension: .jpg
-      </pre>
-    </div>
+  <h1>return_file_info()</h1>
+  <p class="signature">function return_file_info(string $file_string): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Extracts file name and extension from a given file path.</p>
   </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_string</td>
+        <td>string</td>
+        <td>The file path from which to extract information.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An associative array containing the 'file_name' and 'file_extension'.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$file_info = return_file_info("/path/to/your/file.jpg");
+echo "File Name: " . $file_info['file_name'] . "\n";
+echo "File Extension: " . $file_info['file_extension'] . "\n";
+// Output:
+// File Name: file
+// File Extension: .jpg</pre>
+  </div>
+</div>
