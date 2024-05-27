@@ -1,10 +1,11 @@
 <div class="container">
   <h1>_get_user_obj()</h1>
-  <p class="signature"> function _get_user_obj(?string $token = null): object|false </p>
+  <p class="signature">public function _get_user_obj(?string $token = null): object|false</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Get the Trongate user object based on a token, session, or cookie.</p>
-    <p>This method attempts to retrieve the Trongate user object based on the provided token, or it checks session and cookie values if no token is provided.</p>
+    <p>
+      Retrieves the Trongate user object based on a provided token. If no token is provided, the method attempts to fetch and use a token from the session, cookie, or page header values. If no valid token is found, the method returns false.
+    </p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -14,14 +15,16 @@
         <th>Type</th>
         <th>Description</th>
         <th>Default</th>
+        <th>Required</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>$token</td>
         <td>string|null</td>
-        <td>(optional) The token to use for fetching the user object.</td>
+        <td>Optional. The token to use for fetching the user object.</td>
         <td>null</td>
+        <td>No</td>
       </tr>
     </tbody>
   </table>
@@ -40,10 +43,31 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+
+<h2>Sample Data</h2>
+  <p>When a valid token is found, the method will return an object.  The JSON string below shows an example of the kind of data that can be expected, within a returned object, when a valid token is found:</p>
   <div class="example">
-    <pre>
-// Example Usage not available for this method</pre>
+    <pre>{
+    "trongate_user_code": "Tz8tehsWsTPUHEtzfbYjXzaKNqLmfAUz",
+    "user_level_id": 1,
+    "user_level": "admin",
+    "token": "CmtMsmUWxEPeXkafsdDwsfHY87ax9ku4",
+    "trongate_user_id": 1,
+    "expiry_date": 1716918038
+}</pre>
+</div>
+
+  <h2>Example Usage #1</h2>
+  <p>In the code sample below, a token is passed into the <b>_get_user_obj()</b> method in an attempt to return a Trongate user object.</p>
+  <div class="example">
+    <pre>$token = 'agFauQmexzstRnBmKv5BNDgewsWgD32j';
+$this->module('trongate_tokens');
+$trongate_user_obj = $this->trongate_tokens->_get_user_obj($token);</pre>
   </div>
+  <h2>Example Usage #2</h2>
+  <p>In this alternative example, no token has been passed into the <b>_get_user_obj()</b> method. This means that the method will attempt to retrieve a token from the session, cookie, or page header values. If a valid token is found in any of those locations, the method will then attempt to fetch and return an associated Trongate user object.</p>
+  <div class="example">
+    <pre>$this->module('trongate_tokens');
+$trongate_user_obj = $this->trongate_tokens->_get_user_obj();</pre>
   </div>
 </div>

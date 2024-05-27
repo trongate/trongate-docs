@@ -1,54 +1,47 @@
 <div class="container">
   <h1>_generate_token()</h1>
-  <p class="signature">function _generate_token(array $data): string</p>
+  <p class="signature">public function _generate_token(array $data): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Generates a token based on the provided data.</p>
-    <p>The token is a 32-character random string. If no expiry date is provided, the token's default lifespan is used.  By default, token data (which includes; 'id', 'token', 'user_id', expiry_date' and 'code') is stored within the 'trongate_tokens' database table.</p>
+    <p>
+      Generates a token based on provided data. The token is a 32-character random string that can be optionally set as a cookie and has an optional expiration date.
+    </p>
   </div>
   <h2>Parameters</h2>
-  <p>This method accepts an array of key, value pairs as an argument.  The following properties, within the array, are expected:</p>
   <table>
     <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Default</th>
-            <th>Required</th>
-        </tr>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>'user_id'</td>
-            <td>int</td>
-            <td>Required. The user's ID.</td>
-            <td>N/A</td>
-            <td>Yes</td>
-        </tr>
-        <tr>
-            <td>'expiry_date'</td>
-            <td>int</td>
-            <td>Optional. Unix timestamp for token expiration.</td>
-            <td>Current time + default token lifespan</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>'set_cookie'</td>
-            <td>bool</td>
-            <td>Optional. If true, set the token as a cookie.</td>
-            <td>false</td>
-            <td>No</td>
-        </tr>
-        <tr>
-            <td>'code'</td>
-            <td>string</td>
-            <td>Optional. Custom code for the token.</td>
-            <td>N/A</td>
-            <td>No</td>
-        </tr>
+      <tr>
+        <td>$data['user_id']</td>
+        <td>int</td>
+        <td>The user's Trongate user ID.</td>
+        <td>None</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>$data['expiry_date']</td>
+        <td>int</td>
+        <td>Unix timestamp for token expiration.</td>
+        <td>time() + $this->default_token_lifespan</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>$data['set_cookie']</td>
+        <td>bool</td>
+        <td>If true, set the token as a cookie.</td>
+        <td>false</td>
+        <td>No</td>
+      </tr>
     </tbody>
-</table>
+  </table>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -65,7 +58,15 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
+  <p>In the code sample below, a token is generated for a user with ID 1, with an expiration date set, and the token is also set as a cookie.</p>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$data = [
+    'user_id' => 1,
+    'expiry_date' => time() + 3600, // 1 hour from now
+    'set_cookie' => true
+];
+
+$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_generate_token($data);</pre>
   </div>
 </div>

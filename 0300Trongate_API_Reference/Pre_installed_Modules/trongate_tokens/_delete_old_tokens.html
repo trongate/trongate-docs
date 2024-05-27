@@ -1,9 +1,11 @@
 <div class="container">
   <h1>_delete_old_tokens()</h1>
-  <p class="signature"> function _delete_old_tokens(int|null $user_id = null): void </p>
+  <p class="signature">public function _delete_old_tokens(?int $user_id = null): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Delete old tokens from the database. This method deletes tokens from the database that have expired based on their expiry date.</p>
+    <p>
+      Deletes old tokens from the database. This function deletes tokens that have expired. If a user ID is provided, it also deletes tokens associated with that user.
+    </p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -13,23 +15,37 @@
         <th>Type</th>
         <th>Description</th>
         <th>Default</th>
+        <th>Required</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>$user_id</td>
         <td>int|null</td>
-        <td>User ID to delete tokens for (optional).</td>
+        <td>Optional user ID to delete tokens for a specific user.</td>
         <td>null</td>
+        <td>No</td>
       </tr>
     </tbody>
   </table>
   <h2>Return Value</h2>
-  <div class="description">
-    <p>This method does not return any value.</p>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return any value.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$this->module('trongate_tokens');
+$this->trongate_tokens->_delete_old_tokens();</pre>
   </div>
 </div>

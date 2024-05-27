@@ -1,18 +1,30 @@
 <div class="container">
   <h1>regenerate()</h1>
-  <p class="signature"> function regenerate(): void </p>
+  <p class="signature">public function regenerate(): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Regenerates a token with a new expiration date. In instances of success, the method regenerates a token with a new expiration date and outputs the newly generated token (a 32-character-long string) to the browser. However, if the input format is invalid or the old token does not exist, appropriate HTTP response codes are set to indicate the failure reason.</p>
+    <p>
+      Regenerates a token with a new expiration date. It validates the input format of the old token and the expiration date before proceeding. If the input format is invalid or the old token does not exist, appropriate HTTP response codes are set to indicate the failure reason.
+    </p>
   </div>
   <h2>Parameters</h2>
-  <div class="description">
-    <p>The method does not accept parameters as arguments passed into a function. However, it attempts to read the following parameters from the third and fourth URL segments respectively:</p>
-    <ul>
-      <li><strong>$old_token</strong> (string): The old token to be regenerated.</li>
-      <li><strong>$expiry_date</strong> (int): The new expiration date for the regenerated token.</li>
-    </ul>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -22,15 +34,50 @@
       </tr>
     </thead>
     <tbody>
+      <!-- This method does not return any value -->
       <tr>
         <td>void</td>
-        <td>No return value.</td>
+        <td>This method does not return any value.</td>
       </tr>
     </tbody>
   </table>
+<h2>Example Usage</h2>
+<p>The JavaScript code sample below illustrates extending a user's login session by regenerating their token using an HTTP GET request. This approach involves appending the existing token to the target URL string. While exposing tokens in URLs is generally considered poor practice due to security concerns, in this specific scenario, any validated tokens passed via the URL are immediately invalidated and removed from the database, rendering them useless.</p>
+<div class="example">
+  <pre>&lt;script&gt;
+const baseUrl = '&lt;?= BASE_URL ?&gt;';
+let token = 'user-token';
 
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>// Example Usage not available for this method</pre>
-  </div>
+function regenerateToken() {
+  const expiryDate = new Date();
+  expiryDate.setHours(expiryDate.getHours() + 4);
+  const expiryTimestamp = Date.parse(expiryDate) / 1000;
+  const targetUrl = baseUrl + 'trongate_tokens/regenerate/' + token + '/' + expiryTimestamp;
+
+  fetch(targetUrl, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.text();
+    } else {
+      throw new Error('Network response was not ok');
+    }
+  })
+  .then(data => {
+    token = data;
+    alert("Token successfully renewed!");
+  })
+  .catch(error => {
+    alert("Token renewal failed: " + error.message);
+  });
+}
+
+regenerateToken();
+&lt;/script&gt;</pre>
+</div>
+
 </div>

@@ -1,9 +1,11 @@
 <div class="container">
   <h1>_get_user_id()</h1>
-  <p class="signature"> function _get_user_id(?string $token = null): int|false </p>
+  <p class="signature">public function _get_user_id(?string $token = null): int|false</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Retrieves the Trongate user ID based on a provided token, session, or cookie.  Returns the Trongate user ID (int) if found, or false (bool) if not found.</p>
+    <p>
+      Retrieves the Trongate user ID based on a provided token. If no token is provided, the method attempts to fetch and use a token from the session, cookie, or page header values. If no valid token is found, the method returns false.
+    </p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -13,6 +15,7 @@
         <th>Type</th>
         <th>Description</th>
         <th>Default</th>
+        <th>Required</th>
       </tr>
     </thead>
     <tbody>
@@ -21,6 +24,7 @@
         <td>string|null</td>
         <td>Optional. The token to retrieve the user ID for.</td>
         <td>null</td>
+        <td>No</td>
       </tr>
     </tbody>
   </table>
@@ -35,14 +39,21 @@
     <tbody>
       <tr>
         <td>int|false</td>
-        <td>Returns the Trongate user ID if found, or false if not found.</td>
+        <td>The Trongate user ID if found, or false if not found.</td>
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+  <h2>Example Usage #1</h2>
+  <p>In the code sample below, a token is passed into the <b>_get_user_id()</b> method in an attempt to return a Trongate user ID.</p>
   <div class="example">
-    <pre>
-// Example Usage not available for this method</pre>
+    <pre>$token = 'agFauQmexzstRnBmKv5BNDgewsWgD32j';
+$this->module('trongate_tokens');
+$trongate_user_id = $this->trongate_tokens->_get_user_id($token);</pre>
   </div>
+  <h2>Example Usage #2</h2>
+  <p>In this alternative example, no token has been passed into the <b>_get_user_id()</b> method. This means that the method will attempt to retrieve a token from the session, cookie, or page header values. If a valid token is found in any of those locations, the method will then attempt to fetch and return an associated Trongate user ID.</p>
+  <div class="example">
+    <pre>$this->module('trongate_tokens');
+$trongate_user_id = $this->trongate_tokens->_get_user_id();</pre>
   </div>
 </div>

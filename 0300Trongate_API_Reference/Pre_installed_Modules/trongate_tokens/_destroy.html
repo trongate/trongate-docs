@@ -1,14 +1,30 @@
 <div class="container">
   <h1>_destroy()</h1>
-  <p class="signature"> function _destroy(): void </p>
+  <p class="signature">public function _destroy(): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Destroys tokens from session and cookie storage. This method removes tokens from both session and cookie storage and deletes them from the database.</p>
+    <p>
+      Destroys tokens from session, cookie, and HTTP headers. This method removes tokens from session, cookie, and HTTP headers storage, and deletes them from the database. Additionally, it cleans up expired tokens from the database.
+    </p>
   </div>
   <h2>Parameters</h2>
-  <div class="description">
-    <p>This method does not accept any parameters.</p>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -20,12 +36,13 @@
     <tbody>
       <tr>
         <td>void</td>
-        <td>No return value.</td>
+        <td>This method does not return any value.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
   <div class="example">
-    <pre>// Example Usage not available for this method</pre>
+    <pre>$this->module('trongate_tokens');
+$this->trongate_tokens->_destroy();</pre>
   </div>
 </div>
