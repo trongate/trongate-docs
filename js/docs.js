@@ -253,11 +253,58 @@ function adjustAsideHeight() {
     }
 }
 
+// Format chapter title name
+const formatTitle = (title) => {
+    return title.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and');
+};
+
+// Highlight the left navigation menu to match the current page
+const highlightCurrentPage = () => {
+    const chapterNav = document.getElementById('chapter-nav');
+    const links = chapterNav.querySelectorAll('a');
+    const currentPath = window.location.pathname;
+    const listItems = document.querySelectorAll('#chapter-nav > li');
+    const chapterList = [];
+
+    listItems.forEach(li => {
+        const formattedTitle = formatTitle(li.textContent);
+        chapterList.push(formattedTitle);
+    });
+
+    if (currentPath === "/trongate-docs/") {
+        const firstChapterTitle = chapterList[0];
+        listItems.forEach(li => {
+            const formattedTitle = formatTitle(li.textContent);
+            if (formattedTitle === firstChapterTitle) {
+                li.classList.add('active-nav-title');
+                links[0].classList.add('active-nav');
+            }
+        });
+    } else {
+        listItems.forEach(li => {
+            const formattedTitle = formatTitle(li.textContent);
+            if (currentPath.includes(formattedTitle)) {
+                li.classList.add('active-nav-title');
+            }
+        });
+    }
+
+    links.forEach(link => {
+        if (link.href === window.location.href) {
+            link.classList.add('active-nav');
+        }
+    });
+};
+
 document.addEventListener("DOMContentLoaded", function() {
     // Make the <code> elements look beautiful!
     beautifyCodeBlocks();
-    // resize aside to match main
+    
+    // Resize aside to match main
     adjustAsideHeight();
+    
+    // Highlight the current page on load
+    highlightCurrentPage();
 
     // Make the alert divs fantasticola!
     const alertEls = document.querySelectorAll('.alert');
@@ -359,38 +406,84 @@ document.getElementById('scrollToTopBtn').addEventListener('click', function() {
     });
 });
 
-document.addEventListener('resize', function() {
-    adjustAsideHeight();
-});
-
-// Keyboard bindings for page navigation 
+// Keyboard bindings for page navigation
 document.addEventListener('keydown', function(event) {
+    const pathname = window.location.pathname;
+    const key = event.key;
     const isAltKey = event.altKey;
 
-    if (isAltKey && event.key === 'ArrowUp') {
-        window.location.href = baseUrl + 'introduction/welcome.html';
+    // Debug keydown and current URL path
+    console.log(key);
+    console.log('Pathname:', pathname);
+
+    const navigateTo = (url) => window.location.href = url;
+
+    if (isAltKey) {
+        switch (key) {
+            case 'ArrowUp':
+                navigateTo(`${baseUrl}introduction/table-of-contents.html`);
+                break;
+            case 'ArrowDown':
+                navigateTo(`${baseUrl}trongate-api-reference`);
+                break;
+        }
     }
 
-    if (isAltKey && event.key === 'ArrowDown') {
-        window.location.href = baseUrl + 'trongate-api-reference';
-    }
+    const handleArrowLeft = () => {
+        if (pathname === '/trongate-docs/introduction/table-of-contents.html') {
+            navigateTo(baseUrl);
+            return;
+        }
+        if (pathname === '/trongate-docs/trongate-api-reference') {
+            const chapterNav = document.getElementById('chapter-nav');
+            const links = chapterNav.querySelectorAll('a');
+            let lastAnchorBeforeApiReference = null;
 
-    if (event.key === 'ArrowLeft') {
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('trongate-api-reference')) {
+                    break;
+                }
+                lastAnchorBeforeApiReference = links[i];
+            }
+
+            if (lastAnchorBeforeApiReference) {
+                navigateTo(lastAnchorBeforeApiReference.href);
+            }
+            return;
+        }
         const prevButton = document.querySelector('.page-nav-btns .fa-arrow-circle-left');
         if (prevButton) {
             const prevAnchor = prevButton.closest('a');
             if (prevAnchor) {
-                window.location.href = prevAnchor.href;
+                navigateTo(prevAnchor.href);
             }
         }
-    } else if (event.key === 'ArrowRight') {
+    };
+
+    const handleArrowRight = () => {
+        if (pathname === '/trongate-docs/') {
+            navigateTo(`${baseUrl}introduction/table-of-contents.html`);
+            return;
+        } else if (pathname === '/trongate-docs/introduction/table-of-contents.html') {
+            navigateTo(`${baseUrl}introduction/welcome.html`);
+            return;
+        }
         const nextButton = document.querySelector('.page-nav-btns .fa-arrow-circle-right');
         if (nextButton) {
             const nextAnchor = nextButton.closest('a');
             if (nextAnchor) {
-                window.location.href = nextAnchor.href;
+                navigateTo(nextAnchor.href);
             }
         }
+    };
+
+    switch (key) {
+        case 'ArrowLeft':
+            handleArrowLeft();
+            break;
+        case 'ArrowRight':
+            handleArrowRight();
+            break;
     }
 });
 
