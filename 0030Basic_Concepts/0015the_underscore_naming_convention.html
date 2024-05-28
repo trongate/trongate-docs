@@ -1,0 +1,14 @@
+<h1>The Underscore Naming Convention</h1>
+<p>An element of Trongate's syntax that has been the source of some misunderstanding is Trongate's usage of the underscore naming convention. This is the practice of starting method names with an underscore character and thereby preventing them from being accessed directly via a URL.</p>
+<p>There is a widely held misconception that the underscore naming convention has the effect of making methods 'private' or 'protected'. Early PHP frameworks (such as Zend Framework 1, early versions of CodeIgniter, Yii1, etc.) used their own versions of the underscore naming convention but later abandoned the practice in favor of using full access modifiers in their respective codebases. This has led to the erroneous assumption that Trongate is out of date or somehow out of touch with the modern PHP landscape. <b>These assumptions are incorrect and indicate a misunderstanding of the fundamentals of object-oriented programming.</b></p>
+<p>Trongate has a unique and modular architecture that lets developers easily load 'Module B' from 'Module A' and vice versa. The code sample below demonstrates how this can be achieved with Trongate:</p>
+<pre><code>$this->module('module_b');
+$this->module_b->greeting();</code></pre>
+<p>The rules of OOP state that private methods can only be invoked from within their containing classes. Protected methods follow the same rule but with the additional allowance that protected methods can be invoked from a class that extends the containing class of the target method.</p>
+
+<p>Since modules in the Trongate framework exist entirely independently of one another, it means that it would be literally impossible to load 'Module B' from 'Module A' in the manner shown above <i>unless</i> the method being invoked has been assigned with a scope of 'public'. <b>Trongate's usage of the underscore naming convention is, therefore, an essential and carefully thought-out component of the framework - not a throwback from the past and certainly <i>not</i> a shorthand way of making methods 'private'.</b> If Trongate did <i>not</i> utilize the underscore naming convention, developers who use Trongate would be forced to use YAML files or some other kind of configuration option to actively and explicitly declare which methods can and cannot be invoked via the URL.</p>
+
+<div class="alert alert-info">
+	<p>Learn more about the underscore naming convention <a href="<?= BASE_URL ?>understanding-routing/preventing-url-method-calls.html">here</a>.</p>
+</div>
+
