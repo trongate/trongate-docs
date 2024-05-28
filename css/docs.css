@@ -658,3 +658,12 @@ table.properties-table > tbody > tr > td:nth-child(3) {
   transform: scale(0.1);
   transition: opacity 0.3s, transform 0.3s;
 }
+
+.active-nav-title {
+  font-weight: bold;
+}
+
+.active-nav {
+  font-weight: bold;
+  color: #ff6600; /* Adjust color to your preference */
+}
