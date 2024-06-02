@@ -665,5 +665,18 @@ table.properties-table > tbody > tr > td:nth-child(3) {
 
 .active-nav {
   font-weight: bold;
-  color: #ff6600; /* Adjust color to your preference */
+  color: #ff6600;
+}
+
+.api-ref-btn {
+  margin-right: 10px;
+}
+
+.api-ref-btn:focus {
+  outline: 2px solid #ff6600;
+  outline-offset: 2px;
+}
+
+#feature-ref-list a:focus {
+  outline: none;
 }
