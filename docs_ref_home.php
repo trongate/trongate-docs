@@ -6,6 +6,6 @@ $this_url = rtrim(current_url(), '/');
 foreach($table_of_contents[count($table_of_contents)-1]['sub_directories'] as $ref_section) {
 	$target_url = $this_url.'/'.url_title($ref_section['dir_label']);
 
-	echo anchor($target_url, $ref_section['dir_label'], array('class' => 'button'));
+	echo anchor($target_url, $ref_section['dir_label'], array('class' => 'button api-ref-btn'));
 }
 ?></p>
