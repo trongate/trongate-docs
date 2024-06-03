@@ -1,9 +1,10 @@
 <div class="container">
-  <h1>filter_string()</h1>
-  <p class="signature">function filter_string(string $string, array $allowed_tags = []): string</p>
+  <h1>filter_str()</h1>
+  <p class="signature">function filter_str(string $string, array $allowed_tags = []): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Filters and sanitizes a string.</p>
+    <p>Filters and sanitizes a string, removing any disallowed HTML tags while preserving allowed ones.</p>
+    <p>While similar functionality can be achieved using the <b>out()</b> function, <b>filter_str()</b> offers control over which HTML tags are allowed or removed.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -47,7 +48,7 @@
     <pre>
 $input_string = '&lt;script&gt;alert("Hello");&lt;/script&gt;';
 $allowed_tags = ['&lt;p&gt;', '&lt;a&gt;'];
-echo filter_string($input_string, $allowed_tags);
+echo filter_str($input_string, $allowed_tags);
 // Output: 'alert("Hello");'</pre>
   </div>
 </div>
