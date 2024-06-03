@@ -1,5 +1,10 @@
 const delayTime = 10;
 
+// Initialise API Reference button focus index
+let currentApiRefButtonIndex = -1;
+let currentfeatureRef = -1
+let currentFeatureItem = -1
+
 function fetchFeatureItemsInfo() {
     const targetFeatureRefs = [];
     const featureItems = document.querySelectorAll('.feature-item');
@@ -244,57 +249,75 @@ function goToDocsHome(url) {
 }
 
 function adjustAsideHeight() {
-    var mainHeight = document.querySelector('main').offsetHeight;
-    var aside = document.querySelector('aside');
+    var mainHeight = document.querySelector("main").offsetHeight;
+    var aside = document.querySelector("aside");
     var asideHeight = aside.offsetHeight;
-
+  
     if (mainHeight > asideHeight) {
-        aside.style.maxHeight = mainHeight + 'px';
+      aside.style.maxHeight = mainHeight + "px";
     }
-}
-
-// Format chapter title name
-const formatTitle = (title) => {
-    return title.toLowerCase().replace(/\s+/g, '-').replace(/&/g, 'and');
-};
-
-// Highlight the left navigation menu to match the current page
-const highlightCurrentPage = () => {
-    const chapterNav = document.getElementById('chapter-nav');
-    const links = chapterNav.querySelectorAll('a');
+  }
+  
+  // Format chapter title name
+  const formatTitle = (title) => {
+    return title.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "and");
+  };
+  
+  // Highlight the left navigation menu to match the current page
+  const highlightCurrentPage = () => {
+    const chapterNav = document.getElementById("chapter-nav");
+    const links = chapterNav.querySelectorAll("a");
     const currentPath = window.location.pathname;
-    const listItems = document.querySelectorAll('#chapter-nav > li');
+    const listItems = document.querySelectorAll("#chapter-nav > li");
     const chapterList = [];
-
-    listItems.forEach(li => {
-        const formattedTitle = formatTitle(li.textContent);
-        chapterList.push(formattedTitle);
+  
+    listItems.forEach((li) => {
+      const formattedTitle = formatTitle(li.textContent);
+      chapterList.push(formattedTitle);
     });
-
+  
     if (currentPath === "/trongate-docs/") {
-        const firstChapterTitle = chapterList[0];
-        listItems.forEach(li => {
-            const formattedTitle = formatTitle(li.textContent);
-            if (formattedTitle === firstChapterTitle) {
-                li.classList.add('active-nav-title');
-                links[0].classList.add('active-nav');
-            }
-        });
-    } else {
-        listItems.forEach(li => {
-            const formattedTitle = formatTitle(li.textContent);
-            if (currentPath.includes(formattedTitle)) {
-                li.classList.add('active-nav-title');
-            }
-        });
-    }
-
-    links.forEach(link => {
-        if (link.href === window.location.href) {
-            link.classList.add('active-nav');
+      // highlight home page
+      const firstChapterTitle = chapterList[0];
+      listItems.forEach((li) => {
+        const formattedTitle = formatTitle(li.textContent);
+        if (formattedTitle === firstChapterTitle) {
+          li.classList.add("active-nav-title");
+          links[0].classList.add("active-nav");
         }
+      });
+    } else {
+      // otherwise, highlight chapter title name if part of URL
+      listItems.forEach((li) => {
+        const formattedTitle = formatTitle(li.textContent);
+        if (currentPath.includes(formattedTitle)) {
+          li.classList.add("active-nav-title");
+        }
+      });
+    }
+  
+    // highlight link if part of URL
+    links.forEach((link) => {
+      if (link.href === window.location.href) {
+        link.classList.add("active-nav");
+      }
     });
-};
+  
+    // highlight API reference links
+    if (currentPath.endsWith("trongate-api-reference")) {
+      const activeNavItem = document.querySelector("li.active-nav-title");
+      const ApiRefSibling = activeNavItem.nextElementSibling;
+      const linksApiRef = ApiRefSibling.querySelectorAll("a");
+  
+      linksApiRef.forEach((link) => {
+        link.classList.remove("active-nav");
+      });
+  
+      if (currentApiRefButtonIndex >= 0) {
+        linksApiRef[currentApiRefButtonIndex].classList.add("active-nav");
+      }
+    }
+  }; 
 
 document.addEventListener("DOMContentLoaded", function() {
     // Make the <code> elements look beautiful!
@@ -407,84 +430,191 @@ document.getElementById('scrollToTopBtn').addEventListener('click', function() {
 });
 
 // Keyboard bindings for page navigation
-document.addEventListener('keydown', function(event) {
+document.addEventListener("keydown", function (event) {
     const pathname = window.location.pathname;
     const key = event.key;
     const isAltKey = event.altKey;
-
+  
     // Debug keydown and current URL path
     console.log(key);
-    console.log('Pathname:', pathname);
-
-    const navigateTo = (url) => window.location.href = url;
-
+    console.log("Pathname:", pathname);
+  
+    const navigateTo = (url) => (window.location.href = url);
+  
     if (isAltKey) {
-        switch (key) {
-            case 'ArrowUp':
-                navigateTo(`${baseUrl}introduction/table-of-contents.html`);
-                break;
-            case 'ArrowDown':
-                navigateTo(`${baseUrl}trongate-api-reference`);
-                break;
-        }
+      switch (key) {
+        case "ArrowUp":
+          navigateTo(`${baseUrl}introduction/table-of-contents.html`);
+          break;
+        case "ArrowDown":
+          navigateTo(`${baseUrl}trongate-api-reference`);
+          break;
+      }
     }
-
+  
     const handleArrowLeft = () => {
-        if (pathname === '/trongate-docs/introduction/table-of-contents.html') {
-            navigateTo(baseUrl);
-            return;
+      if (pathname === "/trongate-docs/introduction/table-of-contents.html") {
+        navigateTo(baseUrl);
+        return;
+      } else if (
+        pathname === "/trongate-docs/trongate-api-reference" &&
+        currentApiRefButtonIndex <= 0
+      ) {
+        const chapterNav = document.getElementById("chapter-nav");
+        const links = chapterNav.querySelectorAll("a");
+        let lastAnchorBeforeApiReference = null;
+  
+        for (let i = 0; i < links.length; i++) {
+          if (links[i].href.includes("trongate-api-reference")) {
+            break;
+          }
+          lastAnchorBeforeApiReference = links[i];
         }
-        if (pathname === '/trongate-docs/trongate-api-reference') {
-            const chapterNav = document.getElementById('chapter-nav');
-            const links = chapterNav.querySelectorAll('a');
-            let lastAnchorBeforeApiReference = null;
-
-            for (let i = 0; i < links.length; i++) {
-                if (links[i].href.includes('trongate-api-reference')) {
-                    break;
-                }
-                lastAnchorBeforeApiReference = links[i];
-            }
-
-            if (lastAnchorBeforeApiReference) {
-                navigateTo(lastAnchorBeforeApiReference.href);
-            }
-            return;
+  
+        if (lastAnchorBeforeApiReference) {
+          navigateTo(lastAnchorBeforeApiReference.href);
         }
-        const prevButton = document.querySelector('.page-nav-btns .fa-arrow-circle-left');
+        return;
+      } else {
+        const prevButton = document.querySelector(
+          ".page-nav-btns .fa-arrow-circle-left"
+        );
         if (prevButton) {
-            const prevAnchor = prevButton.closest('a');
-            if (prevAnchor) {
-                navigateTo(prevAnchor.href);
-            }
+          const prevAnchor = prevButton.closest("a");
+          if (prevAnchor) {
+            navigateTo(prevAnchor.href);
+          }
         }
+      }
+  
+      if (pathname.endsWith("trongate-api-reference")) {
+        const buttons = document.querySelectorAll("p a.api-ref-btn");
+        if (buttons.length > 0) {
+          currentApiRefButtonIndex =
+            (currentApiRefButtonIndex - 1 + buttons.length) % buttons.length;
+          buttons[currentApiRefButtonIndex].focus();
+          highlightCurrentPage();
+        }
+      } else if (pathname.includes("trongate-api-reference")) {
+        if (currentfeatureRef <= 0 && currentFeatureItem <= 0) {
+          // navigateTo(`${baseUrl}trongate-api-reference`);
+          window.history.back();
+        }
+        const featureRefUl = document.getElementById("feature-ref-list");
+        const featureRefLinks = featureRefUl.getElementsByTagName("a");
+  
+        if (featureRefLinks.length > 0) {
+          for (let i = 0; i < featureRefLinks.length; i++) {
+            featureRefLinks[i].classList.remove("active-nav");
+          }
+  
+          if (featureRefLinks.length > 0) {
+            currentfeatureRef = (currentfeatureRef - 1) % featureRefLinks.length;
+            featureRefLinks[currentfeatureRef].classList.add("active-nav");
+            featureRefLinks[currentfeatureRef].focus();
+          }
+        } else {
+          // must be feature items
+          const featureItem = featureRefUl.getElementsByClassName("feature-item");
+  
+          for (let i = 0; i < featureItem.length; i++) {
+            const spanElement = featureItem[i].querySelector("span");
+  
+            if (spanElement.classList.contains("active-nav")) {
+              spanElement.classList.remove("active-nav");
+            }
+          }
+  
+          if (featureItem.length > 0) {
+            currentFeatureItem = (currentFeatureItem - 1) % featureItem.length;
+            featureItem[currentFeatureItem]
+              .querySelector("span")
+              .classList.add("active-nav");
+            const button =
+              featureItem[currentFeatureItem].querySelector("button");
+            button.focus();
+            button.style.outline = "none";
+          }
+        }
+      }
     };
-
+  
     const handleArrowRight = () => {
-        if (pathname === '/trongate-docs/') {
-            navigateTo(`${baseUrl}introduction/table-of-contents.html`);
-            return;
-        } else if (pathname === '/trongate-docs/introduction/table-of-contents.html') {
-            navigateTo(`${baseUrl}introduction/welcome.html`);
-            return;
+      if (pathname.endsWith("trongate-api-reference")) {
+        const buttons = document.querySelectorAll("p a.api-ref-btn");
+        if (buttons.length > 0) {
+          currentApiRefButtonIndex =
+            (currentApiRefButtonIndex + 1) % buttons.length;
+          buttons[currentApiRefButtonIndex].focus();
+          highlightCurrentPage();
         }
-        const nextButton = document.querySelector('.page-nav-btns .fa-arrow-circle-right');
-        if (nextButton) {
-            const nextAnchor = nextButton.closest('a');
-            if (nextAnchor) {
-                navigateTo(nextAnchor.href);
+      } else if (pathname.includes("trongate-api-reference")) {
+        const featureRefUl = document.getElementById("feature-ref-list");
+        const featureRefLinks = featureRefUl.getElementsByTagName("a");
+        if (featureRefLinks.length > 0) {
+          for (let i = 0; i < featureRefLinks.length; i++) {
+            featureRefLinks[i].classList.remove("active-nav");
+          }
+  
+          if (featureRefLinks.length > 0) {
+            currentfeatureRef = (currentfeatureRef + 1) % featureRefLinks.length;
+            featureRefLinks[currentfeatureRef].classList.add("active-nav");
+            featureRefLinks[currentfeatureRef].focus();
+          }
+        } else {
+          // must be feature items
+          const featureItem = featureRefUl.getElementsByClassName("feature-item");
+  
+          for (let i = 0; i < featureItem.length; i++) {
+            const spanElement = featureItem[i].querySelector("span");
+  
+            if (spanElement.classList.contains("active-nav")) {
+              spanElement.classList.remove("active-nav");
             }
+          }
+  
+          if (featureItem.length > 0) {
+            currentFeatureItem = (currentFeatureItem + 1) % featureItem.length;
+            featureItem[currentFeatureItem]
+              .querySelector("span")
+              .classList.add("active-nav");
+            const button =
+              featureItem[currentFeatureItem].querySelector("button");
+            button.focus();
+            button.style.outline = "none";
+          }
         }
+      }
+  
+      if (pathname === "/trongate-docs/") {
+        navigateTo(`${baseUrl}introduction/table-of-contents.html`);
+        return;
+      } else if (
+        pathname === "/trongate-docs/introduction/table-of-contents.html"
+      ) {
+        navigateTo(`${baseUrl}introduction/welcome.html`);
+        return;
+      } else {
+        const nextButton = document.querySelector(
+          ".page-nav-btns .fa-arrow-circle-right"
+        );
+        if (nextButton) {
+          const nextAnchor = nextButton.closest("a");
+          if (nextAnchor) {
+            navigateTo(nextAnchor.href);
+          }
+        }
+      }
     };
-
+  
     switch (key) {
-        case 'ArrowLeft':
-            handleArrowLeft();
-            break;
-        case 'ArrowRight':
-            handleArrowRight();
-            break;
+      case "ArrowLeft":
+        handleArrowLeft();
+        break;
+      case "ArrowRight":
+        handleArrowRight();
+        break;
     }
-});
+  });
 
 buildFeatureRefs();
