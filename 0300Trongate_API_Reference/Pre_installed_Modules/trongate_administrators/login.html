@@ -1,23 +1,65 @@
 <div class="container">
   <h1>login()</h1>
-  <p class="signature"> function login(): void </p>
+  <p class="signature">public function login(): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Renders a login page for administrators.</p>
+    <p>
+      Renders a login page for administrators.
+    </p>
   </div>
+
+<h2>Accessing The Login Page</h2>
+<div class="description">
+  <p>The default administration login page is accessible by navigating to a Trongate application's base URL followed by <b>tg-admin</b>. However, this URL can be customized to a preferred secret login URL by adjusting the 'Trongate_administrators.php' class.</p>
+  <p>To set a secret login URL, uncomment the line:</p>
+  <pre>// private $secret_login_segment = 'tg-admin';</pre>
+  <p>Subsequently, update the <b>$secret_login_segment</b> variable with the desired URL segment to set an alternative login URL.</p>
+</div>
+
   <h2>Parameters</h2>
-  <p>No parameters.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Return Value</h2>
-  <p>void</p>
-  <h2>Example Usage</h2>
-  <div class="example">
-    <pre>
-function login() {
-    $data['form_location'] = BASE_URL . 'trongate_administrators/submit_login';
-    $data['username'] = post('username');
-    $data['view_module'] = 'trongate_administrators';
-    $data['view_file'] = 'login_form';
-    $this->load_template($data);
-}</pre>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return any value.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example Usage #1</h2>
+  <p>The code below illustrates how to create a hyperlink that redirects users to the admin login page upon clicking.  The assumption, for this example, is that the code would be added inside a view file or an HTML template:</p>
+  <div>
+    <pre>&lt;?= anchor('tg-admin', 'Admin Login') ?&gt;</pre>
   </div>
+
+  <h2>Example Usage #2</h2>
+  <p>In this alternative example, a CSS class, named as 'button', is added to a <b>login</b> hyperlink.  This gives the hyperlink the appearance and behaviour of a button:</p>
+  <div>
+    <pre>&lt;?= anchor('tg-admin', 'Admin Login', array('class' => 'button')) ?&gt;</pre>
+  </div>
+
 </div>

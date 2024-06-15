@@ -113,12 +113,4 @@ The following HTML code represents what I consider to be perfect documentation f
 
 
 
-.modal .framework-ref table:first-of-type tr > td:nth-child(even),
-.modal .framework-ref table:nth-of-type(2) tr > td:nth-child(1) {
-  text-align: center;
-}
-
-
-
-
 

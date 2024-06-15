@@ -1,34 +1,55 @@
 <div class="container">
   <h1>submit_login()</h1>
-  <p class="signature"> function submit_login(): void </p>
+  <p class="signature">public function submit_login(): void</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Handles the submission of login forms, validates user input, and logs users in if validation passes. Redirects to the login form on validation failure or redirects to the base URL on 'Cancel' submission.</p>
+    <p>
+      Handles the submission of login forms, validating user input and logging users in if validation passes. Redirects to the login form on validation failure or to the base URL on 'Cancel' submission.
+    </p>
+  </div>
+  <h2>Changing The Login Destination</h2>
+  <div class="description">
+    <p>
+      To change the destination users are sent to upon successful login, modify the <b>$dashboard_home</b> variable at the top of the <b>Trongate_administrators</b> class. By default, it is set to <b>'trongate_pages/manage'</b>. For example:
+    </p>
+    <pre>// Where to redirect after successful login.
+private $dashboard_home = 'custom_path/dashboard';</pre>
   </div>
   <h2>Parameters</h2>
-  <p>No parameters.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Return Value</h2>
-  <p>void</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return any value.</td>
+      </tr>
+    </tbody>
+  </table>
   <h2>Example Usage</h2>
-  <div class="example"><pre>function submit_login() {
-
-    $submit = post('submit');
-
-    if ($submit == 'Submit') {
-        $this->validation_helper->set_rules('username', 'username', 'required|callback_login_check');
-        $this->validation_helper->set_rules('password', 'password', 'required|min_length[5]');
-        $result = $this->validation_helper->run();
-
-        if ($result == true) {
-            // Success!  Now log the user in...
-        } else {
-            // Form validation error - present the login form again.
-            $this->login();
-        }
-    } elseif ($submit == 'Cancel') {
-        // Send user back to homepage.
-        redirect(BASE_URL);
-    }
-}</pre>
+  <div class="example">
+    <pre>// Example Usage not available for this method</pre>
   </div>
 </div>

@@ -1,16 +1,52 @@
 <div class="container">
   <h1>logout()</h1>
-  <p class="signature"> function logout(): void </p>
+  <p class="signature">public function logout(): void</p>
+  
   <h2>Description</h2>
-  <div class="description">
-    <p>Handles user logout by destroying tokens and redirects based on existence of the secret login segment.</p>
+  <div>
+    <p>
+      Handles user logout by destroying tokens and redirects based on the existence of the secret login segment.
+    </p>
   </div>
+  
   <h2>Parameters</h2>
-  <p>This method does not accept any parameters.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
+  
   <h2>Return Value</h2>
-  <p>This method does not return any value.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return any value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
   <h2>Example Usage</h2>
-  <div class="example">
-    <p>Not available</p>
+  <p>The code below illustrates how to create a hyperlink that triggers the <b>logout()</b> method upon clicking:</p>
+  <div>
+    <pre>&lt;?= anchor('trongate_administrators/logout', 'Log Out') ?&gt;</pre>
   </div>
 </div>
