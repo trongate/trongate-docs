@@ -1,0 +1,52 @@
+<div class="container">
+  <h1>_get_user_level()</h1>
+  <p class="signature">public function _get_user_level(?string $token = null): string|false</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves the user level associated with the given token or the current user token. If a token is provided, it retrieves the user level for that token. If no token is provided, it retrieves the user level for the current user.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$token</td>
+        <td>string|null</td>
+        <td>The token used to identify the user. If not provided, the token of the current user is used.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|false</td>
+        <td>The user level title if found, otherwise false.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>$this->module('trongate_tokens');
+$user_level = $this->trongate_tokens->_get_user_level();
+echo $user_level;  // This will output something like 'admin'</pre>
+  </div>
+</div>

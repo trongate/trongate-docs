@@ -46,7 +46,20 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
+  <p>The code below demonstrates how to render a Filezone summary panel, within a view file.</p>
   <div class="example">
     <pre>&lt;?= Modules::run('filezone/_draw_summary_panel', $update_id, $filezone_settings) ?&gt;</pre>
+  </div>
+  <p>NOTE:  In order for the summary panel to be succesfully rendered, the code above would be passed into a view file.  Also, an array of key / value pairs (in this instance, named as <b>$filezone_settings</b>) should also be passed into the view file.   The code sample below shows an example of Filezone settings being initialized from within a controller file.</p>
+<div class="example">
+    <pre>public function _init_filezone_settings() {
+    $data['targetModule'] = 'tasks';
+    $data['destination'] = 'tasks_pictures';
+    $data['max_file_size'] = 1200;
+    $data['max_width'] = 2500;
+    $data['max_height'] = 1400;
+    $data['upload_to_module'] = true;
+    return $data;
+}</pre>
   </div>
 </div>

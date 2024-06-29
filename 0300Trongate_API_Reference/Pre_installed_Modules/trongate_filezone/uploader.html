@@ -1,0 +1,102 @@
+<div class="container">
+  <h1>uploader()</h1>
+  <p class="signature">public function uploader(): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Renders a page that displays the uploader view. This method is responsible for setting up the necessary data and rendering the uploader view for the Trongate Filezone module, which is a multi-file uploader that allows users to drag and drop files. The method also handles authentication using Trongate's token system.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- This method does not take any parameters -->
+      <tr>
+        <td colspan="5">This method does not take any parameters.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return any value.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Settings</h2>
+  <p>The Trongate Filezone module is configured using the following settings, which are typically declared inside the main controller file of the respective module:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Setting</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>targetModule</td>
+        <td>string</td>
+        <td>The name of the module where the files will be uploaded.</td>
+      </tr>
+      <tr>
+        <td>destination</td>
+        <td>string</td>
+        <td>The directory within the module where the files will be stored.</td>
+      </tr>
+      <tr>
+        <td>max_file_size</td>
+        <td>int</td>
+        <td>The maximum file size allowed for uploads (in kilobytes).</td>
+      </tr>
+      <tr>
+        <td>max_width</td>
+        <td>int</td>
+        <td>The maximum width allowed for uploaded images (in pixels).</td>
+      </tr>
+      <tr>
+        <td>max_height</td>
+        <td>int</td>
+        <td>The maximum height allowed for uploaded images (in pixels).</td>
+      </tr>
+      <tr>
+        <td>upload_to_module</td>
+        <td>bool</td>
+        <td>A flag indicating whether the files should be uploaded to the module's directory or not.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <p>To access the Filezone uploader page, go to your base URL followed by 'trongate_filezone/uploader/module_name/n', replacing 'module_name' with the name of your target module and 'n' with the 'id' of the record for which you'd like to upload files.</p>
+
+  <p>In addition, a 'public' method named '_init_filezone_settings' should be added inside the controller file of the target module.  This method should contain settings that are to be applied to the Filezone uploader.  For example:</p>
+
+  <div class="example">
+    <pre>public function _init_filezone_settings() {
+    $data['targetModule'] = 'tasks';
+    $data['destination'] = 'tasks_pictures';
+    $data['max_file_size'] = 1200;
+    $data['max_width'] = 2500;
+    $data['max_height'] = 1400;
+    $data['upload_to_module'] = true;
+    return $data;
+}</pre>
+  </div>
+</div>

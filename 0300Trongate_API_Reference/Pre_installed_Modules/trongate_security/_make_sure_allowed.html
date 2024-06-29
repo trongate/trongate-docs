@@ -39,10 +39,15 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
+  <h2>Example Usage #1</h2>
   <div class="example">
-    <pre>
-// Example Usage not available for this method</pre>
+    <pre>$this->module('trongate_security');
+$token = $this->trongate_security->_make_sure_allowed();</pre>
+  </div>
+  <h2>Example Usage #2</h2>
+  <div class="example">
+    <pre>$this->module('trongate_security');
+$this->trongate_security->_make_sure_allowed('members area');</pre>
   </div>
   </div>
 </div>
