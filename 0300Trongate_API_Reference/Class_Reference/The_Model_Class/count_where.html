@@ -1,12 +1,14 @@
 <div class="container">
   <h1>count_where()</h1>
   <p class="signature">public function count_where(string $column, $value, string $operator = '=', ?string $target_tbl = null): int</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
       Counts the number of rows in a database table based on custom conditions. This method constructs and executes an SQL query to count the rows in the specified table that match the provided conditions.
     </p>
   </div>
+  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -43,12 +45,13 @@
       <tr>
         <td>target_tbl</td>
         <td>string|null</td>
-        <td>(optional) The name of the database table to be queried.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>(optional) The name of the database table to be queried. If not explicitly passed, the table name is assumed to be the value of the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
   </table>
+  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -64,6 +67,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Exceptions</h2>
   <table>
     <thead>
@@ -83,14 +87,16 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Example Usage</h2>
   <div class="example">
     <pre>$column = 'status';
 $value = 'active';
 $operator = '=';
-$target = 'users';
+$target_tbl = 'users';
 
-$num_active_users = $this->model->count_where($column, $value, $operator, $target);
+$num_active_users = $this->model->count_where($column, $value, $operator, $target_tbl);
 </pre>
   </div>
+  
 </div>

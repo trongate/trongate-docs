@@ -1,12 +1,14 @@
 <div class="container">
   <h1>update_where()</h1>
-  <p class="signature">public function update_where(string $column, $column_value, array $data, ?string $target_tbl = null): bool</p>
+  <p class="signature">public function update_where(string $column, $column_value, array $data, ?string $target_table = null): bool</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
       Updates rows in a database table based on a specific condition. This method takes the column to match for the condition, the value to match for the condition, an associative array containing the data to be updated, and an optional parameter specifying the name of the database table. It constructs and executes an SQL query to perform the update, returning true if the update operation was successful and false otherwise.
     </p>
   </div>
+
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -41,14 +43,15 @@
         <td>Yes</td>
       </tr>
       <tr>
-        <td>target_tbl</td>
+        <td>target_table</td>
         <td>string|null</td>
-        <td>(optional) The name of the database table.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>(optional) The name of the database table. If not provided, the table name will be inferred from the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
   </table>
+
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -64,47 +67,53 @@
       </tr>
     </tbody>
   </table>
+
   <h2>Example Usage #1</h2>
   <p>In this example, the table name is inferred from the first URL segment, and the update is performed based on the condition where the column 'status' equals 'active'.</p>
   <div class="example">
-    <pre>// Data to update
-$data = [
-    'status' => 'inactive', // New status value
-    'updated_at' => date('Y-m-d H:i:s') // Updated timestamp
-];
+    <pre>// Fetch current timestamp
+$current_time = date('Y-m-d H:i:s');
+
+// Data to update
+$data["status"] = "inactive";
+$data["updated_at"] = $current_time;
 
 // Update rows where 'status' column equals 'active'
-$update_success = $this->model->update_where('status', 'active', $data);
+$update_success = $this->model->update_where("status", "active", $data);
 
 if ($update_success) {
     echo "Rows updated successfully!";
 } else {
     echo "Failed to update rows.";
-}
-</pre>
+}</pre>
   </div>
 
-<h2>Example Usage #2</h2>
-<p>In this alternative example, the table name, 'products' has been passed into the method as an argument.  The method attempts to execute SQL that modifies table records by setting the 'status' to 'out of stock' and updating the 'updated_at' timestamp.  The update operation would <b>only</b> be applied to rows where the 'stock_quantity' equals 10.</p>
-<div class="example">
-  <pre>// Data to update
-$data = [
-    'status' => 'out of stock', // New status value
-    'updated_at' => date('Y-m-d H:i:s') // Updated timestamp
-];
+  <h2>Example Usage #2</h2>
+  <p>In this alternative example, the table name 'products' has been passed into the method as an argument. The method attempts to execute SQL that modifies table records by setting the 'status' to 'out of stock' and updating the 'updated_at' timestamp. The update operation would <b>only</b> be applied to rows where the 'stock_quantity' equals 10.</p>
+  <div class="example">
+    <pre>// Fetch current timestamp
+$current_time = date('Y-m-d H:i:s');
+
+// Data to update
+$data["status"] = "out of stock";
+$data["updated_at"] = $current_time;
 
 // Update rows in the 'products' table where 'stock_quantity' equals 10
-$update_success = $this->model->update_where('stock_quantity', 10, $data, 'products');
+$update_success = $this->model->update_where("stock_quantity", 10, $data, "products");
 
 if ($update_success) {
     echo "Rows updated successfully!";
 } else {
     echo "Failed to update rows.";
-}
-</pre>
-</div>
+}</pre>
+  </div>
 
-
-
-
+  <div class="alert alert-warning">
+    <div class="alert-heading"><i class="fa fa-exclamation-circle"></i> Warning!</div>
+    <div class="alert-body">
+      <p>
+        Exercise caution when using this method, especially in environments with complex data relationships or large datasets. Always ensure proper testing and consider potential data consistency issues.
+      </p>
+    </div>
+  </div>
 </div>

@@ -1,12 +1,14 @@
 <div class="container">
   <h1>get_where_custom()</h1>
   <p class="signature">public function get_where_custom(string $column, $value, string $operator = '=', string $order_by = 'id', ?string $target_table = null, ?int $limit = null, ?int $offset = null): array</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
       Retrieves rows from a database table based on custom conditions. This method constructs and executes an SQL query to fetch rows from the specified table, filtering them based on the provided column, value, and comparison operator. Results can be further customized with optional parameters for ordering, limiting, and offsetting.
     </p>
   </div>
+  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -44,14 +46,14 @@
         <td>order_by</td>
         <td>string</td>
         <td>The column to order results by. Default is 'id'.</td>
-        <td>id</td>
+        <td>'id'</td>
         <td>No</td>
       </tr>
       <tr>
         <td>target_table</td>
         <td>string|null</td>
-        <td>The name of the database table to be queried.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>The name of the database table to be queried. Default is derived from the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
       <tr>
@@ -70,6 +72,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -85,6 +88,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Exceptions</h2>
   <table>
     <thead>
@@ -104,53 +108,41 @@
       </tr>
     </tbody>
   </table>
-
-<h2>Example Usage #1</h2>
-<p>The following code demonstrates how to retrieve rows from a database table where the column 'paid' equals 1, ordered by the default column 'id'.  In this example, the table name would be inferred from the first URL segment.</p>
-<div class="example">
-  <pre>
-$invoices = $this->model->get_where_custom('paid', 1);</pre>
-</div>
-
-<h2>Example Usage #2</h2>
-<p>The code sample below demonstrates how to fetch rows from the 'orders' table where the 'status' column equals 'pending', ordered by 'order_date' in descending order, limited to 10 results, with an offset of 5.</p>
-<div class="example">
-  <pre>
-$orders = $this->model->get_where_custom('status', 'pending', '=', 'order_date DESC', 'orders', 10, 5);</pre>
-</div>
-
-<h2>Example Usage #3</h2>
-<p>In this alternative example, rows are fetched from the 'customers' table where the 'country' column equals 'USA', ordered by 'last_name' in ascending order. No limit or offset is applied.</p>
-<div class="example">
-  <pre>
-$customers = $this->model->get_where_custom('country', 'USA', '=', 'last_name', 'customers');</pre>
-</div>
-
-<h2>Example Usage #4</h2>
-<p>The following example retrieves rows from the 'tasks' table where the 'status' column does not equal 'completed', ordered by the default column 'id'.</p>
-<div class="example">
-  <pre>
-$incomplete_tasks = $this->model->get_where_custom('status', 'completed', '!=', 'id', 'tasks');</pre>
-</div>
-
-
-<h2>Example Usage #5</h2>
-<p>This example fetches rows from the 'products' table where the 'price' column is greater than 100, ordered by the 'name' column.</p>
-<div class="example">
-  <pre>
-$expensive_products = $this->model->get_where_custom('price', 100, '>', 'name', 'products');</pre>
-</div>
-
-
-<h2>Example Usage #6</h2>
-<p>The example below retrieves rows from the 'articles' table where the 'title' column contains the word 'apple' (case-insensitive), ordered by the 'created_at' column.</p>
-<div class="example">
-  <pre>
-$apple_articles = $this->model->get_where_custom('title', 'apple', 'LIKE', 'created_at', 'articles');</pre>
-</div>
-
-
-
-
+  
+  <h2>Example Usage #1</h2>
+  <div class="example">
+    <p>The code sample below demonstrates how to retrieve rows from a database table where the column 'paid' equals 1, ordered by the default column 'id'. In this example, the table name would be inferred from the first URL segment.</p>
+    <pre>$invoices = $this->model->get_where_custom('paid', 1);</pre>
+  </div>
+  
+  <h2>Example Usage #2</h2>
+  <div class="example">
+    <p>The code sample below demonstrates how to fetch rows from the 'orders' table where the 'status' column equals 'pending', ordered by 'order_date' in descending order, limited to 10 results, with an offset of 5.</p>
+    <pre>$orders = $this->model->get_where_custom('status', 'pending', '=', 'order_date DESC', 'orders', 10, 5);</pre>
+  </div>
+  
+  <h2>Example Usage #3</h2>
+  <div class="example">
+    <p>In this alternative example, rows are fetched from the 'customers' table where the 'country' column equals 'USA', ordered by 'last_name' in ascending order. No limit or offset is applied.</p>
+    <pre>$customers = $this->model->get_where_custom('country', 'USA', '=', 'last_name', 'customers');</pre>
+  </div>
+  
+  <h2>Example Usage #4</h2>
+  <div class="example">
+    <p>The following example retrieves rows from the 'tasks' table where the 'status' column does not equal 'completed', ordered by the default column 'id'.</p>
+    <pre>$incomplete_tasks = $this->model->get_where_custom('status', 'completed', '!=', 'id', 'tasks');</pre>
+  </div>
+  
+  <h2>Example Usage #5</h2>
+  <div class="example">
+    <p>This example fetches rows from the 'products' table where the 'price' column is greater than 100, ordered by the 'name' column.</p>
+    <pre>$expensive_products = $this->model->get_where_custom('price', 100, '>', 'name', 'products');</pre>
+  </div>
+  
+  <h2>Example Usage #6</h2>
+  <div class="example">
+    <p>The example below retrieves rows from the 'articles' table where the 'title' column contains the word 'apple' (case-insensitive), ordered by the 'created_at' column.</p>
+    <pre>$apple_articles = $this->model->get_where_custom('title', 'apple', 'LIKE', 'created_at', 'articles');</pre>
+  </div>
 
 </div>

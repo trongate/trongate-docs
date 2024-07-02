@@ -1,12 +1,14 @@
 <div class="container">
   <h1>get_where()</h1>
   <p class="signature">public function get_where(int $id, ?string $target_table = null): object|false</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
       Fetches a single record by its ID from a database table. This method constructs and executes an SQL query to retrieve the record with the specified ID from the specified table. If no record is found, it returns false.
     </p>
   </div>
+  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -29,12 +31,13 @@
       <tr>
         <td>target_table</td>
         <td>string|null</td>
-        <td>The name of the database table to be queried.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>The name of the database table to be queried. If not explicitly passed, the table name is assumed to be the value of the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
   </table>
+  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -50,6 +53,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Exceptions</h2>
   <table>
     <thead>
@@ -66,18 +70,18 @@
     </tbody>
   </table>
 
-<h2>Example Usage #1</h2>
-<p>The code sample below demonstrates how to fetch a single record from the 'products' table with the ID '123'.</p>
-<div class="example">
-  <pre>
+  <h2>Example Usage #1</h2>
+  <p>The code sample below demonstrates how to fetch a single record from the 'products' table with the ID '123'.</p>
+  <div class="example">
+    <pre>
 $product_obj = $this->model->get_where(123, 'products');</pre>
-</div>
+  </div>
 
-<h2>Example Usage #2</h2>
-<p>In this alternative example, no table name has been passed into the method. This means that the table name will be assumed to be the value of the first URL segment.</p>
-<div class="example">
-  <pre>
+  <h2>Example Usage #2</h2>
+  <p>In this alternative example, no table name has been passed into the method. This means that the table name will be assumed to be the value of the first URL segment.</p>
+  <div class="example">
+    <pre>
 $user_obj = $this->model->get_where(456);</pre>
-</div>
+  </div>
 
 </div>

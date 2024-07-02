@@ -36,8 +36,8 @@
       <tr>
         <td>$target_table</td>
         <td>string|null</td>
-        <td>The name of the database table to be queried.</td>
-        <td>null</td>
+        <td>The name of the database table to be queried. Default is 'First URL segment'.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
       <tr>
@@ -71,13 +71,12 @@
 $member_ids = [1, 2, 3, 4];
 $members = $this->model->get_where_in('id', $member_ids);
 foreach ($members as $member) {
-    echo $member->username.'&lt;br&gt;';
+    echo $member->username.'<br>';
 }
 </code></pre>
   </div>
-<h2>Example #2</h2>
-<p>This example demonstrates explicitly passing the table name and specifying the return type for the records. This approach provides more control over the query execution and result format.</p>
-
+  <h2>Example #2</h2>
+  <p>This example demonstrates explicitly passing the table name and specifying the return type for the records. This approach provides more control over the query execution and result format.</p>
   <div class="example">
     <pre><code>$column = 'id';
 $values = [1, 2, 3, 4];
@@ -85,8 +84,9 @@ $target_table = 'items';
 $return_type = 'object';
 
 $items = $this->model->get_where_in($column, $values, $target_table, $return_type);
-foreach ($items as $record) {
+foreach ($items as $item) {
     echo $item->title;
 }
 </code></pre>
   </div>
+</div>

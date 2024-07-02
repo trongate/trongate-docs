@@ -4,7 +4,7 @@
   <h2>Description</h2>
   <div class="description">
     <p>
-      Insert multiple records into the specified table in a batch. This method inserts multiple records into the specified table using a batch insert SQL statement. It's important to ensure that this method is not exposed to website visitors to prevent potential security vulnerabilities.
+      Insert multiple records into the specified table in a batch using a single SQL statement. This method is designed for efficiency when inserting a large number of records at once.
     </p>
   </div>
   <h2>Parameters</h2>
@@ -60,20 +60,24 @@
     </thead>
     <tbody>
       <tr>
-        <td>PDOException</td>
-        <td>If an error occurs during the database operation.</td>
+        <td class="alert-danger">PDOException</td>
+        <td class="alert-danger">If an error occurs during the database operation.</td>
       </tr>
     </tbody>
   </table>
-  <h2>Note</h2>
-  <p>
-    This method should only be used in controlled environments and not exposed to untrusted users.
-  </p>
+  <div class="alert alert-warning">
+    <div class="alert-heading"><i class="fa fa-exclamation-circle"></i> Warning!</div>
+    <div class="alert-body">
+      <p>
+        This method should only be used in controlled environments to prevent potential security vulnerabilities arising from direct user input.
+      </p>
+    </div>
+  </div>
 
-<h2>Example Usage</h2>
-<p>Below is an example of how to insert three records into an 'employees' table in a single batch:</p>
-<div class="example">
-  <pre>
+  <h2>Example Usage</h2>
+  <p>Below is an example of how to insert three records into an 'employees' table in a single batch:</p>
+  <div class="example">
+    <pre>
 $employee_records = [
     [
         'name' => 'John Doe',
@@ -94,9 +98,6 @@ $employee_records = [
 
 $num_inserted = $this->model->insert_batch('employees', $employee_records);
 echo "Successfully inserted $num_inserted records into the 'employees' table.";
-  </pre>
-</div>
-
-
-
+    </pre>
+  </div>
 </div>

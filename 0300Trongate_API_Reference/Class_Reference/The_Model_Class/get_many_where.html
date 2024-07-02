@@ -1,12 +1,14 @@
 <div class="container">
   <h1>get_many_where()</h1>
   <p class="signature">public function get_many_where(string $column, $value, ?string $target_table = null): array</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
       Retrieves multiple records from a database table based on custom conditions. This method constructs and executes an SQL query to retrieve rows where the specified column matches the provided value from the specified table. It returns an array of objects representing the fetched rows. If no records are found, an empty array is returned.
     </p>
   </div>
+  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -36,12 +38,13 @@
       <tr>
         <td>target_table</td>
         <td>string|null</td>
-        <td>The name of the database table to be queried.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>The name of the database table to be queried. Default is derived from the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
   </table>
+  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -57,6 +60,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Exceptions</h2>
   <table>
     <thead>
@@ -72,6 +76,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Example Usage</h2>
   <div class="example">
     <pre>// Retrieve multiple records where the 'status' column equals 'active'

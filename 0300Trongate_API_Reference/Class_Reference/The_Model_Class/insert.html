@@ -29,8 +29,8 @@
       <tr>
         <td>target_table</td>
         <td>string|null</td>
-        <td>(optional) The name of the database table to insert into.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>(optional) The name of the database table to insert into. When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
@@ -51,31 +51,27 @@
     </tbody>
   </table>
 
-<h2>Example Usage #1</h2>
-<p>The following code demonstrates how to insert a new record into the 'users' table.</p>
-<div class="example">
-  <pre>
+  <h2>Example Usage #1</h2>
+  <p>The following code demonstrates how to insert a new record into the 'users' table.</p>
+  <div class="example">
+    <pre>
 $user_data = [
     'username' => 'john_doe',
     'email' => 'john@example.com',
     'password' => 'hashed_password'
 ];
 $new_user_id = $this->model->insert($user_data, 'users');</pre>
-</div>
+  </div>
 
-<h2>Example Usage #2</h2>
-<p>In this example, we insert a new product record into an unspecified database table.  Since no second argument has been passed into the method, the table name will be inferred from the first URL segment.</p>
-<div class="example">
-  <pre>
+  <h2>Example Usage #2</h2>
+  <p>In this example, we insert a new product record into an unspecified database table. Since no second argument has been passed into the method, the table name will be inferred from the first URL segment.</p>
+  <div class="example">
+    <pre>
 $product_data = [
     'name' => 'Product X',
     'description' => 'A fantastic product',
     'price' => 99.99
 ];
 $new_product_id = $this->model->insert($product_data);</pre>
-</div>
-
-
-
-
+  </div>
 </div>

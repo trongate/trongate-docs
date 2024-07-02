@@ -1,6 +1,7 @@
-<h1>Getting Started<br></h1>
+<h1>Getting Started</h1>
+
 <h2>Database Compatibility</h2>
-<p>Trongate's Model file uses PDO for database interaction. PDO is a library that comes with most installations of PHP. It's free of charge. PDO can work with the following databases:</p>
+<p>Trongate's Model class utilizes PDO (PHP Data Objects) for database interaction, a robust library included in most PHP installations. PDO supports a variety of databases:</p>
 <ul>
     <li>MySQL</li>
     <li>MariaDB</li>
@@ -15,19 +16,20 @@
     <li>Cubrid</li>
     <li>4D</li>
 </ul>
-<div class="alert alert-warning">At the time of writing, Trongate has only been tested with MySQL and MariaDB. However, if anyone out there has acquired experience or additional information in using Trongate with any of the other database types, please do reach out and let us know.</div>
-</p>
-<h2>The Database Config File</h2>
-<p>Trongate establishes a database connection by referencing a database configuration file named <strong>database.php</strong>. This file can be found <em>inside</em> the 'config' directory of your web app.</p>
-<p>The precise settings required here depend on your particular installation and database of choice. Nevertheless, below is an example of a configuration file for a database - stored on 'localhost' - named 'waterways'.</p>
-<p><pre><code>
-&lt;?php
-//Database settings
+
+<div class="alert alert-info"><p>Trongate has been tested extensively using MySQL and MariaDB. While interaction with other database types (such as those listed above) is technically possible, guidance or examples for other databases (such as PostgreSQL, Oracle, etc.) will not be covered in this chapter.</p></div>
+
+<h2>The Database Configuration File</h2>
+<p>Trongate establishes database connections using a configuration file named <strong>database.php</strong>, located in the 'config' directory of your web application.</p>
+<p>The configuration settings will vary depending on your setup and chosen database. Below is an example configuration for a database named 'waterways' hosted locally:</p>
+<pre><code>&lt;?php
+// Database settings
 define("HOST", "127.0.0.1");
-define("PORT", "3306");
+define("PORT", "3306"); // Default MySQL port
 define("USER", "root");
 define("PASSWORD", "");
 define("DATABASE", "waterways");
-</code></pre></p>
-<div class="alert alert-success">When you're working with a database that is stored locally (i.e., a database that is on your computer), you can often have 'localhost' declared as your host and, in most instances, everything will work fine. However, it's a much better practice to use 127.0.0.1 instead of localhost. When you use 'localhost', your computer maps the host to the 127.0.01 IP address. By entering the IP address, you're effectively skipping a step. More importantly, 127.0.0.1 has been proven to be a little more robust - particularly for users who use third party database management software like Navicat or the Trongate Desktop App.<br><br>The bottom line is, it's better to use 127.0.0.1 instead of 'localhost'.</div>
-</p>
+</code></pre>
+<div class="alert alert-success">When configuring a local database, it's recommended to use '127.0.0.1' instead of 'localhost'. While 'localhost' often works, '127.0.0.1' bypasses certain system steps and has been found to offer greater reliability, especially with third-party database management tools like Navicat or the Trongate Desktop App.</div>
+<div class="alert alert-info"><p>The 'PORT' setting is optional in many cases. If your database server uses the default port (3306 for MySQL), you typically do not need to specify it explicitly in your configuration. However, if your database server runs on a different port or if you encounter connection issues, specifying the correct port number becomes necessary.</p>
+</div>

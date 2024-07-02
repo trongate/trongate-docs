@@ -22,8 +22,8 @@
       <tr>
         <td>target_table</td>
         <td>string|null</td>
-        <td>(optional) The name of the database table to query.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>(optional) The name of the database table to query. When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
@@ -49,7 +49,7 @@
     <pre>$max_id = $this->model->get_max('products');</pre>
   </div>
   <h2>Example Usage #2</h2>
-  <p>In this alternative example, no table name has been passed into the method.  This means that the table name will be assumed to be the value of the first URL segment.</p>
+  <p>In this alternative example, no table name has been passed into the method. This means that the table name will be assumed to be the value of the first URL segment.</p>
   <div class="example">
     <pre>$max_id = $this->model->get_max();</pre>
   </div>

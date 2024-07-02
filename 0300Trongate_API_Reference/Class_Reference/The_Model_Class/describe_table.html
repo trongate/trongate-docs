@@ -1,12 +1,14 @@
 <div class="container">
   <h1>describe_table()</h1>
   <p class="signature">public function describe_table(string $table, bool $column_names_only = false): array|false</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
-      Returns information relating to the structure of a database table. By default, this will method will return extensive information pertaining to table columns.  However, the method can be instructed to return a simple array of column names by passing in an argument of $column_names_only with a value of true.
+      Retrieves information about the structure of a database table. By default, it returns details of all columns in the specified table. Optionally, it can return only the column names if instructed.
     </p>
   </div>
+  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -22,7 +24,7 @@
       <tr>
         <td>$table</td>
         <td>string</td>
-        <td>The name of the table.</td>
+        <td>The name of the table whose structure is to be described.</td>
         <td>N/A</td>
         <td>Required</td>
       </tr>
@@ -35,6 +37,7 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -50,17 +53,35 @@
       </tr>
     </tbody>
   </table>
+  
+  <h2>Exceptions</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Exception Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PDOException</td>
+        <td>Thrown if there is an error executing the SQL query.</td>
+      </tr>
+    </tbody>
+  </table>
+  
   <h2>Example Usage</h2>
   <div class="example">
     <pre>$table_name = 'users'; // Example table name
 
-// Get detailed information about table columns
+// Get detailed information about table structure
 $table_info = $this->model->describe_table($table_name);
 
 // Display the information
 json($table_info);</pre>
-</div>
-<h2>Alternative Example</h2>
+  </div>
+  
+  <h2>Alternative Example</h2>
   <div class="example">
     <pre>$table_name = 'users'; // Example table name
 

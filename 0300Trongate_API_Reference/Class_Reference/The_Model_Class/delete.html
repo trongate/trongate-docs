@@ -1,12 +1,14 @@
 <div class="container">
   <h1>delete()</h1>
   <p class="signature">public function delete(int $id, ?string $target_tbl = null): bool</p>
+  
   <h2>Description</h2>
   <div class="description">
     <p>
       Deletes a record from a database table based on its ID. This method takes the ID of the record to delete and an optional parameter specifying the name of the database table. It constructs and executes an SQL query to delete the record, returning true if the delete operation was successful and false otherwise.
     </p>
   </div>
+  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -29,12 +31,13 @@
       <tr>
         <td>target_tbl</td>
         <td>string|null</td>
-        <td>(optional) The name of the database table.  When a table name is not explicitly passed into the method, the table name will be assumed to be the value of the first URL segment.</td>
-        <td>null</td>
+        <td>(optional) The name of the database table to delete from. If not explicitly passed, the table name is assumed to be the value of the first URL segment.</td>
+        <td>'First URL segment'</td>
         <td>No</td>
       </tr>
     </tbody>
   </table>
+  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -50,18 +53,20 @@
       </tr>
     </tbody>
   </table>
+  
   <h2>Example Usage</h2>
   <div class="example">
     <pre>$id = 123; // Example ID of the record to delete
-$target_table = 'products'; // Example target table
+$target_tbl = 'products'; // Example target table
 
-$is_deleted = $this->model->delete($id, $target_table);
+$is_deleted = $this->model->delete($id, $target_tbl);
 
 if ($is_deleted) {
-    echo "Record with ID {$id} was successfully deleted from the {$target_table} table.";
+    echo "Record with ID {$id} was successfully deleted from the {$target_tbl} table.";
 } else {
-    echo "Failed to delete record with ID {$id} from the {$target_table} table.";
+    echo "Failed to delete record with ID {$id} from the {$target_tbl} table.";
 }
 </pre>
   </div>
+  
 </div>

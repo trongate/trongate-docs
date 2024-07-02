@@ -1,0 +1,93 @@
+<h1>Data Manipulation</h1>
+
+<p>The Trongate Model class provides the following methods for inserting, updating, and deleting database data:</p>
+<ul>
+    <li><span class="feature-ref">insert()</span></li>
+    <li><span class="feature-ref">update()</span></li>
+    <li><span class="feature-ref">update_where()</span></li>
+    <li><span class="feature-ref">delete()</span></li>
+    <li><span class="feature-ref">insert_batch()</span></li>
+</ul>
+<h2>Creating Database Records With The Insert Method</h2>
+<p>The <span class="feature-ref">insert()</span> method inserts a row of data into a database table. With this method, rows of new data are represented by a PHP array. This method accepts the following parameters:</p>
+<ul>
+    <li><strong>$data</strong> (required) - an array of key-value pairs representing the table row that is to be inserted.</li>
+    <li><strong>$target_table</strong> (optional) - the name of the database table where the new row is to be inserted. By default, the Model will assume the target table is equal to the value in the first URL segment.</li>
+</ul>
+<h2>What Gets Returned?</h2>
+<p>If the method results in a new table row being inserted, the 'id' of the newly inserted record will be returned.</p>
+<h2>Example</h2>
+<p>The syntax below shows the simplest insert example possible. In this example, we create an array of data that represents a new table row. Then, we invoke the <span class="feature-ref">insert</span> method to add a new row to a database table using the array we created.</p>
+<pre><code>
+$data["first_name"] = "Eric"; 
+$data["last_name"] = "Clapton"; 
+$data["trongate_user_id"] = 91; 
+$this-&gt;model-&gt;insert($data);
+</code></pre>
+<p>The code above will produce the following SQL query:</p>
+<p><strong>INSERT INTO </strong><em><strong>tablename</strong></em><strong> (first_name, last_name, trongate_user_id) VALUES ('Eric', 'Clapton', 91)</strong></p>
+<div class="alert alert-info">In a working example, 'tablename' would be replaced with the first segment from the URL.</div>
+
+
+
+
+
+
+<h2>Updating Database Records With The Update Method</h2>
+<p>The <span class="feature-ref">update()</span> method updates a record in a database table. This method takes the ID of the record to update, an associative array containing column names as keys and their corresponding values, and an optional parameter specifying the name of the database table to update. It constructs and executes an SQL query to perform the update, returning true if the update was successful and false otherwise. This method accepts the following parameters:</p>
+<ul>
+    <li><strong>$update_id</strong> (required) - the ID of the record to update.</li>
+    <li><strong>$data</strong> (required) - an associative array containing column names as keys and their corresponding values.</li>
+    <li><strong>$target_table</strong> (optional) - the name of the database table to update. By default, the Model will assume the target table is equal to the value in the first URL segment.</li>
+</ul>
+
+<h2>What Gets Returned?</h2>
+<p>If the method successfully updates the record, it returns <code>true</code>. Otherwise, it returns <code>false</code>.</p>
+
+<h2>Example</h2>
+<p>The code sample below demonstrates how to use the <span class="feature-ref">update()</span> method to update a record in the database.</p>
+<pre><code>
+// ID of the record to update
+$update_id = 123;
+
+// Data to update
+$data["first_name"] = "John"; 
+$data["last_name"] = "Doe"; 
+$data["email"] = "john.doe@example.com"; 
+
+$this->model->update($update_id, $data);
+</code></pre>
+
+<h2>Deleting Database Records With The Delete Method</h2>
+<p>The <span class="feature-ref">delete()</span> method deletes a record from a database table based on its ID. This method takes the ID of the record to delete and an optional parameter specifying the name of the database table. It constructs and executes an SQL query to delete the record, returning true if the delete operation was successful and false otherwise. This method accepts the following parameters:</p>
+<ul>
+    <li><strong>$id</strong> (required) - the ID of the record to delete.</li>
+    <li><strong>$target_table</strong> (optional) - the name of the database table. By default, the Model will assume the target table is equal to the value in the first URL segment.</li>
+</ul>
+
+<h2>What Gets Returned?</h2>
+<p>If the method successfully deletes the record, it returns <code>true</code>. Otherwise, it returns <code>false</code>.</p>
+
+<h2>Example</h2>
+<p>The code sample below demonstrates how to use the <span class="feature-ref">delete()</span> method to delete a record from the database.</p>
+<pre><code>
+// ID of the record to delete
+$id = 123; 
+
+// Name of the target table
+$target_table = 'products'; 
+
+$is_deleted = $this->model->delete($id, $target_table);
+
+if ($is_deleted) {
+    echo "Record with ID {$id} was successfully deleted from the {$target_table} table.";
+} else {
+    echo "Failed to delete record with ID {$id} from the {$target_table} table.";
+}
+</code></pre>
+
+<h2>Video Tutorial: Creating, Updating & Deleteing Database Records</h2>
+<p>The video below demonstrates how how to create, update and delete database records using Trongate's Model class.</p>
+<div class="video-container">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/-3jZY3iO3Is?si=eYJUOLj08-OoTqgP" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
