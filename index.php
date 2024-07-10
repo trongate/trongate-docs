@@ -5,11 +5,18 @@
  * All requests are redirected here by the .htaccess file to handle routing and processing.
  * This allows for a cleaner, more modular approach to developing features and handling URLs.
  */
+
 require_once 'config.php';
 require_once 'docs_helpers.php';
 require_once 'Docs.php';
 $docs = new Docs;
 $docs_contents = $docs->est_docs_contents();
+
+if (strpos(current_url(), '/public/docs') !== false) {
+	$corrected_url = str_replace('/public/docs', '/docs', current_url());
+	header("location: $corrected_url");
+	die();
+} 
 
 $view_file_path = $docs->return_view_file_path($docs_contents);
 

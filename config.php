@@ -1,5 +1,5 @@
 <?php
-define('BASE_URL', 'http://localhost/trongate-docs/');
+define('BASE_URL', 'http://localhost/trongate_live5/docs/');
 define('APPPATH', str_replace("\\", "/", dirname(__FILE__) . '/'));
 
 // The name of the dir that stores the reference guide.
