@@ -1,0 +1,160 @@
+<h1>Setting Form Validation Rules</h1>
+<p>Form validation is a crucial aspect of web development, ensuring that user-submitted data meets the required criteria before being processed or stored. Proper validation not only improves user experience by providing immediate feedback but also protects your application from common security threats such as SQL injection, cross-site scripting (XSS), and data corruption. The Trongate PHP framework provides a robust and flexible validation system that simplifies the process of validating form inputs.</p>
+
+<h2>Overview of Trongate's Validation System</h2>
+<p>Trongate's validation system is designed to be intuitive and easy to use. It allows developers to define validation rules for form fields, automatically handle error messages, and ensure that only valid data is processed. The validation process is managed by the <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a>, which provides methods for setting rules, running validation checks, and handling errors.</p>
+
+<h3>Key Features of Trongate's Validation System</h3>
+<ul>
+  <li><strong>Flexible Rule Definition</strong>: You can define validation rules for each form field, including required fields, minimum and maximum lengths, numeric values, email validation, and more. For example, you can easily set rules like <code>required|min_length[2]|max_length[255]</code> to ensure a username is between 2 and 255 characters long.</li>
+  <li><strong>Automatic Error Handling</strong>: The system automatically generates and displays error messages for invalid inputs, making it easy to provide feedback to users. Error messages can be displayed either as a block at the top of the form or inline next to each field.</li>
+  <li><strong>CSRF Protection</strong>: Trongate includes built-in CSRF (Cross-Site Request Forgery) protection to secure your forms against malicious attacks. Each form submission is automatically checked for a valid CSRF token, ensuring that the request originated from your application.</li>
+  <li><strong>Custom Validation</strong>: You can create custom validation rules and callbacks to handle specific validation requirements. For example, you can enforce rules like "The last name cannot be 'Rambo'" by defining a custom validation method.</li>
+</ul>
+
+<h2>Implementing Form Validation in Trongate</h2>
+<p>Let's walk through the process of implementing form validation in a Trongate application.</p>
+
+<h3>Step 1: Define Validation Rules</h3>
+<p>In your controller (e.g., <code>Tasks.php</code>), you can define validation rules for each form field using the <code>set_rules</code> method. This method takes three parameters:</p>
+<ol>
+  <li><strong>Field Name</strong>: The name of the form field.</li>
+  <li><strong>Field Label</strong>: The label used in error messages.</li>
+  <li><strong>Validation Rules</strong>: A string or array of rules to apply to the field.</li>
+</ol>
+<p>For example, in the <code>submit</code> method of the <code>Tasks</code> controller, the following rules are defined for the <code>task_title</code> and <code>task_description</code> fields:</p>
+<pre><code class="language-php">$this->validation->set_rules('task_title', 'Task Title', 'required|min_length[2]|max_length[255]');
+$this->validation->set_rules('task_description', 'Task Description', 'required|min_length[2]');</code></pre>
+<p>These rules ensure that:</p>
+<ul>
+  <li>The <code>task_title</code> field is required, has a minimum length of 2 characters, and a maximum length of 255 characters.</li>
+  <li>The <code>task_description</code> field is required and has a minimum length of 2 characters.</li>
+</ul>
+
+<h3>Step 2: Run the Validation</h3>
+<p>After defining the validation rules, you can run the validation checks using the <code>run</code> method. This method returns <code>true</code> if all validation rules pass, or <code>false</code> if any validation errors occur.</p>
+<pre><code class="language-php">$result = $this->validation->run();
+
+if ($result === true) {
+  // Validation passed, process the form data
+} else {
+  // Validation failed, redisplay the form with error messages
+  $this->create();
+}</code></pre>
+<p>If validation fails, the form is redisplayed with error messages, allowing the user to correct their inputs.</p>
+
+<hr>
+
+
+<h2>An Alternative Syntax for Setting Form Validation Rules</h2>
+
+<p>While the pipe symbol syntax, as demonstrated earlier, is efficient and concise, it can become unwieldy when dealing with forms that contain multiple fields and complex validation rules. To address this, the Trongate framework offers an alternative syntax for setting form validation rules: <b>Array-Based Rule Setting</b>. This approach provides a more structured, readable, and maintainable way to define validation rules for your forms.</p>
+
+<h3>How It Works</h3>
+
+<p>In the Array-Based approach, instead of chaining validation rules using the pipe symbol <code>|</code>, you define each rule as part of an associative array. In this syntax, the keys represent the form field names, and each field is assigned an array of validation rules. This provides better organisation and flexibility, especially for forms with many fields and complex requirements. Here's an example:</p>
+
+[code=php]
+$username_rules = array(
+    'required' => true,
+    'min_length' => 2,
+    'max_length' => 255
+);
+$validation_rules['username'] = $username_rules;
+[/code]
+
+<p>Now, let's compare the two approaches for setting validation rules:</p>
+
+<p><b>Using the Pipe Symbol to Chain Validation Rules:</b></p>
+
+[code=php]
+$this->validation->set_rules('username', 'Username', 'required|min_length[2]|max_length[255]');
+$this->validation->set_rules('first_name', 'First Name', 'required|min_length[2]|max_length[255]');
+$this->validation->set_rules('last_name', 'Last Name', 'required|min_length[2]|max_length[255]');
+$this->validation->set_rules('email_address', 'Email Address', 'required|valid_email');
+[/code]
+
+<p><b>Using Array-Based Syntax to Define Validation Rules:</b></p>
+
+[code=php]
+// Define validation rules for username
+$username_rules = array(
+    'required' => true,
+    'min_length' => 2,
+    'max_length' => 255
+);
+$validation_rules['username'] = $username_rules;
+
+// Define validation rules for first name
+$first_name_rules = array(
+    'required' => true,
+    'min_length' => 2,
+    'max_length' => 255
+);
+$validation_rules['first_name'] = $first_name_rules;
+
+// Define validation rules for last name
+$last_name_rules = array(
+    'required' => true,
+    'min_length' => 2,
+    'max_length' => 255
+);
+$validation_rules['last_name'] = $last_name_rules;
+
+// Define validation rules for email address
+$email_address_rules = array(
+    'required' => true,
+    'valid_email' => true
+);
+$validation_rules['email_address'] = $email_address_rules;
+
+// Execute validation
+$result = $this->validation->run($validation_rules);
+[/code]
+
+<p>While the array-based syntax requires more lines of code, it offers a more organised structure and takes up less horizontal space compared to the pipe symbol approach. Ultimately, the choice between these two methods depends on your project's needs and your preferred coding style.</p>
+
+<div class="alert alert-info">
+    <p>When performing form validation, the framework ensures consistency between the validation process and subsequent data processing by automatically applying data cleaning rules through the <code>post()</code> function.</p>
+    
+    <p>Consider the following:</p>
+    [code=php]$this->validation->set_rules('username', 'Username', 'required');[/code]
+    
+    <p>With the above code, the validation system will evaluate the result of:</p>
+    [code=php]$username = post('username', true);[/code]
+    
+    <p>For this reason, to maintain consistency and prevent validation bypasses, values should be retrieved <i>after</i> validation using the same approach:</p>
+    
+    [code=php]
+// Example of correct post-validation data retrieval
+private function get_data_from_post() {
+    $data['username'] = post('username', true);
+    $data['email'] = post('email', true);
+    return $data;
+}
+
+// Example usage in a submit method
+public function submit() {
+    $this->validation->set_rules('username', 'Username', 'required|min_length[2]');
+    $this->validation->set_rules('email', 'Email', 'required|valid_email');
+    
+    if ($this->validation->run() === true) {
+        $data = $this->get_data_from_post();  // Correctly retrieves cleaned data
+        // Process $data...
+    }
+}[/code]
+
+    <p>In situations where it's not acceptable to fetch posted values - after validation - using <code>post($str, true)</code>, it's advisable to consider using  <a href="documentation/display/php_framework/form-handling/custom-form-validation-rules">custom validation</a>. This ensures that your validation rules can properly account for any special data handling requirements.</p>
+    
+</div>
+
+<h2>Key Points Regarding Setting Validation Rules</h2>
+
+<ul>
+    <li>Each form field is assigned its own set of validation rules within a sub-array.</li>
+    <li>Validation rules are defined as key-value pairs within each field's sub-array.</li>
+    <li>The main <code>$validation_rules</code> array uses field names as keys.</li>
+</ul>
+
+<p>All of the validation rules that have been used in this page are built into the framework.  In other words, the inner workings of the various validation rules have been written into the Trongate framework.  In the next section, we'll explore how to set your own custom form validation rules.</p>
+

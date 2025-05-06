@@ -1,0 +1,129 @@
+<div class="container">
+  <h1>scale()</h1>
+  <p class="signature">function scale(float $scale): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Scales the currently loaded image by a specified percentage, adjusting both the width and height while maintaining the image's aspect ratio. This method calculates the new dimensions based on the percentage provided and resizes the image accordingly using the internal <code>resize</code> method.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method calculates the new width and height by multiplying the current dimensions by the scaling percentage divided by 100.</li>
+      <li>It then resizes the image to the new dimensions using the internal <code>resize</code> method.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure an image is loaded before calling this method. If no image is loaded, or if the scale value is invalid, an exception is thrown.</p>
+    <p><strong>Memory Management:</strong> After scaling and saving the image, consider calling <code>destroy()</code> to free up memory, especially in scripts that process multiple or large images.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$scale</td>
+        <td>float</td>
+        <td>The scaling percentage. A value of 100 maintains the original size, values less than 100 decrease the size, and values greater than 100 increase the size. Must be a positive number.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>No image is loaded.</li>
+      <li>The provided scale value is non-positive.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value but resizes the image in-place.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Scaling an image to 50% of its original size
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Scale the image to 50% of its original size
+    $this->image->scale(50);
+    
+    // Save the scaled image
+    $this->image->save('path/to/scaled_image.jpg');
+    
+    // Free up memory after saving
+    $this->image->destroy();
+    
+    echo "Image scaled successfully to 50% of its original size.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Scaling an image to 150% of its original size
+try {
+    $this->image->load('path/to/image.jpg');
+    
+    // Scale the image to 150% of its original size
+    $this->image->scale(150);
+    
+    // Save the scaled image
+    $this->image->save('path/to/enlarged_image.jpg');
+    
+    // Free up memory after saving
+    $this->image->destroy();
+    
+    echo "Image scaled successfully to 150% of its original size.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Batch scaling multiple images
+$image_files = ['image1.jpg', 'image2.jpg', 'image3.jpg'];
+
+foreach ($image_files as $file) {
+    try {
+        // Load an image
+        $this->image->load("path/to/$file");
+        
+        // Scale the image to 75% of its original size
+        $this->image->scale(75);
+        
+        // Save the scaled image
+        $this->image->save("path/to/scaled_$file");
+        
+        // Free up memory after saving
+        $this->image->destroy();
+        
+        echo "Scaled and saved $file successfully.\n";
+    } catch (Exception $e) {
+        echo "Error processing $file: " . $e->getMessage() . "\n";
+    }
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Scale Value:</strong> Ensure the provided scale value is a positive number to avoid exceptions.</li>
+      <li><strong>Use <code>destroy()</code> After Scaling:</strong> In scripts that process multiple or large images, call <code>destroy()</code> to free up memory after saving the scaled image.</li>
+      <li><strong>Batch Processing:</strong> When scaling multiple images, always call <code>destroy()</code> after each image to prevent memory leaks.</li>
+      <li><strong>Check Aspect Ratio:</strong> Since this method maintains the aspect ratio, be mindful of the original image's dimensions to avoid unexpected results when scaling.</li>
+    </ul>
+  </div>
+</div>

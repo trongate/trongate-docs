@@ -1,0 +1,91 @@
+<div class="container">
+  <h1>exec()</h1>
+  <p class="signature">public function exec(string $sql): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Executes a SQL statement. This method is primarily intended for usage by Trongate's Module Import Wizard and should not be used in production environments. It allows executing raw SQL queries directly on the database.
+    </p>
+    <p>
+      It's important to ensure that the provided SQL query is properly sanitized to prevent SQL injection attacks.
+    </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>sql</td>
+        <td>string</td>
+        <td>The SQL statement to execute.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return any value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Throws</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Exception</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Exception</td>
+        <td>Thrown if the application environment is not set to 'dev'.</td>
+      </tr>
+      <tr>
+        <td>PDOException</td>
+        <td>Thrown if an error occurs during the database operation.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Note</h2>
+  <div class="note">
+    <p>
+      This method should only be used for development purposes and may produce undesired consequences if used improperly. It is disabled in production environments.
+    </p>
+  </div>
+  
+  <h2>Example Usage</h2>
+  <p>Below is an example of executing a SQL statement using the `exec()` method:</p>
+  <div class="example">
+    <pre>$sql = "CREATE TABLE example_table (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+    
+$this->model->exec($sql);</pre>
+  </div>
+</div>

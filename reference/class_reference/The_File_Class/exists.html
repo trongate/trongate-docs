@@ -1,0 +1,87 @@
+<div class="container">
+  <h1>exists()</h1>
+  <p class="signature">function exists(string $path): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Checks whether a file or directory exists at the specified path. This method is a simple wrapper around PHP's built-in <code>file_exists()</code> function, providing a convenient way to verify the existence of files or directories within the application.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method takes a <code>$path</code> parameter, which can be an absolute or relative path to a file or directory.</li>
+      <li>It uses PHP's <code>file_exists()</code> function to check if the file or directory exists at the specified path.</li>
+      <li>If the file or directory exists, it returns <code>true</code>; otherwise, it returns <code>false</code>.</li>
+    </ul>
+    <p><strong>Note:</strong> This method does not validate the path against security rules or check if the file or directory is readable or writable. It only checks for existence.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the file or directory to check. This can be a path to a file, a directory, or a symbolic link.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the file or directory exists at the specified path; otherwise, returns <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Checking if a file exists
+$file_path = '/path/to/your/file.txt';
+if ($this->file->exists($file_path)) {
+    echo "The file exists!";
+} else {
+    echo "The file does not exist!";
+}</pre>
+    <pre>
+// Example 2: Checking if a directory exists
+$directory_path = '/path/to/your/directory';
+if ($this->file->exists($directory_path)) {
+    echo "The directory exists!";
+} else {
+    echo "The directory does not exist!";
+}</pre>
+    <pre>
+// Example 3: Using exists() in conditional logic
+$path = '/path/to/resource';
+if ($this->file->exists($path)) {
+    // Perform operations on the existing file or directory
+    echo "Resource found!";
+} else {
+    // Handle the case where the resource does not exist
+    echo "Resource not found!";
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> While this method checks for existence, ensure the path is valid and does not conflict with restricted paths before performing further operations.</li>
+      <li><strong>Combine with Other Checks:</strong> Use this method in conjunction with other checks (e.g., <code>is_readable()</code> or <code>is_writable()</code>) to ensure the file or directory is accessible and usable.</li>
+      <li><strong>Handle Edge Cases:</strong> Be mindful of symbolic links and edge cases where the path might exist but is inaccessible due to permissions.</li>
+      <li><strong>Use for Pre-Validation:</strong> Use this method to pre-validate paths before performing operations like reading, writing, or deleting files or directories.</li>
+    </ul>
+  </div>
+</div>

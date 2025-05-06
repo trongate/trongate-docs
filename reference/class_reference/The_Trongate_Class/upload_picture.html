@@ -1,0 +1,168 @@
+<div class="container">
+  <h1>upload_picture()</h1>
+  <p class="signature">protected function upload_picture(array $config): ?array</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Handles picture uploads within the Trongate framework with optional thumbnail generation. This method processes uploaded images, performs validation, handles resizing, and optionally generates thumbnails based on the provided configuration.</p>
+    <p><strong>Core Features:</strong></p>
+    <ul>
+      <li>Validates and processes image uploads</li>
+      <li>Supports automatic image resizing</li>
+      <li>Optional thumbnail generation</li>
+      <li>Flexible storage in either module assets or public directory</li>
+      <li>Supports filename randomization</li>
+    </ul>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$config</td>
+        <td>array</td>
+        <td>
+          Core configuration options:
+          <ul>
+            <li><code>destination</code>: Target upload directory path</li>
+            <li><code>max_width</code>: Maximum width for main image</li>
+            <li><code>max_height</code>: Maximum height for main image</li>
+            <li><code>upload_to_module</code>: Whether to store in module assets</li>
+            <li><code>make_rand_name</code>: Whether to randomize filenames</li>
+          </ul>
+          Optional thumbnail settings:
+          <ul>
+            <li><code>thumbnail_dir</code>: Directory for thumbnails</li>
+            <li><code>thumbnail_max_width</code>: Maximum thumbnail width</li>
+            <li><code>thumbnail_max_height</code>: Maximum thumbnail height</li>
+          </ul>
+        </td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array|null</td>
+        <td>Returns an array containing:
+          <ul>
+            <li><code>file_name</code>: Name of the uploaded file</li>
+            <li><code>file_path</code>: Full path to the uploaded file</li>
+            <li><code>file_type</code>: MIME type of the file</li>
+            <li><code>file_size</code>: File size in bytes</li>
+            <li><code>thumbnail_path</code>: Path to thumbnail (if generated)</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Basic image upload without thumbnails
+function submit_product_picture($update_id) {
+    $this->module('trongate_security');
+    $this->trongate_security->_make_sure_allowed();
+
+    // Validate file upload
+    if ($_FILES['picture']['name'] == '') {
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+
+    // Initialize basic settings
+    $config = [
+        'destination' => 'products_pics/'.$update_id,
+        'max_width' => 800,
+        'max_height' => 600,
+        'upload_to_module' => true,
+        'make_rand_name' => false
+    ];
+
+    try {
+        // Perform the upload
+        $file_info = $this->upload_picture($config);
+        
+        // Update database with filename
+        $data['picture'] = $file_info['file_name'];
+        $this->model->update($update_id, $data);
+        
+        set_flashdata('Picture uploaded successfully');
+        redirect($_SERVER['HTTP_REFERER']);
+    } catch (Exception $e) {
+        set_flashdata('Upload failed: ' . $e->getMessage());
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+}</pre>
+
+    <pre>
+// Example 2: Image upload with thumbnail generation
+function submit_product_picture_with_thumbnail($update_id) {
+    $this->module('trongate_security');
+    $this->trongate_security->_make_sure_allowed();
+
+    // Validate file upload
+    if ($_FILES['picture']['name'] == '') {
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+
+    // Initialize settings with thumbnail configuration
+    $config = [
+        // Core settings
+        'destination' => 'products_pics/'.$update_id,
+        'max_width' => 800,
+        'max_height' => 600,
+        'upload_to_module' => true,
+        'make_rand_name' => false,
+        
+        // Thumbnail settings
+        'thumbnail_dir' => 'products_pics_thumbnails/'.$update_id,
+        'thumbnail_max_width' => 150,
+        'thumbnail_max_height' => 150
+    ];
+
+    try {
+        // Perform upload with thumbnail generation
+        $file_info = $this->upload_picture($config);
+        
+        // Update database with filename
+        $data['picture'] = $file_info['file_name'];
+        $this->model->update($update_id, $data);
+        
+        set_flashdata('Picture and thumbnail uploaded successfully');
+        redirect($_SERVER['HTTP_REFERER']);
+    } catch (Exception $e) {
+        set_flashdata('Upload failed: ' . $e->getMessage());
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+}</pre>
+  </div>
+
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Security:</strong> Always implement Trongate security checks before processing uploads</li>
+      <li><strong>Validation:</strong> Validate file types and sizes before processing</li>
+      <li><strong>Directory Structure:</strong> Ensure upload directories exist using <code>_make_sure_got_destination_folders()</code></li>
+      <li><strong>Database Storage:</strong> Store only filenames, not full paths, in the database</li>
+      <li><strong>Error Handling:</strong> Implement proper try-catch blocks and user feedback</li>
+    </ul>
+  </div>
+</div>

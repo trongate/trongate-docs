@@ -1,0 +1,171 @@
+<div class="container">
+    <h1>display()</h1>
+    <p class="signature">public static function display(?array $data = null): void</p>
+    <p class="note"><strong>Note:</strong> This method accepts only one argument - an optional array parameter. Multiple arguments are not supported.</p>
+
+    <h2>Description</h2>
+    <div class="description">
+        <p>
+            Core template rendering method that loads and displays view files from module directories.  This method should be invoked from within a view file or an HTML template.
+        </p>
+        <p>This method serves two primary purposes:</p>
+        <ul>
+            <li>Rendering the main content area within a template</li>
+            <li>Including module-specific partial views when Template::partial() is insufficient</li>
+        </ul>
+        <p>
+            The method automatically determines the correct module and view file to load based on the URL structure, but these can be overridden through the $data array.
+        </p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>data</td>
+                <td>array|null</td>
+                <td>
+                    An associative array that can contain:
+                    <ul>
+                        <li><code>view_module</code>: The module directory name</li>
+                        <li><code>view_file</code>: The view file name (without .php extension)</li>
+                        <li>Any additional variables needed by the view</li>
+                    </ul>
+                </td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It outputs the content directly.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>File Path Resolution</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th>Source</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>view_module</td>
+                <td>First URL segment or $data['view_module']</td>
+                <td>shop</td>
+            </tr>
+            <tr>
+                <td>view_file</td>
+                <td>$data['view_file'] or 'index'</td>
+                <td>product_list</td>
+            </tr>
+            <tr>
+                <td>Final Path</td>
+                <td>APPPATH/modules/[module]/views/[file].php</td>
+                <td>APPPATH/modules/shop/views/product_list.php</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Common Use Cases</h2>
+    
+    <h3>1. Main Content Area</h3>
+    <div class="example">
+        <p>Using display() to render the main content in a template:</p>
+        <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;My Site&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;header&gt;...&lt;/header&gt;
+        &lt;main&gt;
+            &lt;?= Template::display($data) ?&gt;
+        &lt;/main&gt;
+        &lt;footer&gt;...&lt;/footer&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</pre>
+    </div>
+
+    <h3>2. Module-Specific Partials</h3>
+    <div class="example">
+        <p>Loading a partial view from a specific module:</p>
+        <pre>// Inside a controller or view
+$data = [
+    'view_module' => 'shop',
+    'view_file' => 'product_sidebar',
+    'categories' => $categories,
+    'featured_products' => $featured_products
+];
+Template::display($data);</pre>
+    </div>
+
+    <h3>3. Default Index Page</h3>
+    <div class="example">
+        <p>When no view_file is specified, it loads index.php:</p>
+        <pre>// These are equivalent:
+Template::display();
+Template::display(['view_file' => 'index']);</pre>
+    </div>
+
+    <h2>Dependencies</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Dependency</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>APPPATH</td>
+                <td>Constant defining the application root path</td>
+            </tr>
+            <tr>
+                <td>get_view_module()</td>
+                <td>Method that retrieves the current view module from the URL</td>
+            </tr>
+            <tr>
+                <td>attempt_include()</td>
+                <td>Private method that handles file inclusion and data extraction</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Error Handling</h2>
+    <p>If the specified view file does not exist, the script will terminate with an error message showing the attempted file path. This behavior is handled by the attempt_include() method.</p>
+
+    <div class="alert alert-warning">
+        <h3>Important Notes</h3>
+        <ul>
+            <li>All variables in the $data array become available as individual variables in the view file</li>
+            <li>The view_module and view_file values in $data override the URL-based defaults</li>
+            <li>View files must have a .php extension (added automatically)</li>
+            <li>File paths are constructed using directory separators appropriate for the operating system</li>
+        </ul>
+    </div>
+</div>

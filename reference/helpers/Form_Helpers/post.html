@@ -1,0 +1,105 @@
+<div class="container">
+  <h1>post()</h1>
+  <p class="signature">function post(string $field_name, bool $clean_up = false): string|int|float|array</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves a value from POST data, handling both traditional form-encoded data and JSON payloads. It can optionally sanitize and convert the value. The function supports dot notation for accessing nested fields in JSON data, providing a versatile way to handle and clean POST data in your application.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>$field_name</code></td>
+        <td>string</td>
+        <td>The name of the field to retrieve from the POST data. Supports dot notation for accessing nested fields in JSON data.</td>
+      </tr>
+      <tr>
+        <td><code>$clean_up</code></td>
+        <td>bool</td>
+        <td>Optional. Determines whether to sanitize and convert the retrieved value. Default is <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|int|float|array</td>
+        <td>The value retrieved from the POST data. If the field is not found, an empty string is returned. If <code>$clean_up</code> is <code>true</code>, the value is sanitized and potentially converted. For JSON data, it may return an array.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Behavior</h2>
+  <div class="behavior">
+    <h4>Content Type Handling:</h4>
+    <ul>
+      <li>Automatically detects and handles both form-encoded data and JSON payloads.</li>
+      <li>For JSON data, the payload is parsed once and cached for subsequent calls. If parsing fails, an exception is thrown.</li>
+    </ul>
+
+    <h4>When <code>$clean_up</code> is <code>false</code> (default):</h4>
+    <ul>
+      <li>Returns the raw value from the POST data if the field exists, or an empty string if it doesn't.</li>
+      <li>No sanitization or type conversion is performed.</li>
+    </ul>
+    
+    <h4>When <code>$clean_up</code> is <code>true</code>:</h4>
+    <ul>
+      <li><strong>Trimming:</strong> Removes leading and trailing whitespace using <code>trim()</code> for string values.</li>
+      <li><strong>Sanitization:</strong> Applies <code>htmlspecialchars()</code> to convert special characters to HTML entities in string values, helping prevent Cross-Site Scripting (XSS) attacks.</li>
+      <li><strong>Type Conversion:</strong> If the sanitized value is numeric:
+        <ul>
+          <li>Converts to <code>int</code> if the value is a whole number.</li>
+          <li>Converts to <code>float</code> if the value contains a decimal point.</li>
+        </ul>
+      </li>
+      <li><strong>Array Handling:</strong> For array values (e.g., from JSON data), applies trimming and sanitization recursively to all string elements.</li>
+    </ul>
+  </div>
+  
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre><code>// Retrieve raw POST data
+$username = post('username');
+
+// Retrieve sanitized and potentially converted POST data
+$age = post('age', true);
+
+// Example with type conversion
+$price = post('price', true);
+// If POST data contains '19.99', $price will be float(19.99)
+// If POST data contains '20', $price will be int(20)
+
+// Handling JSON data
+$jsonData = post('user_data');
+// If POST contains JSON like '{"name": "John", "age": 30}',
+// $jsonData will be an array(['name' => 'John', 'age' => 30])
+
+// Handling nested JSON data
+$street = post('user_data.address.street', true);
+// If POST contains JSON like '{"user_data": {"address": {"street": "123 Main St"}}}',
+// $street will be "123 Main St" (sanitized)</code></pre>
+  </div>
+  
+  <h2>Security Note</h2>
+  <div class="security-note">
+    <p>While the <code>$clean_up</code> option provides basic sanitization, it's recommended to always validate and sanitize data according to its specific use case. For instance, email addresses, dates, or custom formatted strings may require additional validation or different sanitization methods. When working with JSON data, be cautious of deeply nested structures and potential security implications.</p>
+  </div>
+</div>

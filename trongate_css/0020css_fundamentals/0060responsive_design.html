@@ -1,0 +1,164 @@
+<h1>Responsive Design</h1>
+<p>Trongate CSS is built with responsive design principles at its core, ensuring websites adapt seamlessly across different device sizes. The framework implements a pragmatic mobile-first approach with a single breakpoint system.</p>
+
+<h2>Mobile-First Features</h2>
+<p>Below is a summary of the key responsive features that are built into Trongate CSS by default:</p>
+
+<h3 class="mt-3">Responsive Images</h3>
+<p>Images automatically scale within their containers:</p>
+[code=css]
+img {
+    max-width: 100%;
+    height: auto;
+}
+[/code]
+
+<div class="alert alert-info">
+  <p class="mt-0">The combination of <code>max-width: 100%</code> and <code>height: auto</code> ensures images scale proportionally without exceeding their container width.</p>
+</div>
+
+<h2>Breakpoint System</h2>
+<p>Trongate CSS uses a single breakpoint at 550px for mobile adaptations. This streamlined approach simplifies responsive design while covering the most critical layout adjustments.</p>
+
+[code=css]
+@media screen and (max-width: 550px) {
+    /* Mobile-specific adaptations */
+}
+[/code]
+
+<h2>Mobile Adaptations</h2>
+<p>At the 550px breakpoint, several UI elements automatically adapt:</p>
+
+<h3>Button Stacking</h3>
+<p>Buttons automatically stack vertically and expand to full width on mobile devices:</p>
+
+<div class="trongate-css-demo" style="padding-bottom: 2em;">
+    <div class="text-center">
+        <button>Primary Action</button>
+        <button class="alt">Secondary Action</button>
+    </div>
+</div>
+
+[code=html]
+&amp;lt;div&amp;gt;
+    &amp;lt;button&amp;gt;Primary Action&amp;lt;/button&amp;gt;
+    &amp;lt;button class="alt"&amp;gt;Secondary Action&amp;lt;/button&amp;gt;
+&amp;lt;/div&amp;gt;
+[/code]
+
+<p>On mobile screens (below 550px), these buttons will:</p>
+<ul>
+    <li>Stack vertically</li>
+    <li>Expand to 100% width</li>
+    <li>Maintain proper spacing</li>
+</ul>
+
+<h3>Modal Adaptations</h3>
+<p>Modals receive several mobile-optimized adjustments:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p class="text-center">
+            <button class="secondary-dark mt-0" onclick="openModal('example-modal')">Click Me!</button>
+        </p>
+    </div>
+</div>
+
+<div class="modal" id="example-modal" style="display: none">
+    <div class="modal-heading flex-row align-center justify-between">
+        <div>Example Modal</div>
+        <div><i class="fa fa-times" onclick="closeModal()"></i></div>
+    </div>
+    <div class="modal-body">
+        <p class="text-left">This is an example modal. It has a default margin top value of '12vh', which is defined as a CSS variable within Trongate CSS.</p>
+
+        <p class="text-left">To learn more about working with modals  <a href="documentation/display/trongate_css/cards-and-modals/working-with-modals">click here</a>.</p>
+
+    </div>
+
+    <div class="modal-footer">
+        <button onclick="closeModal()">Learn More <i class="fa fa-arrow-right"></i> </button>
+    </div>
+
+
+</div>
+
+<style>
+.modal-heading .fa {
+    cursor: pointer;
+}
+</style>
+
+[code=css]
+@media screen and (max-width: 550px) {
+    .modal {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+}
+[/code]
+
+
+<div class="alert alert-success">
+    <p>To learn more about how to create dynamic modals, please refer to our <a href="documentation/display/trongate_mx">Trongate MX documentation</a>.  From there, you'll be able to view an entire section on the subject of <a href="documentation/display/trongate_mx/ui-enhancements/building-dynamic-modals">Building Dynamic Modals</a>.</p>
+</div>
+
+<h3 class="mt-3">Button Container Behavior</h3>
+<p>Button containers automatically adjust their layout on mobile:</p>
+
+[code=css]
+@media screen and (max-width: 550px) {
+    p.button-container {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+}
+[/code]
+
+<h2>Form Elements</h2>
+<p>Form elements automatically adjust to 100% width of their container while maintaining proper padding and spacing.</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <form>
+            <label>Full Name</label>
+            <input type="text" placeholder="Enter your full name">
+            
+            <label>Your Message</label>
+            <textarea placeholder="Enter your message here..."></textarea>
+        </form>
+    </div>
+</div>
+
+[code=html]
+&lt;form&gt;
+    &lt;label&gt;Full Name&lt;/label&gt;
+    &lt;input type="text" placeholder="Enter your full name"&gt;
+    
+    &lt;label&gt;Your Message&lt;/label&gt;
+    &lt;textarea placeholder="Enter your message here..."&gt;&lt;/textarea&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p>When building responsive layouts with Trongate CSS:</p>
+    <ul>
+        <li>Test your interface at the 550px breakpoint to ensure proper adaptation</li>
+        <li>Group related buttons together for proper mobile stacking</li>
+        <li>Utilize the built-in image responsiveness instead of fixed dimensions</li>
+        <li>Consider mobile users when ordering stacked elements</li>
+    </ul>    
+</div>
+
+<h2>Summary</h2>
+<p>Trongate CSS's responsive features provide:</p>
+<ul>
+    <li>Single breakpoint simplicity at 550px</li>
+    <li>Automatic mobile adaptations for common UI elements</li>
+    <li>Responsive form elements and images</li>
+    <li>Mobile-optimized modals and button containers</li>
+</ul>

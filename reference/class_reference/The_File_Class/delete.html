@@ -1,0 +1,108 @@
+<div class="container">
+  <h1>delete()</h1>
+  <p class="signature">function delete(string $file_path): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Deletes a file from the filesystem. This method ensures the file exists, validates the file path against predefined security rules, and attempts to delete the file. If the deletion is successful, it returns <code>true</code>; otherwise, it throws an exception.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$file_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>It checks if the file exists at the specified path. If the file does not exist, an exception is thrown.</li>
+      <li>If the file exists and the path is valid, it attempts to delete the file using the <code>unlink()</code> function.</li>
+      <li>If the deletion fails (e.g., due to insufficient permissions or a locked file), an exception is thrown with a descriptive error message.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the file exists and the path is valid before calling this method. If the file is restricted or inaccessible, or if the deletion fails, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the file that needs to be deleted. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$file_path</code> is restricted by security rules (e.g., accessing sensitive directories).</li>
+      <li>The file does not exist at the specified path.</li>
+      <li>The file cannot be deleted (e.g., due to insufficient permissions or a locked file).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the file is successfully deleted. If the operation fails, an exception is thrown instead of returning <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Deleting a single file
+try {
+    $file = new File();
+    $success = $file->delete('/path/to/file.txt');
+    if ($success) {
+        echo "File deleted successfully.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Deleting multiple files in a loop
+$files_to_delete = [
+    '/path/to/file1.txt',
+    '/path/to/file2.jpg',
+    '/path/to/file3.log',
+];
+
+$file = new File();
+foreach ($files_to_delete as $file_path) {
+    try {
+        $file->delete($file_path);
+        echo "Deleted $file_path successfully.\n";
+    } catch (Exception $e) {
+        echo "Failed to delete $file_path: " . $e->getMessage() . "\n";
+    }
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $file->delete('/path/to/restricted/file.txt');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this file is restricted: /path/to/restricted/file.txt"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the file path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Check File Existence:</strong> Verify the file exists before attempting to delete it, or handle the exception gracefully.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions, especially when deleting multiple files or working with user-provided paths.</li>
+      <li><strong>Ensure Permissions:</strong> Make sure the script has sufficient permissions to delete the file.</li>
+      <li><strong>Log Deletions:</strong> For auditing purposes, log successful and failed deletion attempts.</li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<h1>Understanding Trongate&#8217;s Token System</h1>
+
+<h2>Core Components of Trongate&#8217;s Token System</h2>
+<p>At the heart of Trongate&#8217;s authorization and authentication framework lies a trio of database tables that work together to manage user access securely. These tables form the backbone of the token system, enabling granular control over user roles, permissions, and session management.</p>
+
+<h3>trongate_user_levels</h3>
+<p>This table defines the various user levels (e.g., admin, member) within the application. Each user level corresponds to a specific set of permissions, determining what actions a user can perform. For example:</p>
+[code=sql]
+INSERT INTO `trongate_user_levels` (`id`, `level_title`) 
+VALUES (1, 'admin');
+[/code]
+<p>By defining user levels here, developers can enforce role-based access control across the application.</p>
+
+<h3>trongate_users</h3>
+<p>The <code>trongate_users</code> table serves as a bridge between users and their roles. It links each user to a specific user level via the <code>user_level_id</code> field. Additionally, it generates a unique <code>code</code> for each user, which can be used for secure identification. For instance:</p>
+[code=sql]
+INSERT INTO `trongate_users` (`id`, `code`, `user_level_id`) 
+VALUES (1, 'Tz8tehsWsTPUHEtzfbYjXzaKNqLmfAUz', 1);
+[/code]
+<p>This table ensures that every user is associated with a role, enabling seamless integration with the token system.</p>
+
+<h3>trongate_tokens</h3>
+<p>The <code>trongate_tokens</code> table manages the generation, storage, and validation of authentication tokens. Each token is tied to a specific user (<code>user_id</code>) and has an expiration date (<code>expiry_date</code>). For example:</p>
+[code=sql]
+CREATE TABLE IF NOT EXISTS `trongate_tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `token` varchar(125) DEFAULT NULL,
+  `user_id` int(11) DEFAULT 0,
+  `expiry_date` int(11) DEFAULT NULL,
+  `code` varchar(3) DEFAULT '0',
+  PRIMARY KEY (`id`)
+);
+[/code]
+<p>Tokens are automatically purged from the database once they expire, ensuring a high level of security.</p>
+
+<div class="alert alert-info">
+  <p>The <code>user_id</code> column establishes a relational link to the <code>id</code> column in the <code>trongate_users</code> table through a foreign key relationship.</p>
+</div>
+
+<p class="mt-3">To visualize how these tables interact, refer to the following <strong>table joins screenshot</strong>, which illustrates the relationships between <code>trongate_tokens</code>, <code>trongate_users</code>, and <code>trongate_user_levels</code>.</p>
+
+<div class="text-center">
+    <figure>
+        <img src="images/tokens_tables.webp" alt="The contents of a basic Trongate web application" style="width:100%">
+        <figcaption>How the database tables involved in authorization and authentication are related.</figcaption>
+    </figure>
+</div>
+
+<h2>How Tokens Enable Secure Access</h2>
+<p>Tokens play a pivotal role in Trongate&#8217;s security framework by acting as proof of authentication. Once a user successfully logs in, a token is generated and stored securely—either in the session, a cookie, or passed via HTTP headers. This token is then used to authenticate the user during subsequent requests.</p>
+
+<p>For example, when a user submits a request to access a protected endpoint, Trongate validates the token by checking its expiration date and ensuring it matches a valid user. If the token is valid, access is granted; otherwise, the request is denied.</p>
+
+<h2>Token Lifecycle Overview</h2>
+<p>While upcoming pages will delve deeper into the specifics of token generation, validation, and cleanup, here’s a high-level overview of the token lifecycle:</p>
+<ul>
+    <li><strong>Generation:</strong> Tokens are created upon specific events, such as successful login or account creation. Developers can customize parameters like <code>expiry_date</code> and whether the token should be stored in a cookie.</li>
+    <li><strong>Storage:</strong> Tokens can be stored in multiple locations, including:
+        <ul>
+            <li><strong>Session:</strong> Ideal for server-side applications.</li>
+            <li><strong>Cookies:</strong> Useful for client-side persistence.</li>
+            <li><strong>HTTP Headers:</strong> Commonly used for API-based interactions.</li>
+        </ul>
+    </li>
+    <li><strong>Validation:</strong> Trongate validates tokens by querying the <code>trongate_tokens</code> table, ensuring the token is active and associated with a valid user.</li>
+    <li><strong>Expiration and Cleanup:</strong> Tokens have a default lifespan of one day (86,400 seconds). Expired tokens are automatically purged from the database to maintain system integrity.</li>
+</ul>

@@ -1,0 +1,19 @@
+<h1>Truly Modular Architecture</h1>
+<p>Trongate applications exemplify a <strong>truly modular</strong> architecture, setting them apart from traditional PHP frameworks that often rely on pseudo-modularity and intricate dependencies. Unlike frameworks that depend on a 'vendor' directory managed by Composer for library loading, Trongate directly and independently loads modules. This efficient design minimizes overhead, streamlines the initialization process, and delivers significant performance improvements, as validated by independent benchmarks.</p>
+<div class="alert alert-info">
+    <p>Modularity in software design involves breaking down a system into independent, interchangeable modules. Each module encapsulates specific functionality, helping manage complexity, improve reusability, and enhance maintainability.</p>
+</div>
+<h2>Understanding the Modules Directory</h2>
+<p>In the Trongate framework, the majority of developer-authored code resides within the "modules" directory. This directory implements Trongate's HAVC (Hierarchical Assets View Controller) architectural pattern, which enhances modularity and promotes clean, organized code.</p>
+<h3>What Is HAVC?</h3>
+<p>For developers familiar with the traditional MVC pattern, HAVC will feel intuitive. It retains core MVC components, such as controller files for application logic and views for presentation layers.</p>
+<p>In Trongate, each module within the modules directory functions as an independent MVC cluster. These modules are self-contained but can interact with other modules and parts of the broader application. Additionally, HAVC supports the inclusion of <strong>modules within modules</strong>, offering enhanced modularity and flexibility to design scalable, maintainable applications.</p>
+<p>The graphic below illustrates the typical structure of the modules directory. The two-way arrows indicate bidirectional communication between modules, allowing them to exchange information with both controller and view files.</p>
+<div class="text-center mt-3">
+    <figure>
+        <img src="images/25/havcuSkk.png" alt="Diagram of Trongate Modules Directory" style="width:100%">
+        <figcaption>A Visual Representation of Hierarchical Assets View Controller Architecture.</figcaption>
+    </figure>
+</div>
+<h2>HAVC vs. HMVC</h2>
+<p>Trongate's modular architecture shares conceptual similarities with HMVC by introducing hierarchy through submodules within modules. However, Trongate's structure is more flexible and less rigid than the strict hierarchical design typical of HMVC. This flexibility allows Trongate to combine structured code organization with loosely coupled systems, providing developers with adaptability and efficiency. As a result, Trongate excels in delivering robust, straightforward solutions without the complex dependencies often associated with traditional HMVC frameworks.</p>

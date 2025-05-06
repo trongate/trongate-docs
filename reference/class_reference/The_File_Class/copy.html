@@ -1,0 +1,112 @@
+<div class="container">
+  <h1>copy()</h1>
+  <p class="signature">function copy(string $source_path, string $destination_path): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Copies a file from a source location to a specified destination. This method ensures the source file exists and is accessible, validates the source path against predefined security rules, and performs the copy operation. If the operation succeeds, it returns <code>true</code>; otherwise, it throws an exception.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$source_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>It checks if the source file exists at the specified path.</li>
+      <li>If both checks pass, it attempts to copy the file to the <code>$destination_path</code>.</li>
+      <li>If the copy operation fails, an exception is thrown with a descriptive error message.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the source file exists and the destination path is writable. If the source file is restricted or inaccessible, or if the destination path is invalid, the method will throw an exception.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$source_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the source file that needs to be copied. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$destination_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the destination where the file will be copied. The destination directory must be writable.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$source_path</code> is restricted by security rules (e.g., accessing sensitive directories).</li>
+      <li>The source file does not exist at the specified path.</li>
+      <li>The copy operation fails (e.g., due to insufficient permissions or an invalid destination path).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the file is successfully copied. If the operation fails, an exception is thrown instead of returning <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Copying a file to a new location
+try {
+    $file = new File();
+    $success = $file->copy('/path/to/source/file.txt', '/path/to/destination/file.txt');
+    if ($success) {
+        echo "File copied successfully.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Copying multiple files in a loop
+$files_to_copy = [
+    '/path/to/source/file1.txt' => '/path/to/destination/file1.txt',
+    '/path/to/source/file2.jpg' => '/path/to/destination/file2.jpg',
+];
+
+$file = new File();
+foreach ($files_to_copy as $source => $destination) {
+    try {
+        $file->copy($source, $destination);
+        echo "Copied $source to $destination successfully.\n";
+    } catch (Exception $e) {
+        echo "Failed to copy $source: " . $e->getMessage() . "\n";
+    }
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $file->copy('/path/to/restricted/file.txt', '/path/to/destination/file.txt');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this path is restricted: /path/to/restricted/file.txt"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the source and destination paths are valid and accessible before calling this method.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when copying multiple files or working with user-provided paths.</li>
+      <li><strong>Check Permissions:</strong> Ensure the destination directory is writable to avoid copy failures.</li>
+      <li><strong>Use Secure Paths:</strong> Avoid copying files to or from restricted directories (e.g., <code>config</code>, <code>engine</code>) to maintain application security.</li>
+    </ul>
+  </div>
+</div>

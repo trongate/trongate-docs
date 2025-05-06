@@ -1,0 +1,91 @@
+<h1>The Value of Module-to-Module Calls</h1>
+<p>Trongate is a robust and flexible PHP framework designed to facilitate efficient and maintainable web application development. One of its key features is the ability to load modules from other modules. This capability provides several significant benefits, enhancing both the architecture and functionality of your applications.</p>
+<div class="alert alert-info">
+    Throughout this documentation, you will encounter the terms '<b>calling</b> module(s)', '<b>loading</b> module(s)', and '<b>invoking</b> module(s)'. These terms are used interchangeably and essentially mean the same thing: utilizing the functionality of one module within another module. This process involves making a module's methods and properties available in the context of another module to achieve a specific functionality or result.
+</div>
+<h2>Benefits of Loading Modules from Other Modules</h2>
+<h3>Code Reusability</h3>
+<p>Loading modules from other modules promotes code reusability. By encapsulating specific functionality within modules, developers can easily reuse that functionality across different parts of the application without duplicating code. This leads to more efficient development processes and a reduction in potential errors.</p>
+<h3>Separation of Concerns</h3>
+<p>Separation of concerns is a fundamental principle in software development. By keeping different functionalities in distinct modules, developers can ensure that each module handles a specific aspect of the application. This modular approach makes the codebase more organized, easier to understand, and simpler to maintain.</p>
+<h3>Improved Maintainability</h3>
+<p>Maintaining a large codebase can be challenging. By dividing the application into modules, each handling a specific function, changes or updates can be made more easily. If a particular functionality needs to be modified, developers can focus on the relevant module without affecting other parts of the application.</p>
+<h3>Enhanced Collaboration</h3>
+<p>In a collaborative development environment, different team members can work on different modules simultaneously. This modular structure facilitates parallel development, as changes in one module are less likely to interfere with the work being done on other modules. It also makes code reviews and testing more manageable.</p>
+<h3>Scalability</h3>
+<p>As your application grows, the ability to load modules from other modules helps in scaling the application efficiently. New functionalities can be added as separate modules without disrupting the existing architecture. This modular approach ensures that the application remains scalable and manageable over time.</p>
+<h3>Flexibility</h3>
+<p>Loading modules from other modules provides the flexibility to create complex and feature-rich applications. Developers can combine various modules to build sophisticated functionalities while keeping the codebase clean and maintainable. This flexibility allows for rapid development and easy integration of new features.</p>
+<h3>Enhanced Performance</h3>
+<p>Trongate's module loading system offers significant performance advantages over the PSR-4 autoloading standard used in many PHP frameworks. Unlike PSR-4, which involves a round trip to a 'vendor' directory and introduces additional overhead, Trongate provides a more direct loading mechanism. This streamlined approach eliminates unnecessary processing steps, resulting in faster module retrieval and notably improved application performance.</p>
+<h2>Conclusion</h2>
+<p>The ability to load modules from other modules is a powerful feature of the Trongate framework. It offers numerous benefits, including code reusability, separation of concerns, improved maintainability, enhanced collaboration, scalability, and flexibility. By leveraging this capability, developers can create robust, efficient, and maintainable web applications that are well-organized and easy to scale.</p>
+<h1>Loading Modules From Controllers</h1>
+<p>Within the Trongate framework, there are two primary methods for a module to load another module.</p>
+<p>The first method involves loading a module from within a <em>controller</em> file, while the second involves loading a module from a <em>view</em> file. This section focuses on loading a module from a controller file.</p>
+<p>To load a module from a controller, use the following syntax:</p>
+[code=php]$this->module("module_name");
+$this->module_name->do_something();
+[/code]
+<p>As illustrated, only two lines of code are required to load a method from a different module.</p>
+<p>Below is an improved example demonstrating how to call a 'Tax' module to calculate the final price after tax has been applied. This method first loads the 'Tax' module and then invokes its method to add tax to the base price.</p>
+[code=php]function calculate_total_price($base_price) {
+
+  // Load the "Tax" module
+  $this->module("tax");
+
+  // Calculate the final price by adding tax using the "Tax" module
+  $final_price = $this->tax->add_tax($base_price);
+  return $final_price;
+}
+[/code]
+<p>Here is a more complex example that involves loading and using three different modules: 'Tax', 'Shipping', and 'Discount'. This method calculates the final price by applying tax, adding shipping costs, and then applying any available discounts.</p>
+[code=php]function calculate_final_price($base_price) {
+
+  // Load the necessary modules
+  $this->module("tax");
+  $this->module("shipping");
+  $this->module("discount");
+
+  // Apply tax to the base price
+  $price_with_tax = $this->tax->add_tax($base_price);
+
+  // Add shipping costs
+  $price_with_shipping = $this->shipping->add_shipping($price_with_tax);
+
+  // Apply discounts
+  $final_price = $this->discount->apply_discount($price_with_shipping);
+  return $final_price;
+}
+[/code]
+<p>In the example above:</p>
+<ul>
+    <li>The 'Tax' module's <code>add_tax</code> method is used to add tax to the base price.</li>
+    <li>The 'Shipping' module's <code>add_shipping</code> method calculates and adds the shipping cost to the price with tax.</li>
+    <li>The 'Discount' module's <code>apply_discount</code> method applies any available discounts to the price with shipping.</li>
+</ul>
+<div class="alert alert-success">
+    In this example, the modules are loaded together at the beginning of the method. This approach enhances code readability and maintainability by clearly showing which modules are being used.
+</div>
+<h1>Loading Modules From Views</h1>
+<p>Within the Trongate framework, it is possible to load another module from within a view file. This capability provides additional flexibility and allows for dynamic content generation within views.</p>
+<p>To load a module from a view file, use the following syntax:</p>
+[code=vf]&lt;?= Modules::run("module_name/method_name") ?&gt;[/code]
+<h2>Why Use This Approach?</h2>
+<p>There are various scenarios where loading a module from within a view file can be advantageous. For instance, consider the need to include a 'Stripe' payment button on a webpage. When users click the 'Buy Now' button, a pop-up might appear, prompting the user to enter payment details. The implementation of such a feature can be complex and is best handled by a dedicated 'stripe' module.</p>
+<p>Having a separate 'stripe' module that manages everything related to Stripe payments, including rendering the pop-up payment modal, allows you to maintain clean and organized code. This module can be easily called from any view file with a single line of code, as shown below:</p>
+[code=vf]&lt;?= Modules::run("stripe/render_payment_button") ?&gt;[/code]
+<h2>Passing Arguments</h2>
+<p>When calling modules from view files, arguments can be passed to the methods. This is done by separating the arguments with commas. Below is an example where a variable called <code>$name</code> is passed as an argument:</p>
+[code=vf]&lt;?= Modules::run("welcome/greeting", $name) ?&gt;[/code]
+<div class="alert alert-info">
+    <p>The examples above use short PHP echo tags.  However, it's important to note that use normal (long) opening 
+    PHP tags would work also.  For example, the code below is valid:</p>
+
+[code=vf]&lt;?php
+echo Modules::run("welcome/greeting", $name);
+?&gt;[/code]
+
+    <p>With regards to working with view files and HTML templates, Trongate favors pure PHP.</p>
+
+</div>

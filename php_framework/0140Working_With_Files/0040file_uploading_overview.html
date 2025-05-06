@@ -1,0 +1,77 @@
+<h1>File Uploading - An Overview</h1>
+
+<p>Trongate provides the necessary tools to build custom file uploaders. The process of building a file uploader is similar to building any other form, but with a few additional steps to handle the file itself.</p>
+
+<p>Here is a list of the main components that make up a custom file uploader:</p>
+
+<ul>
+  <li><strong>A webpage with a file upload form:</strong> This is the user interface that allows users to select a file and submit it to the server.</li>
+  <li><strong>A method for receiving post requests from the uploader:</strong> This is the server-side code that handles the file once it has been submitted by the user.</li>
+  <li><strong>Some validation tests:</strong> These ensure that the submitted file meets the requirements set by the application (e.g., file type, size).</li>
+  <li><strong>A means of gracefully dealing with errors:</strong> This includes handling errors that occur during validation, as well as errors that may happen during the file upload process.</li>
+  <li><strong>A destination directory where files are to be uploaded to:</strong> This is the location on the server where the uploaded file will be saved.</li>
+  <li><strong>A little bit of configuration:</strong> This includes setting up the destination directory and any other settings that the application requires.</li>
+  <li><strong>A success message or page:</strong> This is the message or page that is displayed to the user once the file has been successfully uploaded.</li>
+</ul>
+
+<p>Most of these components are similar to what you would expect in any form-building scenario. The upcoming sections of this chapter will provide a detailed guide on how to build each of these components and put them together to create a custom file uploader using Trongate.</p>
+
+<hr>
+<h2>Trongate&#8217;s Two Upload Methods</h2>
+
+<p>The main Trongate class (Trongate.php) contains two distinct methods for handling file uploads: <span class="feature-ref">upload_file()</span> and <span class="feature-ref">upload_picture()</span>. While both methods facilitate file uploads, they serve different purposes and are optimized for different scenarios.</p>
+
+<h3>The upload_file() Method</h3>
+<p>The <span class="feature-ref">upload_file()</span> method is designed for general-purpose file uploads. It handles the basic process of moving a file from a temporary location to its final destination on your server. This method is ideal when you need to:</p>
+<ul>
+    <li>Upload non-image files (PDFs, text files, documents, etc.)</li>
+    <li>Upload images without requiring any additional processing</li>
+    <li>Perform basic file operations without any specialized handling</li>
+</ul>
+
+<h3>The upload_picture() Method</h3>
+<p>The <span class="feature-ref">upload_picture()</span> method is specifically designed for handling image uploads that require additional processing. Beyond the basic upload functionality, this method can:</p>
+<ul>
+    <li>Automatically resize images to meet specified dimensions</li>
+    <li>Generate thumbnails of uploaded images</li>
+    <li>Handle image-specific validation and processing</li>
+</ul>
+
+<h3>Choosing the Right Method</h3>
+<p>When building a file uploader, selecting the appropriate method is crucial. Here's a guide to help you make the right choice:</p>
+
+<h4>Use upload_file() when:</h4>
+<ul>
+    <li>You're uploading non-image files (documents, PDFs, etc.)</li>
+    <li>You need to upload images but don't require any resizing or thumbnail generation</li>
+    <li>You want simple, straightforward file handling without additional processing</li>
+</ul>
+
+<h4>Use upload_picture() when:</h4>
+<ul>
+    <li>You're working specifically with image files (JPEG, PNG, GIF, etc.)</li>
+    <li>You need automatic image resizing capabilities</li>
+    <li>You want to generate thumbnails automatically</li>
+    <li>You require image-specific processing or validation</li>
+</ul>
+
+<h3>Handling Mixed File Types</h3>
+<p>If your application needs to handle both image and non-image files, you can implement logic to determine which method to use based on the file type. Here's an example:</p>
+
+[code=php]
+$file_type = mime_content_type($_FILES['userfile']['tmp_name']);
+
+if (strpos($file_type, 'image/') === 0) {
+    // Handle as an image using upload_picture()
+    $result = $this->upload_picture($config);
+} else {
+    // Handle as a regular file using upload_file()
+    $result = $this->upload_file($config);
+}
+[/code]
+
+<div class="alert alert-success">
+<p>While it might be tempting to use <code>upload_file()</code> for all uploads to keep things simple, it's recommended to use <code>upload_picture()</code> when working with images that require processing. This ensures you get the benefit of Trongate's built-in image handling capabilities and keeps your code clean and maintainable.</p>
+</div>
+
+<p>In the next sections, we'll look at practical examples of how to implement both types of uploaders and explore their configuration options in detail.</p>

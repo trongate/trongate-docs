@@ -1,0 +1,205 @@
+<h1>Custom Routing Patterns</h1>
+<p>As discussed <a href="documentation/display/php_framework/understanding-routing/introducing-custom-url-routing">previously</a>, custom routing is handled via the initialization of a <code>$routes</code> array within the file, 'custom_routing.php'.</p>
+
+[code]
+  config/ 
+    custom_routing.php 
+[/code]
+
+<p>Trongate offers two types of routing patterns that can be used to set up custom routing rules. These are:</p>
+<ol>
+    <li>Basic Routing Patterns</li>
+    <li>Dynamic Routing Patterns</li>
+</ol>
+
+<hr />
+
+<h2>Basic Routing Patterns</h2>
+<p><b>Basic routing patterns</b> are static mappings. A basic routing pattern is designed to match an explicitly declared URL path to an explicitly defined response.</p>
+
+<p>The matching process for these routes involves checking if the current URL matches one of the keys in the <code>$routes</code> array. If a match is found, the framework directs the request to the corresponding controller and method specified by the value of that key.</p>
+
+<div class="alert alert-info">
+    <p>When Trongate is attempting to match URLs, the <code>BASE_URL</code> will be disregarded.</p>
+</div>
+
+<h3 class="mt-3">Basic Custom Routing Example</h3>
+<p>To create a basic custom routing rule, add a key-value pair to the <code>$routes</code> array.  Here's an example: </p>
+
+[code=php]
+&lt;?php
+$routes = [
+    'login' => 'users/login'
+];
+
+define('CUSTOM_ROUTES', $routes);
+[/code]
+<p>With the code above, any request made to <code>&lt;base-url&gt;login</code>, will cause the following chain of events to occur:</p>
+
+<ul>
+    <li>The framework will attempt to locate a module named 'users'.</li>
+    <li>The framework will attempt to find a controller file, named 'Users.php' within the users module.</li>
+    <li>The framework will attempt to find and load a PHP class named 'Users', within the target controller file.</li>
+    <li>The framework will attempt to find a method named <code>login()</code>, within the Users class.</li>
+    <li>The framework will attempt to invoke the target <code>login()</code> method.</li>
+</ul>
+
+<p>Put simply, if somebody was to go to:</p>
+[code]http://example.com/login[/code]
+
+<p>...the address bar would <b>not</b> change but the website would behave as though the user had navigated to:</p>
+
+[code]http://example.com/users/login[/code]
+
+<h3 class="mt-3">A Word Of Caution</h3>
+<p>Basic custom routing offers an easy way to effectively declare:</p>
+<p><i>"If a user arrives on 'x', behave as though they have arrived on 'y'."</i></p>
+<p><b>But beware!</b></p>
+<p>Basic custom routing <i>only</i> works when the current URL can be <b>precisely</b> matched to the defined URL pattern.  It should never be used to <i>generally</i> swap 'x' for 'y' across a range of URLs.</p>
+
+
+<div class="alert alert-danger">
+    <p>Suppose you'd like to have the following rule enforced:</p>
+
+<p><i>"When a user lands on <b>any</b> URL with a first segment of 'nice-segment', respond as though they have landed on an equivalent URL, but with a first segment of 'ugly_segment'."</i></p>
+
+<p>It might seem tempting to set up a simple custom URL routing rule like this:</p>
+
+[code=php]
+'nice-segment' => 'ugly_segment' 
+[/code]
+
+<p>However, this would be a blunder since basic custom routing patterns only work for <b>exact</b> matches.</p>  
+<p>The rule above would not account for any variations in the URL beyond the first segment. So, it's possible that the current URL could include additional segments <i>beyond</i> the first segment.  Those kinds of URLs wouldn't be properly routed without a dynamic match.</p>
+<p>The correct way to define such a rule would be:</p>
+
+[code=php]
+'nice-segment/(:all)' => 'ugly_segment/$all'
+[/code]
+
+<p>This would be a <i>dynamic</i> routing pattern - which happens to be the topic of discussion for the remainder of this page.</p>
+
+</div>
+<hr>
+<h2>Dynamic Routing Patterns</h2>
+
+<p>Dynamic routing patterns allow for more flexible routing by capturing variable segments in the URL. They use <strong>wildcard placeholders</strong> to match specific parts of the URL and pass those values to the controller method. This feature is essential when the URL structure involves dynamic parameters, such as IDs, names, or multi-segment paths.</p>
+
+<h2>Wildcard Types</h2>
+<p>Trongate provides three types of wildcards for capturing URL segments:</p>
+<ul>
+    <li><strong>(:num)</strong>: Matches only numeric values. This is useful for routes where you expect a numerical identifier, such as product IDs.</li>
+    <li class="mt-1"><strong>(:any)</strong>: Matches any characters except the forward slash ('/'). This is useful for more general segments like categories or user names.</li>
+    <li class="mt-1"><strong>(:all)</strong>: Matches all remaining segments in the URL. This wildcard captures everything following it, which is helpful for paths with multiple segments (e.g., documentation paths or multi-level categories).</li>
+</ul>
+
+<p>Here's an example of how these wildcards can be used:</p>
+
+[code=php]&lt;?php
+$routes = [
+  // Match numeric IDs
+  'product/(:num)' =&gt; 'store/item/$1',  // Matches product/123
+    
+  // Match any segment
+  'category/(:any)' =&gt; 'store/category/$1',  // Matches category/t-shirts
+    
+  // Multiple wildcards
+  'blog/(:any)/(:num)' =&gt; 'blog/post/$1/$2',  // Matches blog/summer/2024
+    
+  // Match all remaining segments
+  'help/(:all)' =&gt; 'help/$all'  // Matches help/docs/api/v2
+];
+?&gt;[/code]
+
+<h2>Wildcard Table</h2>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Pattern</th>
+            <th>Matches</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>(:num)</code></td>
+            <td>Numbers only</td>
+            <td>123</td>
+        </tr>
+        <tr>
+            <td><code>(:any)</code></td>
+            <td>Any characters except '/' (the forwardslash)</td>
+            <td>user-1</td>
+        </tr>
+        <tr>
+            <td><code>(:all)</code></td>
+            <td>Captures all remaining segments</td>
+            <td>docs/api/v2</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <strong>Note:</strong> The <code>(:all)</code> wildcard must be the last segment in your route pattern as it captures everything that follows.
+</div>
+
+<h2>Controller Mapping</h2>
+<p>The right side of each route maps to a controller and method, and the placeholders from the left side are passed to the method as parameters. Here's an example of how it works:</p>
+
+[code=php]&lt;?php
+$routes = [
+  'url-path' =&gt; 'controller/method'
+];
+
+// Examples
+$routes = [
+  'products' =&gt; 'store/list',               // Store::list()
+  'product/(:num)' =&gt; 'store/view/$1',      // Store::view($id)
+  'docs/(:all)' =&gt; 'documentation/$all',    // Captures full path
+  'search' =&gt; 'store/search'                // Store::search()
+];
+?&gt;[/code]
+
+<p>In the example above, <code>(:num)</code> captures the numeric ID passed in the URL, and <code>(:any)</code> captures any string-based segment. The <code>(:all)</code> wildcard is used for capturing everything after a particular path segment.</p>
+
+<h2>Route Groups</h2>
+<p>Organizing your routes into groups makes the routing system more maintainable and readable. Here's an example of how to group related routes together:</p>
+
+[code=php]&lt;?php
+$routes = [
+  // Product routes
+  'products' =&gt; 'store/list',
+  'products/new' =&gt; 'store/new_items',
+  'products/sale' =&gt; 'store/sale_items',
+    
+  // Category routes
+  'category/(:any)' =&gt; 'store/category/$1',
+  'categories' =&gt; 'store/all_categories',
+    
+  // Documentation routes
+  'docs/(:all)' =&gt; 'documentation/$all',
+    
+  // Cart routes
+  'cart' =&gt; 'cart/view',
+  'cart/add/(:num)' =&gt; 'cart/add/$1',
+  'cart/remove/(:num)' =&gt; 'cart/remove/$1'
+];
+?&gt;[/code]
+
+<h2>Important Considerations</h2>
+<div class="alert alert-info">
+    <strong>Important:</strong> Routes are matched in order of specificity. More specific routes should be placed before more general ones, especially before routes using <code>(:all)</code>.
+</div>
+
+<h2>Best Practices</h2>
+<div class="alert alert-success">
+    <ul>
+        <li>Keep URLs clean and meaningful</li>
+        <li>Use consistent naming patterns</li>
+        <li>Place more specific routes first</li>
+        <li>Group related routes together</li>
+        <li>Use appropriate wildcards for dynamic segments</li>
+        <li>Use <code>(:all)</code> when you need to capture multiple segments in a single route</li>
+    </ul>
+</div>

@@ -1,0 +1,280 @@
+<h1>Creating Forms</h1>
+
+<p>Trongate contains a wide assortment of in-built <a href="documentation-ref/list_refs/helpers/form-helpers" target="_blank">form helpers</a> to assist with form building. Form helpers are a set of PHP functions designed to simplify the process of creating and managing HTML forms within your application.</p>
+
+<p>With Trongate, all form helpers are available immediately and with no requirement to load anything. There is also no need to update any configuration files if you want to use Trongate's form helpers. In short, they just work "out of the box". </p>
+
+<div class="alert alert-info">
+  <p>A comprehensive list of Trongate's form helper functions is available from the <a href="documentation-ref/list_refs/helpers/form-helpers" target="_blank">Trongate API Guide</a>.</p>
+</div>
+
+<h2>Opening A Form</h2>
+
+<p>The creation of an HTML form that posts data to an endpoint (URL) requires a form opening tag. A form opening tag typically contains:</p>
+<ol>
+  <li>A method property</li>
+  <li>A form location</li>
+</ol>
+
+<p>In normal (vanilla) HTML, this could be written like so:</p>
+[code=html]&lt;form action="tasks/submit" method="post"&gt;[/code]
+
+<div class="alert alert-info">
+<p>The above form opening tag has an <strong>action</strong> property with a value of 'tasks/submit'. This means that the form is going to submit an HTTP request to the URL <code>tasks/submit</code>.</p>
+<p>The form opening tag (above) also has a <strong>method</strong> property with an assigned value of 'post'. This means that submission of the form will result in an HTTP <strong>POST</strong> request being made.</p>  
+</div>
+
+<h3>Trongate's Form Open Function</h3>
+<p>With Trongate's <span class="feature-ref">form_open()</span> function, an opening form tag can easily be rendered from within a view file.  For example:</p>
+[code=vf]echo form_open('tasks/submit');[/code]
+
+<p>Having this code inside a view file will result in the following HTML being rendered:</p>
+
+[code=html]&lt;form action="tasks/submit" method="post"&gt;[/code]
+
+<div class="alert alert-success">
+  <p>When using Trongate's <span class="feature-ref">form_open()</span> function, it's a good practice to declare the form location from within a controller file and to then have the form location passed into the corresponding view file. For example:</p>
+
+[code=php]function create() {
+  $data['form_location'] = 'tasks/submit';
+  $this-&gt;view('form', $data);
+}[/code]
+
+<p>When Trongate's <span class="feature-ref">view()</span> method is invoked, the second argument (i.e., the <code>$data</code> array) is automatically extracted, making the following syntax possible:</p>
+[code=vf]echo form_open($form_location);[/code]
+</div>
+
+<div class="alert alert-warning">
+  <p>Don't forget to use opening and closing PHP tags when adding PHP to a view file!  For example:</p>
+[code=vf]
+&lt;h1&gt;Create New Task&lt;/h1&gt;
+&lt;?php
+echo form_open($form_location);
+// rest of the form to go here...
+?&gt;
+[/code]
+</div>
+
+<hr>
+
+<h2>Rendering Form Elements</h2>
+
+<p>Having produced a form opening tag, your next goal should be to render form elements such as form input fields. A full breakdown of all available form elements can be viewed <a href="documentation-ref/list_refs/helpers/form-helpers" target="_blank">here</a>. In the meantime, and for brevity, here are some commonly used form helpers that can be used to generate form elements.</p>
+
+<h3>Input Fields</h3>
+<p>The <span class="feature-ref">form_input()</span> helper function can be used to create an HTML form input element, for text input. For example:</p>
+[code=php]echo form_input('username', 'John');[/code]
+<p>In the code sample above, the first parameter represents the 'name' attribute, and the second is the default value. This means that the above code snippet would render a form input field that has been pre-populated with the username, 'John'.</p>
+<p>The PHP code above would render the following HTML:</p>
+[code=html]&lt;input type="text" name="username" value="John"&gt;[/code]
+
+<div class="alert alert-success">
+    <p>Form helpers automatically handle proper escaping. Therefore, do not combine form helpers with the <span class="feature-ref">out()</span> function or manual escaping functions.</p>
+</div>
+
+<h3 class="mt-3">Textareas</h3>
+<p>The <span class="feature-ref">form_textarea()</span> function mirrors <code>form_input()</code> in every way except that it creates a "textarea" element.</p>
+[code=php]echo form_textarea('description', '');[/code]
+<p>In the code sample above, the first parameter represents the 'name' attribute, and the second is the default value for the textarea. In the code snippet above, the default value has been set to an empty string. This would produce an empty textarea element, like so:</p>
+
+[code=html]&lt;textarea name="description"&gt;&lt;/textarea&gt;[/code]
+
+
+<h3 class="mt-3">Dropdowns</h3>
+<p>The <span class="feature-ref">form_dropdown()</span> helper function generates an HTML select (dropdown) element with multiple options. For example:</p>
+[code=php]$options = array(
+  'small'  => 'Small Shirt',
+  'med'    => 'Medium Shirt',
+  'large'  => 'Large Shirt',
+  'xlarge' => 'Extra Large Shirt',
+);
+echo form_dropdown('size', $options, 'large');[/code]
+<p>In the example above, the first parameter represents the 'name' attribute, the second is an associative array of options, and the third is the selected option.</p>
+
+<p>Here's the HTML that would be rendered by the above code sample:</p>
+[code=html]&lt;select name="size"&gt;
+    &lt;option value="small"&gt;Small Shirt&lt;/option&gt;
+    &lt;option value="med"&gt;Medium Shirt&lt;/option&gt;
+    &lt;option value="large" selected="selected"&gt;Large Shirt&lt;/option&gt;
+    &lt;option value="xlarge"&gt;Extra Large Shirt&lt;/option&gt;
+&lt;/select&gt;[/code]
+
+<h3 class="mt-3">Checkboxes and Radio Buttons</h3>
+<p>The <span class="feature-ref">form_checkbox()</span> and <span class="feature-ref">form_radio()</span> helper functions are used to create checkbox and radio button elements, respectively. For example:</p>
+[code=php]echo form_checkbox('newsletter', 'accept', true);
+echo form_radio('gender', 'male', true);[/code]
+<p>In the code above, the first parameter represents the 'name' attribute, the second is the value, and the third is a boolean indicating whether the element should be checked by default.</p>
+
+<p>Here's the HTML code that would be produced from the <span class="feature-ref">form_checkbox()</span> code snippet, as shown above:</p>
+[code=html]&lt;input type="checkbox" name="newsletter" value="accept" checked="checked"&gt;[/code]
+
+<p>Here's the HTML code that would be produced from the <span class="feature-ref">form_radio()</span> code snippet, as shown above:</p>
+[code=html]&lt;input type="radio" name="gender" value="male" checked="checked"&gt;[/code]
+
+<h3 class="mt-3">File Input</h3>
+<p>The <span class="feature-ref">form_file_select()</span> helper function generates an HTML file input element for file uploads. For example:</p>
+[code=php]echo form_file_select('file_upload');[/code]
+<p>In this example, the first parameter represents the 'name' attribute of the file input element.</p>
+
+<p>Here's the HTML code that would be produced from the above code snippet:</p>
+[code=html]&lt;input type="file" name="file_upload"&gt;[/code]
+
+<h3 class="mt-3">Submit Button</h3>
+<p>The <span class="feature-ref">form_submit()</span> helper function creates an HTML submit button for submitting forms. For example:</p>
+[code=php]echo form_submit('submit', 'Submit Form');[/code]
+<p>In the example above, the first parameter represents the 'name' attribute, and the second is the button's label text.</p>
+
+<p>Here's the HTML code that would be produced from the above code snippet:</p>
+[code=html]&lt;button type="submit" name="submit"&gt;Submit Form&lt;/button&gt;[/code]
+
+<hr>
+
+<h2>Closing the Form</h2>
+<p>The <span class="feature-ref">form_close()</span> helper function is used to close an open form. It not only generates the closing form tag but also includes a hidden CSRF token field for enhanced security. For example:</p>
+[code=php]echo form_close();[/code]
+
+<p>Here's the HTML code that would be produced from the above code snippet:</p>
+[code=html]&lt;input type="hidden" name="csrf_token" value="[random_token]"&gt;
+&lt;/form&gt;[/code]
+<p>Note: The <code>[random_token]</code> placeholder represents a dynamically generated CSRF token value for security purposes.</p>
+
+<div class="alert alert-success">
+  <p>Trongate's inbuilt CSRF protection is activated when:</p>
+
+  <ol>
+      <li>The <span class="feature-ref">form_close()</span> function has been used to render a form close tag</li>
+      <li>The <span class="feature-ref">run()</span>, within Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> has has been invoked</li>
+    </ol>
+
+    <p>Always use <span class="feature-ref">form_close()</span>, and validate submitted form fields using the <span class="feature-ref">run()</span> method from Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class">Validation</a> class, to ensure proper form closure and CSRF protection. This is especially important for forms that handle sensitive data.</p>
+
+</div>
+
+<div class="alert alert-info">
+<p>A full explanation of how Trongate's in-built CSRF protection works - under the hood - can be found in the <a href="documentation/display/trongate_mx/trongate-mx-security/csrf-protection" target="_blank">Trongate MX Guide</a>.</p>  
+</div>
+
+<hr>
+
+<h2>Form Attributes</h2>
+<p>Most of Trongate's form helper functions can accept an array of attributes to customize form elements:</p>
+[code=vf]$attributes = array('class' =&gt; 'sm', 'style' =&gt; 'width:50%');
+echo form_input('username', 'Your Username', $attributes);[/code]
+
+<p>This will generate an input field with the specified class and style attributes.</p>
+
+[code=html]&lt;input type="text" name="username" value="Your Username" class="sm" style="width:50%"&gt;[/code]
+
+
+<div class="alert alert-info">
+  <p>In PHP, there are several different types of syntax that can be used to initialize arrays.  The following examples produce precisely the same output though with very different (though perfectly valid) PHP syntax:</p>
+
+  <p class="mb-0"><b>Example 1</b></p>
+
+[code=php]
+$attr['class'] = 'sm';
+$attr['placeholder'] = 'Enter username here...';
+$attr['autocomplete'] = 'off';
+echo form_input('username', '', $attr);
+[/code]
+
+<p class="mt-3 mb-0"><b>Example 2</b></p>
+
+[code=php]
+$attr = [
+  'class' => 'sm',
+  'placeholder' => 'Enter username here...',
+  'autocomplete' => 'off'
+];
+echo form_input('username', '', $attr);
+[/code]
+
+<p class="mt-3  mb-0"><b>Example 3</b></p>
+
+[code=php]
+$attr = array('class' => 'sm', 'placeholder' => 'Enter username here...', 'autocomplete' => 'off');
+echo form_input('username', '', $attr);
+[/code]
+
+<p class="mt-3  mb-0"><b>Defining Attributes Within Helpers</b></p>
+<p>For brevity, you can also define an array of attributes from <i>within</i> a form helper function.  For example,</p>
+
+[code=php]
+echo form_input('username', '', array('class' => 'sm'));
+[/code]
+
+<p class="mt-3">All of the different types of coding styles shown above are valid.</p>
+</div>
+
+<hr>
+<h2>Complete Form Example</h2>
+
+<p>Below is a complete example of how to create a form in Trongate. This example includes a controller method and a corresponding view file.</p>
+
+<h3>Controller Method</h3>
+<p>The controller method initializes the form data and passes it to the view file:</p>
+[code=php]
+public function create(): void {
+    $data['headline'] = 'Create New Task';
+    $data['form_location'] = BASE_URL.'tasks/submit';
+    $data['cancel_url'] = BASE_URL.'tasks/manage';
+    $data['task_title'] = ''; // Default value for task title
+    $data['task_description'] = ''; // Default value for task description
+    $data['complete'] = false; // Default value for checkbox
+
+    $this->view('tasks/create', $data);
+}
+[/code]
+
+<h3>View File</h3>
+<p>The view file contains the HTML and PHP code to render the form:</p>
+[code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Task Details
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;?php
+        echo form_open($form_location);
+        echo form_label('Task Title');
+        echo form_input('task_title', $task_title, array("placeholder" =&gt; "Enter Task Title"));
+        echo form_label('Task Description');
+        echo form_textarea('task_description', $task_description, array("placeholder" =&gt; "Enter Task Description"));
+        echo '&lt;div&gt;';
+        echo form_label('Complete');
+        echo form_checkbox('complete', 1, $complete);
+        echo '&lt;/div&gt;';
+        echo form_submit('submit', 'Submit');
+        echo anchor($cancel_url, 'Cancel', array('class' =&gt; 'button alt'));
+        echo form_close();
+        ?&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<p>This example demonstrates how to create a form for adding a new task. The form includes fields for the task title, description, and a checkbox to mark the task as complete. The form also includes a submit button and a cancel link.</p>
+
+
+<hr>
+    <h2>The Benefits of Using Trongate's Form Helpers</h2>
+    
+    <p>Trongate's form helper functions offer several advantages over raw HTML:</p>
+
+    <ul>
+        <li><strong>Automatic Security:</strong> Values are escaped using HTML entity encoding to prevent XSS vulnerabilities.</li>
+        <li><strong>Validation Integration:</strong> Seamless error highlighting and repopulation after form validation failures.</li>
+        <li><strong>CSRF Protection:</strong> Built-in CSRF token generation through the <code>form_close()</code> function.</li>
+        <li><strong>Consistent Syntax:</strong> PHP-based helpers reduce context switching between HTML and PHP.</li>
+        <li><strong>Reduced Boilerplate:</strong> Simplified creation of complex elements like dropdowns and checkboxes.</li>
+    </ul>
+
+    <div>
+        <p>Example using form helper:</p>
+        [code=php]&lt;?= form_input('username', post('username')) ?&gt;[/code]
+
+        <p>Equivalent raw HTML:</p>
+        [code=html]
+            &lt;input type="text" name="username" value="&lt;?= htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES) ?&gt;"&gt;
+        [/code]
+    </div>

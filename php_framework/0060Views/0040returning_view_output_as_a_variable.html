@@ -1,0 +1,32 @@
+<h1>Returning View Output as a Variable</h1>
+<p>To capture the rendered output of a view file as a string variable in Trongate, developers can utilize the third argument of the <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method. This approach is useful when the output needs to be manipulated or processed further before being sent to the output stream.</p>
+<h2>Example Usage</h2>
+<p>Consider a scenario where you want to capture the HTML output of a 'information.php' view file:</p>
+[code=php]/**
+* Retrieve view file output as a string.
+*
+* @return string The rendered HTML content of the 'information' view file.
+*/
+private function get_information(): string {
+  // Define cities and today's information
+  $data['cities'] = ["New York", "London", "Paris"];
+  $data['today'] = "Monday";
+  // Return the view contents as a string
+  $html = $this->view("information", $data, true);
+  return $html;
+}[/code]
+<p>The code sample above demonstrates capturing the rendered output of a view file and returning the view file output as a PHP variable named, '<b>$html</b>'.</p>
+<h2>Step-by-Step Guide</h2>
+<ol>
+    <li><strong>Step 1:</strong> Assign the result of the <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method to a variable:</li>
+    [code=php]$output = $this->view("greeting", $data...[/code]
+    <li class="mt-2"><strong>Step 2:</strong> Include the boolean value <code>true</code> as the third parameter to return the output as a string:</li>
+    [code=php]$output = $this->view("greeting", $data, true);[/code]
+    <li class="mt-2"><strong>Step 3:</strong> Complete the method by returning the newly created variable:</li>
+    [code=php]return $output;[/code]
+</ol>
+<div class="alert alert-success">
+    <p>If no data array is available when calling the view, simply pass an empty array (as a second argument) followed by the boolean, <code>true</code>:</p>
+    [code=php]$output = $this->view("file", [], true);[/code]
+    <p>This technique effectively returns the view content as a string, facilitating flexible handling within the application.</p>
+</div>

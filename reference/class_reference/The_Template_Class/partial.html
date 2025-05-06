@@ -1,0 +1,206 @@
+<div class="container">
+    <h1>partial()</h1>
+    <p class="signature">public static function partial(string $file_name, ?array $data = null): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>
+            Loads and includes reusable view components (partials) from the global templates directory. This method is primarily used for including common UI elements that are shared across multiple pages or modules, such as headers, navigation bars, footers, and other reusable components.
+        </p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>file_name</td>
+                <td>string</td>
+                <td>
+                    The path to the partial file relative to templates/views/, without the .php extension.
+                    <br><br>
+                    Example: "partials/header" for templates/views/partials/header.php
+                </td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>data</td>
+                <td>array|null</td>
+                <td>
+                    An associative array of variables to be extracted and made available within the partial.
+                    <br><br>
+                    Example: ['page_title' => 'Welcome', 'user' => $user_object]
+                </td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It outputs the content directly.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>File Path Resolution</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Component</th>
+                <th>Description</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Base Path</td>
+                <td>APPPATH . 'templates/views/'</td>
+                <td>/var/www/html/app/templates/views/</td>
+            </tr>
+            <tr>
+                <td>File Name</td>
+                <td>Provided path + .php</td>
+                <td>partials/header.php</td>
+            </tr>
+            <tr>
+                <td>Full Path</td>
+                <td>Complete file path</td>
+                <td>/var/www/html/app/templates/views/partials/header.php</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Common Use Cases</h2>
+
+    <h3>1. Header with Dynamic Title</h3>
+    <div class="example">
+        <p><strong>Template usage:</strong></p>
+        <pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;?= Template::partial('partials/head', [
+        'page_title' => $page_title,
+        'meta_description' => $meta_description
+    ]) ?&gt;
+&lt;/head&gt;</pre>
+
+        <p><strong>Partial content (partials/head.php):</strong></p>
+        <pre>&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;&lt;?= $page_title ?? 'Default Title' ?&gt;&lt;/title&gt;
+&lt;meta name="description" content="&lt;?= $meta_description ?? '' ?&gt;"&gt;
+&lt;link rel="stylesheet" href="&lt;?= BASE_URL ?&gt;css/styles.css"&gt;</pre>
+    </div>
+
+    <h3>2. Navigation with User State</h3>
+    <div class="example">
+        <p><strong>Template usage:</strong></p>
+        <pre>&lt;?= Template::partial('partials/navigation', [
+    'user_id' => $user_id,
+    'is_admin' => $is_admin,
+    'active_page' => 'dashboard'
+]) ?&gt;</pre>
+
+        <p><strong>Partial content (partials/navigation.php):</strong></p>
+        <pre>&lt;nav class="navbar"&gt;
+    &lt;div class="container"&gt;
+        &lt;a class="navbar-brand" href="&lt;?= BASE_URL ?&gt;"&gt;Site Name&lt;/a&gt;
+        &lt;ul class="nav-links"&gt;
+            &lt;?php if (isset($user_id)): ?&gt;
+                &lt;li&gt;&lt;a href="&lt;?= BASE_URL ?&gt;dashboard" class="&lt;?= $active_page === 'dashboard' ? 'active' : '' ?&gt;"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
+                &lt;?php if ($is_admin): ?&gt;
+                    &lt;li&gt;&lt;a href="&lt;?= BASE_URL ?&gt;admin"&gt;Admin Panel&lt;/a&gt;&lt;/li&gt;
+                &lt;?php endif; ?&gt;
+                &lt;li&gt;&lt;a href="&lt;?= BASE_URL ?&gt;logout"&gt;Logout&lt;/a&gt;&lt;/li&gt;
+            &lt;?php else: ?&gt;
+                &lt;li&gt;&lt;a href="&lt;?= BASE_URL ?&gt;login"&gt;Login&lt;/a&gt;&lt;/li&gt;
+            &lt;?php endif; ?&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/nav&gt;</pre>
+    </div>
+
+    <h3>3. Reusable Form Components</h3>
+    <div class="example">
+        <p><strong>Template usage:</strong></p>
+        <pre>&lt;?= Template::partial('partials/forms/text_input', [
+    'label' => 'Email Address',
+    'name' => 'email',
+    'value' => $email ?? '',
+    'required' => true,
+    'error' => $errors['email'] ?? null
+]) ?&gt;</pre>
+
+        <p><strong>Partial content (partials/forms/text_input.php):</strong></p>
+        <pre>&lt;div class="form-group &lt;?= isset($error) ? 'has-error' : '' ?&gt;"&gt;
+    &lt;label for="&lt;?= $name ?&gt;"&gt;
+        &lt;?= $label ?&gt;
+        &lt;?php if ($required ?? false): ?&gt;
+            &lt;span class="required"&gt;*&lt;/span&gt;
+        &lt;?php endif; ?&gt;
+    &lt;/label&gt;
+    &lt;input type="text" 
+           name="&lt;?= $name ?&gt;" 
+           id="&lt;?= $name ?&gt;" 
+           value="&lt;?= htmlspecialchars($value) ?&gt;"
+           &lt;?= ($required ?? false) ? 'required' : '' ?&gt;&gt;
+    &lt;?php if (isset($error)): ?&gt;
+        &lt;div class="error-message"&gt;&lt;?= $error ?&gt;&lt;/div&gt;
+    &lt;?php endif; ?&gt;
+&lt;/div&gt;</pre>
+    </div>
+
+    <h2>Dependencies</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Dependency</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>APPPATH</td>
+                <td>Constant defining the application root path</td>
+            </tr>
+            <tr>
+                <td>attempt_include()</td>
+                <td>Private method that handles file inclusion and data extraction</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Error Handling</h2>
+    <p>If the specified partial file does not exist, the script will terminate with an error message showing the attempted file path. This behavior is handled by the attempt_include() method.</p>
+
+    <div class="alert alert-warning">
+        <h3>Important Notes</h3>
+        <ul>
+            <li>Partial files must be located within the templates/views directory</li>
+            <li>All variables in the $data array become available as individual variables in the partial</li>
+            <li>File paths are case-sensitive on Unix-based systems</li>
+            <li>The .php extension is automatically added to the file name</li>
+            <li>For module-specific partials, use Template::display() instead</li>
+        </ul>
+    </div>
+</div>

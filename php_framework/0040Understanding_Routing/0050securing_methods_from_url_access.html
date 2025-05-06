@@ -1,0 +1,127 @@
+<h1>Securing Methods</h1>
+
+<p>Trongate provides a straightforward way to protect controller methods from direct URL access while keeping them available for internal use. This is crucial for maintaining application security.</p>
+
+<h2>Using the Underscore Prefix</h2>
+<p>To prevent direct URL access to a method, prefix it with an underscore (_):</p>
+
+[code=php]&lt;?php
+class Store extends Trongate {
+
+    // Publicly accessible
+    public function products() {
+        $items = $this->_fetch_products();
+        $this->template('store/products', ['items' => $items]);
+    }
+
+    // Protected from URL access
+    public function _fetch_products() {
+        return $this->model->get('products');
+    }
+}[/code]
+
+<h2>Method Access Rules</h2>
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Method Type</th>
+            <th>URL Access</th>
+            <th>Internal Access</th>
+            <th>Example Usage</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Public Method</td>
+            <td>✓ Allowed</td>
+            <td>✓ Allowed</td>
+            <td><code>function products()</code></td>
+        </tr>
+        <tr>
+            <td>Underscore Method</td>
+            <td>✗ Blocked</td>
+            <td>✓ Allowed</td>
+            <td><code>function _process_form()</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Common Use Cases</h2>
+
+<h3>Form Processing</h3>
+[code=php]&lt;?php
+class Users extends Trongate {
+    
+    // Public form display
+    public function register() {
+        $this->template('users/register_form');
+    }
+    
+    // Protected processing method
+    public function _process_registration() {
+        // Process form data
+        // Validate inputs
+        // Create user account
+    }
+}[/code]
+
+<h3>API Methods</h3>
+[code=php]&lt;?php
+class Products extends Trongate {
+    
+    // Public API endpoint
+    public function api() {
+        $products = $this->_get_filtered_products();
+        echo json_encode($products);
+    }
+    
+    // Protected helper method
+    public function _get_filtered_products() {
+        // Apply filters
+        // Return product data
+    }
+}[/code]
+
+<h2>Security Implications</h2>
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> The underscore prefix only prevents URL access. These methods can still be called from within your application code using <code>$this->_method_name()</code>.</p>
+</div>
+
+<h2>Best Practices</h2>
+<ul>
+    <li><strong>Protect Data Processing:</strong> Use underscore prefix for methods that handle sensitive operations or data processing</li>
+    <li><strong>Helper Methods:</strong> Internal helper methods should always use the underscore prefix</li>
+    <li><strong>Form Handlers:</strong> Methods that process form submissions should be protected</li>
+    <li><strong>API Internals:</strong> Internal API operations should use protected methods</li>
+</ul>
+
+<h2>Method Organization</h2>
+<p>A well-organized controller might look like this:</p>
+
+[code=php]&lt;?php
+class Orders extends Trongate {
+    
+    // Public Methods (URL Accessible)
+    public function create() {
+        // Show order form
+    }
+    
+    public function view($order_id) {
+        // Display order details
+    }
+    
+    // Protected Methods (Internal Only)
+    public function _validate_order($data) {
+        // Validation logic
+    }
+    
+    public function _process_payment($order_data) {
+        // Payment processing
+    }
+    
+    public function _send_confirmation($order_id) {
+        // Email confirmation
+    }
+}[/code]
+
+<p>This organization makes it clear which methods are part of your public interface and which are for internal use only.</p>

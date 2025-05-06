@@ -1,0 +1,88 @@
+<h1>Image Manipulation</h1>
+<p>The Trongate <a href="documentation-ref/list_refs/class_reference/the-image-class" target="_blank">Image class</a> provides a comprehensive suite of methods for efficient and secure image manipulation within your application. This class supports functionalities like loading, resizing, and saving images. It uses PHP's GD library and supports JPEG, GIF, PNG, and WEBP image formats. Access restrictions are in place to prevent unauthorized access to critical directories such as 'config', 'engine', and 'templates', as well as any files directly under the root application level (e.g., '.htaccess').</p>
+
+<h2>Getting Started</h2>
+<p>To use the Trongate Image class, you need to instantiate the class and then call its methods. Here’s a basic example:</p>
+
+[code=php]
+$image = new Image();
+
+try {
+    $image_path = APPPATH . 'public/uploads/image.jpg';
+    $image->load($image_path);
+    $image->resize_to_width(300);
+    $resized_image_path = APPPATH . 'public/uploads/resized_image.jpg';
+    $image->save($resized_image_path);
+    echo "Image resized successfully.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+[/code]
+
+<p>This example demonstrates how to load an image from a specific directory, resize it, and save the resized image to another directory, all while using Trongate's APPPATH constant for path management.</p>
+
+<div class="alert alert-info">
+    <p>In the above example, the <code>APPPATH</code> constant is used to return the absolute file path of the application's root directory.  Additional information about this and other helpful features are available <a href="documentation/display/php_framework/helpers-explained/other-helpful-features">from here</a>.</p>
+</div>
+
+<h2>Available Methods</h2>
+<p>Below is a table listing all the available methods in the Trongate Image class, along with a brief description of each method:</p>
+
+<table id="imageMethodsTable" class="image-methods-table">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">crop()</span></td>
+            <td>Crops the image to specified dimensions from a selected position.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">destroy()</span></td>
+            <td>Frees up memory allocated to the image resource.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">get_header()</span></td>
+            <td>Gets the MIME type header for the currently loaded image.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">get_height()</span></td>
+            <td>Retrieves the height of the currently loaded image.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">get_width()</span></td>
+            <td>Retrieves the width of the currently loaded image.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">output()</span></td>
+            <td>Outputs or returns the image content directly.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">resize_and_crop()</span></td>
+            <td>Resizes and crops the image to specified dimensions.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">resize_to_height()</span></td>
+            <td>Resizes the image to a specified height while maintaining the aspect ratio.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">resize_to_width()</span></td>
+            <td>Resizes the image to a specified width while maintaining the aspect ratio.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">save()</span></td>
+            <td>Saves the currently loaded image to a file.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">scale()</span></td>
+            <td>Scales the image by a given percentage.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_Image_Class">upload()</span></td>
+            <td>Handles the upload and processing of an image file.</td>
+        </tr>
+    </tbody>
+</table>

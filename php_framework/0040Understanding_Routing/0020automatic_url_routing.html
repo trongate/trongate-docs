@@ -1,0 +1,72 @@
+<h1>Automatic URL Routing</h1>
+<p>Trongate's automatic routing system follows a simple, predictable pattern to map URLs to your code. When Trongate receives a URL request, it breaks the URL into segments and uses these segments to determine which code to run.</p>
+
+<h2>How URL Segments Work</h2>
+<p>Consider this example URL:</p>
+
+[code]https://example.com/members/profile/88[/code]
+
+<p>Trongate splits this URL into three segments and uses them in a specific way:</p>
+
+<table class="mb-4" border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Segment</th>
+            <th>Example</th>
+            <th>Purpose</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>First Segment</td>
+            <td><code>members</code></td>
+            <td>Names both the module folder and the controller to use</td>
+        </tr>
+        <tr>
+            <td>Second Segment</td>
+            <td><code>profile</code></td>
+            <td>Names the method to run</td>
+        </tr>
+        <tr>
+            <td>Third Segment</td>
+            <td><code>88</code></td>
+            <td>Passed as a parameter to the method (optional)</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>Given the URL above, Trongate will:</p>
+<ol>
+    <li>Look for a 'members' module folder</li>
+    <li>Find the 'Members' controller inside that folder</li>
+    <li>Run the 'profile' method</li>
+    <li>Pass '88' as a parameter to that method</li>
+</ol>
+
+<h3 class="mt-3">Mapping URLs to Code</h3>
+<p>Here's what the corresponding code, based on our example, could look like:</p>
+
+[code=php]&lt;?php
+class Members extends Trongate {
+
+    public function profile($user_id) {
+        // $user_id will be 88
+        // Your code here...
+    }
+
+}[/code]
+
+<h2>Important Rules</h2>
+<ul>
+    <li>Module folders should be lowercase (e.g., 'members')</li>
+    <li>Controller class names should have an uppercase first character (e.g., 'Members')</li>
+    <li>Method names should be lowercase (e.g., 'profile')</li>
+    <li>If no second segment exists, Trongate will look for an 'index' method</li>
+</ul>
+
+<div class="alert alert-info">
+    <p><a href="documentation/display/php_framework/understanding-routing/introducing-custom-url-routing">Custom URL routing</a> will override automatic routing. If you have defined a custom route for a URL, <i>that</i> will take precedence over the automatic routing rules described here.</p>
+</div>
+
+<h2>In Summary</h2>
+<p>Automatic routing makes it easy to add new functionality to your application - just create the appropriate module, controller, and methods, and Trongate will automatically make them accessible via URLs that follow this pattern.</p>

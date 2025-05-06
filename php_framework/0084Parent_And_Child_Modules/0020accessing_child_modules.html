@@ -1,0 +1,113 @@
+<h1>Accessing Child Modules</h1>
+<p>Trongate provides multiple ways to access and utilize child modules within your application.</p>
+
+<h2>URL Routing</h2>
+<p>To access a child module via URL, use the following format:</p>
+[code]http://your-domain.com/parent_module-child_module/method[/code]
+<h3 class="mt-1">Example #1</h3>
+<p>The code sample below demonstrates how to access the 'display' method of an 'accessories' child module within a 'cars' parent module:</p>
+
+[code]http://your-domain.com/cars-accessories/display[/code]
+
+<hr>
+<h2>Creating Links</h2>
+<h3 class="mt-1">Example #2</h3>
+<p>The code sample below demonstrates how to use the Trongate <span class="feature-ref" ref-path="helpers/URL_Helpers">anchor()</span> function to create links to child module methods:</p>
+
+[code=php]<?= anchor('cars-accessories/display', 'View Accessories') ?>[/code]
+
+<hr>
+<h2>Loading Child Modules Programmatically</h2>
+<p>To load a child module within a controller or another module:</p>
+    [code=php]$this->module('parent_module-child_module');
+$this->child_module->method();
+    [/code]
+
+<h3>Example #3</h3>
+<p>This example demonstrates how to load and use a child module named 'product_reviews' within a parent module 'shop'. We'll load the child module and then call its 'get_latest_reviews' method:</p>
+
+[code=php]&lt;?php
+class Shop extends Trongate {
+
+  function display_product($product_id) {
+
+    // Load the product_reviews child module
+    $this->module('shop-product_reviews');
+
+    // Get the latest reviews for this product
+    $latest_reviews = $this->product_reviews->get_latest_reviews($product_id);
+
+    // Prepare data for the view
+    $data['product_id'] = $product_id;
+    $data['latest_reviews'] = $latest_reviews;
+    $data['view_module'] = 'shop';
+    $data['view_file'] = 'display_product';
+
+    // Load the template, passing in the $data array
+    $this->template('public', $data);
+  }
+}
+ [/code]
+    <p>In this example, the 'product_reviews' child module is loaded using: 
+
+[code=php]$this->module('shop-product_reviews');[/code] 
+
+<p>Thereafter, the child module's methods can be accessed using syntax of the following form:</p>
+[code=php]$this->product_reviews->method_name();[/code] 
+
+<div class="alert alert-info">
+    <p>In the line of code above, <code>method_name</code> would be replaced with a meaningful and valid method name.  The method name would reference a method within the <code>product_reviews</code> module.</p>
+</div>
+
+<p class="mt-3">The example shown above fetches reviews, passing in the <code>$product_id</code> as an argument:</p>
+[code=php]$latest_reviews = $this->product_reviews->get_latest_reviews($product_id);[/code]
+
+
+<div class="alert alert-success">
+
+<p>For a more robust and modern coding style, consider using access modifiers, doc blocks, type hinting and return types.  For example:</p>
+
+[code=php]
+<?php
+class Shop extends Trongate {
+
+  /**
+   * Displays the product along with its latest reviews.
+   *
+   * @param mixed $product_id The product ID from the URL, which will be cast to an integer.
+   * @return void
+   */
+  public function display_product(mixed $product_id): void {
+    // Ensure $product_id is an integer
+    settype($product_id, 'int');
+
+    // Load the product_reviews child module
+    $this->module('shop-product_reviews');
+
+    // Get the latest reviews for this product
+    $latest_reviews = $this->product_reviews->get_latest_reviews($product_id);
+
+    // Prepare data for the view
+    $data['product_id'] = $product_id;
+    $data['latest_reviews'] = $latest_reviews;
+    $data['view_module'] = 'shop';
+    $data['view_file'] = 'display_product';
+
+    // Load the template, passing in the $data array
+    $this->template('public', $data);
+  }
+}
+[/code]
+
+<p>In the code sample above we have a type hinting value set to 'mixed'.  This is because the <code>display_product()</code> method is attempting to read the <code>$product_id</code> from the third segment of the URL.  The expectation is that the  <code>$product_id</code> will be an integer.  However, if it's not then certainly don't want the code to break!  For this reason, we set the type to an integer with:</p>
+
+[code=php]
+settype($product_id, 'int');
+[/code]
+
+<p>The following line of code would have achieved the same effect (making sure <code>$product_id</code> is an integer:</p>
+[code=php]
+$product_id = (int) $product_id;
+[/code]
+
+</div>

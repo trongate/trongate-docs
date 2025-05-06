@@ -1,0 +1,70 @@
+<div class="container">
+  <h1>extract_content()</h1>
+  <p class="signature">function extract_content(string $string, string $start_delim, string $end_delim): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Extracts a substring from a given string, defined by start and end delimiters. The function searches for the first occurrence of the start delimiter and the first subsequent occurrence of the end delimiter, then returns the text found between them. If either delimiter is not found, or if they are in the wrong order, an empty string is returned.
+    </p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$string</td>
+        <td>string</td>
+        <td>The full string from which to extract content.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>$start_delim</td>
+        <td>string</td>
+        <td>The starting delimiter of the content to extract.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>$end_delim</td>
+        <td>string</td>
+        <td>The ending delimiter of the content to extract.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The content found between the specified delimiters, or an empty string if no content is found.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+$string = "Hello, start here and end here, thanks.";
+$start_delim = "start here";
+$end_delim = "end here";
+$extracted = $this->extract_content($string, $start_delim, $end_delim);
+// $extracted will be " and "
+    </pre>
+  </div>
+</div>

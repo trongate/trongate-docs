@@ -1,0 +1,49 @@
+<h1>Basic Example - Part 2</h1>
+<h2>Create an Assets Directory</h2>
+<p>Within the 'welcome' module, alongside the existing 'controllers' and 'views' directories, create a new directory named 'assets'.</p>
+<p>Inside the 'assets' directory, create a subdirectory named 'js'. This 'js' directory will serve as the repository for JavaScript files within the module.</p>
+<h2>Create a JavaScript File</h2>
+<p>Next, create a JavaScript file named 'ahoy.js' that contains a single line of code: an alert command.</p>
+[code=php]alert("JavaScript alert!");
+[/code]
+<p>Save the 'ahoy.js' file inside the 'js' directory located within 'assets'.</p>
+
+<figure>
+    <img src="images/79/_left_siCTKy.png" alt="The contents of a basic Trongate web application" style="width:100%">
+    <figcaption>Directory structure screenshot</figcaption>
+</figure>
+
+<h2>Calling the JavaScript File</h2>
+<p>To include the JavaScript file in the 'hello' view file, use standard 'script' tags with the 'src' attribute set to <?= htmlspecialchars("'welcome_module/js/ahoy.js'") ?>. For example:</p>
+[code=php]<?= htmlspecialchars('<script src="welcome_module/js/ahoy.js"></script>') ?>
+[/code]
+<h2>View File with JavaScript Integration</h2>
+<p>Below is the complete code for the 'hello' view file, incorporating the 'script' tags just before the closing body tag:</p>
+
+[code=html]  
+&lt;!DOCTYPE html&gt;  
+&lt;html lang=&quot;en&quot;&gt;  
+  &lt;head&gt;  
+    &lt;meta charset=&quot;UTF-8&quot;&gt;  
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;  
+    &lt;title&gt;Document&lt;/title&gt;  
+  &lt;/head&gt;  
+  &lt;body&gt;  
+    &lt;h1&gt;Hello World&lt;/h1&gt;  
+    &lt;script src=&quot;welcome_module/js/ahoy.js&quot;&gt;&lt;/script&gt;  
+  &lt;/body&gt;  
+&lt;/html&gt;  
+[/code]
+
+<h2>Testing the JavaScript File</h2>
+<p>Save the file and refresh the page in the browser. If a JavaScript alert box appears, it confirms that the JavaScript file has loaded successfully.</p>
+
+<figure>
+    <img src="images/79/_javascr327M.png" alt="browser screenshot" style="width:100%">
+    <figcaption>Screenshot taken from the URL, &lt;base-url&gt;welcome/hello</figcaption>
+</figure>
+
+<div class="alert alert-info">
+    <p>The integration of a JavaScript file into a module containing PHP files marks a significant milestone. This capability enhances productivity by enabling the development of sophisticated, self-contained modules without reliance on third-party libraries.</p>
+    <p>In this example, a JavaScript file was included within the module. However, the same approach can be applied to incorporate images, PDFs, CSS files, or other non-PHP resources.</p>
+</div>

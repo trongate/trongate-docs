@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>form_email()</h1>
+  <p class="signature">function form_email(string $name, ?string $value = null, ?array $attributes = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an email input form field element.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the input element.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>string|null</td>
+        <td>(optional) The value attribute for the input element. Default is null.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(optional) Additional attributes for the input element as an associative array. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML input element.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>form_email</code> function with default parameters.</p>
+  <pre>
+  $name = 'user_email';
+  $value = 'example@example.com';
+  echo form_email($name, $value);
+  // Output: '&lt;input type="email" name="user_email" value="example@example.com"&gt;'
+  </pre>
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>form_email</code> function with additional attributes.</p>
+  <pre>
+  $name = 'user_email';
+  $value = 'example@example.com';
+  $attributes = ['class' => 'email-input', 'id' => 'email-input', 'placeholder' => 'Enter your email'];
+  echo form_email($name, $value, $attributes);
+  // Output: '&lt;input type="email" name="user_email" value="example@example.com" class="email-input" id="email-input" placeholder="Enter your email"&gt;'
+  </pre>
+</div>

@@ -1,0 +1,193 @@
+<h1>Displaying Validation Errors</h1>
+
+<p>When a form is submitted and validation errors are produced, it is standard practice to re-present the form to users. It's also standard practice to present users with form validation errors in those instances. This approach gives users an opportunity to correct their input without losing the information they have already entered.</p>
+
+<p>The typical technique for re-presenting forms to end users is to invoke the method responsible for displaying the previous page (i.e., the page that renders the HTML form). For example:</p>
+
+[code=php]
+$result = $this->validation->run();
+
+if ($result === true) {
+    echo 'Form submission successful!';
+} else {
+    // Form submission error (re-present the form to the user)
+    $this->create();
+}
+[/code]
+
+<p>By immediately re-invoking the <b><code>create()</code></b> method, as shown above, the entire page that renders the HTML form will be re-rendered.</p>
+
+<div class="alert alert-info">
+    <p>The example above assumes that there is a <code>create()</code> method within the containing controller file. When invoked, this <code>create()</code> method would render a webpage that contains the form to be filled out and submitted.</p>
+
+    <p>Of course, there's no obligation to name the method 'create'. Here's a very basic example of a method that could be added to a controller file with the purpose of rendering a 'contact us' form:</p>
+
+[code=php]
+function contact() {
+    $data['first_name'] = post('first_name', true);
+    $data['last_name'] = post('last_name', true);
+    $data['email_address'] = post('email_address', true);
+    $data['view_file'] = 'contact_form';
+    $this->template('public', $data);
+}
+[/code]
+
+    <p>As you can see, <i>not only</i> is the method declaring a view file name ('contact_form') and loading a template, it's <i>also</i> retrieving submitted form data and passing it into the view file. This means that the form being rendered will be prepopulated with previously submitted values. The code for a form that is rendered by the <code>contact()</code> method shown above could look like this:</p>
+
+[code=vf]
+&lt;?php
+echo form_open('your_submit_url');
+
+echo form_label('First Name');
+echo form_input('first_name', $first_name, array("placeholder" => "Enter First Name"));
+
+echo form_label('Last Name');
+echo form_input('last_name', $last_name, array("placeholder" => "Enter Last Name"));
+
+echo form_label('Email Address');
+echo form_input('email_address', $email_address, array("placeholder" => "Enter Email Address"));
+
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+</div>
+
+<p>When forms that produce validation errors are re-presented to the end user, an array of form validation errors will be made available.</p>
+
+<p>There are two techniques that can be used to display validation errors:</p>
+
+<ol>
+    <li>Traditional</li>
+    <li>Inline</li>
+</ol>
+
+<h2>1. Traditional Validation Errors Display</h2>
+
+<p>This approach involves displaying all validation errors at once, typically at the top of the form.</p>
+
+<div class="text-center container container-xxs">
+    <figure>
+        <img src="images/validation_errors_normal.png" alt="normal form validation errors" style="width:100%">
+        <figcaption>A screenshot depicting form validation errors being presented as a block of text.</figcaption>
+    </figure>
+</div>
+
+<h3>How to Implement:</h3>
+
+<ul>
+    <li>Use the <span class="feature-ref">run()</span> method to execute form validation checks.</li>
+    <li class="mt-3">If the <code>run()</code> method returns a value of <b>true</b> (boolean), you may assume that the submitted form field values have <b>passed</b> all of the form validation checks.</li>
+    <li class="mt-3">On the other hand, if the <code>run()</code> method returns a value of <b>false</b> (boolean), this means that one or more form validation errors have been produced.</li>
+</ul>
+
+<div>
+[code=php]
+$result = $this->validation->run();
+
+if ($result === true) {
+    echo 'Form submission successfully passed all validation tests!';
+} else {
+    // Form submission error(s) were produced
+    $this->create(); // re-present the form to the end user
+}
+[/code]
+</div>
+
+<li>In your view file, use the <span class="feature-ref" ref-path="helpers/Form_Helpers">validation_errors()</span> function to display all validation errors. The code below demonstrates how to render validation errors using PHP short tags:</li>
+
+<div>
+[code=vf]
+&lt;?= validation_errors() ?&gt;
+[/code]
+</div>
+
+<p>The <span class="feature-ref" ref-path="helpers/Form_Helpers">validation_errors()</span> method will display all of the form validation errors together. The line of code responsible for rendering the validation errors is usually placed inside a view file and above the corresponding form.</p>
+
+<div class="alert alert-info">
+    <p>By default, the <span class="feature-ref" ref-path="helpers/Form_Helpers">validation_errors()</span> function renders error messages as red text within <code>&lt;p&gt;</code> tags. However, Trongate offers flexibility in customizing the appearance of these error messages:</p>
+    <ol>
+        <li><strong>Custom HTML wrapping:</strong> You can pass optional arguments to <code>validation_errors()</code> to control the HTML wrapping of individual error messages. For example:</li>
+        <div>
+[code=vf]
+&lt;?= validation_errors('&lt;div class="custom-error"&gt;', '&lt;/div&gt;') ?&gt;
+[/code]
+        </div>
+        <li><strong>Global configuration:</strong> For site-wide customization, you can define the PHP constants <code>ERROR_OPEN</code> and <code>ERROR_CLOSE</code> in your <code>config.php</code> file. When set, these constants will be used as the default HTML wrapping for <b>all</b> validation errors. For example:</li>
+        <div>
+[code=php]
+define('ERROR_OPEN', '&lt;div class="form-validation-errors"&gt;');
+define('ERROR_CLOSE', '&lt;/div&gt;');
+[/code]
+        </div>
+    </ol>
+    <p>These options allow you to easily integrate validation error displays with your site's design and CSS, ensuring a consistent look and feel across your application.</p>
+</div>
+
+<h2>2. Inline Validation Errors Display</h2>
+
+<p>Trongate offers an alternative methodology for displaying form validation errors: <b>inline validation errors</b>.</p>
+<p>With <i>inline validation errors</i> applied, individual form validation errors are displayed next to their respective form fields, providing what some consider to be a more modern user experience.</p>
+
+<div class="text-center container container-xxs">
+    <figure>
+        <img src="images/validation_errors_inline.png" alt="inline form validation errors" style="width:100%">
+        <figcaption>A screenshot depicting inline form validation errors.</figcaption>
+    </figure>
+</div>
+
+<h3>How to Implement:</h3>
+
+<ol>
+    <li>Add the class <code>highlight-errors</code> to your form tag.</li>
+    <li>For each form field, use the <span class="feature-ref" ref-path="helpers/Form_Helpers">validation_errors()</span> function with the field name as an argument.</li>
+</ol>
+
+<p>For example:</p>
+
+[code=vf]
+echo form_open($form_location, array('class' => 'highlight-errors'));
+
+echo form_label('Username');
+echo validation_errors('username');
+echo form_input('username', $username, array("placeholder" => "Enter Username"));
+
+echo form_label('First Name');
+echo validation_errors('first_name');
+echo form_input('first_name', $first_name, array("placeholder" => "Enter First Name"));
+
+echo form_label('Last Name');
+echo validation_errors('last_name');
+echo form_input('last_name', $last_name, array("placeholder" => "Enter Last Name"));
+
+echo form_label('Email Address');
+echo validation_errors('email_address');
+echo form_input('email_address', $email_address, array("placeholder" => "Enter Email Address"));
+
+echo form_submit('submit', 'Submit');
+echo anchor($cancel_url, 'Cancel', array('class' => 'button alt'));
+echo form_close();
+[/code]
+
+<p>This method will display errors inline, next to their respective fields.</p>
+
+<div class="alert alert-success">
+    <p>In situations where inline form validation errors appear, an alert will appear at the top of the page that:</p>
+    <ol>
+        <li>Makes the user aware that something went wrong.</li>
+        <li>Informs the user that more details are 'highlighted below'.</li>
+    </ol>
+    <p>This alert is contained within a CSS class named <b><code>.validation-error-alert</code></b>. If you do not wish the alert to appear, simply apply a CSS rule to the page that forces the element to remain hidden. For example:</p>
+
+[code=css]
+.validation-error-alert {
+    display: none;
+}
+[/code]
+</div>
+
+<p>By effectively utilizing these validation error display techniques, you can create user-friendly forms that provide clear feedback, improving the overall user experience of your Trongate application.</p>
+
+<div class="alert alert-info">
+    <p>For those aiming to give users an even better experience, please check out <a href="documentation/display/trongate_mx">Trongate MX</a> - Trongate's new front-end framework. Trongate MX gives Trongate developers the ability  to build extremely sophisticated and fully interactive forms, <b>without writing any JavaScript</b>. All of this is covered in the <a href="documentation/display/trongate_mx/form-handling">Form Handling</a> chapter.</p>
+</div>

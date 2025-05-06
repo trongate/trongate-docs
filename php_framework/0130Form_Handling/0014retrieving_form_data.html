@@ -1,0 +1,79 @@
+<h1>Retrieving Form Data</h1>
+
+<p>In Trongate, retrieving data submitted through HTML forms is both straightforward and secure. The framework provides a range of tools to help you access, clean, and process form data effectively. Whether you're working with standard form submissions or JSON payloads, Trongate ensures consistency and simplicity in handling user inputs.</p>
+
+<h2>Form Data Handling in Trongate</h2>
+
+<p>Trongate supports retrieving data across all HTTP methods (GET, POST, PUT, PATCH, DELETE). Form data can be retrieved seamlessly, whether it is submitted via form-encoded content or as JSON payloads. Additionally, the framework includes features to clean and normalise user input where required.</p>
+
+<h3>The <code>post()</code> Function</h3>
+
+<p>The <span class="feature-ref">post()</span> function is a powerful tool for accessing form data. It allows you to retrieve data from any HTTP request and works with both form-encoded and JSON payloads. The function also includes an optional cleanup mechanism for trimming whitespace and normalising internal spaces.</p>
+
+<h4>Basic Usage</h4>
+
+<p>To retrieve the value of a specific form field, call the <code>post()</code> function with the field name:</p>
+
+[code=php]$task_title = post('task_title');[/code]
+
+<p>This will return the value of the <code>task_title</code> field. If the field does not exist, the function will return an empty string.</p>
+
+<h4 class="mt-3">Cleaning Up Data</h4>
+
+<p>By passing <code>true</code> as the second argument to <span class="feature-ref">post()</span>, you can clean up the retrieved data. This process trims any leading or trailing spaces and reduces multiple spaces within the string to a single space:</p>
+
+[code=php]$task_title = post('task_title', true);[/code]
+
+<div class="alert alert-info">
+  <p><b>Clarification:</b> The second argument (<code>true</code>) ensures that the retrieved value is cleaned up. This means:</p>
+  <ul>
+    <li>Leading and trailing spaces are removed.</li>
+    <li>Multiple internal spaces are replaced with a single space.</li>
+  </ul>
+  <p>Therefore, if a user submits a value of:</p>
+  <pre><code>   Michael           Jackson   </code></pre>
+  <p>The cleaned result will be:</p>
+  <pre><code>Michael Jackson</code></pre>
+</div>
+
+<h2>Working with Form Data in Controllers</h2>
+
+<p>Below is an example of how you might retrieve and process form data in a Trongate controller:</p>
+
+[code=php]public function submit(): void {
+    $this->module('trongate_security');
+    $this->trongate_security->_make_sure_allowed();
+
+    $submit = post('submit', true);
+
+    if ($submit === 'Submit') {
+        // Retrieve and clean form data
+        $task_title = post('task_title', true);
+        $task_description = post('task_description', true);
+        $complete = post('complete', true);
+
+        // Prepare data for the database
+        $data = [
+            'task_title' => $task_title,
+            'task_description' => $task_description,
+            'complete' => ($complete === '1' ? 1 : 0),
+        ];
+
+        // Insert or update the record
+        $update_id = segment(3, 'int');
+        if ($update_id > 0) {
+            $this->model->update($update_id, $data, 'tasks');
+            $flash_msg = 'The record was successfully updated';
+        } else {
+            $update_id = $this->model->insert($data, 'tasks');
+            $flash_msg = 'The record was successfully created';
+        }
+
+        set_flashdata($flash_msg);
+        redirect('tasks/show/' . $update_id);
+    }
+}[/code]
+
+<h2>Conclusion</h2>
+
+<p>Retrieving form data in Trongate is designed to be straightforward, secure, and efficient. By using tools like the <code>post()</code> function, you can handle user input with confidence, whether it originates from standard HTML forms or complex JSON payloads. This consistent approach ensures a smooth development experience for handling form submissions across different scenarios.</p>

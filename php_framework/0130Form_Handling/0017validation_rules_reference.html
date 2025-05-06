@@ -1,0 +1,157 @@
+<h1>Validation Rules Reference</h1>
+<p>The following table lists all of Trongate's built-in form validation rules, including those for file and image uploads.</p><table>
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Parameter</th>
+            <th>Description</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="font-size: 0.8em;">
+            <td><b>allowed_types</b></td>
+            <td>Yes</td>
+            <td>Specifies the allowed file extensions (e.g., gif, jpg, png).</td>
+            <td>allowed_types[gif,jpg,jpeg,png]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>decimal</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not numeric with at least one decimal place.</td>
+            <td>decimal</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>differs</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE if form element matches another specified form element.</td>
+            <td>differs[name]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>exact_length</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE unless posted value has a string length equal to specified value.</td>
+            <td>exact_length[12]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>greater_than</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE unless posted value is greater than specified value.</td>
+            <td>greater_than[17]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>integer</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not an integer (i.e., not a whole number).</td>
+            <td>integer</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>less_than</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE unless posted value is less than specified value.</td>
+            <td>less_than[31]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>max_height</b></td>
+            <td>Yes</td>
+            <td>Specifies the maximum height for images (in pixels).</td>
+            <td>max_height[1200]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>max_length</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE if posted value has a string length greater than specified value.</td>
+            <td>max_length[75]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>max_size</b></td>
+            <td>Yes</td>
+            <td>Specifies the maximum file size in kilobytes (e.g., 2000 for 2MB).</td>
+            <td>max_size[2000]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>max_width</b></td>
+            <td>Yes</td>
+            <td>Specifies the maximum width for images (in pixels).</td>
+            <td>max_width[1200]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>matches</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE if posted value does not match another specified form element.</td>
+            <td>matches[password]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>min_height</b></td>
+            <td>Yes</td>
+            <td>Specifies the minimum height for images (in pixels).</td>
+            <td>min_height[100]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>min_length</b></td>
+            <td>Yes</td>
+            <td>Returns FALSE if posted value has a string length less than specified value.</td>
+            <td>min_length[3]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>min_width</b></td>
+            <td>Yes</td>
+            <td>Specifies the minimum width for images (in pixels).</td>
+            <td>min_width[100]</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>numeric</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not numeric.</td>
+            <td>numeric</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>required</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is empty.</td>
+            <td>required</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>square</b></td>
+            <td>No</td>
+            <td>Ensures the image is square (width equals height).</td>
+            <td>square</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>valid_datepicker_eu</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not a valid datepicker value of the European format dd-mm-yyyy.</td>
+            <td>valid_datepicker_eu</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>valid_datepicker_us</b></td>
+            <td>No</td>
+            <td>Returns FALSE unless posted value is a valid datepicker value of the United States of America format mm-dd-yyyy.</td>
+            <td>valid_datepicker_us</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>valid_datetimepicker_eu</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not a valid datetime picker value.</td>
+            <td>valid_datetimepicker_eu</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>valid_datetimepicker_us</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not a valid datetime picker value.</td>
+            <td>valid_datetimepicker_us</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>valid_email</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not formatted like an email address.</td>
+            <td>valid_email</td>
+        </tr>
+        <tr style="font-size: 0.8em;">
+            <td><b>valid_time</b></td>
+            <td>No</td>
+            <td>Returns FALSE if posted value is not a valid time.</td>
+            <td>valid_time</td>
+        </tr>
+    </tbody>
+</table>

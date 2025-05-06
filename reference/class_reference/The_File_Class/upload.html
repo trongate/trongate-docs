@@ -1,0 +1,130 @@
+<div class="container">
+  <h1>upload()</h1>
+  <p class="signature">public function upload(array $config): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Handles the file upload process with specified configuration. This method validates the upload configuration, processes the uploaded file, performs security checks, generates a secure filename, and moves the file to the target destination. It returns an array containing details about the uploaded file.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the upload configuration, ensuring all required options are provided and valid.</li>
+      <li>It checks if a file was uploaded and validates the file's integrity and security (e.g., MIME type, memory requirements).</li>
+      <li>A secure filename is generated, either randomly or based on the original filename, depending on the configuration.</li>
+      <li>The file is moved to the target destination, and its details (name, path, type, size) are returned as an array.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the upload configuration is valid and the destination path is accessible. If the upload fails due to invalid configuration, security validation, or file movement issues, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$config</td>
+        <td>array</td>
+        <td>An associative array containing upload configuration options:
+          <ul>
+            <li><code>'destination'</code>: (string) The target directory for the uploaded file.</li>
+            <li><code>'target_module'</code>: (string) The target module name (defaults to the current segment).</li>
+            <li><code>'upload_to_module'</code>: (bool) Whether to upload to the module's assets directory (default: false).</li>
+            <li><code>'make_rand_name'</code>: (bool) Whether to generate a random filename (default: false).</li>
+          </ul>
+        </td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The upload configuration is invalid (e.g., missing destination).</li>
+      <li>No file was uploaded or the upload failed.</li>
+      <li>The file fails security validation (e.g., invalid MIME type or insufficient memory).</li>
+      <li>The file cannot be moved to the target destination.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An associative array containing details about the uploaded file:
+          <ul>
+            <li><code>'file_name'</code>: (string) The name of the uploaded file.</li>
+            <li><code>'file_path'</code>: (string) The full path to the uploaded file.</li>
+            <li><code>'file_type'</code>: (string) The MIME type of the uploaded file.</li>
+            <li><code>'file_size'</code>: (int) The size of the uploaded file in bytes.</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Uploading a file to a specific directory
+try {
+    $file = new File();
+    $config = [
+        'destination' => 'uploads/images',
+        'make_rand_name' => true
+    ];
+    $uploaded_file = $file->upload($config);
+    echo "File uploaded successfully: " . $uploaded_file['file_name'];
+} catch (Exception $e) {
+    echo "Upload failed: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Uploading a file to a module's assets directory
+try {
+    $file = new File();
+    $config = [
+        'destination' => 'profile_pictures',
+        'upload_to_module' => true,
+        'target_module' => 'users'
+    ];
+    $uploaded_file = $file->upload($config);
+    echo "File uploaded to module successfully: " . $uploaded_file['file_path'];
+} catch (Exception $e) {
+    echo "Upload failed: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Handling multiple file uploads
+$files_to_upload = ['file1.jpg', 'file2.png'];
+foreach ($files_to_upload as $file_name) {
+    try {
+        $file = new File();
+        $config = [
+            'destination' => 'uploads/documents',
+            'make_rand_name' => false
+        ];
+        $uploaded_file = $file->upload($config);
+        echo "Uploaded: " . $uploaded_file['file_name'] . "\n";
+    } catch (Exception $e) {
+        echo "Error uploading $file_name: " . $e->getMessage() . "\n";
+    }
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Configuration:</strong> Always ensure the upload configuration is valid and the destination path is accessible.</li>
+      <li><strong>Use Random Filenames:</strong> When handling sensitive files, use <code>'make_rand_name' => true</code> to generate random filenames and avoid conflicts.</li>
+      <li><strong>Check Memory Requirements:</strong> Ensure the server has sufficient memory to handle large file uploads.</li>
+      <li><strong>Secure Uploads:</strong> Always validate file MIME types and restrict access to sensitive directories.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when uploading multiple files or working with user-provided paths.</li>
+    </ul>
+  </div>
+</div>

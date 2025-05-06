@@ -1,0 +1,221 @@
+<h1>Cloaking Elements</h1>
+
+<p>Trongate CSS provides utility classes to control element visibility and display behavior. These classes are particularly useful for managing content visibility across different states and scenarios.</p>
+
+<h2>The Cloak Class</h2>
+
+<p>The <code>.cloak</code> class is used to completely hide elements from view. Elements with this class will have <code>display: none</code> applied, removing them from the document flow.</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p>This block of code contains three paragraphs.  This is the first paragraph.  It is visible.</p>
+        <p class="cloak">This paragraph is hidden with .cloak</p>
+        <p>This is the third paragraph.  It is also visible.  Notice how the second paragraph is hidden.</p>
+    </div>
+</div>
+
+[code=html]
+&lt;div&gt;
+    &lt;p&gt;This block of code contains three paragraphs.  This is the first paragraph.  It is visible.&lt;/p&gt;
+    &lt;p class="cloak"&gt;This paragraph is hidden with .cloak&lt;/p&gt;
+    &lt;p&gt;This is the third paragraph.  It is also visible.  Notice how the second paragraph is hidden.&lt;/p&gt;
+&lt;/div&gt;
+[/code]
+
+<h3 class="mt-3">Common Use Cases</h3>
+
+<p>The <code>.cloak</code> class is particularly useful in the following scenarios:</p>
+
+<ul>
+    <li>Hiding elements that should only be visible under certain conditions (e.g., after user interaction)</li>
+    <li>Managing form elements that should appear/disappear based on other selections</li>
+    <li>Creating templates where certain elements should be hidden by default</li>
+</ul>
+
+<h2>Dynamic Display Example</h2>
+
+<p>Below is an example of how the <code>.cloak</code> class might be used in a practical scenario with a toggle button:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button onclick="toggleContent()" class="mb-0">Toggle Content</button>
+        <div id="toggleableContent" class="cloak mt-1">
+            <p class="mb-0">This content can be toggled visible/hidden</p>
+        </div>
+        
+        <script>
+            function toggleContent() {
+                const content = document.getElementById('toggleableContent');
+                content.classList.toggle('cloak');
+            }
+        </script>
+    </div>
+</div>
+
+[code=html]
+&lt;button onclick="toggleContent()" class="mb-0"&gt;Toggle Content&lt;/button&gt;
+&lt;div id="toggleableContent" class="cloak mt-1"&gt;
+    &lt;p class="mb-0"&gt;This content can be toggled visible/hidden&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function toggleContent() {
+    const content = document.getElementById('toggleableContent');
+    content.classList.toggle('cloak');
+}
+&lt;/script&gt;
+[/code]
+
+<h2>Form Field Example</h2>
+
+<p>Here's a practical example showing how the <code>.cloak</code> class can be used to manage conditional form fields:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <label>
+            <input type="checkbox" onchange="toggleShipping()" class="mt-0"> Ship to different address
+        </label>
+        
+        <div id="shippingFields" class="cloak">
+            <label>Shipping Address</label>
+            <input type="text" placeholder="Enter shipping address">
+            
+            <label>Shipping City</label>
+            <input type="text" placeholder="Enter city">
+        </div>
+        
+        <script>
+            function toggleShipping() {
+                const fields = document.getElementById('shippingFields');
+                fields.classList.toggle('cloak');
+            }
+        </script>
+    </div>
+</div>
+
+[code=html]
+&lt;label&gt;
+    &lt;input type="checkbox" onchange="toggleShipping()" class="mt-0"&gt; Ship to different address
+&lt;/label&gt;
+
+&lt;div id="shippingFields" class="cloak"&gt;
+    &lt;label&gt;Shipping Address&lt;/label&gt;
+    &lt;input type="text" placeholder="Enter shipping address"&gt;
+    
+    &lt;label&gt;Shipping City&lt;/label&gt;
+    &lt;input type="text" placeholder="Enter city"&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function toggleShipping() {
+    const fields = document.getElementById('shippingFields');
+    fields.classList.toggle('cloak');
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>The <code>.cloak</code> class is different from setting <code>visibility: hidden</code> or <code>opacity: 0</code>. While those properties would hide elements visually, <code>.cloak</code> completely removes the element from layout flow, ensuring no space is reserved for it.</p>
+</div>
+
+<h2>Best Practices</h2>
+
+<p>When using display utilities, keep these guidelines in mind:</p>
+
+<ul>
+    <li>Use <code>.cloak</code> when you want to completely remove an element from both view and document flow</li>
+    <li>Consider accessibility implications when hiding content - ensure that important content isn't hidden from screen readers if it needs to be accessible</li>
+    <li>Combine with other utility classes (like margin utilities) when managing spacing around toggleable content</li>
+    <li>Use meaningful ID names for toggleable elements to maintain clear JavaScript interactions</li>
+</ul>
+
+<h2>Other Cloaking Techniques</h2>
+<p>The Trongate ecosystem gives developers access to other cloaking techniques, beyond the <code>.cloak</code> class.</p>
+
+<h3 class="mt-3">Modals</h3>
+<p>One commonly used example of a situation where an element is cloaked upon initial page load is when dealing with modals.  For example:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p class="text-center">
+            <button class="secondary-dark mt-0" onclick="openModal('example-modal')">Click Me!</button>
+        </p>
+    </div>
+</div>
+
+<div class="modal" id="example-modal" style="display: none">
+    <div class="modal-heading flex-row align-center justify-between">
+        <div>Example Modal</div>
+        <div onclick="closeModal()">&times;</div>
+    </div>
+    <div class="modal-body">
+        <p class="text-left">I'm a modal element.  My source code is hard-coded into the webpage that you are currently viewing.  However, I am hidden when the page initially loads.</p>
+        <p class="text-center">
+            <button class="alt" onclick="closeModal()">Close Modal</button>
+        </p>
+    </div>
+</div>
+
+<style>
+.modal-heading > div:nth-child(2) {
+    cursor: pointer;
+}
+</style>
+
+[code=html]
+&lt;div class="modal" id="example-modal" style="display: none"&gt;
+    &lt;div class="modal-heading flex-row align-center justify-between"&gt;
+        &lt;div&gt;Example Modal&lt;/div&gt;
+        &lt;div onclick="closeModal()"&gt;&amp;times;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;p class="text-left"&gt;I'm a modal element.  My source code is hard-coded into the webpage that you are currently viewing.  However, I am hidden when the page initially loads.&lt;/p&gt;
+        &lt;p class="text-center"&gt;
+            &lt;button class="alt" onclick="closeModal()"&gt;Close Modal&lt;/button&gt;
+        &lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+.modal-heading &gt; div:nth-child(2) {
+    cursor: pointer;
+}
+&lt;/style&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p>For more information about this, please refer to our section on <a href="documentation/display/trongate_css/cards-and-modals/working-with-modals">Working With Modals</a>.</p>
+</div>
+
+<h3 class="mt-3">Loading Indicators</h3>
+<p>Trongate CSS also contains a class named as <code>.mx-indicator</code>.  This class gets used by Trongate MX to hide an element by default but to then <i>display</i> the element as a loading indicator during the HTTP request.</p>
+
+<p>Click the button below to see a loading indicator in action:</p>
+<div class="trongate-css-demo">
+    <div>
+        <div class="code-demo text-center">
+          <button 
+            mx-get="documentation/fetch_data_demo" 
+            mx-target=".code-demo .result" 
+            mx-indicator="#loading" 
+            mx-target-loading="cloak">
+            Fetch Data
+          </button>
+          <div id="loading" class="spinner mx-indicator"></div>
+          <div class="result"></div>
+        </div>
+    </div>
+</div>
+
+[code=html]&lt;button mx-get="api/fetch_info" 
+        mx-target="#result" 
+        mx-indicator="#loading" 
+        mx-target-loading="cloak"&gt;Fetch Data&lt;/button&gt;
+
+&lt;div id="loading" class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="result"&gt;&lt;/div&gt;[/code]
+
+<alert class="alert alert-info">
+    <p>In order for the code above to work with <i>your</i> application, you'll have to set up and API endpoint and also load Trongate MX onto your webpage.</p>
+    <p>For the purposes of avoiding repetition, we won't cover that here.  However, if you are interested in learning more about Trongate's powerful front-end framework, we strongly encourage you to check out the <a href="documentation/display/trongate_mx">Trongate MX Documentation</a>.</p>
+</alert>

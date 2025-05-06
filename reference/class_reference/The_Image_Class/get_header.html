@@ -1,0 +1,103 @@
+<div class="container">
+  <h1>get_header()</h1>
+  <p class="signature">function get_header(): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>This method returns the MIME type corresponding to the image format of the currently loaded image. The MIME type is essential for setting correct HTTP <code>Content-Type</code> headers when serving images directly from PHP scripts or APIs.</p>
+    <p>If no image is loaded or the image type has not been set, this method throws an <strong>InvalidArgumentException</strong> to prevent misuse and aid in debugging.</p>
+    <p><strong>Common Use Cases:</strong></p>
+    <ul>
+      <li>Serving images dynamically in web applications.</li>
+      <li>Setting the <code>Content-Type</code> header for image downloads or API responses.</li>
+    </ul>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>This method does not accept any parameters.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>InvalidArgumentException</strong> if:</p>
+    <ul>
+      <li>No image has been loaded.</li>
+      <li>The image type is not set.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the MIME type of the image, suitable for HTTP <code>Content-Type</code> headers (e.g., <code>'image/jpeg'</code>, <code>'image/png'</code>).</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Serving an image directly to the browser
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Get the MIME type
+    $mime_type = $this->image->get_header();
+    
+    // Set the Content-Type header
+    header("Content-Type: " . $mime_type);
+    
+    // Output the image
+    echo $this->image->output();
+} catch (InvalidArgumentException $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Using get_header() in an API response
+try {
+    $this->image->load('path/to/image.png');
+    $mime_type = $this->image->get_header();
+    
+    // Return the image as part of an API response
+    header("Content-Type: " . $mime_type);
+    echo json_encode([
+        'status' => 'success',
+        'image' => base64_encode($this->image->output(true)) // Output image as base64
+    ]);
+} catch (InvalidArgumentException $e) {
+    header("Content-Type: application/json");
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ]);
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Always Check for Loaded Images:</strong> Ensure an image is loaded before calling <code>get_header()</code> to avoid exceptions.</li>
+      <li><strong>Use in Dynamic Image Serving:</strong> This method is particularly useful when serving images dynamically in web applications or APIs.</li>
+      <li><strong>Combine with <code>output()</code>:</strong> Use <code>get_header()</code> in conjunction with the <code>output()</code> method to serve images directly to the browser.</li>
+    </ul>
+  </div>
+</div>

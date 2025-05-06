@@ -1,0 +1,87 @@
+<h1>Introducing Themes</h1>
+
+<p>While templates provide a way to structure individual pages, Trongate's theming system offers a more comprehensive approach to managing your application's appearance. Themes allow you to package templates together with assets such as; stylesheets, fonts, images and JavaScript files to create cohesive design packages.</p>
+
+<h2>Beyond Templates</h2>
+
+<p>A template is essentially an HTML file with embedded PHP code that defines a page's structure. However, modern web applications often require more sophisticated styling solutions that go beyond simple HTML templates. You might need:</p>
+
+<ul>
+    <li>Multiple coordinated color schemes</li>
+    <li>Custom typography and fonts</li>
+    <li>Comprehensive icon sets</li>
+    <li>Standardized UI components</li>
+    <li>JavaScript enhancements</li>
+    <li>Theme-specific assets and images</li>
+</ul>
+
+<p>This is where Trongate's theming system comes into play, providing a structured way to manage all these design elements.</p>
+
+<h2>Theme Architecture</h2>
+
+<p>In Trongate, a theme is more than just a collection of templates - it's a complete design package. Themes are defined in the <a href="https://github.com/trongate/trongate-framework/blob/master/config/themes.php" target="_blank">themes.php</a> configuration file and are structured to provide flexible, reusable design systems.</p>
+
+<h3>The Default Admin Theme</h3>
+
+<p>Trongate ships with a built-in 'admin' theme, which serves as an excellent example of the theming system's capabilities. This theme is implemented through the <code>admin()</code> method in the Templates class:</p>
+
+[code=php]
+/**
+ * Loads the 'admin' view with provided data and additional includes.
+ *
+ * @param array $data Data array to be passed to the view.
+ * @return void
+ */
+function admin(array $data): void {
+    $data['additional_includes_top'] = $this->_build_additional_includes($data['additional_includes_top'] ?? []);
+    $data['additional_includes_btm'] = $this->_build_additional_includes($data['additional_includes_btm'] ?? []);
+    load('admin', $data);
+}
+[/code]
+
+<p>While this method appears similar to standard template loading, it actually triggers Trongate's theme loading mechanism, pulling resources from the <a href="https://github.com/trongate/trongate-framework/tree/master/public/themes/" target="_blank">themes</a> directory rather than the standard <a href="https://github.com/trongate/trongate-framework/tree/master/templates" target="_blank">templates directory</a>.</p>
+
+<h2>Theme Configuration</h2>
+
+<p>Themes are defined in <code>config/themes.php</code>. Here's how the admin theme is configured:</p>
+
+[code=php]
+$admin_theme = [
+    "dir" => "default_admin/blue",
+    "template" => "admin.php",
+];
+
+$themes['admin'] = $admin_theme;
+[/code]
+
+<p>The configuration specifies:</p>
+<ul>
+    <li><code>dir</code>: The theme's directory path relative to the <a href="https://github.com/trongate/trongate-framework/tree/master/public/themes/" target="_blank">themes</a> directory</li>
+    <li><code>template</code>: The <a href="https://github.com/trongate/trongate-framework/blob/master/public/themes/default_admin/blue/admin.php" target="_blank">primary template file</a> for the theme</li>
+</ul>
+
+<h3>Color Scheme Management</h3>
+
+<p>The admin theme demonstrates one of Trongate's powerful theming features: easy color scheme switching. By modifying the <code>dir</code> path from <code>default_admin/blue</code> to <code>default_admin/red</code>, you can instantly switch the entire admin interface to a different color scheme.</p>
+
+<div class="alert alert-info">
+    <p>Color schemes in Trongate themes are complete packages that include coordinated colors for all UI elements, ensuring consistency across your application.</p>
+</div>
+
+<h2>Theme Structure</h2>
+
+<p>A typical Trongate theme directory contains:</p>
+
+<ul>
+    <li>Template files (<code>.php</code>)</li>
+    <li>Stylesheets (<code>.css</code>)</li>
+    <li>JavaScript files (<code>.js</code>)</li>
+    <li>Theme-specific assets (images, fonts, icons)</li>
+    <li>Color scheme variations</li>
+</ul>
+
+<p>This structured approach allows themes to provide comprehensive design solutions while maintaining clean separation between different visual aspects of your application.</p>
+
+<div class="alert alert-success">
+    <p>The next section will explore theme loading mechanics and how to create custom themes for your Trongate applications.</p>
+</div>

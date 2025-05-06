@@ -1,0 +1,62 @@
+<h1>Homepage Routing</h1>
+<p>The homepage is often the most visited page of any website. Trongate provides a simple way to control what happens when users visit your website's homepage (the root URL of your site).</p>
+
+<h2>Homepage Configuration</h2>
+<p>Homepage routing in Trongate is controlled through three constants in your <code>config.php</code> file, which is located in the 'config' directory. Here are the default settings:</p>
+
+[code=php]define('DEFAULT_MODULE', 'welcome');
+define('DEFAULT_CONTROLLER', 'Welcome');
+define('DEFAULT_METHOD', 'index');[/code]
+
+<p>These three constants work together to determine what code runs when someone visits your homepage:</p>
+
+<ul>
+    <li><strong>DEFAULT_MODULE</strong>: The module folder where your code is located</li>
+    <li><strong>DEFAULT_CONTROLLER</strong>: The controller file that contains your code</li>
+    <li><strong>DEFAULT_METHOD</strong>: The specific function that will run</li>
+</ul>
+
+<p>With these default settings, visiting your homepage will:</p>
+<ol>
+    <li>Look inside the 'welcome' module folder</li>
+    <li>Find the 'Welcome' controller file</li>
+    <li>Run the 'index' method inside that controller</li>
+</ol>
+
+<div class="alert alert-info">
+    <p>In web development, the URL that maps to the homepage of an application is often referred to as the <b>base URL</b>.  In Trongate, the base URL is declared, inside 'config.php', through a <a href="https://www.w3schools.com/php/php_constants.asp" target="_blank">PHP constant</a> named as <code>BASE_URL</code>.  The last character of your base URL should always be a forwardslash.</p>
+    <p>Here's the contents of the config.php file that is being used for the this website (yes, really!):</p>
+[code=php]&lt;?php
+define('BASE_URL', 'https://trongate.io/');
+define('ENV', 'live');
+define('DEFAULT_MODULE', 'welcome');
+define('DEFAULT_CONTROLLER', 'Welcome');
+define('DEFAULT_METHOD', 'index');
+define('MODULE_ASSETS_TRIGGER', '_module');
+[/code]
+</div>
+
+<h2>Customizing Your Homepage</h2>
+
+<p>You can change what appears on your homepage by modifying the constants within config.php.  This file is located in:</p>
+[code]
+  config/ 
+    config.php 
+[/code]
+
+<h3 class="mt-3">Example</h3>
+<p> For example, if you want your homepage to display a dashboard, you might use:</p>
+
+[code=php]define('DEFAULT_MODULE', 'dashboard');
+define('DEFAULT_CONTROLLER', 'Dashboard');
+define('DEFAULT_METHOD', 'index');[/code]
+
+<div class="alert alert-info">
+    <p><strong>Important:</strong> Before changing these settings, make sure:</p>
+    <ul>
+        <li>Your module folder exists</li>
+        <li>Your controller file exists inside the module folder</li>
+        <li>Your method exists inside the controller</li>
+    </ul>
+    <p>Otherwise, users will see an error when they visit your homepage.</p>
+</div>

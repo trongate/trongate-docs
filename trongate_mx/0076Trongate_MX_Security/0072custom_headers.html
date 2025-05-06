@@ -1,0 +1,156 @@
+<h1>Custom Headers</h1>
+
+<p>The <code>mx-headers</code> attribute allows you to add custom HTTP headers to your Trongate MX requests. This feature is particularly useful when you need to send additional information to your server endpoints, such as authentication tokens, API keys, or custom metadata.</p>
+
+<h2>Basic Usage</h2>
+<p>The <code>mx-headers</code> attribute accepts a JSON object containing key-value pairs that represent your custom headers. Each key-value pair will be sent as an HTTP header with your request.</p>
+
+<p>Here's a basic example using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> helper function:</p>
+
+[code=vf]&lt;?php
+$auth_token = 'abc123'; // Example token
+$btn_attr = [
+    'mx-get' =&gt; 'api/protected_data',
+    'mx-target' =&gt; '#result',
+    'mx-headers' =&gt; '{"Authorization": "Bearer '.$auth_token.'", "Custom-Header": "custom-value"}'
+];
+echo form_button('fetch_btn', 'Fetch Protected Data', $btn_attr);
+?&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">And here's the equivalent using pure HTML:</p>
+
+[code=html]&lt;button mx-get="api/protected_data" 
+        mx-target="#result" 
+        mx-headers='{"Authorization": "Bearer abc123", "Custom-Header": "custom-value"}'&gt;
+    Fetch Protected Data
+&lt;/button&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;[/code]
+
+<div class="alert alert-danger">
+    <p>The example above is for illustration purposes only. <b>Never</b> hardcode security tokens or API keys directly into HTML source code. These credentials would be visible in the page source and could pose significant security risks.</p>
+</div>
+
+<h2>Cleaner Syntax for Advanced Use</h2>
+
+<p>To avoid syntax errors and improve maintainability when working with multiple headers, you can combine Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function with PHP's <code>json_encode()</code>:</p>
+
+[code=vf]&lt;?php 
+$auth_token = 'abc123'; // Example token
+$client_id = 'client-5678'; // Example client ID
+
+$headers = [
+    'Authorization' =&gt; 'Bearer ' . $auth_token,
+    'X-API-Version' =&gt; '2.0',
+    'X-Client-ID' =&gt; $client_id,
+    'Accept-Language' =&gt; 'en-US,en;q=0.9',
+    'X-Request-Source' =&gt; 'WebApp'
+];
+
+$attributes = [
+    'mx-get' =&gt; 'api/protected_data',
+    'mx-target' =&gt; '#result',
+    'mx-headers' =&gt; json_encode($headers)
+];
+echo form_button('fetch_btn', 'Fetch Protected Data', $attributes);
+?&gt;[/code]
+
+<p>This approach uses PHP's <code>json_encode()</code> function to ensure properly formatted JSON for the <code>mx-headers</code> attribute while keeping the code maintainable.</p>
+
+<p class="mt-3 mb-0">For those who prefer to work primarily with HTML, here's an alternative syntax:</p>
+
+[code=vf]&lt;button mx-get="api/protected_data"
+        mx-target="#result"
+        mx-headers='{
+            "Authorization": "Bearer &lt;?= $auth_token ?&gt;",
+            "X-API-Version": "2.0",
+            "X-Client-ID": "&lt;?= $client_id ?&gt;",
+            "Accept-Language": "en-US,en;q=0.9",
+            "X-Request-Source": "WebApp"
+        }'&gt;
+    Fetch Protected Data
+&lt;/button&gt;[/code]
+
+<h2>Important Technical Considerations</h2>
+<div class="alert alert-info">
+    <ul>
+        <li>The <code>mx-headers</code> value must be valid JSON - malformed JSON will cause the request to fail</li>
+        <li>When using HTML attributes directly, use single quotes around the attribute value since JSON requires double quotes for properties</li>
+        <li>Header names are case-insensitive according to the HTTP specification, but conventionally written in Title-Case</li>
+        <li>Some headers (like <code>Content-Length</code>) are automatically managed by browsers and cannot be set via JavaScript</li>
+    </ul>
+</div>
+
+<h2>Common Use Cases</h2>
+
+<h3>1. Authentication Headers</h3>
+<p>Authentication is a primary use case for custom headers. Here's a secure implementation using the <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
+
+[code=vf]&lt;?php
+$token = get_session_token(); // Get token from your session management system
+$btn_attr = [
+    'mx-post' =&gt; 'api/secure_endpoint',
+    'mx-target' =&gt; '#secure-content',
+    'mx-headers' =&gt; json_encode([
+        'Authorization' =&gt; 'Bearer ' . $token
+    ])
+];
+echo form_button('secure_btn', 'Access Secure Content', $btn_attr);
+?&gt;[/code]
+
+<div class="alert alert-info">
+  <p><strong>Authentication Best Practices:</strong></p>
+  <ul>
+    <li>Use <code>Bearer</code> authentication for JWTs and OAuth 2.0 access tokens</li>
+    <li>Implement CSRF protection for POST requests</li>
+    <li>Store tokens securely (e.g., in HTTP-only cookies for session tokens)</li>
+    <li>Use short-lived tokens and implement proper token rotation</li>
+  </ul>
+</div>
+
+<h3>2. API Version Headers</h3>
+<p>Version headers help manage API compatibility:</p>
+
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="#api-result" 
+        mx-headers='{
+            "Accept": "application/json",
+            "X-API-Version": "2.0"
+        }'&gt;
+    Fetch Data
+&lt;/button&gt;[/code]
+
+<h3>3. Request Tracking Headers</h3>
+<p>Custom headers can help with request tracking and debugging:</p>
+
+[code=vf]&lt;?php
+$headers = [
+    'Authorization' =&gt; 'Bearer ' . $token,
+    'X-Request-ID' =&gt; uniqid(),
+    'X-Client-Version' =&gt; APP_VERSION,
+    'X-Device-Type' =&gt; 'web'
+];
+
+$btn_attr = [
+    'mx-get' =&gt; 'api/tracked_request',
+    'mx-target' =&gt; '#tracking-result',
+    'mx-headers' =&gt; json_encode($headers)
+];
+echo form_button('track_btn', 'Tracked Request', $btn_attr);
+?&gt;[/code]
+
+<h2>Security Considerations</h2>
+<div class="alert alert-warning">
+    <p><strong>Critical Security Guidelines:</strong></p>
+    <ul>
+        <li>Always use HTTPS for requests containing sensitive headers</li>
+        <li>Validate and sanitize all header values on both client and server sides</li>
+        <li>Store sensitive tokens securely</li>
+        <li>Implement rate limiting on endpoints that accept custom headers</li>
+    </ul>
+</div>
+
+<h2>Conclusion</h2>
+<p>The <code>mx-headers</code> attribute provides a flexible way to include custom HTTP headers in your Trongate MX requests. When implemented with proper security considerations, it enables robust authentication, versioning, and request tracking capabilities in your applications.</p>

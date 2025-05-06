@@ -1,0 +1,109 @@
+<h1>Working With Images</h1>
+
+<p>Trongate CSS provides simple yet powerful image handling capabilities out of the box. Images are automatically made responsive while maintaining their aspect ratios, ensuring they look great across all devices.</p>
+
+<h2>Basic Image Styling</h2>
+
+<p>By default, all images in Trongate CSS are responsive. Simply use the standard HTML <code>&lt;img&gt;</code> tag, and Trongate CSS will handle the rest:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <img src="images/dragon.webp" alt="Example responsive image">
+    </div>
+</div>
+
+[code=html]
+&lt;img src="path/to/your/image.jpg" alt="Example responsive image"&gt;
+[/code]
+
+<p>This works because Trongate CSS automatically applies <code>max-width: 100%;</code> and <code>height: auto;</code> to all images, ensuring they scale proportionally within their containers while maintaining aspect ratio.</p>
+
+<h2>Image Alignment</h2>
+
+<p>Trongate CSS provides several utility classes for controlling image alignment:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <img src="images/horse.webp" alt="Left aligned image" class="float-left">
+        <div style="clear: both; margin-bottom: 1em;"></div>
+        
+        <img src="images/horse.webp" alt="Right aligned image" class="float-right">
+        <div style="clear: both; margin-bottom: 1em;"></div>
+        
+        <div class="text-center">
+            <img src="images/horse.webp" alt="Center aligned image">
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;!-- Left aligned image --&gt;
+&lt;img src="path/to/image.jpg" alt="Left aligned image" class="float-left"&gt;
+
+&lt;!-- Right aligned image --&gt;
+&lt;img src="path/to/image.jpg" alt="Right aligned image" class="float-right"&gt;
+
+&lt;!-- Center aligned image --&gt;
+&lt;div class="text-center"&gt;
+    &lt;img src="path/to/image.jpg" alt="Center aligned image"&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Responsive Image Grids</h2>
+
+<p>Create flexible image galleries using Trongate's flexbox utilities:</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row flex-wrap justify-between mt-2">
+        <img src="images/lion.webp" alt="Grid image 1" style="width: 32%; margin-bottom: 1em;">
+        <img src="images/lion.webp" alt="Grid image 2" style="width: 32%; margin-bottom: 1em;">
+        <img src="images/lion.webp" alt="Grid image 3" style="width: 32%; margin-bottom: 1em;">
+    </div>
+</div>
+
+[code=html]
+&lt;div class="flex-row flex-wrap justify-between"&gt;
+    &lt;img src="image1.jpg" alt="Grid image 1" style="width: 32%; margin-bottom: 1em;"&gt;
+    &lt;img src="image2.jpg" alt="Grid image 2" style="width: 32%; margin-bottom: 1em;"&gt;
+    &lt;img src="image3.jpg" alt="Grid image 3" style="width: 32%; margin-bottom: 1em;"&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Images in Cards</h2>
+
+<p>Images work seamlessly within card components:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card">
+            <img src="images/falcon.webp" alt="Card image example">
+            <div class="card-body">
+                <p>Images automatically fit within card boundaries while maintaining their aspect ratio.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;img src="path/to/your/image.jpg" alt="Card image example"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p&gt;Images automatically fit within card boundaries while maintaining their aspect ratio.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-success">
+<p>When working with images in responsive layouts, consider these best practices:</p>
+
+<ul>
+    <li>Always include meaningful alt text for accessibility.</li>
+    <li>Use appropriate container classes to control maximum image width.</li>
+    <li>Consider using different aspect ratios for different types of content.</li>
+    <li>Test images across different screen sizes to ensure proper scaling.</li>
+</ul>    
+</div>
+
+<div class="alert alert-info">
+    <p>While Trongate CSS handles responsive image scaling automatically, it's still important to serve appropriately sized images to optimize loading times and performance.</p>
+</div>

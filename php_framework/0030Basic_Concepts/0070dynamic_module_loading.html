@@ -1,0 +1,106 @@
+<h1>Dynamic Module Loading</h1>
+
+<p>Trongate’s dynamic module loading system is a standout feature of the framework, giving developers the ability to build scalable, modular applications with ease. With Trongate's module loading system, developers can use self-contained modules on demand, eliminating the need for excessive dependencies or cluttered codebases. Whether you're handling security, file uploads, or user management, modules integrate seamlessly, making it easier than ever to extend your application’s functionality. This page will walk you through how modules are dynamically loaded in Trongate.</p>
+
+<h2>How Dynamic Module Loading Works</h2>
+
+<p>In Trongate, modules are self-contained components that encapsulate specific functionality, such as security, file uploads, or user management. These modules can be loaded dynamically into your controllers, making it easy to extend the functionality of your application without modifying the core framework.</p>
+
+<h3>Step-by-Step Process</h3>
+
+<ol>
+    <li><strong>Loading a Module:</strong>
+        <p>To load a module, simply call the <span class="feature-ref">module()</span> method in your controller and pass the name of the module as a parameter. For example:</p>
+        [code=php]$this->module('trongate_security');[/code]
+        <p>This method delegates the loading process to the <a href="documentation-ref/list_refs/class_reference/the-modules-class" target="_blank">Modules class</a>, which handles the instantiation and attachment of the module to your controller.</p>
+    </li>
+
+    <li><strong>Dynamic Property Attachment:</strong>
+        <p>Once a module is loaded, it is dynamically attached to the <a href="documentation-ref/list_refs/class_reference/the-trongate-class" target="_blank">Trongate</a> instance as a property. For example, after calling <code>$this->module('trongate_security');</code>, the <a href="documentation-ref/list_refs/pre_installed/trongate-security" target="_blank">Trongate Security</a> module becomes accessible via <code>$this->trongate_security</code>.</p>
+    </li>
+
+    <li><strong>Using the Module:</strong>
+        <p>After loading the module, you can immediately use its methods. For example:</p>
+        [code=php]$this->trongate_security->_make_sure_allowed();[/code]
+        <p>This seamless integration ensures that modules are ready to use as soon as they are loaded, without any additional configuration.</p>
+    </li>
+</ol>
+
+<hr>
+
+<h2>Under the Hood: How Dynamic Module Loading Works</h2>
+
+<p>To truly understand the power of Trongate’s dynamic module loading, let’s take a closer look at the underlying mechanisms:</p>
+
+<h3 class="mt-3">The Role of the <code>module()</code> Method</h3>
+
+<p>The <span class="feature-ref">module()</span> method in the <a href="documentation-ref/list_refs/class_reference/the-trongate-class" target="_blank">Trongate class</a> acts as a bridge between your controller and the <a href="documentation-ref/list_refs/class_reference/the-modules-class" target="_blank">Modules class</a>. When you call <code>$this->module('trongate_security');</code>, the following happens:</p>
+
+<ol>
+    <li>The <span class="feature-ref">module()</span> method creates an instance of the <a href="documentation-ref/list_refs/class_reference/the-modules-class" target="_blank">Modules class</a>:
+        [code=php]$modules = new Modules;[/code]
+    </li>
+    <li>It then calls the <span class="feature-ref" ref-path="class_reference/The_Modules_Class">load()</span> method of the <a href="documentation-ref/list_refs/class_reference/the-modules-class" target="_blank">Modules class</a>, passing the name of the module to be loaded:
+        [code=php]$modules->load($target_module);[/code]
+    </li>
+</ol>
+
+<h3 class="mt-3">The Role of the <code>Modules</code> Class</h3>
+
+<p>The <a href="documentation-ref/list_refs/class_reference/the-modules-class" target="_blank">Modules class</a> is responsible for dynamically loading and instantiating modules. Here’s how it works:</p>
+
+<ol>
+    <li>The <span class="feature-ref" ref-path="class_reference/The_Modules_Class">load()</span> method constructs the path to the module’s controller file based on the module name:
+        [code=php]$target_controller_path = '../modules/' . $target_module . '/controllers/' . ucfirst($target_module) . '.php';[/code]
+    </li>
+    <li>If the controller file exists, it is included, and the module’s controller class is instantiated:
+        [code=php]$this->modules[$target_module] = new $target_module($target_module);[/code]
+    </li>
+    <li>The instantiated module is stored in the <code>$modules</code> array within the <a href="documentation-ref/list_refs/class_reference/the-modules-class" target="_blank">Modules class</a>, ensuring that it can be reused if needed. This caching mechanism prevents redundant instantiations of the same module during a single request, improving performance.</li>
+</ol>
+
+<h3 class="mt-3">The Role of the <code>Dynamic_properties</code> Trait</h3>
+
+<div class="alert alert-info">
+    <p>Trongate's dynamic module loading system is made possible by the <code>Dynamic_properties</code> trait, which allows properties to be added to the <code>Trongate</code> instance at runtime. This is achieved using PHP's magic methods (<code>__get()</code> and <code>__set()</code>), enabling safe access and manipulation of dynamically added properties.</p>
+    <p>This is called at the top of the main Trongate class with the following line of code:</p>
+    [code=php]use Dynamic_properties;[/code]
+    <p>The remainder of this page contains information about how Trongate's dynamic module loading system works under the hood. However, it should be stressed that there's no requirement to understand <i>how</i> the internals of Trongate work to use the framework effectively.</p>
+</div>
+
+<p>The <code>Dynamic_properties</code> trait enables the <a href="documentation-ref/list_refs/class_reference/the-trongate-class" target="_blank">Trongate class</a> to handle properties that are not explicitly defined. Here’s how it works:</p>
+
+<ol>
+    <li>When a module is loaded, the <code>Dynamic_properties</code> trait allows the module to be dynamically attached to the <a href="documentation-ref/list_refs/class_reference/the-trongate-class" target="_blank">Trongate</a> instance as a property. For example:
+        [code=php]$this->trongate_security = new Trongate_Security('trongate_security');[/code]
+    </li>
+    <li>This dynamic property attachment ensures that the module is accessible throughout the <code>Trongate</code> instance, allowing you to call its methods directly. For example:
+        [code=php]$this->trongate_security->_make_sure_allowed();[/code]
+    </li>
+</ol>
+
+<p>The <code>Dynamic_properties</code> trait is essential for enabling this flexibility, as it allows properties like <code>$this->trongate_security</code> to be added dynamically without requiring explicit declarations in the <a href="documentation-ref/list_refs/class_reference/the-trongate-class" target="_blank">Trongate class</a>.</p>
+
+<hr>
+
+<h2>Benefits of Trongate’s Module Loading System</h2>
+
+<p>Trongate’s dynamic module loading system offers several advantages that make it a powerful tool for developers:</p>
+
+<ul>
+    <li><strong>Modular Architecture:</strong> Trongate’s modular design promotes separation of concerns, making your codebase cleaner and easier to maintain.</li>
+    <li><strong>Ease of Use:</strong> With just a single line of code (<code>$this->module('module_name');</code>), you can load and use any module in your application.</li>
+    <li><strong>Flexibility and Extensibility:</strong> The ability to dynamically attach modules ensures that Trongate can adapt to the needs of your project.</li>
+    <li><strong>Lightweight and Efficient:</strong> Trongate’s module loading mechanism is designed to be lightweight and efficient, ensuring that your application remains performant.</li>
+    <li><strong>Developer-Friendly:</strong> The intuitive design of Trongate’s module loading system makes it accessible to developers of all skill levels.</li>
+</ul>
+
+<h2>In Summary</h2>
+
+<p>Trongate’s dynamic module loading system is a cornerstone of its architecture, providing developers with a powerful and flexible way to build modular applications. By leveraging the internal <code>Dynamic_properties</code> trait, Trongate ensures that modules can be seamlessly integrated into your controllers, enhancing both functionality and maintainability.</p>
+
+<p>Whether you’re building a simple website or a large-scale, complex web application, Trongate’s module loading system empowers you to create clean, modular, and extensible code with minimal effort.</p>
+
+<div class="alert alert-info">
+    <p>For more information on how to work with Trongate's dynamic module loading system please refer to the chapter, <a href="documentation/display/php_framework/modules-calling-modules">Modules Calling Modules</a>.</p>
+</div>

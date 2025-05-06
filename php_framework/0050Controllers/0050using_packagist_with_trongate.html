@@ -1,0 +1,131 @@
+<h1>Using Packagist With Trongate</h1>
+
+<p>
+    This guide outlines the process for integrating third-party PHP libraries into Trongate applications using 
+    <a href="https://packagist.org/" target="_blank">Packagist</a>, the primary repository for Composer packages. 
+    For demonstration purposes, the instructions below specifically focus on downloading and utilizing 
+    <a href="https://packagist.org/packages/guzzlehttp/guzzle" target="_blank">Guzzle</a>, a third-party PHP 
+    library that facilitates the sending and receiving of HTTP requests and responses.
+</p>
+
+<h3>System Requirements</h3>
+
+<p>Ensure that the system meets the following requirements:</p>
+
+<ul>
+    <li><strong>PHP:</strong> PHP 8 or newer is required to use the latest version of Trongate with Packagist.</li>
+    <li class="mt-1">
+        <strong>Composer:</strong> Composer must be installed on the system for managing library dependencies. 
+        If Composer is not installed, visit 
+        <a href="https://getcomposer.org/" target="_blank">getcomposer.org</a> to download and install it.
+    </li>
+    <li class="mt-1"><strong>Internet Connection:</strong> An active internet connection is necessary to download packages from Packagist.</li>
+</ul>
+
+<h3 class="mt-3">Step 1: Setting Up the Project with Composer</h3>
+
+<ol>
+    <li>
+        <strong>Initialize Composer:</strong> If a <code>composer.json</code> file is not already present in the 
+        project, create one by running the following command in the project directory:
+        [code]composer init[/code]
+        Follow the prompts to configure the project. This setup helps manage project dependencies.
+    </li>
+    <li class="mt-1">
+        <strong>Install Guzzle:</strong> Add Guzzle to the project by running:
+        [code]composer require guzzlehttp/guzzle[/code]
+        This command instructs Composer to find Guzzle on Packagist and install it along with any necessary dependencies.
+    </li>
+    <li class="mt-1">
+        <strong>Verify Installation:</strong> Ensure that the Guzzle library has been added to the project by checking 
+        that the <code>composer.json</code> file includes Guzzle and that the <code>vendor</code> directory has been 
+        created with Guzzle files in it.
+    </li>
+</ol>
+
+<h3 class="mt-3">Step 2: Using Guzzle in a Trongate Application</h3>
+
+<ol>
+    <li>
+        <strong>Autoload Dependencies:</strong> To use Guzzle, include Composer's autoloader in the PHP script. 
+        Add the following line at the top of the PHP file:
+        [code=php]require_once APPPATH.'vendor/autoload.php';[/code]
+        This inclusion ensures that all dependencies, including Guzzle, are loaded and available for use.
+    </li>
+    <li class="mt-1">
+        <strong>Create an HTTP Client:</strong> Instantiate a new Guzzle client to make HTTP requests:
+        [code=php]$client = new GuzzleHttp\Client();[/code]
+    </li>
+    <li class="mt-1">
+        <strong>Make an HTTP Request:</strong> Use the client to send a request and retrieve the response:
+        [code=php]$response = $client-&gt;request('GET', 'https://api.example.com/data');
+echo $response-&gt;getBody();[/code]
+    </li>
+</ol>
+
+<h2>Complete Example</h2>
+
+<p>Below is an example of using Guzzle within a Trongate controller file to fetch data from GitHub's API:</p>
+
+[code=php]
+&amp;lt;?php
+require_once APPPATH.'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+
+class Welcome extends Trongate {
+
+    function fetch() {
+
+        $client = new Client();
+        try {
+            // Fetch repository details, for Trongate, from GitHub API
+            $target_url = 'https://api.github.com/repos/trongate/trongate-framework';
+            $response = $client-&gt;request('GET', $target_url);
+            $data = json_decode($response-&gt;getBody(), true);
+
+            // Accessing the 'stargazers_count' to get the number of stars
+            echo "The Trongate framework has ".$data['stargazers_count']." stars on GitHub.";
+        } catch (GuzzleHttp\Exception\GuzzleException $e) {
+            echo 'Request failed: '.$e-&gt;getMessage();
+        }
+
+    }
+
+}
+[/code]
+
+<div class="alert alert-success">
+    <p>
+        In the example above, the <code>APPPATH</code> constant is used to specify the location of the 
+        <code>autoload.php</code> file. All Trongate controllers, view files, and templates have access to the 
+        <code>APPPATH</code> constant, which references the application's root directory. This provides a reliable 
+        method for specifying file paths.
+    </p>
+    <p>
+        The example also utilizes PHP's <code>require_once</code> function, ensuring that the file is included only 
+        once, safeguarding the application's stability.
+    </p>
+</div>
+
+<h2>Conclusion</h2>
+
+<p>
+    Although Trongate has its own 
+    <a href="https://trongate.io/module-market" target="_blank">code-sharing platform</a>, there may be instances 
+    where downloading third-party code via Packagist is desirable. Packagist offers a vast repository of PHP libraries 
+    and packages that can significantly accelerate development and bring advanced functionality to projects with minimal effort.
+</p>
+
+<p>
+    However, the use of Packagist is not without challenges. Relying on Packagist can lead to potential issues with 
+    stability, versioning, and dependencies. Moreover, developers considering using code from Packagist should be aware 
+    of potential 
+    <a href="https://news.google.com/search?q=Packagist" target="_blank">security vulnerabilities</a> associated with Packagist.
+</p>
+
+<p>
+    The Trongate framework enables developers to selectively use Packagist for specific modules, providing precise 
+    integration without compromising the overall performance of the application. This targeted approach ensures that 
+    enhancements can be made where necessary without affecting the efficiency of the entire system.
+</p>

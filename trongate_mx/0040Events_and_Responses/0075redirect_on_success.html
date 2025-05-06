@@ -1,0 +1,122 @@
+<h1>Redirect on Success</h1>
+<p>In certain situations, you may wish to redirect users to a different URL after receiving a success status code (200-299) from an API endpoint. The <code>mx-redirect-on-success</code> attribute is specifically designed for this purpose.</p>
+
+<h2>Usage</h2>
+<p>To use <code>mx-redirect-on-success</code>, add it to any element that triggers an HTTP request (such as forms or buttons) and set its value to "true". The redirect URL should be returned as plain text in the response body from the server.</p>
+
+<div class="alert alert-warning">
+  <p>The redirect happens immediately upon receiving a successful response from the target API endpoint. Because of this, <code>mx-redirect-on-success</code> should <b>not</b> be combined with animation attributes or other success handlers since they won't have time to execute.</p>
+</div>
+
+<h3 class="mt-3">Basic Example:</h3>
+<p>The code sample below would render a form button that - when clicked - invokes an HTTP post request.  If the server responds with an HTTP status code in the 'success' range (for example, <b>200</b>), the user will be immediately redirected to the URL that is specified in the response body.</p>
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-post' =&gt; 'members/goto_dashboard',
+  'mx-token' =&gt; $trongate_token,
+  'mx-redirect-on-success' =&gt; 'true'
+];
+echo form_button('action_btn', 'View Dashboard', $btn_attr);
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax for developers who prefer to work with pure HTML:</p>
+
+[code=vf]
+&lt;button mx-post="members/goto_dashboard" 
+        mx-token="<?= $trongate_token ?>"
+        mx-redirect-on-success="true"&gt;View Dashboard&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>The code sample above assumes that a <code>$trongate_token</code> value has been passed into the view file from a controller file.</p>
+</div>
+
+<h2>Server-Side Implementation</h2>
+<p>For the redirect to work correctly, your API endpoint must:</p>
+<ol>
+  <li>Return a success status code (200-299).</li>
+  <li>Return only the redirect URL as plain text in the response body.</li>
+</ol>
+
+<h3 class="mt-3">Example Controller Code:</h3>
+[code=php]
+public function goto_dashboard() {
+  $this->module('trongate_tokens');
+  $trongate_token = $this->trongate_tokens->_attempt_get_valid_token();
+
+  if ($trongate_token !== false) {
+    http_response_code(200);
+    echo 'dashboard'; // Will redirect to yoursite.com/dashboard
+    die();
+  }
+  
+  http_response_code(401);
+  echo 'Invalid username or password.';
+}
+[/code]
+
+<h2>Common Use Cases</h2>
+<h3>1. Login Form</h3>
+[code=vf]&lt;?php
+$form_attr = [
+    'mx-post' => 'members/submit_login',
+    'mx-redirect-on-success' => 'true'
+];
+echo form_open('#', $form_attr);
+
+$username_attr['placeholder'] = 'Enter username here...';
+echo form_input('username', '', $username_attr);
+
+$password_attr['placeholder'] = 'Enter password here...';
+echo form_password('password', '', $password_attr);
+
+echo form_submit('submit_btn', 'Login');
+echo form_close();
+?&gt;[/code]
+
+<h3>2. Multi-Step Process</h3>
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-post' =&gt; 'payment/process',
+  'mx-target' =&gt; '#payment-status',
+  'mx-redirect-on-success' =&gt; 'true'
+];
+echo form_button('payment_btn', 'Complete Payment', $btn_attr);
+?&gt;
+[/code]
+
+<div class="alert alert-warning">
+  <p><b>The following considerations should be taken into account:</b></p>
+  <ul>
+    <li>The response body must contain only the URL - any additional content will prevent the redirect.</li>
+    <li>The redirect occurs immediately upon receiving a successful response.</li>
+    <li>Cannot be used with animation attributes since the redirect is immediate.</li>
+  </ul>
+</div>
+
+<h2>URL Handling</h2>
+<p>The redirect URL can be specified in several ways:</p>
+<ul>
+  <li>Relative to your site root (e.g., 'dashboard').</li>
+  <li>Starting with a forward slash (e.g., '/dashboard').</li>
+  <li>As an absolute URL (e.g., 'https://example.com/dashboard').</li>
+</ul>
+
+<div class="alert alert-info">
+  <p class="mt-0"><strong>Note:</strong> For relative URLs to work correctly, your page should include a <code>&lt;base&gt;</code> tag in the head section. For example:</p>
+  [code=html]&lt;base href="&lt;?= BASE_URL ?&gt;"&gt;[/code]
+  <p>Without a base tag, relative URLs might not resolve to the correct location.</p>
+</div>
+
+<div class="alert alert-success">
+  For comprehensive navigation flows, consider using both <code>mx-redirect-on-success</code> and 
+  <code>mx-redirect-on-error</code> together to handle both successful and failed scenarios.
+</div>
+
+<h2>Summary</h2> 
+<p>The <code>mx-redirect-on-success</code> attribute is a handy way to redirect users after a successful form submission.  However, there are a wide variety of other scenarios where it could be useful.</p>
+
+<p>By simply specifying a URL, you can guide users seamlessly to the next step in their journey - no extra JavaScript required! Whether you're using pure HTML or Trongate's helper functions, this attribute makes building smooth, user-friendly experiences a breeze.</p>

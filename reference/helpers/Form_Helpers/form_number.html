@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>form_number()</h1>
+  <p class="signature">function form_number(string $name, string|int|float|null $value = null, ?array $attributes = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates a number input form field element.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the input element.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>string|int|float|null</td>
+        <td>(optional) The value attribute for the input element. Default is null.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(optional) Additional attributes for the input element as an associative array. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML input element.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>form_number</code> function with default parameters.</p>
+  <pre>
+$name = 'quantity';
+$value = 10;
+echo form_number($name, $value);
+// Output: '&lt;input type="number" name="quantity" value="10"&gt;'
+  </pre>
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>form_number</code> function with additional attributes.</p>
+  <pre>
+$name = 'quantity';
+$value = 10;
+$attributes = ['class' => 'form-control', 'id' => 'quantity-input', 'min' => '1', 'max' => '100'];
+echo form_number($name, $value, $attributes);
+// Output: '&lt;input type="number" name="quantity" value="10" class="form-control" id="quantity-input" min="1" max="100"&gt;'
+  </pre>
+</div>

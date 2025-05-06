@@ -1,0 +1,43 @@
+<h1>The Underscore Naming Convention</h1>
+<p>Trongate employs the underscore naming convention as a mechanism to control method accessibility. This convention involves prefixing method names with an underscore character to prevent them from being accessed directly via a URL.  For example:</p> 
+
+[code=php]
+public function _calculate_tax($price) {
+    $tax = $price * $this->tax_rate;
+    return $tax;
+}
+[/code]
+
+<p>Methods prefixed with an underscore are effectively restricted from public URL invocation, while still remaining accessible within the framework's modular architecture.</p>
+
+<h2>How It Works</h2>
+<p>In Trongate, modules are designed to be independent yet interoperable. Developers can easily load one module from another, as demonstrated in the example below:</p>
+[code=php]
+// Load module_b
+$this->module('module_b');
+
+// Invoke greeting() method (which resides in module_b)
+$this->module_b->greeting();
+[/code]
+
+<div class="alert alert-info">
+  <p>Information regarding how modules can load and use <i>other</i> modules is provided within the, <a href="documentation/display/php_framework/modules-calling-modules">Modules Calling Modules</a> chapter of this documentation.</p>
+</div>
+
+<p>While methods prefixed with an underscore cannot be accessed via a URL, they remain fully accessible within the framework. This ensures that developers can invoke methods across modules without exposing sensitive functionality to external requests.</p>
+
+<h2>Addressing Common Misconceptions</h2>
+<p>A common misconception is that the underscore naming convention renders methods "private" or "protected." However, this is not the case. In object-oriented programming:</p>
+<ul>
+  <li><strong>Private methods</strong> can only be invoked within their containing class.</li>
+  <li><strong>Protected methods</strong> can be accessed by their containing class and any classes that extend it.</li>
+</ul>
+<p>Since modules in Trongate are entirely independent, invoking a method from one module in another would be impossible unless the method is explicitly declared as <code>public</code>. The underscore naming convention does not alter a method's visibility within the codebase; rather, it restricts direct URL access to ensure security and maintainability.</p>
+
+<p>Some developers mistakenly associate the underscore naming convention with outdated practices, particularly because earlier PHP frameworks (e.g., Zend Framework 1, early versions of CodeIgniter, and Yii1) used similar approaches but later replaced them with full access modifiers. However, this assumption is incorrect and reflects a misunderstanding of Trongate's unique architecture. <strong>The underscore naming convention is a deliberate and integral part of the framework's design, not a relic of outdated practices.</strong></p>
+
+<p>Without this convention, developers would need to rely on additional configuration mechanisms, such as YAML files, to explicitly specify which methods can or cannot be accessed via URLs. The underscore naming convention simplifies this process, providing a clean and efficient way to secure methods from direct URL access.</p>
+
+<div class="alert alert-info">
+  <p>More information pertaining to this topic is offered <a href="documentation/display/php_framework/understanding-routing/securing-methods-from-url-access" target="_blank">here</a>.</p>
+</div>

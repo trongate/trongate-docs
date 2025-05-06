@@ -1,0 +1,108 @@
+<h1>Managing Browser URL State</h1>
+
+<p>Trongate MX introduces the ability to manage the browser's URL state directly from your HTML, eliminating the need for custom JavaScript. This feature is perfect for creating dynamic, URL-driven interfaces such as filtering, sorting, or navigating through content-rich web applications.</p>
+
+<h2>Basic Usage</h2>
+<p>The <code>mx-push-url</code> attribute lets you update the browser's URL dynamically whenever an element is interacted with. When set to "true", it will push the request URL into the browser's history, making your application behave like a true single-page application (SPA). For example, you can use it with a dropdown menu to update the URL dynamically:</p>
+
+<p>Here's how to create a category selector using pure HTML:</p>
+
+[code=html]&lt;select id="category-selector" 
+  mx-get="products/fetch_by_category/${this.value}" 
+  mx-target="#product-list" 
+  mx-push-url="true" 
+  mx-trigger="change"&gt;
+  &lt;option value="electronics"&gt;Electronics&lt;/option&gt;
+  &lt;option value="fashion"&gt;Fashion&lt;/option&gt;
+  &lt;option value="home"&gt;Home&lt;/option&gt;
+&lt;/select&gt;[/code]
+
+<p>The same category selector can be created using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_dropdown()</span> function:</p>
+
+[code=vf]&lt;?php
+$options = [
+    'electronics' => 'Electronics',
+    'fashion' => 'Fashion',
+    'home' => 'Home'
+];
+
+$attributes = [
+    'id' => 'category-selector',
+    'mx-get' => 'products/fetch_by_category/${this.value}',
+    'mx-target' => '#product-list',
+    'mx-push-url' => 'true',
+    'mx-trigger' => 'change'
+];
+
+echo form_dropdown('category', $options, '', $attributes);
+?&gt;[/code]
+
+<p>In this example, when the user selects "Fashion," the browser URL will update to match the request URL (<code>/products/fetch_by_category/fashion</code>), and a GET request fetches the corresponding products for display in the <code>#product-list</code> element.</p>
+
+<div class="alert alert-info">
+    <h3 class="mt-0">Technical Information</h3>
+
+    <p>When <code>mx-push-url="true"</code> is used, Trongate MX integrates with the browser's History API to create a seamless single-page navigation experience. After a successful AJAX request (status codes 200-299), the request URL is pushed to the browser's history stack. When users click the browser's back/forward buttons, Trongate MX intercepts these navigation events and automatically triggers the appropriate requests to restore the previous state - all without requiring page reloads. If the application state cannot be restored, the system falls back to a standard page reload to ensure consistent behavior.</p>
+</div>
+
+<h3>Pagination Example</h3>
+<p>The example below demonstrates using <code>mx-push-url</code> for pagination. When a user clicks on a page number, the URL updates dynamically to match the request URL.</p>
+
+<p>Using pure HTML:</p>
+
+[code=vf]&lt;button mx-get="posts/fetch_page/2" 
+        mx-target="#posts-container" 
+        mx-push-url="true"&gt;Page 2&lt;/button&gt;[/code]
+
+<p>The same pagination button can be created using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
+
+[code=vf]&lt;?php
+$attributes = [
+    'mx-get' => 'posts/fetch_page/2',
+    'mx-target' => '#posts-container',
+    'mx-push-url' => 'true'
+];
+
+echo form_button('page_btn', 'Page 2', $attributes);
+?&gt;[/code]
+
+<h2>Pure HTML Form Example</h2>
+<p>The code sample below demonstrations the <code>mx-push-url</code> attribute being used with pure HTML elements including a form and two buttons.</p>
+
+[code=html]&lt;!-- Filtering products --&gt;
+&lt;button mx-get="products/filter/${this.value}" 
+        mx-target="#product-grid" 
+        mx-push-url="true"&gt;Filter Products&lt;/button&gt;
+
+&lt;!-- Loading user profiles --&gt;
+&lt;button mx-get="users/view/${this.value}" 
+        mx-target="#user-profile" 
+        mx-push-url="true"&gt;View Profile&lt;/button&gt;
+
+&lt;!-- Search results --&gt;
+&lt;form mx-get="search/results/${this.value}" 
+      mx-target="#search-results" 
+      mx-push-url="true"&gt;
+  &lt;input type="text" name="query"&gt;
+  &lt;button type="submit"&gt;Search&lt;/button&gt;
+&lt;/form&gt;[/code]
+
+<div class="alert alert-success">
+  <ul>
+    <li>Use <code>mx-push-url="true"</code> when you want the browser URL to reflect the current state of your application.</li>
+    <li>Ensure your server-side routes match the URLs that will be pushed to the browser history.</li>
+    <li>Test browser back/forward navigation thoroughly to ensure a smooth user experience.</li>
+    <li>Remember that the URL is only updated after successful requests (status codes 200-299).</li>
+    <li>Consider using meaningful URL segments that reflect the current application state.</li>
+  </ul>
+</div>
+
+<h2>Limitations</h2>
+<ul>
+  <li>The feature relies on browser support for the History API (modern browsers only).</li>
+  <li>URLs are only updated after successful AJAX requests.</li>
+  <li>The pushed URL will always match the request URL specified in the mx-get attribute.</li>
+</ul>
+
+<h2>Summary</h2>
+<p>The <code>mx-push-url</code> feature in Trongate MX provides a simple way to manage browser history in single-page applications. By setting <code>mx-push-url="true"</code>, you ensure that your application's URLs stay synchronized with its state, enabling proper bookmarking and browser navigation without any custom JavaScript code.</p>

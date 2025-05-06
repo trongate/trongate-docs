@@ -1,0 +1,97 @@
+<div class="container">
+  <h1>run_validation_test()</h1>
+  <p class="signature">private function run_validation_test(array $validation_data, $rules = null): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Executes a specific validation test based on the provided validation data and rules. This method is part of Trongate's robust Validation class.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$validation_data</td>
+        <td>array</td>
+        <td>An array containing validation data, including the 'test_to_run' key.</td>
+      </tr>
+      <tr>
+        <td>$rules</td>
+        <td>mixed|null</td>
+        <td>(optional) Additional rules for validation, used in specific cases like file validation. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This function does not return a value. It updates the internal state of the validation object.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates how to set up validation rules for a 'username' field in a Trongate controller:</p>
+  <pre>
+  public function submit(): void {
+      $this->validation->set_rules('username', 'Username', 'required|min_length[2]|max_length[255]');
+      
+      $result = $this->validation->run();
+
+      if ($result) {
+          echo 'Form submission successful!';
+      } else {
+          $this->create();
+      }
+  }
+  </pre>
+
+  <h2>Example #2</h2>
+  <p>This example shows how to use array-based validation for multiple fields:</p>
+  <pre>
+  public function submit(): void {
+      $validation_rules['username'] = [
+          'required' => true,
+          'min_length' => 2,
+          'max_length' => 255
+      ];
+      $validation_rules['email_address'] = [
+          'required' => true,
+          'valid_email' => true
+      ];
+
+      $result = $this->validation->run($validation_rules);
+
+      if ($result) {
+          echo 'Form submission successful!';
+      } else {
+          $this->create();
+      }
+  }
+  </pre>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>This is a private method used internally by Trongate's Validation class.</li>
+    <li>The method supports various validation tests including: required, numeric, integer, decimal, valid_email, validate_file, valid_datepicker, valid_datetimepicker, and valid_time.</li>
+    <li>Custom validation rules can be created using callback functions, prefixed with 'callback_' in the set_rules() method.</li>
+    <li>The Validation class automatically includes CSRF protection checks when the run() method is called.</li>
+    <li>To display validation errors, you can use the validation_errors() function after run() returns false.</li>
+  </ul>
+</div>

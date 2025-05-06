@@ -1,0 +1,92 @@
+<h1>Regarding Coding Style</h1>
+<p>The Trongate framework minimizes overheads to achieve best-in-class performance. This philosophy extends to its coding style, focusing on three primary goals:</p>
+<ul>
+  <li><strong>Maximize Developer Productivity:</strong> Achieve more with fewer lines of code.</li>
+  <li><strong>Embrace Pure PHP Syntax:</strong> Mirror the familiarity of native PHP conventions.</li>
+  <li><strong>Minimize Ambiguity:</strong> Use clear naming conventions to reduce errors.</li>
+</ul>
+<h2>Modern PHP for Enhanced Web Development</h2>
+<p>The Trongate framework's core resides in the 'engine' directory. All functions and methods within this directory include doc blocks, access modifiers (public/private/protected), type hinting, and return types, ensuring well-documented, modern PHP syntax.</p>
+<p>Despite this, Trongate introduces unique syntax nuances that distinguish it from other frameworks.</p>
+<h2>Aligning PHP with C Roots</h2>
+<p>Trongate aims to provide a coding experience akin to pure PHP. Code examples in this documentation follow the K&R (Kernighan and Ritchie) coding style.</p>
+<p>K&R is a compact, unambiguous style commonly used in C programming. It is named after Brian Kernighan and Dennis Ritchie, authors of "The C Programming Language."</p>
+<div class="alert alert-info">
+  <strong>Note:</strong> PHP's origins in C influence its syntax, including the prevalence of snake_case function names—a convention Trongate adopts.
+</div>
+<h3>Key Characteristics of K&R Style</h3>
+<ul>
+  <li>Indentation uses two spaces, not tabs, for consistency.</li>
+  <li>Opening curly braces '{' appear on the same line as the function or control statement.</li>
+  <li>Closing curly braces '}' align with the start of the controlling statement.</li>
+</ul>
+<h3>Example</h3>
+[code=php]function hello_world() {
+  echo "hello world";
+}[/code]
+<h2>Additional Coding Conventions</h2>
+<p>Trongate promotes the following practices:</p>
+<ul>
+  <li>Use snake_case for function, file, and directory names.</li>
+  <li>Prefer plural names for collections or groups.</li>
+  <li>Adopt two-space indentation for clarity.</li>
+</ul>
+<div class="alert alert-info">
+  <p>Trongate's syntax mirrors PHP's core conventions, such as snake_case, ensuring familiarity and consistency for developers.</p>
+</div>
+<h2>Snake Case for Clarity</h2>
+<p>Trongate's use of snake_case reduces ambiguity, unlike camelCase conventions in languages like JavaScript. For example, <code>getElementById()</code> versus <code>getElementByID()</code> can confuse developers. Snake_case eliminates such issues by using lowercase letters and underscores, e.g., <code>get_element_by_id</code>.</p>
+<p>This approach simplifies development, reduces cognitive load, and prevents common errors.</p>
+<h2>Minimal Use of Namespaces and Access Modifiers</h2>
+<p>Trongate streamlines development by minimizing namespaces and access modifiers. This contrasts with traditional PHP frameworks but accelerates development processes.</p>
+<p>While optional, many developers find this approach enhances efficiency once adopted.</p>
+<h2>Modern PHP Features</h2>
+<p>PHP 8 introduces features like type hinting, doc-blocks, return types, and constructor property promotion. These enhance code clarity and robustness but remain optional.</p>
+<p>Trongate supports these features but generally avoids them in documentation to maintain simplicity and accessibility for new developers.</p>
+
+<div class="alert alert-success">
+  <p>Developers familiar with modern PHP features are encouraged to use them to improve code quality and maintainability.</p>
+  <p>For example, consider the following PHP method:</p>
+
+[code=php]
+function greeting($name, $age) {
+  if ($age < 18) {
+    return 'Hi, '.$name.'! You are young and full of potential.';
+  } elseif ($age >= 18 && $age < 65) {
+    return 'Hi, '.$name.'! You are in your prime years.';
+  } else {
+    return 'Hi, '.$name.'! You have gained wisdom with age. Respect!';
+  }
+}
+[/code]
+
+<p>The above syntax works without any issues. However, with modern PHP, it is possible to enhance the method by adding access modifiers, doc blocks, type hinting, and return types. For example:</p>
+
+[code=php]
+/**
+ * Generates a personalized greeting message based on the user's name and age.
+ *
+ * @param string $name The name of the person being greeted.
+ * @param int $age The age of the person.
+ * 
+ * @return string A personalized greeting message.
+ */
+public function greeting(string $name, int $age): string {
+  if ($age < 18) {
+    return 'Hi, '.$name.'! You are young and full of potential.';
+  } elseif ($age >= 18 && $age < 65) {
+    return 'Hi, '.$name.'! You are in your prime years.';
+  } else {
+    return 'Hi, '.$name.'! You have gained wisdom with age. Respect!';
+  }
+}
+[/code]
+
+<p>To be clear, readers are encouraged to use modern PHP syntax where possible. However, for the purposes of brevity and clarity, code samples will be kept as simple as possible throughout this documentation.</p>
+
+</div>
+
+
+<h2>Conclusion</h2>
+<p>Trongate's syntax differs significantly from other PHP frameworks through streamlined practices, unique naming conventions, and concise coding. These deliberate choices prioritize efficiency and error reduction.</p>
+<p>By refining coding practices, Trongate enhances developer productivity and advances PHP development through thoughtful innovation.</p>

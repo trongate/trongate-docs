@@ -1,0 +1,91 @@
+<div class="container">
+  <h1>anchor()</h1>
+  <p class="signature"> function anchor(string $url, ?string $text = null, array $attributes = []): string </p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an anchor (&lt;a&gt;) tag with optional attributes and partial XSS protection.</p> 
+    <p>This function creates an anchor tag pointing to a specified URL. If the <code>$text</code> parameter is omitted, the URL itself is used as the link text.</p> 
+
+    <p><strong>Important:</strong> The <code>$text</code> parameter is NOT escaped, allowing HTML content to be rendered as-is, while the URL and attributes are automatically escaped to prevent XSS attacks.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$url</td>
+        <td>string</td>
+        <td>The URL to link to. This parameter is required and will be automatically escaped.</td>
+      </tr>
+      <tr>
+        <td>$text</td>
+        <td>string|null</td>
+        <td>The text content of the link (optional). If not provided, the URL itself is used. <strong>Note:</strong> This parameter is NOT escaped.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array</td>
+        <td>An optional array of key-value pairs for additional attributes. These values will be automatically escaped.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The complete HTML anchor tag as a string.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Basic usage with just URL
+echo anchor('contact');
+// Output: &lt;a href="contact"&gt;contact&lt;/a&gt;
+
+// Basic usage with URL and text
+echo anchor('contact', 'Get In Touch');
+// Output: &lt;a href="contact"&gt;Get In Touch&lt;/a&gt;
+
+// With attributes
+echo anchor('logout', 'Sign Out', ['class' => 'btn btn-danger', 'rel' => 'nofollow']);
+// Output: &lt;a href="logout" class="btn btn-danger" rel="nofollow"&gt;Sign Out&lt;/a&gt;
+
+// External link with target and rel attributes
+echo anchor('https://github.com/trongate', 'View Repo', ['target' => '_blank', 'rel' => 'noopener noreferrer']);
+// Output: &lt;a href="https://github.com/trongate" target="_blank" rel="noopener noreferrer"&gt;View Repo&lt;/a&gt;
+
+// Using HTML within text parameter (intentionally not escaped)
+echo anchor('contact', '&lt;i class="fa fa-envelope"&gt;&lt;/i&gt; Contact Us');
+// Output: &lt;a href="contact"&gt;&lt;i class="fa fa-envelope"&gt;&lt;/i&gt; Contact Us&lt;/a&gt;</pre>
+  </div>
+  <h2>Security Considerations</h2>
+
+    <p><strong>Important:</strong> The <code>$text</code> parameter is not automatically escaped. If displaying user-generated content, use the <code>out()</code> function to prevent XSS attacks.</p>
+    
+    <p><strong>Unsafe Example (Vulnerable to XSS):</strong></p>
+    <pre>
+echo anchor('profile', $user_name); 
+// Output (potentially unsafe): &lt;a href="profile"&gt;&lt;script&gt;alert('XSS')&lt;/script&gt;&lt;/a&gt;</pre>
+    <p><strong>Safe Example (Escaped Output):</strong></p>
+    <pre>
+echo anchor('profile', out($user_name)); 
+// Output: &lt;a href="profile"&gt;John Doe&lt;/a&gt;</pre>
+    <p><strong>Note:</strong> The <code>$url</code> and <code>$attributes</code> parameters are automatically escaped for security.</p>
+
+</div>

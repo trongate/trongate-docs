@@ -1,0 +1,46 @@
+  <h1>The Flashdata Helper</h1>
+  <p>
+    Trongate supports 'flashdata'. Flashdata is session data that will only be available for the next request, before being automatically removed. This can be useful for one-time informational messages (for example: 'The record was successfully created').
+  </p>
+  <h2>To Set Flashdata</h2>
+  <p>
+    Flashdata can be set using the <span class="feature-ref">set_flashdata()</span> function, like so:
+  </p>
+
+[code=php]
+set_flashdata($msg);
+[/code]
+
+  <p>
+    This is assuming that you have a message which, in this instance, has been assigned to a $msg variable. For example.<br>
+[code=php]
+$msg = "The record was updated";
+set_flashdata($msg);
+[/code]
+  </p>
+  <p>Of course, you can save a line of code by passing your message directly into your flashdata declaration. For example:</p>
+[code=php]
+set_flashdata("The record was updated");
+[/code]
+
+<h2>Displaying Flashdata</h2>
+<p>
+  Flashdata can be displayed by calling <span class="feature-ref">flashdata()</span> from within a view file.
+</p>
+[code=php]
+flashdata();
+[/code]
+  <p>
+    By default, flashdata messages will be displayed as green text within a paragraph. However, you can change the format of your flashdata by adding optional opening and closing tags as arguments. For example:
+  </p>
+[code=php]
+flashdata('&lt;p style="color: lime; font-weight: bold;"', '&lt;/p&gt;');
+[/code]
+  <p>
+    Below is an example of a view file that contains the flashdata() method.
+  </p>
+
+<figure>
+    <img src="images/26/flashdatwBKu.png" alt="screenshot" style="width:100%">
+    <figcaption>Screenshot form a text editor, demonstrating flashdata being added below page headline.</figcaption>
+</figure>

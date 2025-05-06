@@ -1,0 +1,174 @@
+<h1>File Uploader Example</h1>
+
+<p>Let's walk through building a document uploader using Trongate's <span class="feature-ref">upload_file()</span> method. This example will demonstrate creating a secure PDF document uploader with proper validation and error handling.</p>
+
+<div class="alert alert-info">
+    <p>The following example pertains to a hypothetical custom module named as 'documents'.</p>
+</div>
+
+<h2>Step 1: Create the Upload Form</h2>
+<p>Create a view file (e.g., <code>upload_form.php</code>) in your module's views directory:</p>
+
+[code=vf]
+&lt;h1&gt;Upload PDF Document&lt;/h1&gt;
+&lt;?= flashdata() ?&gt;
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Upload PDF File
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;?php
+        echo validation_errors();
+        echo form_open_upload('documents/submit');
+        echo form_label('Select PDF File:', 'userfile');
+        echo form_file_select('userfile', ['accept' =&gt; '.pdf']);
+        echo csrf_field();
+        echo form_submit('submit', 'Upload File', ['class' =&gt; 'alt']);
+        echo form_close();
+        ?&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>The 'accept' property is an HTML attribute for specifying acceptable file types for uploads. Here's how you can use it:</p>
+[code=html]&lt;input type="file" accept=".jpg, .png, .pdf"&gt;[/code]
+</div>
+
+<h2>Step 2: Create the Controller</h2>
+<p>Create a controller (e.g., <code>documents.php</code>) in your module's controllers directory:</p>
+
+[code=php]
+&lt;?php
+class Documents extends Trongate {
+    
+    function upload() {
+        $data['view_module'] = 'documents';
+        $data['view_file'] = 'upload_form';
+        $this-&gt;template('admin', $data);
+    }
+
+    function submit() {
+        // Set validation rules for the file upload
+        $this-&gt;validation-&gt;set_rules('userfile', 'Document', 'required|allowed_types[pdf]|max_size[2048]');
+        $result = $this-&gt;validation-&gt;run();
+
+        if ($result == false) {
+            $this-&gt;upload(); // Return to form with validation errors
+            return;
+        }
+
+        // Configure the upload
+        $config['destination'] = 'documents'; // Directory inside your module's assets
+        $config['upload_to_module'] = true;   // Upload to module's assets directory
+        $config['make_rand_name'] = true;     // Generate random filename
+
+        try {
+            $result = $this-&gt;upload_file($config);
+            
+            // Optional: Store file information in database
+            $data['file_name'] = $result['file_name'];
+            $data['file_path'] = $result['file_path'];
+            $data['file_type'] = $result['file_type'];
+            $data['file_size'] = $result['file_size'];
+            $this-&gt;model-&gt;insert($data, 'documents');
+
+            set_flashdata('The file was successfully uploaded');
+            redirect('documents/success');
+
+        } catch (Exception $e) {
+            set_flashdata($e-&gt;getMessage(), 'error');
+            redirect('documents/upload');
+        }
+    }
+
+    function success() {
+        $data['view_module'] = 'documents';
+        $data['view_file'] = 'upload_success';
+        $this-&gt;template('admin', $data);
+    }
+}
+[/code]
+
+<h2>Step 3: Create the Success View</h2>
+<p>Create a success view file (e.g., <code>upload_success.php</code>):</p>
+
+[code=vf]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Upload Successful
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;?= flashdata() ?&gt;
+        &lt;p&gt;Your file has been successfully uploaded.&lt;/p&gt;
+        &lt;p&gt;&lt;?= anchor('documents/upload', 'Upload Another File', array('class' =&gt; 'button alt')) ?&gt;&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Directory Structure</h2>
+<p>Your module structure should look like this:</p>
+
+[code]
+modules/
+    documents/
+        assets/
+            documents/         &lt;-- Uploaded files go here
+        controllers/
+            Documents.php
+        views/
+            upload_form.php
+            upload_success.php
+[/code]
+
+<h2>Understanding the Configuration Options</h2>
+<table class="table">
+    <tbody><tr>
+        <th>Option</th>
+        <th>Description</th>
+        <th>Default</th>
+    </tr>
+    <tr>
+        <td><code>destination</code></td>
+        <td>Directory where files will be uploaded</td>
+        <td>Required</td>
+    </tr>
+    <tr>
+        <td><code>upload_to_module</code></td>
+        <td>If true, files are uploaded to the module's assets directory</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td><code>make_rand_name</code></td>
+        <td>If true, generates a random filename for uploaded files</td>
+        <td>false</td>
+    </tr>
+</tbody></table>
+
+<h2>File Upload Validation Rules</h2>
+<p>Trongate provides several validation rules specifically for file uploads:</p>
+<ul>
+    <li><code>required</code>: Ensures a file was selected</li>
+    <li><code>allowed_types[type1,type2]</code>: Specify allowed file extensions (e.g., pdf,doc,txt)</li>
+    <li><code>max_size[size_in_kb]</code>: Maximum file size in kilobytes</li>
+</ul>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Always validate file types to prevent unauthorized file uploads</li>
+        <li>Use <code>make_rand_name</code> to prevent filename conflicts and increase security</li>
+        <li>Set appropriate file size limits to prevent server overload</li>
+        <li>Ensure your upload directory has correct permissions (typically 755)</li>
+    </ul>
+</div>
+
+<h2>Handling the Upload Response</h2>
+<p>On successful upload, <span class="feature-ref">upload_file()</span> returns an array containing:</p>
+<ul>
+    <li><code>file_name</code>: The name of the uploaded file</li>
+    <li><code>file_path</code>: The complete server path to the uploaded file</li>
+    <li><code>file_type</code>: The MIME type of the uploaded file</li>
+    <li><code>file_size</code>: The size of the uploaded file in bytes</li>
+</ul>
+
+<p>In the next section, we'll explore using the <span class="feature-ref">upload_picture()</span> method, which provides additional features specifically for handling image uploads.</p>

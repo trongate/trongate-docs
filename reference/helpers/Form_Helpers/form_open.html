@@ -1,0 +1,73 @@
+<div class="container">
+  <h1>form_open()</h1>
+  <p class="signature">function form_open(string $location, ?array $attributes = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates the opening tag for an HTML form.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$location</td>
+        <td>string</td>
+        <td>The URL to which the form will be submitted.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(optional) An array of HTML attributes for the form. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The HTML opening tag for the form.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>form_open</code> function.</p>
+  <pre>
+  $location = 'items/submit';
+  echo form_open($location);
+  
+  // Output: '&lt;form action="https://example.com/items/submit" method="post"&gt;'
+  </pre>
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>form_open</code> function with additional attributes.</p>
+  <pre>
+  $location = 'items/submit';
+  $attributes = [
+      'id' => 'contact-form',
+      'class' => 'form-horizontal',
+      'method' => 'get'
+  ];
+  echo form_open($location, $attributes);
+  // Output: '&lt;form action="https://example.com/items/submit" method="get" id="contact-form" class="form-horizontal"&gt;'
+  </pre>
+  <h2>Notes</h2>
+  <ul>
+    <li>The default method for the form is 'post' if not specified in the attributes.</li>
+    <li>If the 'method' key is present in the $attributes array, it will be used as the form method and removed from the attributes list.</li>
+    <li>The function automatically escapes all attribute names and values to prevent XSS attacks.</li>
+    <li>If the $location is not a valid URL and doesn't start with a forward slash, it will be prepended with DOCS_BASE_URL.</li>
+    <li>The function generates only the opening tag of the form. Don't forget to close your form with a &lt;/form&gt; tag.</li>
+  </ul>
+</div>

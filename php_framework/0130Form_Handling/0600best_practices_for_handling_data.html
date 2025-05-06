@@ -1,0 +1,153 @@
+<h1>Best Practices For Handling Data</h1>
+
+<p>Handling data securely is a cornerstone of building robust web applications. This page outlines best practices for managing user input, database interactions, and data rendering in the Trongate PHP framework, ensuring your application remains secure and efficient.</p>
+
+<h2>Escaping Data: What and Why?</h2>
+
+<p><strong>Escaping data</strong> is the process of converting potentially harmful characters into safe equivalents to prevent security vulnerabilities like Cross-Site Scripting (XSS). For example, converting <code>&lt;</code> and <code>&gt;</code> into <code>&amp;lt;</code> and <code>&amp;gt;</code> ensures that user input is treated as plain text, not executable code.</p>
+
+<h3>Example of XSS Vulnerability</h3>
+
+<p>Consider a forum where a user posts:</p>
+
+[code]&lt;script&gt;window.location.href="https://dangerous-website.com"&lt;/script&gt;[/code]
+
+<p>Without escaping, this script would execute in users' browsers, redirecting them to a malicious site. Proper escaping ensures the input is rendered as harmless text.</p>
+
+<h2>Common Misconceptions</h2>
+
+<p>A frequent mistake is escaping data <strong>before inserting it into the database</strong>. This corrupts the original data and limits its usability. Instead:</p>
+
+<ul>
+  <li><strong>Store raw data</strong> in the database.</li>
+  <li><strong>Escape data at the point of rendering</strong> to ensure it's safe for display.</li>
+</ul>
+
+<h2>Risks of Improper Data Handling</h2>
+
+<p>Failing to handle data securely can lead to:</p>
+
+<ul>
+  <li><strong>Cross-Site Scripting (XSS):</strong> Malicious scripts executed in users' browsers.</li>
+  <li><strong>SQL Injection:</strong> Unauthorized database access or manipulation.</li>
+  <li><strong>Data Corruption:</strong> Loss of critical information due to premature escaping.</li>
+</ul>
+
+<h2>Best Practices for Secure Data Handling</h2>
+
+<h3>1. Validate Input</h3>
+
+<p>Ensure user input meets expected formats and values. Always validate on the server side, as client-side validation can be bypassed.</p>
+
+<h3>2. Sanitize Input</h3>
+
+<p>Remove unwanted characters (e.g., stripping HTML tags) to prevent injection attacks.</p>
+
+<h3>3. Escape at Rendering</h3>
+
+<p>Escape data when rendering it to the user, ensuring it's safe for the intended context (HTML, JavaScript, etc.).</p>
+
+<h3>4. Use Trongate's Model Class</h3>
+
+<p>The Trongate framework has a built-in <a href="documentation-ref/list_refs/class_reference/the-model-class" target="_blank">Model class</a> that has been designed for safe and effortless database interaction. If you use the Model class, you'll never have to worry about SQL injection attacks!</p>
+
+<hr>
+
+
+<h2>How To Safely Display Submitted Data</h2>
+
+<p>Trongate provides the <span class="feature-ref">out()</span> function to safely escape and format data for various output contexts. It ensures that user-submitted data can be displayed securely, preventing issues such as Cross-Site Scripting (XSS).</p> 
+
+<p>The <code>out()</code> function supports the following output formats:</p>
+
+<ul>
+  <li><strong>HTML</strong> (default)</li>
+  <li><strong>XML</strong></li>
+  <li><strong>JSON</strong></li>
+  <li><strong>JavaScript</strong></li>
+  <li><strong>HTML Attributes</strong></li>
+</ul>
+
+<h3 class="mt-3">When To Use out()</h3>
+
+<p>It's important to know when to use the <code>out()</code> function. Trongate's built-in helpers, such as <span class="feature-ref">form_input()</span>, already handle escaping for you when generating form elements.  This means that there is no need to use <code>out()</code> when rendering form elements by usage of Trongate's  <a href="documentation-ref/list_refs/helpers/form-helpers" target="_blank">form helper functions</a>.  However, in other contexts, you should use the <code>out()</code> function, especially when manually outputting user-submitted data. Examples include:</p>
+
+<ul>
+  <li>Displaying dynamic content directly in an HTML document</li>
+  <li>Inserting user-submitted data into JavaScript, JSON, or XML</li>
+  <li>Escaping data for use in custom HTML attributes</li>
+</ul>
+
+<h3>Example Usage:</h3>
+
+<p>Here's how you can use the <span class="feature-ref">out()</span> function to escape user-submitted data for safe inclusion in an HTML context:</p>
+
+[code=php]$user_input = '&lt;script&gt;alert("XSS");&lt;/script&gt;';
+echo out($user_input); // Outputs: &amp;lt;script&amp;gt;alert(&amp;quot;XSS&amp;quot;);&amp;lt;/script&amp;gt;[/code]
+
+<h3>Other Output Formats:</h3>
+
+<p>You can specify the desired output format using the third parameter:</p>
+
+<h4>JSON:</h4>
+[code=php]$user_input = '&lt;div&gt;example&lt;/div&gt;';
+echo out($user_input, 'UTF-8', 'json'); // Outputs: "\u003Cdiv\u003Eexample\u003C\/div\u003E"[/code]
+
+<h4>JavaScript:</h4>
+[code=php]$user_input = "Hello 'world'";
+echo out($user_input, 'UTF-8', 'javascript'); // Outputs: "Hello \u0027world\u0027"[/code]
+
+<h3>Best Practices:</h3>
+
+<ul>
+  <li>For dynamic content outside of form_helpers (e.g., displaying raw user input in HTML, JSON, or JavaScript), use the <span class="feature-ref">out()</span> function to ensure proper escaping.</li>
+  <li>When using Trongate's **form_helpers**, such as <span class="feature-ref">form_input()</span>, you don't need to use <span class="feature-ref">out()</span> for attributes, as escaping is already handled internally.</li>
+  <li>Specify the appropriate output format for the context where the data will be used (e.g., JSON, JavaScript).</li>
+</ul>
+
+<p>By using the <span class="feature-ref">out()</span> function appropriately and relying on Trongate's built-in helpers where applicable, you can ensure your application remains secure while following best practices.</p>
+
+
+
+<hr>
+
+<h2>Database Interaction with Trongate's Model Class</h2>
+
+<p>Trongate's <code>Model</code> class simplifies secure database interactions. Use it to insert, update, and query data without compromising security.</p>
+
+<h3>Example: Inserting or Updating Records</h3>
+
+[code=php]public function submit(): void {
+    $this-&gt;module('trongate_security');
+    $this-&gt;trongate_security-&gt;_make_sure_allowed();
+
+    $data = $this-&gt;get_data_from_post();
+    $update_id = segment(3, 'int');
+
+    if ($update_id &gt; 0) {
+        $this-&gt;model-&gt;update($update_id, $data, 'tasks');
+        set_flashdata('Record updated successfully');
+    } else {
+        $this-&gt;model-&gt;insert($data, 'tasks');
+        set_flashdata('Record created successfully');
+    }
+
+    redirect('tasks/show/' . $update_id);
+}[/code]
+
+<div class="alert alert-info">
+    <p>Full documentation regarding Trongate's Model class is offered in the <a href="documentation/display/php_framework/database-operations" target="_blank">Database Operations</a> chapter.</p>
+    <p>In addition, all of the methods available within Trongate's Model class are detailed in the <a href="documentation-ref/list_refs/class_reference/the-model-class" target="_blank">API Reference Guide</a>.</p>
+</div>
+
+<h2>In Summary</h2>
+
+<p>By following these best practices, you can ensure your Trongate application handles data securely and efficiently:</p>
+
+<ul>
+  <li><strong>Validate and sanitize</strong> user input.</li>
+  <li><strong>Escape data at the point of rendering</strong> using the <code>out()</code> function.</li>
+  <li><strong>Interact with the database securely</strong> using Trongate's <code>Model</code> class.</li>
+</ul>
+
+<p>Adhering to these principles will help to keep your applications both robust and secure.</p>

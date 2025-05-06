@@ -1,0 +1,266 @@
+<h1>On Trigger Operations</h1>
+<p>
+  The <code>mx-on-trigger</code> attribute in Trongate MX allows you to execute your own custom JavaScript functions 
+  immediately after a trigger event occurs, but <b>before</b> any HTTP request is made. This enables you to 
+  perform actions like showing messages, manipulating the page, or performing checks before a request begins.
+</p>
+
+<h2>Basic Usage</h2>
+
+<p>
+  The <code>mx-on-trigger</code> attribute works alongside other Trongate MX attributes like 
+  <code>mx-get</code> or <code>mx-post</code>. It executes your specified JavaScript function 
+  when the trigger event (like a click) happens, but before any HTTP request is invoked by Trongate MX.
+</p>
+<hr>
+<h3 class="mt-3">Simple Example:</h3>
+<p>In the following example, when the button is clicked, the user sees a "Hello" pop-up alert <i>before</i> the 
+  system fetches data from the target URL.</p>
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; '#result',
+  'mx-on-trigger' =&gt; 'sayHello'
+];
+echo form_button('load_data_btn', 'Load Data', $btn_attr);
+?&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function sayHello() {
+  alert('Hello! Getting your data now...');
+}
+&lt;/script&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's how the code looks when written entirely in HTML:</p>
+[code=html]
+&lt;button mx-get="api/data" 
+        mx-target="#result" 
+        mx-on-trigger="sayHello"&gt;Load Data&lt;/button&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function sayHello() {
+  alert('Hello! Getting your data now...');
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>As a reminder, there's no obligation to use Trongate's form helpers when working with Trongate MX.</p>
+  <p>This means that you can use Trongate form helpers (like <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span>) or, alternatively, you can work with pure HTML.</p>
+</div>
+
+<h2>Passing Event Information Into Functions</h2>
+
+<p>
+  Functions invoked by <code>mx-on-trigger</code> automatically receive event information related to the trigger. 
+  This allows for greater flexibility, such as dynamically interacting with the clicked element.
+</p>
+
+<h3 class="mt-3">Example Of Automatic Event Handling</h3>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; '#result',
+  'mx-on-trigger' =&gt; 'buildCustomSpinner'
+];
+echo form_button('fetch_data_btn', 'Load Data', $btn_attr);
+?&gt;
+[/code]
+
+<p>
+  In this example, the JavaScript function <code>buildCustomSpinner</code> gets invoked the moment after the form button is clicked (and before a response has been received from any API endpoint!).  The following JavaScript code could be used to test this basic functionality.
+</p>
+
+[code=javascript]
+function buildCustomSpinner(ev) {
+  const clickedEl = ev.target;
+  alert(clickedEl.outerHTML);
+}
+[/code]
+
+<h3 class="mt-3">Practical Example Using Event Information</h3>
+
+<p>
+  Here's a more practical implementation where the triggering button is disabled and a loading class is added:
+</p>
+
+[code=javascript]
+function buildCustomSpinner(ev) {
+  // Get the clicked button
+  const clickedBtn = ev.target;
+
+  // Disable the button to prevent double-clicks
+  clickedBtn.disabled = true;
+
+  // Add a loading class
+  clickedBtn.classList.add('loading');
+}
+[/code]
+
+<h2>More Examples</h2>
+
+<h3>1. Scroll to Top Before Loading</h3>
+<p>This example shows how to smoothly scroll the page back to the top before loading new content into a target element.</p>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; '#content',
+  'mx-on-trigger' =&gt; 'scrollToTop'
+];
+echo form_button('load_btn', 'Load New Content', $btn_attr);
+?&gt;
+
+&lt;div id="content"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+&lt;/script&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax for developers who prefer to work with pure HTML:</p>
+[code=html]
+&lt;button mx-get="api/data" 
+        mx-target="#content" 
+        mx-on-trigger="scrollToTop"&gt;Load New Content&lt;/button&gt;
+
+&lt;div id="content"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+&lt;/script&gt;
+[/code]
+
+<hr>
+<h3>2. Simple Confirmation Check</h3>
+<p>This example demonstrates how to implement a confirmation dialog before proceeding with a checkout process, preventing the HTTP request if the user cancels.</p>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-post' =&gt; 'api/checkout',
+  'mx-target' =&gt; '#checkout-status',
+  'mx-on-trigger' =&gt; 'confirmCheckout'
+];
+echo form_button('buy_btn', 'Complete Purchase', $btn_attr);
+?&gt;
+
+&lt;div id="checkout-status"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function confirmCheckout() {
+  const userConfirmed = confirm('Ready to complete your purchase?');
+  if (!userConfirmed) {
+    throw new Error('Checkout cancelled');
+  }
+}
+&lt;/script&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's how the code looks when written <i>without</i> using any of Trongate's form helper functions:</p>
+[code=html]
+&lt;button mx-post="api/checkout" 
+        mx-target="#checkout-status" 
+        mx-on-trigger="confirmCheckout"&gt;Complete Purchase&lt;/button&gt;
+
+&lt;div id="checkout-status"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function confirmCheckout() {
+  const userConfirmed = confirm('Ready to complete your purchase?');
+  if (!userConfirmed) {
+    throw new Error('Checkout cancelled');
+  }
+}
+&lt;/script&gt;
+[/code]
+<hr>
+<h2>Advanced Usage: Async Functions</h2>
+
+<h3>3. Async Inventory Check Example</h3>
+<p>This example demonstrates how to use an async function to check inventory status before proceeding with a submission, preventing the request if the item is out of stock.</p>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-post' =&gt; 'api/purchase',
+  'mx-target' =&gt; '#purchase-status',
+  'mx-on-trigger' =&gt; 'checkBeforeSubmit'
+];
+echo form_button('purchase_btn', 'Purchase Item', $btn_attr);
+?&gt;
+
+&lt;div id="purchase-status"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+async function checkBeforeSubmit() {
+    try {
+        const result = await checkInventory();
+        if (!result.inStock) {
+            alert('Item not in stock!');
+            throw new Error('Not in stock');
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+&lt;/script&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax for those who prefer to work with pure HTML:</p>
+[code=html]
+&lt;button mx-post="api/purchase" 
+        mx-target="#purchase-status" 
+        mx-on-trigger="checkBeforeSubmit"&gt;Purchase Item&lt;/button&gt;
+
+&lt;div id="purchase-status"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+async function checkBeforeSubmit() {
+    try {
+        const result = await checkInventory();
+        if (!result.inStock) {
+            alert('Item not in stock!');
+            throw new Error('Not in stock');
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-success">
+<p>
+    If you're not familiar with async/await, stick to regular functions like in the earlier 
+    examples - they'll work fine for most use cases!
+</p>
+</div>
+
+<h2>Summary</h2>
+<p>
+    The <code>mx-on-trigger</code> attribute provides a way to run custom JavaScript code <b><i>before</i> Trongate MX 
+    invokes HTTP requests</b>. You can use it for simple tasks like showing messages or scrolling the page, 
+    or for more complex tasks like validation. The event object is automatically passed to your functions, 
+    giving you access to information about the triggering element. By throwing errors in your functions, 
+    you can prevent requests from proceeding when needed.
+</p>

@@ -1,0 +1,87 @@
+<div class="container">
+  <h1>form_submit()</h1>
+  <p class="signature">function form_submit(string $name, ?string $value = null, ?array $attributes = null): string</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an HTML submit button element.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the button element.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>string|null</td>
+        <td>(optional) The value of the button. If not provided, defaults to "Submit". Default is null.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(optional) An associative array of HTML attributes for the button. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML submit button element.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>form_submit</code> function with the default value.</p>
+  <pre>
+  $name = 'submit_button';
+  echo form_submit($name);
+  // Output:
+  // &lt;button type="submit" name="submit_button"&gt;Submit&lt;/button&gt;
+  </pre>
+  
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>form_submit</code> function with additional attributes and a custom value.</p>
+  <pre>
+  $name = 'submit_button';
+  $value = 'Send Form';
+  $attributes = [
+      'id' => 'submit-btn',
+      'class' => 'btn btn-primary',
+      'onclick' => 'return confirmSubmission()'
+  ];
+  echo form_submit($name, $value, $attributes);
+  
+  // Output:
+  // &lt;button type="submit" name="submit_button" id="submit-btn" class="btn btn-primary" onclick="return confirmSubmission()"&gt;Send Form&lt;/button&gt;
+  </pre>
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>The function automatically sets the <code>type</code> attribute to "submit".</li>
+    <li>If no <code>$value</code> is provided, the function uses "Submit" as the default button text and value.</li>
+    <li>The button's text content is not escaped, so ensure proper sanitization if using user-generated content.</li>
+    <li>The <code>$attributes</code> array can be used to add any valid HTML attributes to the button element.</li>
+    <li>This function generates a <code>&lt;button&gt;</code> element rather than an <code>&lt;input type="submit"&gt;</code>, allowing for more flexible content and styling.</li>
+  </ul>
+</div>

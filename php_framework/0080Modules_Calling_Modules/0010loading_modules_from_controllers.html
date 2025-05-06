@@ -1,0 +1,47 @@
+<h1>Loading Modules From Controllers</h1>
+<p>Within the Trongate framework, there are two primary methods for a module to load another module.</p>
+<p>The first method involves loading a module from within a <em>controller</em> file, while the second involves loading a module from a <em>view</em> file. This section focuses on loading a module from a controller file.</p>
+<p>To load a module from a controller, use the following syntax:</p>
+[code=php]$this->module("module_name");
+$this->module_name->do_something();
+[/code]
+<p>As illustrated, only two lines of code are required to load a method from a different module.</p>
+<p>Below is an improved example demonstrating how to call a 'Tax' module to calculate the final price after tax has been applied. This method first loads the 'Tax' module and then invokes its method to add tax to the base price.</p>
+[code=php]function calculate_total_price($base_price) {
+
+  // Load the "Tax" module
+  $this->module("tax");
+
+  // Calculate the final price by adding tax using the "Tax" module
+  $final_price = $this->tax->add_tax($base_price);
+  return $final_price;
+}
+[/code]
+<p>Here is a more complex example that involves loading and using three different modules: 'Tax', 'Shipping', and 'Discount'. This method calculates the final price by applying tax, adding shipping costs, and then applying any available discounts.</p>
+[code=php]function calculate_final_price($base_price) {
+
+  // Load the necessary modules
+  $this->module("tax");
+  $this->module("shipping");
+  $this->module("discount");
+
+  // Apply tax to the base price
+  $price_with_tax = $this->tax->add_tax($base_price);
+
+  // Add shipping costs
+  $price_with_shipping = $this->shipping->add_shipping($price_with_tax);
+
+  // Apply discounts
+  $final_price = $this->discount->apply_discount($price_with_shipping);
+  return $final_price;
+}
+[/code]
+<p>In the example above:</p>
+<ul>
+    <li>The 'Tax' module's <code>add_tax</code> method is used to add tax to the base price.</li>
+    <li>The 'Shipping' module's <code>add_shipping</code> method calculates and adds the shipping cost to the price with tax.</li>
+    <li>The 'Discount' module's <code>apply_discount</code> method applies any available discounts to the price with shipping.</li>
+</ul>
+<div class="alert alert-success">
+    In this example, the modules are loaded together at the beginning of the method. This approach enhances code readability and maintainability by clearly showing which modules are being used.
+</div>

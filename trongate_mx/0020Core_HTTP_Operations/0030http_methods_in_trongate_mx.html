@@ -1,0 +1,168 @@
+<h1>HTTP Methods in Trongate MX</h1>
+<p>Trongate MX provides a set of attributes that allow you to make various types of HTTP requests directly from your HTML elements. These attributes correspond to different HTTP methods and enable you to create dynamic, interactive web applications with minimal JavaScript.</p>
+
+<h2>Available HTTP Method Attributes</h2>
+<p>Trongate MX supports the following HTTP method attributes:</p>
+<ul>
+  <li><code>mx-get</code>: For making GET requests</li>
+  <li><code>mx-post</code>: For making POST requests</li>
+  <li><code>mx-put</code>: For making PUT requests</li>
+  <li><code>mx-patch</code>: For making PATCH requests</li>
+  <li><code>mx-delete</code>: For making DELETE requests</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>Trongate MX fully supports REST-style HTTP request methods like <strong>PUT</strong>, <strong>PATCH</strong>, and <strong>DELETE</strong>. However, these methods are entirely <strong>optional</strong>. Many developers choose to rely on <strong>GET</strong> and <strong>POST</strong> requests - a trusted and effective standard within the PHP ecosystem.</p>
+</div>
+
+<h2>HTTP Method Attributes at a Glance</h2>
+<p>The table below shows all of the different types of HTTP requests that can be made with Trongate MX, along with their corresponding 'MX attributes' and typical use cases.</p>
+<table border="1" cellpadding="10" cellspacing="0" style="max-width: 760px; margin-left: auto; margin-right: auto">
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>HTTP Method</th>
+      <th>Typical Use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>mx-get</code></td>
+      <td>GET</td>
+      <td>Retrieve data</td>
+    </tr>
+    <tr>
+      <td><code>mx-post</code></td>
+      <td>POST</td>
+      <td>Submit new data</td>
+    </tr>
+    <tr>
+      <td><code>mx-put</code></td>
+      <td>PUT</td>
+      <td>Update existing data</td>
+    </tr>
+    <tr>
+      <td><code>mx-patch</code></td>
+      <td>PATCH</td>
+      <td>Partially update data</td>
+    </tr>
+    <tr>
+      <td><code>mx-delete</code></td>
+      <td>DELETE</td>
+      <td>Delete data</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="alert alert-info mt-3">
+  <h3>How Trongate MX Handles HTTP Methods</h3>
+  <p>Trongate MX provides flexible handling of various HTTP methods:</p>
+  <ol>
+    <li><strong>Client-Side (Trongate MX):</strong>
+      <ul>
+        <li>The JavaScript library supports all HTTP method attributes (<code>mx-get</code>, <code>mx-post</code>, <code>mx-put</code>, <code>mx-patch</code>, <code>mx-delete</code>).</li>
+        <li>Sends requests using the specified HTTP method.</li>
+      </ul>
+    </li>
+    <li><strong>Server-Side (Trongate PHP):</strong>
+      <ul>
+        <li>Check the HTTP method using: <code>$_SERVER['REQUEST_METHOD']</code>.</li>
+        <li>Get request data using the <span class="feature-ref" ref-path="helpers/Form_Helpers">post()</span> function, which handles all HTTP methods.</li>
+      </ul>
+    </li>
+  </ol>
+  <h4>Example Usage in Controllers:</h4>
+[code=php]$method = $_SERVER['REQUEST_METHOD'];
+$data = post('field_name', true);
+
+switch ($method) {
+  case 'GET':
+    // Handle data retrieval
+    break;
+  case 'POST':
+    // Handle new data submission
+    break;
+  case 'PUT':
+    // Handle update
+    break;
+  case 'PATCH':
+    // Handle partial update
+    break;
+  case 'DELETE':
+    // Handle deletion
+    break;
+}[/code]
+
+  <p><strong>What this means for you:</strong> You can use any HTTP method attribute in your HTML when making requests. On the server side, use <code>$_SERVER['REQUEST_METHOD']</code> to determine the HTTP method and <span class="feature-ref" ref-path="helpers/Form_Helpers">post()</span> to get the request data.</p>
+</div>
+
+<h2>Basic Usage</h2>
+<p>To use these attributes, simply add them to your HTML elements with the URL you want to request as the value.</p>
+
+<h3>GET Request Example</h3>
+[code=vf]&lt;?php
+$attributes = [
+  'mx-get' =&gt; 'api/get_data',
+  'mx-target' =&gt; '#result'
+];
+echo form_button('get_data_btn', 'Get Data', $attributes);
+?&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax, for those who prefer to work with pure HTML:</p>
+[code=html]
+&lt;button mx-get="api/get_data" 
+        mx-target="#result"&gt;Get Data&lt;/button&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;
+[/code]
+
+<p>When the button is clicked, an HTTP GET request is sent to 'api/get_data'. The response will be displayed in the element with id="result".</p>
+
+<div class="alert alert-success">
+  <p>Remember to include a <code>&lt;base&gt;</code> tag in your webpage's head section:</p>
+  [code=html]&lt;base href="&lt;?= BASE_URL ?&gt;"&gt;[/code]
+</div>
+
+<h3 class="mt-3">Post Request Example</h3>
+
+<p>The code below demonstrates how to invoke an HTTP POST request, when a button in clicked, using Trongate MX:</p>
+[code=vf]&lt;?php
+$attributes = [
+  'mx-post' =&gt; 'form/submit',
+  'mx-target' =&gt; '#form-result'
+];
+echo form_button('submit_btn', 'Submit', $attributes);
+?&gt;
+
+&lt;div id="form-result"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax for those who prefer to use pure HTML:</p>
+
+[code=html]
+&lt;button mx-post="forms/submit" mx-target="#form-result"&gt;Submit&lt;/button&gt;
+
+&lt;div id="form-result"&gt;&lt;/div&gt;
+[/code]
+
+
+<p>The code above would produce a button that has the text, 'Submit'.   For example:</p>
+<p class="text-center"><button onclick="alert('In the example, clicking on the button would invoke an HTTP POST request.')">Submit</button></p>
+
+<p>Clicking on the 'Submit' button would invoke an HTTP POST request which would be sent to a URL of the following form:</p>
+[code]&lt;base-url&gt;form/submit[/code]
+
+<div class="alert alert-info">
+  <p>You may assume that <code>&lt;base-url&gt;</code> would be replaced by the base URL of your web application.  In reality, this means that your target URL may be more like this:</p>
+  [code]https://example.com/form/submit[/code]
+</div>
+
+<p>Once a response is received from the API endpoint (at 'form/submit'), the response text would then be displayed inside a div with an 'id' of 'form-result'.</p>
+
+<div class="alert alert-success">
+  <p>Remember, you don't have to use Trongate's form helper functions (like  <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span>) if you don't want to.  With Trongate MX, you can choose to work with the syntax that <i>you</i> like best.</p>
+  <p>So, what will it be?  Form helpers or pure HTML?  The choice is yours!</p>
+</div>
+

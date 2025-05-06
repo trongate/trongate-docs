@@ -1,0 +1,20 @@
+<h1>Custom Database Queries</h1>
+<p>
+    Custom database queries provide developers with the flexibility to execute SQL commands tailored to specific needs beyond the basic CRUD operations. This capability is essential for scenarios where predefined methods may not suffice, such as complex data retrievals, advanced analytics, or specialized data manipulations.
+</p>
+<hr>
+<h2>Executing Custom SQL Queries with The Query Method</h2>
+<p>
+    The <span class="feature-ref">query()</span> method allows developers to execute custom SQL queries directly. This method is versatile, accepting any valid SQL statement as its input. It returns the query results based on the specified return type, either as an array or an object.
+</p>
+<div class="alert alert-warning">
+    <p>Exercise caution when using the <span class="feature-ref">query()</span> method to prevent SQL injection vulnerabilities. Always sanitize user input and validate SQL queries before execution to avoid potential security risks.</p>
+</div>
+<hr>
+<h2>Executing Custom SQL Queries with Query Binding</h2>
+<p>
+    The <span class="feature-ref" ref-path="class_reference/The_Model_Class">query_bind()</span> method enhances security by utilizing parameter binding in SQL queries. Instead of directly embedding values into the SQL statement, it binds parameters separately, mitigating the risk of SQL injection attacks.
+</p>
+<p>
+    This method is particularly advisable when handling user input or dynamic data, where parameterized queries provide robust protection against malicious SQL injections.
+</p>

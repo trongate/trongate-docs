@@ -1,0 +1,215 @@
+<h1>Throttling HTTP Requests</h1>
+<p>The <code>mx-throttle</code> attribute in Trongate MX allows you to limit the frequency of HTTP requests triggered by user interactions. This feature helps optimize performance and reduce server load by preventing rapid successive requests.</p>
+
+<h2>Usage</h2>
+<p>Set the <code>mx-throttle</code> attribute on an element to specify the minimum time (in milliseconds) that must pass between successive requests.</p>
+
+<h3>Basic Example:</h3>
+[code=vf]&lt;?php 
+$attr = [
+  'mx-get' =&gt; 'api/search',
+  'mx-trigger' =&gt; 'input',
+  'mx-throttle' =&gt; '300',
+  'mx-target' =&gt; '#results'
+];
+
+form_input('search', '', $attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Here's the same solution, written in pure HTML:</p>
+[code=html]
+&lt;input type="text" name="search" 
+       mx-get="api/search" 
+       mx-trigger="input" 
+       mx-throttle="300" 
+       mx-target="#results"&gt;[/code]
+
+<p>In this example, search requests are throttled to a maximum of one request every 300 milliseconds, even if the user types faster.</p>
+
+<div class="alert alert-info">
+<p class="mt-0">The 'input' event is a standard DOM event that fires when the value of an <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code>, or <code>&lt;textarea&gt;</code> element has been changed. It's particularly useful for tracking changes to form fields in real-time. Here are some key points about the 'input' event:</p>
+<ol>
+<li><strong>Real-time tracking:</strong> Unlike the 'change' event, which typically fires when the element loses focus, the 'input' event fires immediately whenever the value changes.</li>
+<li><strong>Covers multiple input methods:</strong> It triggers for various types of input, including:
+  <ul>
+  <li>Typing on a keyboard</li>
+  <li>Pasting text (via mouse or keyboard)</li>
+  <li>Drag-and-drop actions</li>
+  <li>Speech input</li>
+  <li>Autocomplete suggestions</li>
+  </ul>
+</li>
+<li><strong>Works with different input types:</strong> It's not just for text inputs. It works with other input types like number, range, color, etc.</li>
+<li><strong>Doesn't fire for all changes:</strong> The 'input' event doesn't fire for changes that don't alter the element's value, like hitting the shift or ctrl keys.</li>
+<li><strong>Can't be canceled:</strong> Unlike some other events, the 'input' event can't be canceled. It's purely informative.</li>
+</ol>
+
+<p>Here's a simple example of how it might be used in vanilla JavaScript:</p>
+
+[code=javascript]
+const inputElement = document.querySelector('#myInput');
+
+inputElement.addEventListener('input', function(e) {
+  console.log('Input value changed to: ' + this.value);
+});
+[/code]
+
+<p>In the context of an autocomplete feature, using the 'input' event allows Trongate MX to react immediately to any changes in the input field, making it ideal for triggering suggestion requests as the user types.</p>
+
+<p>The 'input' event is widely supported across modern browsers and provides a more responsive user experience compared to events like 'keyup' or 'change' for this kind of functionality.</p>
+</div>
+
+<h2>How It Works</h2>
+<p>When an event that would normally trigger a request occurs:</p>
+<ol>
+<li>Trongate MX checks if the time since the last request is greater than or equal to the throttle time.</li>
+<li>If sufficient time has passed, the request is made and the timestamp is updated.</li>
+<li>If not enough time has passed, the request is skipped.</li>
+</ol>
+
+<h2>Use Cases</h2>
+<ul>
+<li><strong>Search-as-you-type</strong>: Limit API calls while still providing responsive suggestions.</li>
+<li><strong>Form validation</strong>: Prevent excessive server-side validation requests during rapid user input.</li>
+<li><strong>Auto-saving</strong>: Implement efficient auto-save functionality without overwhelming the server.</li>
+<li><strong>Infinite scrolling</strong>: Control the rate of content loading requests as the user scrolls.</li>
+</ul>
+
+<h2>Considerations</h2>
+<div class="alert alert-success">
+<ul>
+<li><strong>Choose appropriate throttle times</strong>: Balance between responsiveness and server load. Typical values range from 200ms to 1000ms.</li>
+<li><strong>Combine with debouncing</strong>: For some use cases, client-side debouncing in addition to throttling can provide better user experience.</li>
+<li><strong>Feedback to users</strong>: Consider providing visual feedback when requests are throttled to maintain a responsive feel.</li>
+<li><strong>Server-side considerations</strong>: Implement server-side rate limiting as well for comprehensive protection against excessive requests.</li>
+</ul>
+</div>
+
+<h3>Advanced Example: Throttled Country Search Input</h3>
+<p>The code below demonstrates a throttled text input that updates country suggestions as the user types, with a minimum interval of 300ms between POST requests. In this example, the typed phrase is sent as 'country' in the request body.</p>
+
+[code=vf]&lt;?php
+echo form_open('countries/submit_country');
+
+$input_attr = [
+    'list' =&gt; 'countries',
+    'mx-post' =&gt; 'countries/submit_country',
+    'mx-throttle' =&gt; '300',
+    'mx-trigger' =&gt; 'input',
+    'mx-target' =&gt; '#countries'
+];
+
+echo form_input('country', '', $input_attr);
+echo '&lt;datalist id="countries"&gt;&lt;/datalist&gt';
+echo form_close();
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Prefer HTML over helper functions? Here's the equivalent solution:</p>
+
+[code=html]
+&lt;form action="countries/submit_country" method="post"&gt;
+    &lt;input type="text" 
+           name="country"
+           list="countries"
+           mx-post="countries/submit_country"
+           mx-throttle="300"
+           mx-trigger="input"
+           mx-target="#countries"&gt;
+    &lt;datalist id="countries"&gt;&lt;/datalist&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-success">
+<p class="mt-0">If you intend to use Trongate's <!--?= anchor('trongate-api-reference/class-reference/the-validation-class', 'Validation class') ?--> to perform server-side form validation tests then usage of the <!--?= form_close() ?--> method is essential since it generates a hidden CSRF token input field as well as a closing form tag.</p>
+</div>
+
+<h3>Explanation of Key Attributes:</h3>
+<ul>
+<li><code>mx-post="countries/submit_country"</code>: Specifies that a POST request should be made to the 'submit_country' method of the 'countries' controller.</li>
+<li><code>mx-throttle="300"</code>: Limits the frequency of requests to one every 300 milliseconds.</li>
+<li><code>mx-trigger="input"</code>: Triggers the request on every input event (i.e., when the user types or modifies the input).</li>
+<li><code>mx-target="#countries"</code>: Specifies that the response should update the element with the id "countries" (the datalist in this case).</li>
+</ul>
+
+<p>This example uses HTML5's <code>datalist</code> element, which provides a built-in autocomplete feature. As the user types, the datalist is populated with matching country suggestions.</p>
+
+<h3>How It Works:</h3>
+<ol>
+<li>As the user types in the form field, it triggers the 'input' event.</li>
+<li>Trongate MX checks if 300ms have passed since the last request. If not, it skips the request.</li>
+<li>If 300ms have passed, a POST request is sent to the 'submit_country' method of the 'countries' controller.</li>
+<li>The server processes the request and returns a list of matching countries.</li>
+<li>The response updates the <code>datalist</code> element, providing autocomplete suggestions to the user.</li>
+</ol>
+
+<div class="alert alert-info">
+<p class="mt-0">In instances where an element invokes a form submission (for example, by usage of <code>mx-post</code>) and the element is within a form, Trongate MX will automatically fetch all of the values within the form and send those to the endpoint as posted values. This mimics standard form submission behavior. As a result, there is no requirement to use the <code>mx-vals</code> attribute in this instance, as all form data is automatically included in the HTTP request.</p>
+</div>
+
+<h3>Server-Side Implementation:</h3>
+<p>Here's an example of how the controller method might be implemented in Trongate:</p>
+
+[code=php]
+public function submit_country() {
+  // Retrieve the posted country from the POST request.
+  $country = post('country', true);
+
+  if ($country === '') {
+    http_response_code(200);
+    die(); // If empty field was posted, suggestions element will be emptied.
+  }
+
+  // Append the wildcard '%' for the LIKE query and prepare the parameter array for the query.
+  $params['country'] = $country.'%';
+
+  // Define the SQL query with a named parameter for the LIKE clause.
+  $sql = "SELECT * FROM country WHERE country LIKE :country";
+
+  // Execute the query using query_bind and fetch the results as objects.
+  $data['rows'] = $this-&gt;model-&gt;query_bind($sql, $params, 'object');
+
+  // Load the view with the query results.
+  $this-&gt;view('autocomplete_suggestions', $data);
+}
+[/code]
+
+<p>This method performs the following steps:</p>
+<ol>
+<li>Retrieves the posted 'country' value using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">post()</span> helper function.</li>
+<li>If the posted value is empty, it returns a 200 status code with an empty response body, which will clear the suggestions.</li>
+<li>Constructs an SQL query to find countries that start with the posted 'country' value.</li>
+<li>Executes the query using Trongate's Model class <span class="feature-ref" ref-path="class_reference/The_Model_Class">query_bind()</span> method, which handles parameter binding for security.</li>
+<li>Loads a view file ('autocomplete_suggestions.php') to display the results as datalist options.</li>
+</ol>
+
+<h3>View File (autocomplete_suggestions.php):</h3>
+<p>The view file, containing the list of potential matches, is rendered by invoking the <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method.</p>
+
+[code=php]
+$this-&gt;view('autocomplete_suggestions', $data);
+[/code]
+
+<p>Inside the view file, a simple FOR loop is used to display the results, from our database query, as <code>option</code> elements for the datalist:</p>
+
+[code=vf]&lt;?php
+foreach($rows as $row) {
+  echo '&lt;option value="'.$row-&gt;entity_title.'"&gt;'.PHP_EOL;
+}
+?&gt;[/code]
+
+<p>This generates a list of <code>option</code> elements, one for each matching country, which will be used as autocomplete suggestions in the datalist.</p>
+
+<div class="alert alert-info">
+<p class="mt-0"><strong>Note:</strong> This approach uses HTML5's <code>datalist</code> element, which provides built-in autocomplete functionality. It's particularly efficient for smaller datasets (typically less than 1000 items) and offers a native user experience across modern browsers. For more information, visit <a href="https://www.w3schools.com/tags/tag_datalist.asp" target="_blank">W3Schools - datalist</a>.</p>
+</div>
+
+<h2>Additional Notes</h2>
+<ul>
+<li>The <code>mx-throttle</code> attribute is processed client-side and does not require server-side configuration.</li>
+<li>Throttling is applied globally across all elements using the same throttle time.</li>
+<li>If no <code>mx-throttle</code> attribute is specified, requests are not throttled and will be sent for every triggering event.</li>
+<li>Throttling works in conjunction with other Trongate MX attributes like <code>mx-trigger</code>, <code>mx-get</code>, and <code>mx-target</code>.</li>
+</ul>
+
+<h2>Summary</h2>
+<p>By using the <code>mx-throttle</code> attribute, you can create more efficient and performant web applications with Trongate MX, ensuring smooth user experiences while managing server load effectively.</p>

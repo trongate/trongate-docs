@@ -1,0 +1,140 @@
+<h1>How Templates Work With Views</h1>
+
+<p>When working with templates in Trongate, it's important to understand how they work with view files, and how data is passed between templates and views. This section explains the mechanisms that templates use to locate, load and inject content from view files.</p>
+
+<h2>How Templates Locate View Files</h2>
+
+<p>When you call the <span class="feature-ref">template()</span> method, Trongate needs to determine which view file to load into the template. This process is governed by two key properties in your <code>$data</code> array:</p>
+
+<ul>
+  <li><code>view_module</code>: Tells the template which module contains the view file</li>
+  <li><code>view_file</code>: Specifies the name of the view file to load</li>
+</ul>
+
+<h3>View File Resolution Process</h3>
+
+<p>Let's examine how a template locates a view file through a practical example. Consider this URL:</p>
+
+[code]https://example.com/products/details/88[/code]
+
+<p>And the corresponding controller code:</p>
+
+[code=php]
+class Products extends Trongate {
+  
+  function details() {
+    $data['view_module'] = 'inventory';
+    $data['view_file'] = 'product_details';
+    $this-&gt;template('default', $data);
+  }
+
+}
+[/code]
+
+<p>In this case:</p>
+<ul>
+  <li>When the template is loaded, it looks for the view file based on <code>view_module</code></li>
+  <li>Since <code>view_module</code> is set to 'inventory', the template will look in that module's <b>views</b> directory</li>
+  <li>The view file will be loaded from: <code>modules/inventory/views/product_details.php</code></li>
+</ul>
+
+<h3>Default View Module Resolution</h3>
+
+<p>If <code>view_module</code> is not specified in the <code>$data</code> array, the template will use the first URL segment to determine where to look for the view file. For example:</p>
+
+[code=php]
+class Products extends Trongate {
+  
+  function details() {
+    $data['view_file'] = 'product_details';
+    $this-&gt;template('default', $data);
+  }
+
+}
+[/code]
+
+<p>In this case, since the URL begins with 'products', the template will look for the view file at:</p>
+
+[code]modules/products/views/product_details.php[/code]
+
+<div class="alert alert-success">
+  <p>It's recommended to always specify <code>view_module</code> explicitly in your <code>$data</code> array, even when it matches the URL segment. This makes your code more maintainable and allows for easier implementation of custom routing rules in the future.</p>
+</div>
+
+<h2>Data Passing Between Templates and Views</h2>
+
+<p>Templates in Trongate automatically make variables from the <code>$data</code> array available to both the template file and the loaded view file. This happens through an automatic extraction process.</p>
+
+<h3>Example: Data Extraction</h3>
+
+[code=php]
+class Welcome extends Trongate {
+
+  function hello() {
+    $data['first_name'] = 'John';
+    $data['view_file'] = 'hello_view';
+    $this-&gt;template('default', $data);
+  }
+
+}
+[/code]
+
+<p>The template system will make <code>first_name</code> available directly in both the template and view file:</p>
+
+[code=vf]
+&lt;!-- Inside your view file --&gt;
+&lt;p&gt;Hello, &lt;?= $first_name ?&gt;!&lt;/p&gt;
+[/code]
+
+<p>This automatic extraction removes the need for manually unpacking variables from the <code>$data</code> array, making your template and view files cleaner and more intuitive to work with.</p>
+
+<div class="alert alert-info"><p>Even though <code>$data</code> arrays are automatically extracted, the original array remains available from within the view file or template.  This is particularly useful for debugging purposes.  For example, if you are working with a view file and you'd like a reminder of what variables have been passed into the view file, you could use Trongate's <span class="feature-ref">json()</span> method, like so:</p>
+
+[code=vf]
+&lt;?= json($data) ?&gt;
+[/code]
+
+</div>
+
+<h2>The Template Display Method</h2>
+
+<p>Within your template files, use the <span class="feature-ref">display()</span> method to specify where the view content should be inserted.</p>
+
+<p>The <code>display()</code> method is a <a href="https://www.w3schools.com/php/php_oop_static_methods.asp" target="_blank">static method</a> that exists within Trongate's internal <a href="documentation-ref/list_refs/class_reference/the-template-class" target="_blank">Template class</a>.  Within a template file, this can be invoked with the following line of code:</p>
+
+[code=vf]&lt;?= Template::display($data) ?&gt;[/code]
+
+<p>Below is an example of a template file that uses the  <code>display()</code> method to inject view file content into the page.</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;My Site&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;!-- Template header content --&gt;
+    &lt;/header&gt;
+
+    &lt;main&gt;
+        &lt;?= Template::display($data) ?&gt;
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        &lt;!-- Template footer content --&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<p>The <code>Template::display()</code> method:</p>
+<ul>
+  <li>Loads the appropriate view file based on <code>view_module</code> and <code>view_file</code></li>
+  <li>Makes all <code>$data</code> variables available to the view</li>
+  <li>Injects the rendered view content into the template</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>This approach to template and view integration allows for a clean separation between your page's structure (defined in templates) and its specific content (defined in views), while maintaining a simple and intuitive way to pass data to both.</p>
+</div>

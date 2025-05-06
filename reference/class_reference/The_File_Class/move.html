@@ -1,0 +1,113 @@
+<div class="container">
+  <h1>move()</h1>
+  <p class="signature">function move(string $source_path, string $destination_path): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Moves a file from one location to another. This method ensures the source file exists, validates the source path against predefined security rules, and attempts to move the file to the specified destination. If the move operation is successful, it returns <code>true</code>; otherwise, it throws an exception.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$source_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>It checks if the source file exists at the specified path. If the file does not exist, an exception is thrown.</li>
+      <li>If the source file exists and the path is valid, it attempts to move the file to the <code>$destination_path</code> using PHP's <code>rename()</code> function.</li>
+      <li>If the move operation fails (e.g., due to insufficient permissions or an invalid destination path), an exception is thrown with a descriptive error message.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the source file exists and the destination path is writable before calling this method. If the source file is restricted or inaccessible, or if the move operation fails, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$source_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the source file that needs to be moved. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$destination_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the destination where the file will be moved. The destination directory must be writable.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$source_path</code> is restricted by security rules.</li>
+      <li>The source file does not exist at the specified path.</li>
+      <li>The move operation fails (e.g., due to insufficient permissions or an invalid destination path).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the file is successfully moved. If the operation fails, an exception is thrown instead of returning <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Moving a file to a new location
+try {
+    $file = new File();
+    $success = $file->move('/path/to/source/file.txt', '/path/to/destination/file.txt');
+    if ($success) {
+        echo "File moved successfully.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Moving multiple files in a loop
+$files_to_move = [
+    '/path/to/source/file1.txt' => '/path/to/destination/file1.txt',
+    '/path/to/source/file2.jpg' => '/path/to/destination/file2.jpg',
+];
+
+$file = new File();
+foreach ($files_to_move as $source => $destination) {
+    try {
+        $file->move($source, $destination);
+        echo "Moved $source to $destination successfully.\n";
+    } catch (Exception $e) {
+        echo "Failed to move $source: " . $e->getMessage() . "\n";
+    }
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $file->move('/path/to/restricted/file.txt', '/path/to/destination/file.txt');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this path is restricted: /path/to/restricted/file.txt"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the source and destination paths are valid and do not conflict with restricted paths before calling this method.</li>
+      <li><strong>Check File Existence:</strong> Verify the source file exists before attempting to move it, or handle the exception gracefully.</li>
+      <li><strong>Ensure Permissions:</strong> Make sure the script has sufficient permissions to read the source file and write to the destination directory.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions, especially when moving multiple files or working with user-provided paths.</li>
+      <li><strong>Backup Important Files:</strong> Before moving critical files, consider creating backups to prevent data loss in case of errors.</li>
+    </ul>
+  </div>
+</div>

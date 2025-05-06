@@ -1,0 +1,153 @@
+<h1>Token Validation</h1>
+
+<h2>Overview of Token Validation</h2>
+<p>The Trongate framework provides a robust mechanism for fetching and validating user tokens, which is crucial for implementing secure authentication and authorization in your applications.</p>
+
+<p>Token validation is primarily handled by the <a href="documentation-ref/list_refs/pre_installed/trongate-tokens" target="_blank">Trongate Tokens</a> module, specifically through the <span class="feature-ref">_attempt_get_valid_token()</span> method. This method validates tokens based on their existence in the database, their expiration status, and—most importantly—their association with specific user levels.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The <span class="feature-ref">_attempt_get_valid_token()</span> method validates tokens against user levels. If your application requires more granular validation (e.g., verifying a specific user ID), additional methods such as <span class="feature-ref">_get_user_id()</span>, <span class="feature-ref">_get_user_obj()</span>, or <span class="feature-ref">_get_user_level()</span> can be used to enforce stricter conditions.</p>
+</div>
+
+<h2>The Mechanics of Token Retrieval</h2>
+<p>When an end user is allocated a 'Trongate token', the relevant details about the token are stored in the <code>trongate_tokens</code> database table. Upon subsequent visits to the application, the <span class="feature-ref">_attempt_get_valid_token()</span> method can be used to retrieve and validate user tokens.</p>
+
+<p>This method is versatile and adapts to various authentication scenarios by searching for tokens in multiple locations and applying optional user-level filters.</p>
+
+<h3>Method Signature</h3>
+[code=php]
+public function _attempt_get_valid_token($user_levels = null): string|bool
+[/code]
+
+<h3>Parameters</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default</th>
+            <th>Required</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$user_levels</code></td>
+            <td>int|array|null</td>
+            <td>User levels to filter tokens.</td>
+            <td class="text-center"><code>null</code></td>
+            <td class="text-center">No</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Return Value</h3>
+<p>The method returns either a string (the valid token) or a boolean <code>false</code> if no valid token is found.</p>
+
+<h2>Token Retrieval Process</h2>
+<p>The <span class="feature-ref">_attempt_get_valid_token()</span> method searches for tokens in the following locations, in order of priority:</p>
+<ol>
+    <li>HTTP headers (<code>$_SERVER['HTTP_TRONGATETOKEN']</code>)</li>
+    <li>Cookies (<code>$_COOKIE['trongatetoken']</code>)</li>
+    <li>Session (<code>$_SESSION['trongatetoken']</code>)</li>
+</ol>
+
+<p>If a token is found in any of these locations, it is validated against the database to ensure it has not expired and matches the specified user-level criteria (if provided).</p>
+
+<h2>How Validation Works</h2>
+<p>The validation process involves the following steps:</p>
+<ol>
+    <li><strong>Token Collection:</strong> The method collects tokens from HTTP headers, cookies, and session variables.</li>
+    <li><strong>Database Query:</strong> Each token is queried against the <code>trongate_tokens</code> table to verify its existence and expiration status.</li>
+    <li><strong>User-Level Filtering:</strong> If user-level filtering is applied, the method ensures the token corresponds to a user with the required permissions.</li>
+    <li><strong>Return Valid Token:</strong> If a valid token is found, it is returned; otherwise, the method returns <code>false</code>.</li>
+</ol>
+
+<h2>Usage Examples</h2>
+
+<h3>Example 1: Fetching Any Valid Token</h3>
+<p>To retrieve a valid token for any user level:</p>
+[code=php]
+$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token(); // Any user level
+[/code]
+
+<h3>Example 2: Fetching Token for Specific User Level</h3>
+<p>To fetch a token for users with an 'admin' user level (assuming 'admin' has an ID of 1 in the <code>trongate_user_levels</code> table):</p>
+[code=php]
+$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token(1); // Admin only
+[/code]
+
+<h3>Example 3: Fetching Token for Multiple User Levels</h3>
+<p>To retrieve a token for users with either 'admin' or 'member' user levels (assuming IDs 1 and 2 respectively):</p>
+[code=php]
+$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token([1, 2]); // Admin or member
+[/code]
+
+<h2>Validating Tokens Against Custom Conditions</h2>
+<p>While the <span class="feature-ref">_attempt_get_valid_token()</span> method is effective for validating tokens against user levels, some applications may require more granular validation. For example, you might need to ensure that a token corresponds to a specific user ID or other custom criteria. In such cases, you can use the following methods:</p>
+
+<h3>Fetching the Trongate User ID</h3>
+<p>To validate a token against a specific user ID, use the <span class="feature-ref">_get_user_id()</span> method. This method retrieves the Trongate User ID associated with a token:</p>
+[code=php]
+$this->module('trongate_tokens');
+$user_id = $this->trongate_tokens->_get_user_id(); // Returns the user ID or false
+[/code]
+
+<p>If you have a specific token to validate, you can pass it as an argument:</p>
+[code=php]
+$this->module('trongate_tokens');
+$user_id = $this->trongate_tokens->_get_user_id($token);
+[/code]
+
+<h3>Fetching the Trongate User Object</h3>
+<p>For more detailed user information, use the <span class="feature-ref">_get_user_obj()</span> method. This method returns an object containing the user's data, including their user level, token, and expiration date:</p>
+[code=php]
+$this->module('trongate_tokens');
+$user_obj = $this->trongate_tokens->_get_user_obj();
+
+if ($user_obj) {
+    echo "User Level: " . $user_obj->user_level;
+    echo "User ID: " . $user_obj->trongate_user_id;
+} else {
+    echo "No valid token found.";
+}
+[/code]
+
+<h3>Fetching the User Level</h3>
+<p>To validate a token against a specific user level, use the <span class="feature-ref">_get_user_level()</span> method. This method retrieves the user level associated with a token:</p>
+[code=php]
+$this->module('trongate_tokens');
+$user_level = $this->trongate_tokens->_get_user_level();
+
+if ($user_level === 'admin') {
+    echo "Access granted to admin.";
+} else {
+    echo "Access denied.";
+}
+[/code]
+
+<h2>Security Considerations</h2>
+<p>When validating tokens, keep the following security considerations in mind:</p>
+<ul>
+    <li><strong>Token Expiry:</strong> Ensure that tokens have a reasonable lifespan to minimize the risk of unauthorized access.</li>
+    <li><strong>Secure Storage:</strong> Use HTTPS to protect tokens transmitted via HTTP headers or cookies.</li>
+    <li><strong>Granular Validation:</strong> For sensitive operations, combine token validation with additional checks, such as verifying the user ID or role.</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p>The Trongate Tokens module employs a hierarchical mechanism to fetch valid tokens during authentication and authorization processes. This mechanism involves sequentially checking multiple storage locations for tokens, as outlined below:</p>
+    <ol>
+        <li><strong>HTTP Headers:</strong> The framework first attempts to retrieve a token from the HTTP headers (<code>$_SERVER['HTTP_TRONGATETOKEN']</code>).</li>
+        <li><strong>Cookies:</strong> If no token is found in the headers, the framework proceeds to check for a token stored as a cookie (<code>$_COOKIE['trongatetoken']</code>).</li>
+        <li><strong>Session Data:</strong> Finally, if no token is located in the headers or cookies, the framework attempts to retrieve a token from session data (<code>$_SESSION['trongatetoken']</code>).</li>
+    </ol>
+    <p>This sequential retrieval process ensures that the framework can locate and validate tokens stored in various locations, thereby enabling seamless user authentication and authorization.</p>
+    <p>Developers should be aware that the removal of token data from one location (e.g., cookies) does not automatically eliminate tokens stored elsewhere (e.g., session data). Consequently, incomplete token cleanup may lead to unintended persistence of user sessions.</p>
+    <p>To ensure comprehensive token deletion—both from the user's device and the application's database—developers are encouraged to utilize the <span class="feature-ref">_destroy()</span> method. This method systematically removes tokens from all storage locations and purges them from the database, thereby maintaining a secure and consistent state.</p>
+</div>
+
+<h2>In Summary</h2>
+<p>The <span class="feature-ref">_attempt_get_valid_token()</span> method is a powerful tool for retrieving and validating user tokens in Trongate applications. While it excels at validating tokens against user levels, additional methods like <span class="feature-ref">_get_user_id()</span>, <span class="feature-ref">_get_user_obj()</span>, and <span class="feature-ref">_get_user_level()</span> allow for more granular validation when needed. By leveraging these tools effectively, developers can implement secure and flexible authentication and authorization workflows.</p>

@@ -1,0 +1,103 @@
+<h1>File Validation in Trongate</h1>
+
+<p>Trongate provides a robust validation system for file uploads, ensuring that uploaded files meet specific criteria such as file type, size, and image dimensions. This guide focuses on the validation aspects of file and image uploads, building on the foundational knowledge from the previous section.</p>
+
+<h2>Key Validation Rules for File Uploads</h2>
+
+<p>When handling file uploads, Trongate allows you to define validation rules to ensure that uploaded files meet your application's requirements. These rules are applied using the <span class="feature-ref">set_rules()</span> method in the <span class="feature-ref">Validation</span> class.</p>
+
+<h3>Common Validation Rules</h3>
+
+<p>Here are the most commonly used validation rules for file uploads:</p>
+
+<ul>
+    <li><strong>allowed_types</strong>: Specifies the allowed file extensions (e.g., <code>jpg</code>, <code>png</code>, <code>gif</code>).</li>
+    <li><strong>max_size</strong>: Specifies the maximum file size in kilobytes (e.g., <code>2000</code> for 2MB).</li>
+    <li><strong>max_width</strong>: Specifies the maximum width for images (in pixels).</li>
+    <li><strong>max_height</strong>: Specifies the maximum height for images (in pixels).</li>
+    <li><strong>min_width</strong>: Specifies the minimum width for images (in pixels).</li>
+    <li><strong>min_height</strong>: Specifies the minimum height for images (in pixels).</li>
+    <li><strong>square</strong>: Ensures the image is square (width equals height).</li>
+</ul>
+
+<h3>Example Validation Rules</h3>
+
+<p>Here’s an example of how to define validation rules for an image upload:</p>
+
+[code=php]
+$this->validation->set_rules('picture', 'Product Picture', 'allowed_types[gif,jpg,jpeg,png]|max_size[2000]|max_width[1200]|max_height[1200]');
+[/code]
+
+<p>In this example:</p>
+<ul>
+    <li>The file must be one of the following types: <code>gif</code>, <code>jpg</code>, <code>jpeg</code>, or <code>png</code>.</li>
+    <li>The file size must not exceed 2000 KB (2MB).</li>
+    <li>The image width and height must not exceed 1200 pixels.</li>
+</ul>
+
+<h2>Security Checks</h2>
+
+<p>Trongate includes built-in security checks to ensure that uploaded files do not contain malicious content, such as PHP code or other dangerous patterns. These checks are automatically performed when using the <span class="feature-ref">upload_picture()</span> method.</p>
+
+<h2>Handling Validation Errors</h2>
+
+<p>If a file fails validation, Trongate will automatically add an error message to the <span class="feature-ref">form_submission_errors</span> array. You can display these errors in your view using the <span class="feature-ref">validation_errors()</span> helper function.</p>
+
+[code=php]
+echo validation_errors();
+[/code]
+
+<h2>Summary of Validation Tests</h2>
+
+<p>Below is a table summarizing all the available validation tests for file uploads, sorted alphabetically:</p>
+
+<table id="validationTestsTable" class="validation-tests-table">
+    <thead>
+        <tr>
+            <th>Validation Test</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>allowed_types</code></td>
+            <td>Specifies the allowed file extensions (e.g., <code>gif</code>, <code>jpg</code>, <code>png</code>).</td>
+        </tr>
+        <tr>
+            <td><code>max_height</code></td>
+            <td>Specifies the maximum height for images (in pixels).</td>
+        </tr>
+        <tr>
+            <td><code>max_size</code></td>
+            <td>Specifies the maximum file size in kilobytes (e.g., <code>2000</code> for 2MB).</td>
+        </tr>
+        <tr>
+            <td><code>max_width</code></td>
+            <td>Specifies the maximum width for images (in pixels).</td>
+        </tr>
+        <tr>
+            <td><code>min_height</code></td>
+            <td>Specifies the minimum height for images (in pixels).</td>
+        </tr>
+        <tr>
+            <td><code>min_width</code></td>
+            <td>Specifies the minimum width for images (in pixels).</td>
+        </tr>
+        <tr>
+            <td><code>square</code></td>
+            <td>Ensures the image is square (width equals height).</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p>More information pertaining to Trongate's in-build validation tests is available from the <a href="documentation/display/php_framework/form-handling/validation-rules-reference">Validation Rules Reference</a>.</p>
+</div>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Always validate file types to prevent unauthorized file uploads.</li>
+        <li>Set appropriate file size limits to prevent server overload.</li>
+        <li>Use image dimension rules to ensure uploaded images meet your application's requirements.</li>
+    </ul>
+</div>

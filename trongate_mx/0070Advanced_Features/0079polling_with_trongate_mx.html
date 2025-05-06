@@ -1,0 +1,240 @@
+<h1>Polling With Trongate MX</h1>
+<p>Polling in Trongate MX allows you to periodically fetch updates from the server, keeping your web application's content fresh without user interaction. Ideal for real-time updates or live data feeds, polling can be controlled declaratively with attributes or programmatically via JavaScript.</p>
+
+<h2>Basic Usage</h2>
+<p>Use the <code>mx-trigger</code> attribute to start polling automatically when the page loads.</p>
+
+<h3>Basic Example:</h3>
+[code=html]
+&lt;div mx-get="api/live_data" mx-trigger="every 5s"&gt;
+  &lt;!-- Content updates every 5 seconds --&gt;
+&lt;/div&gt;
+[/code]
+<p>This fetches data from <code>api/live_data</code> every 5 seconds and updates the content.</p>
+
+<h2>Polling Options</h2>
+<p>Trongate MX offers flexible polling options:</p>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Description</th>
+            <th>Example Syntax</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Basic Polling</td>
+            <td>Polls at a regular interval immediately.</td>
+            <td><code>mx-trigger="every 10s"</code></td>
+        </tr>
+        <tr>
+            <td>Load Polling</td>
+            <td>Polls after an initial delay, then repeats.</td>
+            <td><code>mx-trigger="load delay:3s"</code></td>
+        </tr>
+        <tr>
+            <td>Polling with Initial Delay</td>
+            <td>Delays the first poll, then uses a different interval.</td>
+            <td><code>mx-trigger="load delay:2s, every 7s"</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Time Intervals</h2>
+<p>Specify intervals using these units:</p>
+<ul>
+    <li><code>s</code>: seconds</li>
+    <li><code>m</code>: minutes</li>
+    <li><code>h</code>: hours</li>
+    <li><code>d</code>: days</li>
+</ul>
+
+<h3>Examples:</h3>
+
+<h4 class="mt-3">Every 3 Seconds:</h4>
+[code=html]
+&lt;div mx-get="api/updates" mx-trigger="every 3s"&gt;&lt;/div&gt;
+[/code]
+<p>Fetches updates every 3 seconds.</p>
+
+<h4 class="mt-3">Delayed Start:</h4>
+[code=html]
+&lt;div mx-get="api/data" mx-trigger="load delay:5m"&gt;&lt;/div&gt;
+[/code]
+<p>Waits 5 minutes, then polls every 5 minutes.</p>
+
+<h4 class="mt-3">Custom Delay and Interval:</h4>
+[code=html]
+&lt;div mx-get="api/stats" mx-trigger="load delay:1h, every 30m"&gt;&lt;/div&gt;
+[/code]
+<p>Waits 1 hour, then polls every 30 minutes.</p>
+
+<h2>Programmatic Polling</h2>
+<p>You can control polling dynamically with JavaScript using the <code>TrongateMX</code> API.</p>
+
+<h3>Starting and Stopping Polling:</h3>
+[code=html]
+&lt;div id="poll-area" mx-get="api/dynamic_data"&gt;
+  &lt;button onclick="startPoll()"&gt;Start Polling&lt;/button&gt;
+  &lt;button onclick="stopPoll()"&gt;Stop Polling&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function startPoll() {
+  const el = document.querySelector('#poll-area');
+  if (window.TrongateMX.startPolling(el, '10s')) {
+    console.log('Polling started!');
+  }
+}
+
+function stopPoll() {
+  const el = document.querySelector('#poll-area');
+  if (window.TrongateMX.stopPolling(el)) {
+    console.log('Polling stopped!');
+  }
+}
+&lt;/script&gt;
+[/code]
+
+<h3>Preventing Automatic Triggering:</h3>
+<p>Use <code>mx-trigger="none"</code> to prevent an element from responding to clicks while still allowing programmatic polling:</p>
+
+[code=html]
+&lt;div id="content-area" 
+     mx-get="api/fetch_content" 
+     mx-trigger="none" 
+     mx-after-swap="logUpdate"&gt;
+  &lt;div&gt;
+    &lt;p&gt;This container has content that will be updated through polling.&lt;/p&gt;
+    &lt;button onclick="beginPolling()"&gt;Start Polling&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function logUpdate() {
+  console.log('Content updated at: ' + new Date().toLocaleTimeString());
+}
+
+function beginPolling() {
+  const el = document.querySelector('#content-area');
+  if (window.TrongateMX.startPolling(el, '5s')) {
+    console.log('Polling started!');
+  }
+}
+&lt;/script&gt;
+[/code]
+
+<p>This pattern is especially useful for containers with clickable elements inside them or when you want complete control over when polling begins.</p>
+
+<h2>Advanced Example</h2>
+<p>Toggle polling based on user actions:</p>
+[code=html]
+&lt;div id="area-1"&gt;
+  &lt;button mx-post="api/start" mx-target="#response" mx-after-swap="revealArea2"&gt;Start&lt;/button&gt;
+  &lt;div id="response"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div id="area-2" style="display: none;" mx-get="api/updates" mx-target="#updates"&gt;
+  &lt;div id="updates"&gt;&lt;/div&gt;
+  &lt;button onclick="stopPoll()"&gt;Stop Polling&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function revealArea2() {
+  document.querySelector('#area-1').remove();
+  const areaTwo = document.querySelector('#area-2');
+  areaTwo.style.display = 'block';
+  window.TrongateMX.startPolling(areaTwo, '5s');
+}
+function stopPoll() {
+  const areaTwo = document.querySelector('#area-2');
+  window.TrongateMX.stopPolling(areaTwo);
+}
+&lt;/script&gt;
+[/code]
+<p>Clicking "Start" triggers a POST, reveals <code>#area-2</code>, and begins polling every 5 seconds. "Stop Polling" halts it.</p>
+
+<h2>Polling with Out-of-Band Swaps</h2>
+<p>Trongate MX can update multiple parts of your page with a single polling request.  This is achieved by combining polling with out-of-band swaps and <code>mx-target="none"</code>:</p>
+
+[code=html]
+&lt;div id="dashboard-stats" 
+     mx-get="dashboard/stats" 
+     mx-target="none" 
+     mx-trigger="none"
+     mx-select-oob='[
+       {"select":".current-users","target":"#user-count"},
+       {"select":".server-load","target":"#load-meter"},
+       {"select":".error-count","target":"#error-panel"}
+     ]'&gt;
+  &lt;!-- Using mx-trigger="none" prevents clicks from triggering updates --&gt;
+  &lt;button onclick="startDashboardPolling()"&gt;Activate Live Updates&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="dashboard-widgets"&gt;
+  &lt;div id="user-count"&gt;-- users&lt;/div&gt;
+  &lt;div id="load-meter"&gt;--%&lt;/div&gt;
+  &lt;div id="error-panel"&gt;-- errors&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function startDashboardPolling() {
+  const statsElement = document.querySelector('#dashboard-stats');
+  window.TrongateMX.startPolling(statsElement, '5s');
+  this.innerHTML = "Live Updates Active";
+  this.disabled = true;
+}
+&lt;/script&gt;
+[/code]
+
+<p>With this setup:</p>
+<ul>
+  <li>The main container has <code>mx-target="none"</code> so it won't be updated directly</li>
+  <li><code>mx-trigger="none"</code> prevents accidental triggering when clicking the container</li>
+  <li>The API endpoint returns fragments that match the selectors in <code>mx-select-oob</code>:</li>
+</ul>
+
+[code=html]
+&lt;!-- Example API response from dashboard/stats --&gt;
+&lt;div class="current-users"&gt;254 active users&lt;/div&gt;
+&lt;div class="server-load"&gt;42%&lt;/div&gt;
+&lt;div class="error-count"&gt;0 errors in last hour&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>Documentation pertaining to out of band swaps is available from <a href="documentation/display/trongate_mx/swapping-content/out-of-band-swaps">here</a>.</p>
+</div>
+
+<h2>Polling State</h2>
+<p>Elements actively polling have a <code>data-polling-active="true"</code> attribute, which is removed when polling stops.  This provides an opportunity to apply CSS styling to elements that are currently being targetted by polling.  For example:</p>
+[code=css]
+[data-polling-active] {
+  border: 2px solid green;
+}
+[/code]
+
+<div class="alert alert-success mt-3">
+    <h4>Best Practices</h4>
+    <ul>
+        <li><strong>Server Load</strong>: Use reasonable intervals (5+ seconds) to avoid overloading your server.</li>
+        <li><strong>Prevent Accidental Triggers</strong>: Use <code>mx-trigger="none"</code> when you only want programmatic polling.</li>
+        <li><strong>Dynamic Control</strong>: Use <code>startPolling</code> and <code>stopPolling</code> for runtime flexibility.</li>
+        <li><strong>Error Handling</strong>: Check return values (<code>true</code>/<code>false</code>) from polling methods.</li>
+        <li><strong>Cleanup</strong>: Polling stops automatically when elements are removed from the DOM.</li>
+    </ul>
+</div>
+
+<div class="alert alert-info mt-3">
+<h4>Technical Notes</h4>
+<ul>
+    <li>Declarative polling (<code>mx-trigger="every Xs"</code>) applies only to elements present on page load.</li>
+    <li>Programmatic polling works anytime, even on dynamically added elements.</li>
+    <li>Polling avoids <code>mx-post</code> to prevent unintended form submissions.</li>
+    <li>Use <code>TrongateMX.stopAllPolling()</code> to halt all polling globally.</li>
+</ul>
+</div>
+
+<h2>Summary</h2>
+<p>Trongate MX's polling combines simple attribute-based updates with powerful JavaScript control, making it easy to build dynamic, real-time web applications.</p>

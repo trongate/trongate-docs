@@ -1,0 +1,32 @@
+[
+    {
+        "title": "The Trongate PHP Framework",
+        "description": "Designed for simplicity and efficiency, The Trongate PHP framework empowers developers to create lightning-fast web applications with a focus on pure PHP. If there's a faster PHP framework, we haven't heard of it!",
+        "cover": "cover_trongate_framework.svg",
+        "target_url": "documentation/display/php_framework"
+    },
+    {
+        "title": "Complete API Reference Guide",
+        "description": "Every module, every function, and every helper - all in one place! This guide is your ultimate reference guide to the Trongate framework, providing an exhaustive reference to help you unlock its full potential with ease.",
+        "cover": "cover_api_ref.svg",
+        "target_url": "documentation/reference"
+    },
+    {
+        "title": "Trongate MX",
+        "description": "Trongate now has a front-end framework! It's called Trongate MX. With Trongate MX you can create modern and highly interactive web experiences with minimal or no JavaScript code required.",
+        "cover": "cover_trongate_mx.svg",
+        "target_url": "documentation/display/trongate_mx"
+    },
+    {
+        "title": "The Module Market",
+        "description": "Learn how to publish code on the Trongate Module Market. You'll also find detailed information on versioning, ensuring that developers who use your modules stay informed and up to date with the latest updates and improvements.",
+        "cover": "cover_trongate_module_market.svg",
+        "target_url": "documentation/display/module_market"
+    },
+    {
+        "title": "Trongate CSS",
+        "description": "Trongate CSS is a lightweight CSS library that lets you create beautiful, responsive web designs without the need to learn about any complex rules or attributes. With Trongate CSS, pure HTML <i>can</i> look beautiful.",
+        "cover": "cover_trongate_css.svg",
+        "target_url": "documentation/display/trongate_css"
+    }
+]

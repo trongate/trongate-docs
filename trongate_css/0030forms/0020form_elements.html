@@ -1,0 +1,266 @@
+<h1>Form Elements</h1>
+
+<p>This guide explores the various form elements available in Trongate CSS and demonstrates their behaviors, states, and common usage patterns.</p>
+
+<h2>Input Field States</h2>
+
+<p>Every form input has multiple visual states to provide clear user feedback:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <input type="text" placeholder="Default state">
+        <input class="mt-1" type="text" placeholder="Click here to see focus state">
+        <input class="mt-1" type="text" placeholder="This input is disabled" disabled="">
+    </div>
+</div>
+
+[code=html]
+&lt;!-- Default state --&gt;
+&lt;input type="text" placeholder="Default state"&gt;
+
+&lt;!-- Focused state (click to see) --&gt;
+&lt;input type="text" placeholder="Click here to see focus state"&gt;
+
+&lt;!-- Disabled state --&gt;
+&lt;input type="text" placeholder="This input is disabled" disabled&gt;
+[/code]
+
+<h2>Input Type Variations</h2>
+
+<p>Different input types provide specialized functionality while maintaining consistent styling:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <label>Search with Validation</label>
+        <input type="search" required="" placeholder="Enter search term...">
+
+        <label>Numbers with Controls</label>
+        <input type="number" min="0" max="100" value="50">
+
+    </div>
+</div>
+
+[code=html]
+&lt;label&gt;Search with Validation&lt;/label&gt;
+&lt;input type="search" required placeholder="Enter search term..."&gt;
+
+&lt;label&gt;Numbers with Controls&lt;/label&gt;
+&lt;input type="number" min="0" max="100" value="50"&gt;
+
+[/code]
+
+<h2>Select Elements</h2>
+
+<p>Select dropdowns support option grouping for better organization:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <label>Select with Option Groups</label>
+        <select>
+            <option value="">Choose an option...</option>
+            <optgroup label="Fruits">
+                <option>Apple</option>
+                <option>Orange</option>
+                <option>Banana</option>
+            </optgroup>
+            <optgroup label="Vegetables">
+                <option>Carrot</option>
+                <option>Broccoli</option>
+                <option>Spinach</option>
+            </optgroup>
+        </select>
+    </div>
+</div>
+
+[code=html]
+&lt;label&gt;Select with Option Groups&lt;/label&gt;
+&lt;select&gt;
+    &lt;option value=""&gt;Choose an option...&lt;/option&gt;
+    &lt;optgroup label="Fruits"&gt;
+        &lt;option&gt;Apple&lt;/option&gt;
+        &lt;option&gt;Orange&lt;/option&gt;
+        &lt;option&gt;Banana&lt;/option&gt;
+    &lt;/optgroup&gt;
+    &lt;optgroup label="Vegetables"&gt;
+        &lt;option&gt;Carrot&lt;/option&gt;
+        &lt;option&gt;Broccoli&lt;/option&gt;
+        &lt;option&gt;Spinach&lt;/option&gt;
+    &lt;/optgroup&gt;
+&lt;/select&gt;
+[/code]
+
+<h2>Textarea Variations</h2>
+
+<p>Textareas can be configured for different use cases:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <label>Quick Notes</label>
+        <textarea rows="2" placeholder="Short message..."></textarea>
+
+        <label>Detailed Description</label>
+        <textarea rows="5" placeholder="Enter a longer description..."></textarea>
+    </div>
+</div>
+
+[code=html]
+&lt;label&gt;Quick Notes&lt;/label&gt;
+&lt;textarea rows="2" placeholder="Short message..."&gt;&lt;/textarea&gt;
+
+&lt;label&gt;Detailed Description&lt;/label&gt;
+&lt;textarea rows="5" placeholder="Enter a longer description..."&gt;&lt;/textarea&gt;
+[/code]
+
+<h2>Input Groups</h2>
+
+<p>In the example below, two buttons are positioned side-by-side by adding the <code>.flex-row</code> class to a containing element.</p>
+
+<div class="trongate-css-demo" style="padding-bottom: 1em;">
+    <div>
+        <div class="flex-row justify-center">
+            <input type="text" name="first_name" placeholder="First Name...">
+            <input type="text" class="ml-1" name="last_name" placeholder="Last Name...">
+        </div>
+    </div>
+</div>
+
+<p class="mt-3 mb-0">Below is the source code for the example shown above.  Notice how the second form field contains a class of <code>.ml-1</code>.  The purpose of this additional class is to add a left margin (with a value of '1em') onto the second form field element, thereby creating a small gap between the two form fields.</p>
+
+[code=html]
+&lt;div class="flex-row"&gt;
+    &lt;input type="text" name="first_name" placeholder="First Name..."&gt;
+    &lt;input type="text" class="ml-1" name="last_name" placeholder="Last Name..."&gt;
+&lt;/div&gt;
+[/code]
+
+<h3 class="mt-3">Horizontal Search Bar</h3>
+<p>The example below uses <code>.flex-row</code>, a little custom CSS to produce an attractive horizontal search bar.  The search button contains a <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> icon.   The icon depicts a small magnifying glass (a commonly used icon for submit buttons that appear on search forms).</p>
+<div class="trongate-css-demo">
+    <div>
+        <div class="flex-row">
+            <input type="search" id="search-input" placeholder="Search..." class="mb-0"> 
+            <button class="mt-0" id="search-btn"><i class="fa fa-search"></i></button>
+        </div>
+<style>
+#search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    max-width: min-content;
+}
+</style>
+    </div>
+</div>
+
+[code=html]&lt;div class="flex-row"&gt;
+    &lt;input type="search" id="search-input" placeholder="Search..." class="mb-0"&gt; 
+    &lt;button class="mt-0" id="search-btn"&gt;&lt;i class="fa fa-search"&gt;&lt;/i&gt;&lt;/button&gt;
+&lt;/div&gt;
+&lt;style&gt;
+#search-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    max-width: min-content;
+}
+&lt;/style&gt;[/code]
+
+<div class="alert alert-info">
+    <p>To get the magnifying glass icon appearing, you'll have to load Font Awesome into your webpage.   This can be achieved by adding the following line of code onto the <code>&lt;head&gt;</code> section of your webpage:</p>
+[code=html]
+&lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"&gt;
+[/code]
+</div>
+
+<h2>Checkbox and Radio Groups</h2>
+
+<p>Checkboxes and radio buttons can be organized into intuitive groups:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <fieldset>
+            <label>Choose Your Interests</label>
+            <div>
+                <label><input type="checkbox"> Technology</label>
+                <label><input type="checkbox"> Sports</label>
+                <label><input type="checkbox"> Travel</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <label>Select Your Role</label>
+            <div>
+                <label><input type="radio" name="role"> Developer</label>
+                <label><input type="radio" name="role"> Designer</label>
+                <label><input type="radio" name="role"> Manager</label>
+            </div>
+        </fieldset>
+    </div>
+</div>
+
+[code=html]
+&lt;fieldset&gt;
+    &lt;label&gt;Choose Your Interests&lt;/label&gt;
+    &lt;div&gt;
+        &lt;label&gt;&lt;input type="checkbox"&gt; Technology&lt;/label&gt;
+        &lt;label&gt;&lt;input type="checkbox"&gt; Sports&lt;/label&gt;
+        &lt;label&gt;&lt;input type="checkbox"&gt; Travel&lt;/label&gt;
+    &lt;/div&gt;
+&lt;/fieldset&gt;
+
+&lt;fieldset&gt;
+    &lt;label&gt;Select Your Role&lt;/label&gt;
+    &lt;div&gt;
+        &lt;label&gt;&lt;input type="radio" name="role"&gt; Developer&lt;/label&gt;
+        &lt;label&gt;&lt;input type="radio" name="role"&gt; Designer&lt;/label&gt;
+        &lt;label&gt;&lt;input type="radio" name="role"&gt; Manager&lt;/label&gt;
+    &lt;/div&gt;
+&lt;/fieldset&gt;
+[/code]
+
+<h3 class="mt-3">Alternative Example</h3>
+
+<p>The example below uses classes of <code>.mb-0</code> and <code>.mt-0</code> to adjust top and bottom margins.  The result is a more compact assortment of form elements.</p>
+
+<div class="trongate-css-demo">
+  <div>
+    <label>
+      <input type="checkbox" id="newsletter"> Subscribe to newsletter </label>
+    <hr>
+    <div>
+      <label>One <input type="radio" checked="checked" name="radio" class="mt-0 mb-0">
+      </label>
+      <label>Two <input type="radio" name="radio" class="mt-0 mb-0">
+      </label>
+      <label>Three <input type="radio" name="radio" class="mt-0 mb-0">
+      </label>
+      <label>Four <input type="radio" name="radio" class="mt-0 mb-0">
+      </label>
+    </div>
+  </div>
+</div>
+
+[code=html]
+&lt;div&gt;
+  &lt;label&gt;
+    &lt;input type="checkbox" id="newsletter"&gt;Subscribe to newsletter&lt;/label&gt;
+  &lt;hr&gt;
+  &lt;div&gt;
+    &lt;label&gt;One &lt;input type="radio" checked="checked" name="radio" class="mt-0 mb-0"&gt;
+    &lt;/label&gt;
+    &lt;label&gt;Two &lt;input type="radio" name="radio" class="mt-0 mb-0"&gt;
+    &lt;/label&gt;
+    &lt;label&gt;Three &lt;input type="radio" name="radio" class="mt-0 mb-0"&gt;
+    &lt;/label&gt;
+    &lt;label&gt;Four &lt;input type="radio" name="radio" class="mt-0 mb-0"&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;[/code]

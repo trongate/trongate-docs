@@ -1,0 +1,153 @@
+<h1>Loading Templates</h1>
+
+<p>In Trongate, templates are loaded from within controllers using the <span class="feature-ref">template</span> method. This technique ensures that pages can follow a defined layout while having dynamic content to be inserted as needed.</p>
+
+<h3>Basic Syntax</h3>
+
+<p>To load a template, use the <span class="feature-ref">template</span> method within a controller:</p>
+
+[code=php]
+class Example extends Trongate {
+  
+  function index() {
+    $data['view_file'] = 'example_view';
+    $this-&gt;template('public', $data);
+  }
+
+}
+[/code]
+
+<p>In this example:</p>
+<ul>
+  <li>The first parameter (<code>'public'</code>) specifies which method should be invoked from the <a href="https://github.com/trongate/trongate-framework/blob/master/templates/controllers/Templates.php" target="_blank">Templates class</a></li>
+  <li>The second parameter (<code>$data</code>) is an optional associative array containing variables to be passed into the template</li>
+</ul>
+
+<h2>How Templates Work</h2>
+
+<p>When you call <code>$this-&gt;template()</code>, Trongate looks for a corresponding method in the Templates class. Here's an example of how the Templates class is structured:</p>
+
+[code=php]&lt;?php
+class Templates extends Trongate {
+
+    /**
+     * Loads the 'public' view with provided data.
+     *
+     * @param mixed $data Data array to be passed to the view.
+     * @return void
+     */
+    function public($data): void {
+        load('public', $data);
+    }
+}
+[/code]
+
+<p>The <span class="feature-ref">load()</span> method is responsible for:</p>
+<ul>
+  <li>Loading the template file from the <code>templates/views/</code> directory</li>
+  <li>Making the <code>$data</code> array variables available to the template</li>
+  <li>Handling the rendering of the template content</li>
+</ul>
+
+<div class="alert alert-info">
+
+  <p>Trongate includes an internal class named <a href="documentation-ref/list_refs/class_reference/the-template-class">Template</a> (singular), which will be discussed in more detail later in this chapter.  However, this is an entirely different class and the two should not be confused.</p>
+  <p>To be clear, <a href="https://github.com/trongate/trongate-framework/blob/master/engine/Template.php" target="_blank">Template</a> and <a href="https://raw.githubusercontent.com/trongate/trongate-framework/refs/heads/master/templates/controllers/Templates.php" target="_blank">Templates</a> are two separate and distinct PHP classes within the Trongate framework.</p>
+
+<ul>
+    <li>The <b>Template</b> class is an internal class, within Trongate's 'engine' directory.  It is responsible for manages loading and displaying of content within HTML templates.</li>
+    <li>The <b>Templates</b> class is part of a 'templates' module that exists within the root directory.  It <i>contains</i> the templates that are to be used within a given Trongate application.</li>
+</ul>
+
+</div>
+
+
+<h3 class="mt-3">Template File Structure</h3>
+
+<p>Template files are PHP files stored in the <code>templates/views/</code> directory.  Usually, most of the content within a template file will be HTML code.  However, one of the strengths of PHP is that it can be seamlessly integrated with HTML.  Therefore, it's normal for template files to also contain <i>some</i> PHP code, as well as HTML.  Here's an example of a template file (named as '<b>public.php</b>'):</p>
+
+[code=html]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+    &lt;link rel="stylesheet" href="css/trongate.css"&gt;
+    &lt;link rel="stylesheet" href="css/app.css"&gt;
+    &lt;title&gt;My Application&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;div class="logo"&gt;
+            &lt;?= anchor(BASE_URL, WEBSITE_NAME) ?&gt;
+        &lt;/div&gt;
+        &lt;nav&gt;
+            &lt;ul&gt;
+                &lt;li&gt;&lt;?= anchor(BASE_URL, 'Home') ?&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;?= anchor('about', 'About') ?&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;?= anchor('contact', 'Contact') ?&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/nav&gt;
+    &lt;/header&gt;
+
+    &lt;main class="container"&gt;
+        &lt;?= Template::display($data) ?&gt;
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        &lt;div class="container"&gt;
+            &lt;div&gt;&amp;copy; &lt;?= date('Y') . ' ' . OUR_NAME ?&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<p>Key points about the template file:</p>
+<ul>
+  <li>The template provides the overall HTML structure for your pages</li>
+  <li><code>Template::display($data)</code> is where your view content will be injected</li>
+  <li>Template files have access to framework constants like <code>BASE_URL</code> and helper functions like <span class="feature-ref">anchor()</span></li>
+</ul>
+
+<h2>Dynamic Template Selection</h2>
+
+<p>Trongate allows templates to be dynamically switched at runtime based on context. For example, different templates can be loaded depending on a user's authentication status or access level.</p>
+
+<h3>Example: Loading a Template Based on User Level</h3>
+
+[code=php]
+class Dashboard extends Trongate {
+
+  function index() {
+    // Attempt to fetch the visitor's user level
+    $this-&gt;module('trongate_tokens');
+    $user_level = $this-&gt;trongate_tokens-&gt;_get_user_level();
+
+    if ($user_level === false) {
+        // User not logged in - redirect to login page
+        redirect('login');
+    }
+
+    $template_to_use = ($user_level === 'admin') ? 'admin' : 'members_area';
+    
+    $data['view_file'] = 'dashboard_view';
+    $this-&gt;template($template_to_use, $data);
+  }
+
+}
+[/code]
+
+<p>In this case:</p>
+<ul>
+  <li>Admins see the template defined in <code>admin()</code> method of the Templates class</li>
+  <li>Other authenticated users see the template defined in <code>members_area()</code> method</li>
+  <li>Non-authenticated users are redirected to the login page</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>Templates provide the structural foundation of your pages, while views contain the specific content that gets injected into these templates.</p>
+
+    <p>The relationshp between templates and views is explored in the next section.</p>
+</div>

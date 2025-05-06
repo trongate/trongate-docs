@@ -1,0 +1,189 @@
+<h1>Tables Overview</h1>
+
+<p>Trongate CSS provides clean, responsive table styling out of the box. Tables are automatically styled for readability with alternating row colors, borders, and hover effects - all without requiring additional classes.</p>
+
+<h2>Basic Example</h2>
+<p>Here's a simple table that demonstrates the default styling:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>John Smith</td>
+                    <td>Software Engineer</td>
+                    <td>London</td>
+                </tr>
+                <tr>
+                    <td>Sarah Johnson</td>
+                    <td>UX Designer</td>
+                    <td>Berlin</td>
+                </tr>
+                <tr>
+                    <td>Michael Brown</td>
+                    <td>Project Manager</td>
+                    <td>New York</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+[code=html]
+&lt;table&gt;
+    &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Name&lt;/th&gt;
+            &lt;th&gt;Position&lt;/th&gt;
+            &lt;th&gt;Location&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;John Smith&lt;/td&gt;
+            &lt;td&gt;Software Engineer&lt;/td&gt;
+            &lt;td&gt;London&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Sarah Johnson&lt;/td&gt;
+            &lt;td&gt;UX Designer&lt;/td&gt;
+            &lt;td&gt;Berlin&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;Michael Brown&lt;/td&gt;
+            &lt;td&gt;Project Manager&lt;/td&gt;
+            &lt;td&gt;New York&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+[/code]
+
+<h2>Table Structure</h2>
+
+<p>A well-structured HTML table should include both <code>&lt;thead&gt;</code> and <code>&lt;tbody&gt;</code> sections. While these tags are technically optional, using them provides several benefits:</p>
+
+<h3>The &lt;thead&gt; Element</h3>
+<ul>
+    <li>Defines the header section of your table</li>
+    <li>Contains one or more rows (<code>&lt;tr&gt;</code>) of header cells (<code>&lt;th&gt;</code>)</li>
+    <li>Automatically styled with the primary theme color in Trongate CSS</li>
+    <li>Helps screen readers identify header information for accessibility</li>
+    <li>Makes it easier to style header cells differently from body cells</li>
+</ul>
+
+<h3>The &lt;tbody&gt; Element</h3>
+<ul>
+    <li>Contains the main content of your table</li>
+    <li>Groups table rows (<code>&lt;tr&gt;</code>) and data cells (<code>&lt;td&gt;</code>)</li>
+    <li>Enables features like scrollable tables with fixed headers</li>
+    <li>Helps maintain table structure when rows are dynamically added or removed</li>
+    <li>Improves readability of your HTML code</li>
+</ul>
+
+<h2>Default Features</h2>
+
+<p>Trongate CSS applies the following styles to tables automatically:</p>
+
+<ul>
+    <li>Full-width layout that adapts to container size</li>
+    <li>Consistent padding (0.7em) for all cells</li>
+    <li>Borders around all cells using the primary theme color</li>
+    <li>Alternating row colors for better readability</li>
+    <li>Hover effect on table rows</li>
+    <li>Themed header styling using the primary color</li>
+    <li>White text color for header cells for optimal contrast</li>
+</ul>
+
+<h2>Basic Table Example with Data</h2>
+<p>Here's a more comprehensive example showing a data-rich table with multiple columns:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>Wireless Mouse</td>
+                    <td>Electronics</td>
+                    <td>$29.99</td>
+                    <td>45</td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>USB-C Cable</td>
+                    <td>Accessories</td>
+                    <td>$12.99</td>
+                    <td>132</td>
+                </tr>
+                <tr>
+                    <td>003</td>
+                    <td>Bluetooth Speaker</td>
+                    <td>Electronics</td>
+                    <td>$79.99</td>
+                    <td>28</td>
+                </tr>
+                <tr>
+                    <td>004</td>
+                    <td>Laptop Stand</td>
+                    <td>Accessories</td>
+                    <td>$34.99</td>
+                    <td>56</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+[code=html]
+&lt;table&gt;
+    &lt;thead&gt;
+        &lt;tr&gt;
+            &lt;th&gt;Product ID&lt;/th&gt;
+            &lt;th&gt;Product Name&lt;/th&gt;
+            &lt;th&gt;Category&lt;/th&gt;
+            &lt;th&gt;Price&lt;/th&gt;
+            &lt;th&gt;Stock&lt;/th&gt;
+        &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;
+            &lt;td&gt;001&lt;/td&gt;
+            &lt;td&gt;Wireless Mouse&lt;/td&gt;
+            &lt;td&gt;Electronics&lt;/td&gt;
+            &lt;td&gt;$29.99&lt;/td&gt;
+            &lt;td&gt;45&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;!-- Additional rows... --&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>While tables are great for displaying tabular data, they should not be used for layout purposes. For layout, use CSS Grid or Flexbox instead.</p>
+</div>
+
+<div class="alert alert-success">
+<ul>
+    <li>Always use <code>&lt;th&gt;</code> elements for header cells instead of <code>&lt;td&gt;</code> with bold text.</li>
+    <li>Include both <code>&lt;thead&gt;</code> and <code>&lt;tbody&gt;</code> tags for better structure.</li>
+    <li>Keep tables as simple as possible - avoid nested tables.</li>
+    <li>Use appropriate column widths to prevent content from being squeezed.</li>
+    <li>Consider using a container class to control the table's maximum width.</li>
+</ul>
+</div>

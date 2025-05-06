@@ -1,0 +1,89 @@
+<h1>Processing Form Submissions</h1>
+
+<p>In Trongate, after form validation is complete, the next crucial step is processing the submitted data. This section covers the implementation patterns for handling validated form data.</p>
+
+<h2>The Data Processing Workflow</h2>
+
+<p>A typical form processing workflow in Trongate follows this pattern:</p>
+
+[code=php]public function submit(): void {
+   $this-&gt;module('trongate_security');
+   $this-&gt;trongate_security-&gt;_make_sure_allowed();
+
+   $submit = post('submit', true);
+   if ($submit === 'Submit') {
+       // Validation occurs here (covered in previous section)
+       if ($this-&gt;validation-&gt;run() === true) {
+           $this-&gt;process_valid_submission();
+       } else {
+           $this-&gt;create(); // Return to form with errors
+       }
+   }
+}[/code]
+
+<h2>Processing Valid Submissions</h2>
+
+<p>When handling validated form data, you'll typically need to:</p>
+<ol>
+   <li>Collect the submitted data</li>
+   <li>Determine the operation type (insert or update)</li>
+   <li>Perform the database operation</li>
+   <li>Provide user feedback</li>
+   <li>Direct the user to the next appropriate page</li>
+</ol>
+
+<p>Here's a real-world example that demonstrates this workflow:</p>
+
+[code=php]private function process_valid_submission(): void {
+   $update_id = segment(3, 'int');
+   $data = $this-&gt;get_data_from_post();
+   
+   if ($update_id &gt; 0) {
+       $this-&gt;model-&gt;update($update_id, $data, 'employees');
+       $flash_msg = 'Employee record successfully updated';
+   } else {
+       $update_id = $this-&gt;model-&gt;insert($data, 'employees');
+       $flash_msg = 'New employee record successfully created';
+   }
+
+   set_flashdata($flash_msg);
+   redirect('employees/show/' . $update_id);
+}[/code]
+
+<h3>Data Collection Strategies</h3>
+
+<p>The <code>get_data_from_post()</code> method is crucial for organizing form data. Here's an example that includes data transformation:</p>
+
+[code=php]private function get_data_from_post(): array {
+   // Basic field collection
+   $data['first_name'] = post('first_name', true);
+   $data['last_name'] = post('last_name', true);
+   
+   // Transform checkbox value to boolean
+   $data['is_active'] = (post('is_active', true) === '1') ? 1 : 0;
+   
+   // Format date for database
+   $hire_date = post('hire_date', true);
+   $data['hire_date'] = date('Y-m-d', strtotime($hire_date));
+   
+   return $data;
+}[/code]
+
+<div class="alert alert-info">
+   <p>When performing form validation, the framework ensures that the data being validated matches the data that will be processed. This is achieved through the integration of the <code>post()</code> function in the validation process.</p>
+   
+   <p>For example, when the following validation rule is declared:</p>
+   [code=php]$this-&gt;validation-&gt;set_rules('username', 'Username', 'required');[/code]
+   
+   <p>The validation system will internally evaluate:</p>
+   [code=php]$value = post('username', true);[/code]
+   
+   <p>The <code>post()</code> function, when called with a second argument of <code>true</code>, performs two cleaning operations:</p>
+   <ul>
+       <li>Removes whitespace from the beginning and end of strings</li>
+       <li>Normalizes internal spacing (multiple spaces become single spaces)</li>
+   </ul>
+   
+   <p>Therefore, to maintain consistency between validation and data processing, values should be retrieved <i>after</i> validation using <code>post($str, true)</code>. In situations where this cleaning behavior is not acceptable, it's advisable to consider using custom validation.</p>
+</div>
+

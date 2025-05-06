@@ -1,0 +1,108 @@
+<h1>Custom Routing - Practical Examples</h1>
+<p>
+    There may be situations when you'd like to create custom page URLs. For example, let's assume that you own an online shop that sells laptops. A typical URL for a product page might look something like this:
+</p>
+
+[code]https://www.yoursite.com/store_items/display/88[/code]
+
+<p>Wouldn't it be nice if you could change these types of URLs so that they are:</p>
+<ul>
+    <li>More search engine friendly</li>
+    <li>Easier for visitors to remember</li>
+</ul>
+
+<p>
+    Custom routing makes this and more possible. Let's go through a few different scenarios and explore how we could use custom routing to create attractive page URLs.
+</p>
+
+<hr>
+
+<h2>Scenario 1: 'News to Blog'</h2>
+
+<p>
+    <strong>Challenge:</strong> You'd like to use a 'news' module from a previous project (we'll call it 'website A') to create a new blog for a second website ('website B').
+    However, you don't want the new blog module to contain URLs that start with 'news/'. Instead, you'd like the URLs to start with 'my-blog/'.
+</p>
+<p><strong>More Info:</strong> Let's assume that the homepage for the 'news' module is:</p>
+
+[code]http://yoursite.com/news[/code]
+
+<p>
+    Typing the URL shown above into the address bar would load the index method for the 'news' module. Your goal might be to load the news module by going to:
+</p>
+
+[code]http://yoursite.com/my-blog[/code]
+
+<p><strong>How It's Done:</strong></p>
+<ul>
+    <li>In your text editor, open the file '<b>custom_routing.php</b>'. It's inside the '<b>config</b>' directory.</li>
+    <li>
+        Inside the custom_routing.php file, add a new key-value pair to the <code>$routes</code> array where 'my-blog' is assigned to 'news'. For example:
+    </li>
+</ul>
+[code=php]&lt;?php
+  $routes = [
+  'my-blog' => 'news',
+  'tg-admin' => 'trongate_administrators/login',
+  'tg-admin/submit_login' => 'trongate_administrators/submit_login'
+];
+
+define('CUSTOM_ROUTES', $routes);[/code]
+
+<hr>
+
+<h2>Scenario 2: 'Dealing With Numeric Wildcards'</h2>
+<p><strong>Challenge:</strong> You have an online shop that sells laptops. All of the product pages in your online shop have a first segment of 'store_items/'. For example:</p>
+
+[code]http://yoursite.com/store_items/display/88[/code]
+
+<p>
+    You'd like to change the URLs so that instead of the first segment saying 'store_items', the product pages should all have a first segment of 'laptops'. For example:
+</p>
+
+[code]http://yoursite.com/laptops/display/88[/code]
+
+<p><strong>How It's Done:</strong></p>
+<p>In custom_routing add the following key-value pair to the $routes array:</p>
+
+[code=php]'laptops/display/(:num)' => 'store_items/display/$1',[/code]
+
+<hr>
+
+<h2>Scenario 3: 'Super SEO-friendly URLs'</h2>
+<p>
+    <strong>Challenge:</strong> Sticking with our online shop example, let's imagine that you'd like to have product pages where all of the URLs are super search engine friendly. So, instead of having a URL like:
+</p>
+
+[code]http://yoursite.com/laptops/display/88[/code]
+
+<p>Perhaps you would prefer to have a URL like this:</p>
+
+[code]http://yoursite.com/laptops/information/macbook[/code]
+
+<p>
+    This kind of URL could rightfully be considered to be <b>super search engine friendly</b>. Having an online shop with those kinds of URLs could be extremely valuable for anyone who had an interest in achieving a high search engine ranking.
+</p>
+<p><strong>How It's Done:</strong></p>
+<p>
+    The first step to creating a super search engine friendly URL, as described above, would involve giving all of our products a unique 'slug'. In the Trongate Desktop App, this gets called a 'URL column'.
+</p>
+
+<div class="text-center mt-3">
+    <figure>
+        <img src="images/choose_ufaFH.gif" alt="The Trongate Desktop App" style="width:100%">
+        <figcaption>Choosing a URL column</figcaption>
+    </figure>
+</div>
+
+
+<p>
+    Having created a unique slug (URL column value) for each product, we would then add the following key-value pair to the $routes array, inside '<b>custom_routing.php</b>':
+</p>
+
+[code=php]'laptops/information/(:any)' => 'store_items/display/$1',[/code]
+
+<p>
+    If you can follow the steps above then congratulations! You now know how to build pages that are super search engine friendly and that load approximately twenty times faster than Laravel.
+    Best of all, your clients will think you're a genius after they've made it to the top of Google and recommended you to all of their friends!
+</p>

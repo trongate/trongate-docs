@@ -1,0 +1,98 @@
+<div class="container">
+  <h1>out()</h1>
+  <p class="signature">function out(?string $input, string $encoding = 'UTF-8', string $output_format = 'html'): string</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Safely escapes and formats a string for various output contexts, providing protection against cross-site scripting (XSS) attacks and ensuring proper encoding for different output formats.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$input</td>
+        <td>string|null</td>
+        <td>The string to be escaped. If null, it will be treated as an empty string.</td>
+      </tr>
+      <tr>
+        <td>$encoding</td>
+        <td>string</td>
+        <td>(optional) The character encoding to use for escaping. Default is 'UTF-8'.</td>
+      </tr>
+      <tr>
+        <td>$output_format</td>
+        <td>string</td>
+        <td>(optional) The desired output format. Possible values are 'html' (default), 'xml', 'json', 'javascript', or 'attribute'.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The escaped and formatted string ready for safe inclusion in the specified context.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1: Basic HTML Output</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>out</code> function for HTML output. This is particularly useful when displaying user-generated content on a webpage, such as comments or forum posts, where you need to prevent potential XSS attacks.</p>
+  <pre><code>$input = '&lt;script&gt;alert("XSS Attack")&lt;/script&gt;';
+echo out($input); 
+
+// Output:  &amp;lt;script&amp;gt;alert("XSS Attack")&amp;lt;/script&amp;gt;</code></pre>
+
+  <h2>Example #2: XML Output</h2>
+  <p>This example shows how to use the <code>out</code> function for XML output. This is useful when generating XML data, such as when creating RSS feeds or SOAP responses, where proper XML escaping is crucial for maintaining valid XML structure.</p>
+  <pre><code>$input = '&lt;title&gt;Example &amp; "Sample"&lt;/title&gt;';
+echo out($input, 'UTF-8', 'xml'); 
+
+// Output:  &amp;lt;title&amp;gt;Example &amp;amp; "Sample"&amp;lt;/title&amp;gt;</code></pre>
+
+  <h2>Example #3: JSON Output</h2>
+  <p>This example demonstrates using the <code>out</code> function for JSON output. This is particularly relevant when working with APIs or AJAX requests where you need to ensure that the JSON data is properly escaped and formatted for JavaScript consumption.</p>
+  <pre><code>$input = '"Special" characters: &lt;&gt;&amp;';
+echo out($input, 'UTF-8', 'json'); 
+
+// Output:  \"Special\" characters: &lt;&gt;&amp;</code></pre>
+
+  <h2>Example #4: JavaScript Output</h2>
+  <p>This example shows how to use the <code>out</code> function for JavaScript output. This is useful when you need to embed PHP variables directly into JavaScript code, ensuring that the output is properly escaped for use in a script context.</p>
+  <pre><code>$input = 'John Doe';
+echo '&lt;script&gt;let name = "' . out($input, 'UTF-8', 'javascript') . '";&lt;/script&gt;';
+
+// Output:  &amp;lt;script&amp;gt;let name = "John Doe";&amp;lt;/script&amp;gt;</code></pre>
+
+  <h2>Example #5: HTML Attribute Output</h2>
+  <p>This example demonstrates using the <code>out</code> function for HTML attribute output. This is crucial when dynamically generating HTML attributes, such as when creating data attributes or setting element styles based on user input or database values.</p>
+  <pre><code>$input = 'Click "here"';
+echo '&lt;a href="#" title="' . out($input, 'UTF-8', 'attribute') . '"&gt;Link&lt;/a&gt;';
+
+// Output:  &amp;lt;a href="#" title="Click &amp;quot;here&amp;quot;"&amp;gt;Link&amp;lt;/a&amp;gt;</code></pre>
+
+  <h2>Notes</h2>
+  <ul>
+    <li>The function automatically handles null input by treating it as an empty string.</li>
+    <li>For 'html' and 'attribute' output formats, both single and double quotes are escaped.</li>
+    <li>The 'xml' output format uses the ENT_XML1 flag for XML-specific escaping.</li>
+    <li>The 'json' and 'javascript' output formats use json_encode() with additional flags to ensure proper escaping of special characters.</li>
+    <li>An Exception will be thrown if an unsupported output format is provided.</li>
+    <li>This function is crucial for preventing XSS attacks and should be used whenever outputting user-supplied data.</li>
+  </ul>
+</div>

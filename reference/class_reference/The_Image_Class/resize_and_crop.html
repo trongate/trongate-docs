@@ -1,0 +1,126 @@
+<div class="container">
+  <h1>resize_and_crop()</h1>
+  <p class="signature">function resize_and_crop(int $width, int $height): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Adjusts the image to precisely match specified dimensions by resizing to maintain the aspect ratio and then cropping the excess. This method ensures that the final image fits the exact dimensions provided, even if that involves cropping parts of the image.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>If the target aspect ratio matches the original image's aspect ratio, the image is simply resized to the specified dimensions.</li>
+      <li>If the target aspect ratio differs, the image is first resized to the dimension that requires less adjustment (width or height) and then cropped to achieve the desired dimensions.</li>
+    </ul>
+    <p><strong>Common Use Cases:</strong></p>
+    <ul>
+      <li>Creating thumbnails with consistent dimensions.</li>
+      <li>Ensuring images fit specific UI components (e.g., profile pictures, banners).</li>
+      <li>Preparing images for responsive designs where exact dimensions are required.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure an image is loaded before calling this method. If no image is loaded or if the dimensions are invalid, an exception is thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$width</td>
+        <td>int</td>
+        <td>The desired width of the final image. Must be a positive integer.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$height</td>
+        <td>int</td>
+        <td>The desired height of the final image. Must be a positive integer.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>No image is loaded.</li>
+      <li>The provided width or height are non-positive values.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value but modifies the image in-place to the specified dimensions.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Resizing and cropping an image to 200x200 pixels
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Resize and crop it to 200x200 pixels
+    $this->image->resize_and_crop(200, 200);
+    
+    // Save the modified image
+    $this->image->save('path/to/output.jpg');
+    
+    echo "Image resized and cropped successfully.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Resizing and cropping a landscape image to fit a square aspect ratio
+try {
+    $this->image->load('path/to/landscape.jpg');
+    
+    // Resize and crop to 300x300 pixels
+    $this->image->resize_and_crop(300, 300);
+    
+    // Save the modified image
+    $this->image->save('path/to/output_square.jpg');
+    
+    echo "Landscape image resized and cropped to square successfully.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Resizing and cropping a portrait image to fit a banner aspect ratio
+try {
+    $this->image->load('path/to/portrait.jpg');
+    
+    // Resize and crop to 800x200 pixels (banner dimensions)
+    $this->image->resize_and_crop(800, 200);
+    
+    // Save the modified image
+    $this->image->save('path/to/output_banner.jpg');
+    
+    echo "Portrait image resized and cropped to banner dimensions successfully.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Dimensions:</strong> Ensure the provided width and height are positive integers to avoid exceptions.</li>
+      <li><strong>Check Aspect Ratios:</strong> Be mindful of the original image's aspect ratio to avoid excessive cropping.</li>
+      <li><strong>Use for Thumbnails:</strong> This method is ideal for creating thumbnails or images with consistent dimensions.</li>
+      <li><strong>Free Memory After Use:</strong> If you no longer need the image after resizing and cropping, call <code>destroy()</code> to free up memory, especially in batch processing or long-running scripts.</li>
+    </ul>
+  </div>
+</div>

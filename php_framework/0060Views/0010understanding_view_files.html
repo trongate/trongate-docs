@@ -1,0 +1,17 @@
+<h1>Understanding View Files</h1>
+<p>View files in Trongate are designated for <em>presentation code</em>, primarily HTML. These files may also include other types of code, such as JavaScript and CSS. Typically, each module within a Trongate application contains a directory named 'views' to store these files.</p>
+<div class="text-center">
+    <figure>
+        <img src="images/37/trongatefMj9.png" alt="The directory structure within a typical Trongate module." style="width:100%">
+        <figcaption>The directory structure within a typical Trongate module.</figcaption>
+    </figure>
+</div>
+<p>The 'views' directory, positioned at the same hierarchical level as the 'Controllers' directory within a module, is optional and depends on the module's purpose. For example, a module designed for data processing tasks, such as handling API requests or performing background data synchronization, typically does not require a 'views' directory since it operates without user interface elements.</p>
+<h2>Functionality of View Files</h2>
+<p>Within the Trongate Framework, view files are PHP files that contain primarily presentation code, most notably HTML. These files are typically invoked from controller files and are recommended to avoid complex PHP logic, adhering to the MVC best practices. This separation ensures that business logic remains within controllers, thereby keeping view files clean and focused solely on the user interface, enhancing maintainability and clarity.</p>
+<p>View files are loaded through controller methods using Trongate's built-in <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method. For example:</p>
+[code=php]$this->view('welcome');[/code]
+<p>This command is typically placed within a method of a controller class. When executed, it instructs Trongate to render (in this instance) the <strong>welcome.php</strong> view file located in the module's 'views' directory, thereby displaying the HTML and any associated presentation content.</p>
+<div class="alert alert-info">
+    <p><strong>Note:</strong> Trongate leverages pure PHP for its views instead of adopting separate templating engines like Blade or Twig. This decision aligns with the original purpose of PHP, initially developed by Rasmus Lerdorf as a templating tool for dynamic content management. Today, while PHP has evolved into a comprehensive programming language, Trongate capitalizes on its templating capabilities to enhance performance and reduce the learning curve. This approach not only streamlines development by removing additional abstraction layers but also optimizes execution efficiency, maintaining a focus on robustness and developer productivity.</p>
+</div>

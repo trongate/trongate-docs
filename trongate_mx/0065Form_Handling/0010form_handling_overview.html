@@ -1,0 +1,64 @@
+<h1>Form Handling Overview</h1>
+
+<p>Building modern web applications requires forms that are both powerful and user-friendly. Trongate MX transforms traditional form handling into a seamless experience, eliminating page reloads while maintaining the robust security you expect from the Trongate PHP framework.</p>
+
+<h2>Understanding the Evolution</h2>
+
+<p>Traditional form handling follows a predictable pattern: users fill out forms, submit data through POST requests, and servers respond with either validation errors or success redirects. While reliable, this approach often creates a jarring experience as pages reload and users wait for responses.</p>
+
+<p>Trongate MX retains this trusted foundation while adding powerful dynamic capabilities:</p>
+
+<ul>
+    <li>Forms submit asynchronously, eliminating disruptive page reloads.</li>
+    <li>Real-time validation provides instant feedback to users.</li>
+    <li>Success and error states display smoothly with built-in animations.</li>
+    <li>Forms can update, hide, or transform based on user interactions.</li>
+</ul>
+
+<h2>The Power of MX Attributes</h2>
+
+<p>At the heart of Trongate MX's form handling are special <code>mx-</code> attributes. These declarative HTML attributes unlock dynamic functionality without requiring JavaScript knowledge. For example:</p>
+
+[code=vf]&lt;?php
+$form_attr = [
+  'mx-post' => 'users/create',
+  'mx-target' => '#response'
+];
+echo form_open('#', $form_attr);
+// Form fields go here.
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p>This simple markup creates a form that:</p>
+
+<ul>
+    <li>Submits data asynchronously to the 'users/create' endpoint.</li>
+    <li>Updates a specific page element when the submission completes.</li>
+</ul>
+
+<div class="alert alert-info">
+<p>The view file code (displayed above) renders the following HTML:</p>
+[code=html]
+&lt;form mx-post="users/create" mx-target="#response" action="#" method="post"&gt;
+  &lt;button type="submit" name="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p>The <code>mx-post</code> attribute ensures the form's behaviour is both dynamic and intuitive.</p>
+</div>
+
+<h2>About Form Opening Tags</h2>
+<p>In Trongate MX, if <code>mx-post</code> is used alongside <code>action</code> and <code>method</code> properties (within a form opening tag), the <code>mx-post</code> attribute takes precedence.</p>
+<p>To learn more about the <code>mx-post</code> attribute, <a href="documentation/display/trongate_mx/core-http-operations/http-methods-in-trongate-mx">click here</a>.</p>
+
+<h2>An Enhancement, Not a Replacement</h2>
+
+<p>Trongate MX enhances rather than replaces traditional form handling. All security features from the Trongate PHP framework remain fully functional. All of Trongate's helper functions continue to work, the validation class operates seamlessly, server-side validation remains robust, CSRF protection is automatic, and you can freely mix traditional and enhanced form handling approaches within the same application.</p>
+
+<p>In the following sections, we'll explore how to implement these features in your own applications, starting with the basics of form construction and moving on to advanced interaction patterns.</p>

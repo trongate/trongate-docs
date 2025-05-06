@@ -1,0 +1,105 @@
+<h1>Form Validation and Error Handling</h1>
+
+<p>Displaying form validation errors with Trongate MX is an easy two-step process.</p>
+
+<h3>Step 1</h3>
+<ul>
+  <li>Add a class of <code>highlight-errors</code> to your opening form tag.</li>
+</ul>
+
+<h3>Step 2</h3>
+<ul>
+  <li>Modify your endpoint so that it invokes <code>echo validation_errors(xxx);</code> when validation errors occur.</li>
+</ul>
+
+<p class="sm"><b>NOTE:</b> When invoking <span class="feature-ref" ref-path="helpers/Form_Helpers">validation_errors()</span>, replace <code>xxx</code> with an appropriate error status code, such as <b>400</b>.</p>
+<hr>
+<h2>Understanding Different Types of Form Responses</h2>
+
+<p>Trongate MX handles form submissions differently based on the HTTP status code returned by the server:</p>
+
+<h3>Form Validation Errors (400, 422, etc.)</h3>
+<p>When validation errors occur and the form has the <code>highlight-errors</code> class, Trongate MX will:</p>
+<ul>
+    <li>Parse the JSON response containing validation errors</li>
+    <li>Display these errors inline next to the relevant form fields</li>
+    <li>Handle the response according to normal validation error protocols</li>
+</ul>
+
+<h3>Security-Related Responses (401, 402, 403)</h3>
+<p>For security-related status codes (unauthorized, payment required, or forbidden), Trongate MX will:</p>
+<ul>
+    <li>Skip the validation error handling process</li>
+    <li>Allow other error handling attributes like <code>mx-redirect-on-error</code> or <code>mx-on-error</code> to take effect</li>
+</ul>
+
+<p>This means you can handle authentication failures, session timeouts, or CSRF protection failures using standard Trongate MX attributes. For example:</p>
+
+[code=html]
+&lt;form class="highlight-errors" 
+      mx-post="users/update_profile"
+      mx-redirect-on-error="true"&gt;
+    &lt;!-- form fields here --&gt;
+&lt;/form&gt;
+[/code]
+
+<p>If the server returns a 401 status code (e.g., due to an expired session), Trongate MX will process the redirect instead of trying to display validation errors. Similarly, you could use <code>mx-on-error</code> to display a custom "Session Expired" message.</p>
+
+<h2>Video Tutorial</h2>
+<p>Below is a short video tutorial demonstrating how to add form validation errors when working with Trongate MX.</p>
+[youtube]Lb_gjo5tlnk[/youtube]
+
+<h2>Tutorial Resources</h2>
+<p>The starter code for the video tutorial is available on GitHub. Click the button below to access the repository and download the starter code.</p>
+<p><a href="https://github.com/trongate/trongate_mx_validation_tutorial" class="button" target="_blank">Get Starter Code</a></p>
+
+<h2>Prerequisites</h2>
+<p>To use Trongate's built-in form validation features with Trongate MX, ensure your webpage includes the following:</p>
+<ol>
+  <li>A <code>base</code> element inside the <code>&lt;head&gt;</code> section with its value set to your website's base URL.</li>
+  <li>A <code>link</code> element inside the <code>&lt;head&gt;</code> section that loads <code>trongate.css</code>.</li>
+  <li>Opening and closing <code>script</code> tags with the <code>src</code> attribute pointing to <code>js/trongate-mx.js</code>. *</li>
+</ol>
+
+<div class="alert alert-info">
+  <p>
+    * The <code>script</code> tag for loading Trongate MX can be placed <b>either</b> in the <code>&lt;head&gt;</code> section or just before the closing <code>&lt;/body&gt;</code> tag.
+  </p>
+</div>
+
+<p>Here's an example of a basic HTML template ready to work with Trongate MX:</p>
+[code=html]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;link rel="stylesheet" href="css/trongate.css"&gt;
+  &lt;script src="js/trongate-mx.js"&gt;&lt;/script&gt;
+  &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Ready To Rock!&lt;/h1&gt;
+  &lt;p&gt;This page is locked, loaded and ready to work with Trongate MX.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<div class="alert alert-warning">
+    <p>When using Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> for form validation, ensure your forms are closed with:</p> 
+    [code=vf]echo form_close();[/code]
+    <p>This is essential because Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> automatically applies CSRF protection to all incoming requests. Using <span class="feature-ref" ref-path="helpers/Form_Helpers">form_close()</span> <i>not only</i> generates a closing form tag but also creates the necessary security token required for Trongate's CSRF protection mechanisms.</p>
+    <p>Failing to use <span class="feature-ref" ref-path="helpers/Form_Helpers">form_close()</span> will result in rejected requests due to Trongate's stringent security protocols.</p>
+</div>
+
+<h2>Summary</h2>
+
+<p>The ability to dynamically render inline form validation errors with just two lines of code is arguably one of Trongate MX's most impressive features.</p>
+<p>Ask yourself:</p>
+<p><b>"How long would it take to build this kind of functionality <i>without</i> Trongate MX?"</b></p>
+<p>Even for an experienced developer, building such functionality would almost certainly take several hours or would require depending upon third-party libraries.</p>
+<p>What truly sets Trongate MX apart is that it allows you to leverage Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a>, security features, and form helpers - all out of the box. <i>Not only</i> can you build beautiful, highly interactive single-page applications without writing JavaScript, but you can also do so <i>without</i> relying on any third-party libraries!</p>
+
+<h2>And there's more!</h2>
+<p>With Trongate MX, it's also possible to invoke your own custom JavaScript functions after validation errors have occurred.  Full details on how to take advantage of this functionality are covered on the next page.</p>

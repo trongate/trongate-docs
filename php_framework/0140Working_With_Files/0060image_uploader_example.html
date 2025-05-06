@@ -1,0 +1,160 @@
+<h1>Image Uploader Example</h1>
+
+<p>Let's walk through building an image uploader using Trongate's <span class="feature-ref">upload_picture()</span> method. This example will demonstrate creating a secure image uploader that includes automatic image processing capabilities.</p>
+
+<div class="alert alert-info">
+    <p>The following example pertains to a hypothetical custom module named as 'products'.</p>
+</div>
+
+<h2>Step 1: Create the Upload Form</h2>
+<p>Create a view file in your module's views directory:</p>
+
+[code=vf]
+&lt;h1&gt;Upload Product Picture&lt;/h1&gt;
+&lt;?= flashdata() ?&gt;
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Upload Picture
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;?php
+        echo validation_errors();
+        echo form_open_upload('products/submit_upload_picture/'.$update_id);
+        echo form_label('Select Picture:', 'picture');
+        echo form_file_select('picture', ['accept' =&gt; '.jpg, .jpeg, .png, .gif']);
+        echo form_submit('submit', 'Upload Picture');
+        echo form_close();
+        ?&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Step 2: Initialize Picture Settings</h2>
+<p>Create a method in your controller to define image settings:</p>
+
+[code=php]
+private function _init_picture_settings() { 
+    $picture_settings['max_file_size'] = 2000;
+    $picture_settings['max_width'] = 1200;
+    $picture_settings['max_height'] = 1200;
+    $picture_settings['resized_max_width'] = 450;
+    $picture_settings['resized_max_height'] = 450;
+    $picture_settings['destination'] = 'products_pics';
+    $picture_settings['target_column_name'] = 'picture';
+    $picture_settings['thumbnail_dir'] = 'products_pics_thumbnails';
+    $picture_settings['thumbnail_max_width'] = 120;
+    $picture_settings['thumbnail_max_height'] = 120;
+    $picture_settings['upload_to_module'] = true;
+    $picture_settings['make_rand_name'] = false;
+    return $picture_settings;
+}
+[/code]
+
+<h2>Step 3: Create the Upload Handler</h2>
+<p>Add the upload handler method to your controller:</p>
+
+[code=php]
+function submit_upload_picture($update_id) {
+    $this-&gt;module('trongate_security');
+    $this-&gt;trongate_security-&gt;_make_sure_allowed();
+
+    if ($_FILES['picture']['name'] == '') {
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+
+    $picture_settings = $this-&gt;_init_picture_settings();
+    extract($picture_settings);
+
+    $validation_str = 'allowed_types[gif,jpg,jpeg,png]|max_size['.$max_file_size.']|max_width['.$max_width.']|max_height['.$max_height.']';
+    $this-&gt;validation-&gt;set_rules('picture', 'item picture', $validation_str);
+
+    $result = $this-&gt;validation-&gt;run();
+
+    if ($result == true) {
+        $config['destination'] = $destination.'/'.$update_id;
+        $config['max_width'] = $resized_max_width;
+        $config['max_height'] = $resized_max_height;
+
+        if ($thumbnail_dir !== '') {
+            $config['thumbnail_dir'] = $thumbnail_dir.'/'.$update_id;
+            $config['thumbnail_max_width'] = $thumbnail_max_width;
+            $config['thumbnail_max_height'] = $thumbnail_max_height;
+        }
+
+        $config['upload_to_module'] = (!isset($picture_settings['upload_to_module']) ? false : $picture_settings['upload_to_module']);
+        $config['make_rand_name'] = $picture_settings['make_rand_name'] ?? false;
+
+        $file_info = $this-&gt;upload_picture($config);
+
+        //update the database with the name of the uploaded file
+        $data[$target_column_name] = $file_info['file_name'];
+        $this-&gt;model-&gt;update($update_id, $data);
+
+        $flash_msg = 'The picture was successfully uploaded';
+        set_flashdata($flash_msg);
+        redirect($_SERVER['HTTP_REFERER']);
+
+    } else {
+        redirect($_SERVER['HTTP_REFERER']);
+    }
+}
+[/code]
+
+<h2>Directory Structure</h2>
+<p>Your module structure should look like this:</p>
+
+[code]
+modules/
+    products/
+        assets/
+            products_pics/         &lt;-- Main images go here
+                1/                 &lt;-- Folders named by record ID
+                2/
+            products_pics_thumbnails/  &lt;-- Thumbnails go here
+                1/                 &lt;-- Matching record ID folders
+                2/
+        controllers/
+            Products.php
+        views/
+            picture_upload_form.php
+[/code]
+
+<h2>Understanding Picture Settings</h2>
+<table class="table">
+    <tbody><tr>
+        <th>Setting</th>
+        <th>Description</th>
+        <th>Default</th>
+    </tr>
+    <tr>
+        <td><code>destination</code></td>
+        <td>Directory where pictures will be uploaded</td>
+        <td>Required</td>
+    </tr>
+    <tr>
+        <td><code>upload_to_module</code></td>
+        <td>If true, pictures are uploaded to the module's assets directory</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td><code>make_rand_name</code></td>
+        <td>If true, generates a random filename for uploaded pictures</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td><code>target_column_name</code></td>
+        <td>The database column that stores the filename</td>
+        <td>Required</td>
+    </tr>
+</tbody></table>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Always validate file types to prevent unauthorized file uploads</li>
+        <li>Set appropriate file size limits to prevent server overload</li>
+        <li>Organize images in subdirectories by record ID</li>
+        <li>Store only the filename in the database, not the full path</li>
+    </ul>
+</div>
+
+<p>In the next section, we'll take a closer look at how file validation, including image validation, is handled with Trongate.</p>

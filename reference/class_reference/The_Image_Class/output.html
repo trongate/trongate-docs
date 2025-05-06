@@ -1,0 +1,112 @@
+<div class="container">
+  <h1>output()</h1>
+  <p class="signature">function output(bool $return = false): ?string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Outputs or returns the image content directly depending on the <code>$return</code> parameter. This method is versatile and can be used to either:</p>
+    <ul>
+      <li><strong>Output the image directly to the browser:</strong> When <code>$return</code> is <code>false</code> (default), the image is sent to the browser as binary data. This is useful for dynamically serving images in web applications.</li>
+      <li><strong>Return the image as a string:</strong> When <code>$return</code> is <code>true</code>, the image data is captured as a string using output buffering. This is useful for embedding images in APIs, storing them in databases, or further processing.</li>
+    </ul>
+    <p>The method supports various image formats (JPEG, GIF, PNG, WebP) based on the internal image type set within the class.</p>
+    <p><strong>Note:</strong> Ensure an image is loaded before calling this method. If no image is loaded, the behavior is undefined.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$return</td>
+        <td>bool</td>
+        <td>Determines whether to return the image content as a string (<code>true</code>) or output it directly to the browser (<code>false</code>).</td>
+        <td>false</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>This method does not throw any exceptions directly. However, it relies on the internal state of the class and the GD library functions (e.g., <code>imagejpeg()</code>, <code>imagepng()</code>) to handle image output. If no image is loaded or if the image type is unsupported, the behavior is undefined.</p>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>?string</td>
+        <td>Returns the image data as a string if <code>$return</code> is <code>true</code>. Otherwise, outputs the image directly to the browser and returns <code>null</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Output the image directly to the browser
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Set the appropriate Content-Type header
+    header("Content-Type: " . $this->image->get_header());
+    
+    // Output the image directly to the browser
+    $this->image->output();
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Capture the image data as a string
+try {
+    $this->image->load('path/to/image.png');
+    
+    // Capture the image data as a string
+    $image_data = $this->image->output(true);
+    
+    if ($image_data !== null) {
+        // Use the image data (e.g., embed in an API response)
+        echo json_encode([
+            'status' => 'success',
+            'image' => base64_encode($image_data) // Base64-encoded image
+        ]);
+    }
+} catch (Exception $e) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ]);
+}</pre>
+    <pre>
+// Example 3: Output a WebP image directly to the browser
+try {
+    $this->image->load('path/to/image.webp');
+    
+    // Set the appropriate Content-Type header
+    header("Content-Type: image/webp");
+    
+    // Output the image directly to the browser
+    $this->image->output();
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Set Appropriate Headers:</strong> When outputting images directly to the browser, always set the appropriate <code>Content-Type</code> header using <code>get_header()</code> to ensure the browser interprets the image correctly.</li>
+      <li><strong>Use Base64 Encoding for APIs:</strong> When embedding images in API responses, consider encoding the image data as a base64 string for compatibility with JSON or other text-based formats.</li>
+      <li><strong>Ensure an Image Is Loaded:</strong> Always load an image before calling <code>output()</code> to avoid undefined behavior.</li>
+      <li><strong>Free Memory After Use:</strong> If you no longer need the image after calling <code>output()</code>, call <code>destroy()</code> to free up memory, especially in batch processing or long-running scripts.</li>
+    </ul>
+  </div>
+</div>

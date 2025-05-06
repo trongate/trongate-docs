@@ -1,0 +1,73 @@
+<h1>Understanding Parent and Child Modules</h1>
+<p>The Trongate framework introduces the concept of Parent and Child Modules, a powerful feature that allows for modular and hierarchical organization of application components. This architecture enables developers to create complex, nested module structures, enhancing code reusability and maintaining a clean, organized codebase.</p>
+<h2>Key Concepts</h2>
+<ul>
+    <li><strong>Parent Module:</strong> A module that contains one or more child modules.</li>
+    <li><strong>Child Module:</strong> A module that is nested within a parent module.</li>
+</ul>
+<p>This hierarchical structure allows for the creation of self-contained, feature-rich components that can be easily integrated into Trongate applications.</p>
+<!-- Section 2: Structuring Parent and Child Modules -->
+<section id="structure">
+    <h2>Structuring Parent and Child Modules</h2>
+    <p>When working with parent and child modules in Trongate, it's essential to understand the proper directory structure and naming conventions.</p>
+    <h3>Directory Structure</h3>
+[code]modules/
+├── parent_module/
+│   ├── controllers/
+│   ├── assets/
+│   ├── views/
+│   └── child_module/
+│       ├── controllers/
+│       ├── assets/
+│       └── views/
+[/code]
+    <p>In this structure, the child module is a subdirectory within its parent module, maintaining its own <?= anchor('basic-concepts/truly-modular-architecture.html', 'truly modular') ?> structure.</p>
+    <h3>Naming Conventions</h3>
+    <p>When referencing child modules, use the format: <code>parent_module-child_module</code>. This convention is crucial for proper routing and module loading.</p>
+</section>
+<section id="accessing">
+    <h1>Accessing Child Modules</h1>
+    <p>Trongate provides multiple ways to access and utilize child modules within your application.</p>
+    <h2>URL Routing</h2>
+    <p>To access a child module via URL, use the following format:</p>
+    [code=php]http://your-domain.com/parent_module-child_module/method[/code]
+    <h3 class="mt-1">Example #1</h3>
+    <p>The code sample below demonstrates how to access the 'display' method of an 'accessories' child module within a 'cars' parent module:</p>
+    [code=php]http://your-domain.com/cars-accessories/display[/code]
+    <hr>
+    <h2>Creating Links</h2>
+    <h3 class="mt-1">Example #2</h3>
+    <p>The code sample below demonstrates how to use the Trongate <span class="feature-ref" ref-path="helpers/URL_Helpers">anchor()</span> function to create links to child module methods:</p>
+    [code=php]&lt;?= anchor('cars-accessories/display', 'View Accessories') ?&gt;[/code]
+    <hr>
+    <h2>Loading Child Modules Programmatically</h2>
+    <p>To load a child module within a controller or another module:</p>
+[code=php]$this->module('parent_module-child_module');
+$this->child_module->method();
+[/code]
+    <h3>Example #3</h3>
+    <p>This example demonstrates how to load and use a child module named 'product_reviews' within a parent module 'shop'. We'll load the child module and then call its 'get_latest_reviews' method:</p>
+[code=php]&lt;?php
+class Shop extends Trongate {
+
+  function display_product($product_id) {
+    
+    // Load the product_reviews child module
+    $this->module('shop-product_reviews');
+
+    // Get the latest reviews for this product
+    $latest_reviews = $this->product_reviews->get_latest_reviews($product_id, 5);
+
+    // Prepare data for the view
+    $data['product_id'] = $product_id;
+    $data['latest_reviews'] = $latest_reviews;
+    $data['view_module'] = 'shop';
+    $data['view_file'] = 'display_product';
+
+    // Load the template, passing in the $data array
+    $this->template('public', $data);
+  }
+
+}
+[/code]
+    <p>In this example, we first load the 'product_reviews' child module using <code>$this->module('shop-product_reviews')</code>. After loading, we can access the child module's methods using <code>$this->product_reviews->method_name()</code>. Here, we're calling the <code>get_latest_reviews()</code> method to fetch the five most recent reviews for a specific product.</p>

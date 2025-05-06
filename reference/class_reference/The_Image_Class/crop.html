@@ -1,0 +1,118 @@
+<div class="container">
+  <h1>crop()</h1>
+  <p class="signature">function crop(int $width, int $height, string $trim = 'center'): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Adjusts the image to the specified width and height by cropping it according to the provided <code>$trim</code> parameter. 
+    This method allows precise control over the section of the image to retain, either centering or aligning the crop to one side, 
+    based on the focus area specified. If the desired dimensions exceed the original image dimensions, no cropping occurs.</p>
+    <p>The <code>$trim</code> parameter determines the focus area of the crop:</p>
+    <ul>
+      <li><strong>'center'</strong>: Crops the image from the center (default behavior).</li>
+      <li><strong>'right'</strong>: Crops the image from the right side.</li>
+      <li><strong>'left'</strong>: No offset is applied, and the crop starts from the left side.</li>
+      <li><strong>Other values</strong>: Default to <code>'center'</code> behavior.</li>
+    </ul>
+    <p>This method is ideal for creating uniform image dimensions without distorting the content.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$width</td>
+        <td>int</td>
+        <td>The desired width of the cropped image. Must be a positive integer.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$height</td>
+        <td>int</td>
+        <td>The desired height of the cropped image. Must be a positive integer.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$trim</td>
+        <td>string</td>
+        <td>Optional. Specifies the focus area of the crop: <code>'center'</code>, <code>'right'</code>, or <code>'left'</code>. Defaults to <code>'center'</code>.</td>
+        <td>center</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>InvalidArgumentException</strong> if:</p>
+    <ul>
+      <li>The provided dimensions are non-positive.</li>
+      <li>The dimensions exceed the original image's dimensions.</li>
+      <li>No image is loaded.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method modifies the image in-place and does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Crop an image to 200x200 pixels, focusing on the center
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Crop it to 200x200 pixels
+    $this->image->crop(200, 200, 'center');
+    
+    // Free up memory after cropping
+    $this->image->destroy();
+    
+    echo "Image cropped successfully.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Crop an image to 300x300 pixels, focusing on the right side
+try {
+    $this->image->load('path/to/image.jpg');
+    $this->image->crop(300, 300, 'right');
+    $this->image->destroy();
+    echo "Image cropped successfully.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Attempt to crop with invalid dimensions
+try {
+    $this->image->load('path/to/image.jpg');
+    $this->image->crop(0, 0); // Invalid dimensions
+} catch (InvalidArgumentException $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Call <code>destroy()</code> After Cropping:</strong> To free up memory, especially in scripts that process multiple images or large images.</li>
+      <li><strong>Validate Dimensions:</strong> Ensure the desired dimensions are valid and do not exceed the original image dimensions to avoid exceptions.</li>
+      <li><strong>Use Appropriate <code>$trim</code> Values:</strong> Choose <code>'center'</code>, <code>'right'</code>, or <code>'left'</code> based on the desired focus area.</li>
+    </ul>
+  </div>
+</div>

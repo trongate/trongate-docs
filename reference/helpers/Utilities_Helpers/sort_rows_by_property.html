@@ -1,0 +1,92 @@
+<div class="container">
+  <h1>sort_rows_by_property()</h1>
+  <p class="signature">function sort_rows_by_property(array $array, string $property, string $direction = 'asc'): array</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Sorts an array of objects by a specified property. This function is useful when you need to organize a collection of objects based on one of their properties. The sorting can be performed in either ascending or descending order.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$array</td>
+        <td>array</td>
+        <td>The array of objects to be sorted. Each element in the array should be an object.</td>
+      </tr>
+      <tr>
+        <td>$property</td>
+        <td>string</td>
+        <td>The property within each object by which to sort. The property must exist in each object of the array.</td>
+      </tr>
+      <tr>
+        <td>$direction</td>
+        <td>string</td>
+        <td>(optional) The direction in which to sort the array. Acceptable values are 'asc' for ascending (default) and 'desc' for descending.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>The sorted array of objects.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates basic usage of the <code>sort_rows_by_property</code> function with default parameters.</p>
+  <pre>
+  $data = [
+      (object) ['name' => 'John', 'age' => 28],
+      (object) ['name' => 'Jane', 'age' => 24],
+      (object) ['name' => 'Doe', 'age' => 32],
+  ];
+  
+  $sorted_data = sort_rows_by_property($data, 'age');
+  
+  // Output: [
+  //   (object) ['name' => 'Jane', 'age' => 24],
+  //   (object) ['name' => 'John', 'age' => 28],
+  //   (object) ['name' => 'Doe', 'age' => 32],
+  // ]
+  </pre>
+
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>sort_rows_by_property</code> function, sorting in descending order.</p>
+  <pre>
+  $data = [
+      (object) ['name' => 'Apple', 'price' => 3.5],
+      (object) ['name' => 'Orange', 'price' => 2.75],
+      (object) ['name' => 'Banana', 'price' => 1.25],
+  ];
+  
+  $sorted_data = sort_rows_by_property($data, 'price', 'desc');
+  
+  // Output: [
+  //   (object) ['name' => 'Apple', 'price' => 3.5],
+  //   (object) ['name' => 'Orange', 'price' => 2.75],
+  //   (object) ['name' => 'Banana', 'price' => 1.25],
+  // ]
+  </pre>
+
+  <h2>Notes</h2>
+  <p>If the specified property does not exist in any of the objects, the behavior of the function may be unpredictable. Ensure that the property exists in each object before calling this function.</p>
+</div>

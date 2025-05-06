@@ -1,0 +1,174 @@
+<h1>Token Generation</h1>
+
+<section>
+    <h2>Guiding Principles</h2>
+    <p>When a user is granted authentication or authorization rights, a token—a randomly generated string—is created and stored in the <code>trongate_tokens</code> database table.</p>
+
+    <p>The <code>trongate_tokens</code> table contains a column named <code>user_id</code>, indicating that every generated token must be assigned to a specific user.</p>
+
+    <p>In the context of building large-scale web applications, a "user" could represent various entities, such as:</p>
+
+    <ul>
+        <li>A website administrator</li>
+        <li>A record from a <code>members</code> table</li>
+        <li>A record from a <code>trongate_administrators</code> table</li>
+        <li>...and more!</li>
+    </ul>
+
+    <p>While your definition of a "user" may vary depending on the application's requirements, within Trongate's authentication and authorization framework, a "user" specifically refers to a record in the <code>trongate_users</code> table.</p>
+
+    <p>Therefore:</p>
+
+    <p><b>When working with token-based authentication and authorization, every individual who requires a token must be represented in the <code>trongate_users</code> database table.</b></p>
+
+    <div class="alert alert-info">
+        <p>If the above explanation is unclear, don't worry—examples will be provided later in this chapter.</p>
+    </div>
+
+    <p>Token generation is a core feature of Trongate's authentication and authorization system, managed by the <b>Trongate Tokens</b> module. This module provides a robust mechanism for creating secure tokens that represent authenticated user sessions. At the heart of this process lies the <span class="feature-ref">_generate_token()</span> method.</p>
+
+    <p>This method is responsible for generating unique tokens based on provided data. Below is the method signature and a detailed explanation of how it works:</p>
+
+    [code=php]
+/**
+ * Generate a token based on provided data.
+ *
+ * @param array $data An array containing token generation parameters.
+ *   - 'user_id' (int) : required - The user's ID.
+ *   - 'expiry_date' (int) : optional - Unix timestamp for token expiration.
+ *   - 'set_cookie' (bool) : optional - If true, set the token as a cookie.
+ *   - 'code' (string) : optional - Custom code for the token.
+ *
+ * @return string The generated token.
+ */
+public function _generate_token(array $data): string {
+  // Generate a 32-character random string
+  $random_string = make_rand_str();
+
+  // Build data array variables (required for table insert)
+  if (!isset($data['expiry_date'])) {
+    $data['expiry_date'] = time() + $this->default_token_lifespan;
+  }
+
+  $data['token'] = $random_string;
+  $params = $data;
+
+  if (isset($params['set_cookie'])) {
+    unset($params['set_cookie']);
+  }
+
+  $this->model->insert($params, 'trongate_tokens');
+
+  if (isset($data['set_cookie'])) {
+    setcookie('trongatetoken', $random_string, $data['expiry_date'], '/');
+  } else {
+    $_SESSION['trongatetoken'] = $random_string;
+  }
+
+  return $random_string;
+}
+[/code]
+
+    <h3>How It Works</h3>
+    <p>The <span class="feature-ref">_generate_token()</span> method performs the following steps:</p>
+    <ol>
+        <li><strong>Generate a Random String:</strong> A 32-character random string is created using the <span class="feature-ref">make_rand_str()</span> helper function.</li>
+        <li><strong>Set Expiration Date:</strong> If no expiration date is provided, the default lifespan of 86,400 seconds (1 day) is applied.</li>
+        <li><strong>Insert into Database:</strong> The token details are inserted into the <code>trongate_tokens</code> table, associating the token with the specified user ID and expiration date.</li>
+        <li><strong>Store Token:</strong> Depending on the <code>set_cookie</code> parameter, the token is either stored in a cookie or the session.</li>
+        <li><strong>Return Token:</strong> The generated token is returned as a string for further use.</li>
+    </ol>
+
+    <h3>Key Parameters</h3>
+    <ul>
+        <li><strong>user_id</strong> (required): Integer representing the user's ID in the <code>trongate_users</code> table.</li>
+        <li><strong>expiry_date</strong> (optional): Unix timestamp for token expiration. If omitted, the default lifespan of 86,400 seconds (1 day) is used.</li>
+        <li><strong>set_cookie</strong> (optional): Boolean to indicate if the token should be stored in a cookie. If not provided, the token is stored in the session.</li>
+        <li><strong>code</strong> (optional): String code for special access rights. Rarely used in manual token generation.</li>
+    </ul>
+
+    <div class="alert alert-info">
+        <p>If no expiration date is provided, the system uses a default lifespan, typically set to 86,400 seconds (1 day).</p>
+        <p>The default token lifespan is declared at the top of the <code>Trongate_tokens</code> class, within the file named <code>Trongate_tokens.php</code>. You can modify the default token lifespan by changing the value assigned to <code>$default_token_lifespan</code>.</p>
+[code=php]
+<?php
+class Trongate_tokens extends Trongate {
+
+    private $default_token_lifespan = 86400; // one day
+
+    // rest of class...
+}
+[/code]
+    </div>
+</section>
+
+<section>
+    <h2>Practical Examples of Token Generation</h2>
+    <p>Below are practical examples of how tokens can be generated in various scenarios.</p>
+
+    <h3>Example 1: Generating a Token for a Specific User</h3>
+    <p>To generate a token for a user with ID 88, expiring in one week:</p>
+    [code=php]
+// Load the trongate_tokens module
+$this->module('trongate_tokens');
+
+// Prepare data array
+$data = [
+    'user_id' => 88, // ID from trongate_users table
+    'expiry_date' => time() + (86400 * 7), // Token expires in 1 week
+    'set_cookie' => true // Optional: set a cookie
+];
+
+// Generate the token
+$token = $this->trongate_tokens->_generate_token($data);
+[/code]
+
+    <h3>Example 2: Generating a Token Without Setting a Cookie</h3>
+    <p>If you prefer to store the token in the session instead of a cookie, you can omit the <code>expiry_date</code> parameter, allowing the session's natural lifecycle to manage token expiration:</p>
+    [code=php]
+// Load the trongate_tokens module
+$this->module('trongate_tokens');
+
+// Prepare data array
+$data = [
+    'user_id' => 88 // ID from trongate_users table
+];
+
+// Generate the token
+$token = $this->trongate_tokens->_generate_token($data);
+[/code]
+
+    <p>In this case, the token will automatically inherit the default lifespan of 86,400 seconds (1 day) unless otherwise configured.</p>
+</section>
+
+<div class="alert alert-danger">
+    <p><strong>Security Note:</strong> In development mode ('dev'), Trongate will automatically generate and allocate a token for any user attempting to access the admin panel if no token is presented. This behavior is managed by the <span class="feature-ref" data-class="trongate_administrators">_make_sure_allowed()</span> method in the 'Trongate Administrators' module.</p>
+    <p>For production environments, ensure that the <code>ENV</code> constant in <code>config.php</code> is not set to 'dev' to avoid unintended token generation.</p>
+</div>
+
+<h2>In Summary</h2>
+
+<ul>
+    <li>Token generation in Trongate is handled by the <code>Trongate Tokens</code> module.</li>
+    <li>Every token is assigned to a <code>user_id</code>.</li>
+    <li>The <code>user_id</code> property refers to the <code>trongate_users</code> table.</li>
+</ul>
+
+<p>In addition, tokens can be stored in multiple locations, including:</p>
+
+<ul>
+    <li><strong>Session variables:</strong> Ideal for server-side applications.</li>
+    <li><strong>Cookies:</strong> Useful for client-side persistence.</li>
+    <li><strong>HTTP Headers:</strong> Commonly used for API-based interactions.</li>
+</ul>
+
+<p>When generating tokens, you have the option to:</p>
+
+<ol>
+    <li>Manually set an expiration date and time.</li>
+    <li>Allow the token lifespan to default to the <code>$default_token_lifespan</code>.</li>
+</ol>
+
+<h2>Video Tutorial</h2>
+<p>Here's a video tutorial, walking you through how to build a private area using Trongate's token system.</p>
+[youtube]dGfkO9mU6DI[/youtube]

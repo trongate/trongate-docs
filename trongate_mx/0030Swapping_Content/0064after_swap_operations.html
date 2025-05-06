@@ -1,0 +1,145 @@
+<h1>After Swap Operations</h1>
+
+<p>
+The <code>mx-after-swap</code> attribute in Trongate MX allows you to execute JavaScript functions immediately after content updates. It's a powerful feature that helps you create dynamic, interactive web applications.
+</p>
+
+<h2>Usage</h2>
+
+<p>
+Here's a simple example showing how to use the <code>mx-after-swap</code> attribute:
+</p>
+
+[code=vf]&lt;?php
+$attributes = [
+  'mx-get' => 'api/message',
+  'mx-target' => '#message-area',
+  'mx-after-swap' => 'showMessage'
+];
+echo form_button('update_btn', 'Get Message', $attributes);
+?&gt;
+
+&lt;div id="message-area"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function showMessage(customEvent) {
+  alert('Content updated successfully!');
+}
+&lt;/script&gt;[/code]
+
+<p class="mt-3 mb-0">The code above uses Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function.  If you'd rather work directly with HTML, here's the code:</p>
+
+[code=html]
+&lt;button mx-get="api/message"
+        mx-target="showMessage"
+        mx-after-swap="showMessage"&gt;&lt;/button&gt;
+
+&lt;div id="message-area"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function showMessage(customEvent) {
+  alert('Content updated successfully!');
+}
+&lt;/script&gt;
+[/code]
+
+<p>When the button is clicked, content is fetched from 'api/message' and placed into the message-area div. Once the content update is complete, a JavaScript function named <code>showMessage()</code> will be invoked.  The JavaScript function - in this instance - produces a simple alert message to confirm the successful update.</p>
+
+<h2>More Examples</h2>
+
+<h3>Smooth Scroll After Update</h3>
+<p>Let's imagine you're viewing a page with lots of content, and you dynamically load new data into a specific section of the page. After the content updates, you may the page to scroll smoothly back to the top for better usability.</p>
+<p>Here's how we can achieve this with Trongate MX:</p>
+
+[code=vf]&lt;?php
+$attributes = [
+  'mx-get' => 'api/content',
+  'mx-target' => '#content-area',
+  'mx-after-swap' => 'scrollToTop'
+];
+echo form_button('scroll_btn', 'Load Content', $attributes);
+?&gt;
+
+&lt;div id="content-area"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function scrollToTop(customEvent) {
+  window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+  });
+}
+&lt;/script&gt;[/code]
+
+<div class="alert alert-info">
+  <p>The <code>scrollToTop</code> function is a JavaScript function that scrolls the page smoothly to the top when called.</p>
+</div>
+
+<p>
+This example is particularly useful for long pages where new content is loaded by clicking a button that is further down the page. After the content update occurs, the page smoothly scrolls back to the top.
+</p>
+
+<p class="mt-3 mb-0">If you do not wish to use Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function, you could produce the same results with the following code:</p>
+
+[code=html]
+&lt;button mx-get="api/content"
+        mx-target="#content-area"
+        mx-after-swap="scrollToTop"&gt;Load Content&lt;/button&gt;
+
+&lt;div id="content-area"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function scrollToTop(customEvent) {
+  window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+  });
+}
+&lt;/script&gt;
+[/code]
+
+<h3 class="mt-3">Complex Update with Multiple Operations</h3>
+<p>You're not restricted to just performing just <i>one</i> task after elements have been swapped.  The code below demonstrates how to invoke several JavaScript functions after a successful element swap:</p>
+
+[code=vf]&lt;?php
+$attributes = [
+  'mx-get' => 'api/dashboard',
+  'mx-target' => '#dashboard',
+  'mx-after-swap' => 'initDashboard'
+];
+echo form_button('dashboard_btn', 'Load Dashboard', $attributes);
+?&gt;
+
+&lt;div id="dashboard"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function initDashboard(customEvent) {
+  const dashboard = customEvent.detail.element;
+  attachEventListeners(dashboard);
+  initializeWidgets(dashboard);
+  updateRelatedContent(dashboard);
+  console.log('Dashboard loaded:', dashboard);
+}
+function attachEventListeners(dashboard) { /* ... */ }
+function initializeWidgets(dashboard) { /* ... */ }
+function updateRelatedContent(dashboard) { /* ... */ }
+&lt;/script&gt;[/code]
+
+<p>
+This more complex example demonstrates how to handle dashboard updates that require multiple initialization steps. After the dashboard content is loaded, the code sets up event listeners, initializes various widgets, and updates related content - all common requirements when working with dynamic dashboards.
+</p>
+
+<div class="alert alert-success">
+<ul>
+  <li><strong>Keep it Simple:</strong> After-swap functions should be focused and perform clear tasks</li>
+  <li><strong>Use the Event Object:</strong> Access swap information through the customEvent parameter</li>
+  <li><strong>Consider Timing:</strong> These functions run immediately after content updates</li>
+  <li><strong>Ensure Availability:</strong> Keep functions in global scope for Trongate MX to access them</li>
+</ul>
+</div>
+
+<h2>Summary</h2>
+
+<p>
+The <code>mx-after-swap</code> attribute provides a straightforward way to execute JavaScript after content updates. It accepts a single function name and passes a custom event object containing swap operation details. This enables you to create responsive applications where content updates and post-update processing work seamlessly together.
+</p>

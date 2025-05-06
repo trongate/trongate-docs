@@ -1,0 +1,107 @@
+<div class="container">
+  <h1>form_dropdown()</h1>
+  <p class="signature">function form_dropdown(string $name, array $options, ?string $selected_key = null, ?array $attributes = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an HTML select menu based on the provided options and parameters.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the select element.</td>
+      </tr>
+      <tr>
+        <td>$options</td>
+        <td>array</td>
+        <td>An associative array of options (value => text).</td>
+      </tr>
+      <tr>
+        <td>$selected_key</td>
+        <td>string|null</td>
+        <td>(Optional) The key of the selected option, if any. Default is <code>null</code>.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(Optional) An array of additional HTML attributes for the select element. Default is <code>null</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML string for the select menu.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example #1</h2>
+  <p>Basic usage of <code>form_dropdown</code> with minimal parameters:</p>
+  <pre><code>$name = 'fruits';
+$options = ['apple' => 'Apple', 'banana' => 'Banana', 'cherry' => 'Cherry'];
+echo form_dropdown($name, $options);
+// Output:
+// &lt;select name="fruits"&gt;
+//     &lt;option value="apple"&gt;Apple&lt;/option&gt;
+//     &lt;option value="banana"&gt;Banana&lt;/option&gt;
+//     &lt;option value="cherry"&gt;Cherry&lt;/option&gt;
+// &lt;/select&gt;
+</code></pre>
+  <h2>Example #2</h2>
+  <p>Using <code>form_dropdown</code> with a pre-selected value and additional attributes:</p>
+  <pre><code>$name = 'fruits';
+$options = ['apple' => 'Apple', 'banana' => 'Banana', 'cherry' => 'Cherry'];
+$selected_key = 'banana';
+$attributes = [
+    'class' => 'dropdown',
+    'id' => 'fruit-selector',
+    'data-live-search' => 'true',
+    'aria-label' => 'Fruit Selection'
+];
+echo form_dropdown($name, $options, $selected_key, $attributes);
+// Output:
+// &lt;select name="fruits" class="dropdown" id="fruit-selector" data-live-search="true" aria-label="Fruit Selection"&gt;
+//     &lt;option value="apple"&gt;Apple&lt;/option&gt;
+//     &lt;option value="banana" selected="selected"&gt;Banana&lt;/option&gt;
+//     &lt;option value="cherry"&gt;Cherry&lt;/option&gt;
+// &lt;/select&gt;
+</code></pre>
+  <h2>Example #3</h2>
+  <p>Adding an initial "placeholder" option and handling edge cases:</p>
+  <pre><code>$name = 'fruits';
+$options = ['' => 'Please select...', 'apple' => 'Apple', 'banana' => 'Banana'];
+$selected_key = '';
+$attributes = ['required' => 'required', 'aria-required' => 'true'];
+echo form_dropdown($name, $options, $selected_key, $attributes);
+// Output:
+// &lt;select name="fruits" required="required" aria-required="true"&gt;
+//     &lt;option value="" selected="selected"&gt;Please select...&lt;/option&gt;
+//     &lt;option value="apple"&gt;Apple&lt;/option&gt;
+//     &lt;option value="banana"&gt;Banana&lt;/option&gt;
+// &lt;/select&gt;
+</code></pre>
+  <h2>Notes</h2>
+  <ul>
+    <li>All option values and text are HTML-escaped to prevent XSS attacks.</li>
+    <li>The <code>$selected_key</code> parameter ensures that the corresponding option is marked as selected, if applicable.</li>
+    <li>Use the <code>$attributes</code> parameter to add any valid HTML attributes to the select element, including data attributes, ARIA attributes, and event handlers.</li>
+    <li>The <code>$attributes</code> array can include both standard HTML attributes (like <code>class</code>, <code>id</code>) and custom data attributes (like <code>data-*</code>).</li>
+  </ul>
+</div>

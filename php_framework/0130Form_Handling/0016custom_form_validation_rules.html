@@ -1,0 +1,118 @@
+<h1>Custom Form Validation Rules</h1>
+<p>In certain scenarios, you may need to implement form validation checks that go beyond the built-in rules provided by Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a>. In such cases, <b>custom form validation callbacks</b> become invaluable.</p>
+
+<h2>General Concept</h2>
+<p>When using Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> to apply form validation checks, the <span class="feature-ref">set_rules</span> method plays a crucial role in defining the validation rules for specific form fields. For instance, the following code ensures that both the 'first_name' and 'last_name' fields must:</p>
+<ul>
+    <li>Not be empty</li>
+    <li>Be at least 2 characters long</li>
+    <li>Be no more than 255 characters long</li>
+</ul>
+[code=php]
+$this->validation->set_rules('first_name', 'first name', 'required|min_length[2]|max_length[255]');
+$this->validation->set_rules('last_name', 'last name', 'required|min_length[2]|max_length[255]');
+[/code]
+
+<h2>Adding Custom Validation Checks</h2>
+<p>To implement validation rules <i>not</i> covered by Trongate's default tests, you can create custom validation callbacks. For example, let's say you want to enforce the rule: "<b>The last name cannot be 'Rambo'</b>". To do this, follow these steps:</p>
+<ol>
+    <li>Declare the custom validation check.</li>
+    <li>Create a method to define the behavior of the custom validation check.</li>
+</ol>
+
+<h2>Declaring a Custom Validation Check</h2>
+<p>To declare a custom validation rule, prepend the rule name with '<b>callback_</b>', followed by the name of the method that will handle the validation logic. For example, if you have a method called <b><code>check_last_name()</code></b> for this custom validation, you would append it to the <code>set_rules</code> declaration for 'last_name' field, like so:</p>
+
+[code=php]
+|callback_check_last_name
+[/code]
+
+<p>This means the block of code for applying form validation rules would now look like this:</p>
+
+[code=php]
+$this->validation->set_rules('first_name', 'first name', 'required|min_length[2]|max_length[255]');
+$this->validation->set_rules('last_name', 'last name', 'required|min_length[2]|max_length[255]|callback_check_last_name');
+[/code]
+
+<div class="alert alert-success">
+    <p>While it's not required, it's recommended to adhere to Trongate's <a href="documentation/display/php_framework/basic-concepts/the-underscore-naming-convention">Underscore Naming Convention</a> whenever creating custom methods.</p>
+</div>
+
+<h2>Creating a Custom Validation Method</h2>
+<p>Custom validation methods automatically receive the posted form field value as an argument and should return either a boolean <b><code>true</code></b> (indicating validation success) or an error message (as a string). The following demonstrates the basic structure of a typical custom validation callback method:</p>
+
+[code=php]
+function check_last_name($last_name) {
+    // Perform custom validation
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>Custom form validation callback methods should <b>only</b> return one of the following two things:</p>
+    <ol>
+        <li>A <b>string</b> with a form validation error message, if the submitted value <i>fails</i> the validation test.</li>
+        <li>A boolean of <b>true</b>, if the submitted value <i>passes</i> the validation test.</li>
+    </ol>
+
+    <p>The behaviour of custom form validation callbacks may be described more fully by adding <a href="https://www.w3schools.com/php/php_oop_access_modifiers.asp">access modifiers</a>, doc blocks, type hinting and return types, like so:</p>
+
+[code=php]/**
+ * Validates a string input.
+ *
+ * This custom validation method performs a check on the provided string value.
+ * If the value fails validation, an error message is returned. If the value passes,
+ * the method returns true.
+ *
+ * @param string $str The string to validate.
+ * @return string|true Returns an error message if the string fails validation, otherwise returns true.
+ */
+public function check_last_name(string $str): string|true {
+    // Perform custom validation
+}
+[/code]
+
+
+</div>
+
+<p class="mt-3">To implement the custom rule where the last name cannot be "Rambo", the method would look like this:</p>
+
+[code=php]
+function check_last_name($last_name) {
+    if ($last_name === 'Rambo') {
+        return 'We don\'t want guys like you in this town.';
+    } else {
+        return true;
+    }
+}
+[/code]
+
+<p>If the submitted <code>last_name</code> fails the custom validation check, the following error message will be returned:</p>
+<p style="color: red"><b>We don't want guys like you in this town.</b></p>
+
+<p>On the other hand, if the submitted <code>last_name</code> passes the custom validation, the method will return <b><code>true</code></b>, and no error message will be generated.</p>
+
+<div class="alert alert-success">
+    <p>For enhanced code clarity and functionality, consider using doc blocks, access modifiers, type hints, and return types in your validation callback methods. Though optional, these practices improve code readability and maintainability. For example:</p>
+    
+[code=php]
+/**
+ * Validates that the last name is not 'Rambo'.
+ *
+ * @param string $last_name The last name to validate.
+ * @return string|true Returns an error message if the last name is 'Rambo', otherwise returns true.
+ */
+public function check_last_name(string $last_name): string|true {
+    if ($last_name === 'Rambo') {
+        return 'We don\'t want guys like you in this town.';
+    } else {
+        return true;
+    }
+}
+[/code]
+
+<p>To learn more about docblocks, type hinting, and return types check out this <a href="https://www.youtube.com/watch?v=R76Um_oIZNY">YouTube tutorial</a>.</p>  
+
+<p>By the way, there appears to be some ambiguity, in the PHP community, about how to write 'doc blocks'.  Should it be two words, one word or something to do with camelCase?  If you know the answer, please <a href="https://trongate.io/contactus" target="_blank">let us know</a>!</p>
+</div>
+
+<p class="mt-3">In the next section, we will explore how display form validation errors.</p>

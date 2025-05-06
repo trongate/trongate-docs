@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>form_textarea()</h1>
+  <p class="signature">function form_textarea(string $name, ?string $value = null, ?array $attributes = null): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates an HTML textarea element.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$name</td>
+        <td>string</td>
+        <td>The name attribute for the textarea element.</td>
+      </tr>
+      <tr>
+        <td>$value</td>
+        <td>string|null</td>
+        <td>(optional) The initial value of the textarea. If not provided, it will be empty.</td>
+      </tr>
+      <tr>
+        <td>$attributes</td>
+        <td>array|null</td>
+        <td>(optional) An associative array of HTML attributes for the textarea. Default is null.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML textarea element.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>form_textarea</code> function with default parameters.</p>
+  <pre>
+$name = 'comments';
+$value = 'Your feedback here...';
+echo form_textarea($name, $value);
+// Output: '&lt;textarea name="comments"&gt;Your feedback here...&lt;/textarea&gt;'
+  </pre>
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>form_textarea</code> function with additional attributes.</p>
+  <pre>
+$name = 'comments';
+$value = 'Your feedback here...';
+$attributes = ['class' => 'form-control', 'id' => 'comments-textarea', 'rows' => '5', 'cols' => '50'];
+echo form_textarea($name, $value, $attributes);
+// Output: '&lt;textarea name="comments" class="form-control" id="comments-textarea" rows="5" cols="50"&gt;Your feedback here...&lt;/textarea&gt;'
+  </pre>
+</div>

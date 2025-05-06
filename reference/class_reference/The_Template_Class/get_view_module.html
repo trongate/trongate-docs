@@ -1,0 +1,81 @@
+<div class="container">
+    <h1>get_view_module()</h1>
+    <p class="signature">public static function get_view_module(): string</p>
+
+    <h2>Description</h2>
+    <div class="description">
+        <p>
+            Extracts and processes the view module name from the current URL. This method removes the base URL, sanitizes the remaining path, and returns the first URL segment as the view module name. If no segment is found, it returns a default module value.
+        </p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="5">This method does not accept any parameters.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>The name of the view module extracted from the URL. If no module is found in the URL, returns the value of DEFAULT_MODULE constant.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Dependencies</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Dependency</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>BASE_URL</td>
+                <td>Constant defining the base URL of the application</td>
+            </tr>
+            <tr>
+                <td>DEFAULT_MODULE</td>
+                <td>Constant defining the fallback module name</td>
+            </tr>
+            <tr>
+                <td>current_url()</td>
+                <td>Function that returns the current URL</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example Usage</h2>
+    <div class="example">
+        <pre>// Assuming current URL is: http://example.com/admin/dashboard
+$view_module = Template::get_view_module(); // Returns 'admin'
+
+// Assuming current URL is: http://example.com/user-profile
+$view_module = Template::get_view_module(); // Returns 'user/profile'
+
+// Assuming current URL is: http://example.com/
+$view_module = Template::get_view_module(); // Returns value of DEFAULT_MODULE</pre>
+    </div>
+</div>

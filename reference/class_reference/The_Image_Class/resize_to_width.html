@@ -1,0 +1,124 @@
+<div class="container">
+  <h1>resize_to_width()</h1>
+  <p class="signature">function resize_to_width(int $width): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Resizes the currently loaded image to a specified width while maintaining the image's aspect ratio. This method calculates the proportional height required to preserve the aspect ratio based on the new width and then calls the internal <code>resize</code> method to adjust the image dimensions.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method calculates the ratio between the target width and the current width of the image.</li>
+      <li>It then calculates the new height by multiplying the current height by this ratio.</li>
+      <li>Finally, it resizes the image to the new dimensions using the internal <code>resize</code> method.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure an image is loaded before calling this method. If no image is loaded, or if the provided width is invalid, an exception is thrown.</p>
+    <p><strong>Memory Management:</strong> After resizing and saving the image, consider calling <code>destroy()</code> to free up memory, especially in scripts that process multiple or large images.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$width</td>
+        <td>int</td>
+        <td>The target width to which the image should be resized. Must be a positive integer.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>No image is loaded.</li>
+      <li>The provided width is non-positive.</li>
+      <li>The current image width is zero (to prevent division by zero).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value but resizes the image in-place.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Resizing an image to a specific width while maintaining aspect ratio
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Resize the image to a width of 500 pixels
+    $this->image->resize_to_width(500);
+    
+    // Save the resized image
+    $this->image->save('path/to/resized_image.jpg');
+    
+    // Free up memory after saving
+    $this->image->destroy();
+    
+    echo "Image resized successfully to a width of 500 pixels.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Batch resizing multiple images to a specific width
+$image_files = ['image1.jpg', 'image2.jpg', 'image3.jpg'];
+
+foreach ($image_files as $file) {
+    try {
+        // Load an image
+        $this->image->load("path/to/$file");
+        
+        // Resize the image to a width of 800 pixels
+        $this->image->resize_to_width(800);
+        
+        // Save the resized image
+        $this->image->save("path/to/resized_$file");
+        
+        // Free up memory after saving
+        $this->image->destroy();
+        
+        echo "Resized and saved $file successfully.\n";
+    } catch (Exception $e) {
+        echo "Error processing $file: " . $e->getMessage() . "\n";
+    }
+}</pre>
+    <pre>
+// Example 3: Resizing an image without calling destroy() (for short-lived scripts)
+try {
+    $this->image->load('path/to/image.jpg');
+    $this->image->resize_to_width(300);
+    $this->image->save('path/to/resized_image.jpg');
+    
+    echo "Image resized successfully. Memory will be freed automatically at script end.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Dimensions:</strong> Ensure the provided width is a positive integer to avoid exceptions.</li>
+      <li><strong>Use <code>destroy()</code> After Resizing:</strong> In scripts that process multiple or large images, call <code>destroy()</code> to free up memory after saving the resized image.</li>
+      <li><strong>Batch Processing:</strong> When resizing multiple images, always call <code>destroy()</code> after each image to prevent memory leaks.</li>
+      <li><strong>Check Aspect Ratio:</strong> Be mindful of the original image's aspect ratio to avoid unexpected results when resizing.</li>
+    </ul>
+  </div>
+</div>

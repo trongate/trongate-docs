@@ -1,0 +1,112 @@
+<div class="container">
+  <h1>create_directory()</h1>
+  <p class="signature">function create_directory(string $directory_path, int $permissions = 0755, bool $recursive = true): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Creates a new directory at the specified path. This method allows for the creation of nested directories if they do not exist. It also ensures the directory path is valid and accessible based on predefined security rules.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first checks if the directory already exists at the specified path. If it does, it returns <code>true</code> immediately.</li>
+      <li>It validates the <code>$directory_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>If the path is valid, it attempts to create the directory with the specified permissions and recursive flag.</li>
+      <li>If the directory creation fails, an exception is thrown with a descriptive error message.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the directory path is valid and does not conflict with restricted paths. If the directory already exists, the method will return <code>true</code> without attempting to create it again.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$directory_path</td>
+        <td>string</td>
+        <td>The absolute or relative path where the directory should be created. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$permissions</td>
+        <td>int</td>
+        <td>The permissions to set for the directory, in octal notation (e.g., <code>0755</code>). This determines the access rights for the directory.</td>
+        <td>0755</td>
+      </tr>
+      <tr>
+        <td>$recursive</td>
+        <td>bool</td>
+        <td>Whether to create nested directories if necessary. If set to <code>true</code>, all required parent directories will also be created.</td>
+        <td>true</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$directory_path</code> is restricted by security rules (e.g., accessing sensitive directories).</li>
+      <li>The directory cannot be created (e.g., due to insufficient permissions or an invalid path).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the directory is successfully created or already exists. If the operation fails, an exception is thrown instead of returning <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Creating a directory with default permissions and recursive flag
+try {
+    $file = new File();
+    $success = $file->create_directory('/path/to/new_directory');
+    if ($success) {
+        echo "Directory created or already exists.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Creating a directory with custom permissions and non-recursive flag
+try {
+    $file = new File();
+    $success = $file->create_directory('/path/to/new_directory', 0777, false);
+    if ($success) {
+        echo "Directory created or already exists.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $file->create_directory('/path/to/restricted/directory');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this path is restricted: /path/to/restricted/directory"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the directory path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Use Recursive Flag:</strong> Set <code>$recursive</code> to <code>true</code> when creating nested directories to avoid errors due to missing parent directories.</li>
+      <li><strong>Set Appropriate Permissions:</strong> Use secure permissions (e.g., <code>0755</code>) to prevent unauthorized access to the directory.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths.</li>
+    </ul>
+  </div>
+</div>

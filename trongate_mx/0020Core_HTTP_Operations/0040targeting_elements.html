@@ -1,0 +1,148 @@
+<h1>Targeting Elements</h1>
+
+<p>The <code>mx-target</code> attribute in Trongate MX is a powerful feature that allows you to specify which element in the DOM should be updated with the server response. This enables fine-grained control over where and how content is dynamically inserted or replaced, enhancing the interactivity and responsiveness of your web application without writing JavaScript.</p>
+
+<p>If no <code>mx-target</code> attribute is specified, Trongate MX will automatically update the triggering element itself with the server response.</p>
+
+<h2>Basic Element Targeting:</h2>
+
+<p>With the code below, the response from the server will be inserted into the <code>&lt;div&gt;</code> element with the id "result". You can use any valid CSS selector to target elements.</p>
+
+<p>Here's how to achieve this using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; '#result'
+];
+echo form_button('get_data_btn', 'Get Data', $btn_attr);
+?&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">Alternatively, the same functionality can be built with pure HTML as shown below.</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="#result"&gt;Get Data&lt;/button&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;[/code]
+
+<h2>Advanced Element Targeting</h2>
+
+<p>The <code>mx-target</code> attribute supports several advanced targeting options to provide more flexibility:</p>
+
+<table border="1" cellpadding="10" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Description</th>
+      <th style="min-width: 16em">Example Syntax</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CSS Selector</td>
+      <td>Any valid CSS selector that targets a specific element.</td>
+      <td><code>mx-target="#myDiv"</code></td>
+    </tr>
+    <tr>
+      <td>closest &lt;selector&gt;</td>
+      <td>Finds the closest ancestor matching the selector.</td>
+      <td><code>mx-target="closest li"</code></td>
+    </tr>
+    <tr>
+      <td>find &lt;selector&gt;</td>
+      <td>Finds the first descendant matching the selector.</td>
+      <td><code>mx-target="find .target"</code></td>
+    </tr>
+    <tr>
+      <td>none</td>
+      <td>Makes the request without updating any content.</td>
+      <td><code>mx-target="none"</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>More Examples:</h2>
+
+<h3>Finding the First Descendant (find &lt;selector&gt;):</h3>
+<p>In this example, when the form is submitted, the server response will be inserted into the <code>.status-message</code> div that exists within the form. The <code>find</code> selector locates the <b>first descendant element</b> matching the given selector, making it perfect for updating specific parts within a larger component.</p>
+
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$form_attr = [
+    'mx-post' =&gt; 'api/submit-data',
+    'mx-target' =&gt; 'find .status-message'
+];
+echo form_open('#', $form_attr);
+echo form_label('Title');
+echo form_input('title', '');
+echo form_submit('submit', 'Save');
+?&gt;
+&lt;div class="status-message"&gt;
+    Ready to submit...
+&lt;/div&gt;
+&lt;?= form_close() ?&gt;[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax, written in pure HTML:</p>
+[code=html]&lt;form mx-post="api/submit-data" 
+      mx-target="find .status-message"&gt;
+    &lt;label&gt;Title&lt;/label&gt;
+    &lt;input type="text" name="title"&gt;
+    &lt;button type="submit"&gt;Save&lt;/button&gt;
+    &lt;div class="status-message"&gt;
+        Ready to submit...
+    &lt;/div&gt;
+&lt;/form&gt;[/code]
+
+<h3 class="mt-3">Finding the Closest Ancestor (closest &lt;selector&gt;):</h3>
+<p>The <code>closest</code> selector finds and updates the <b>nearest parent element</b> that matches the given selector. This is particularly useful when you need to update a containing element from a control that's nested within it.</p>
+
+<p>Here's an example that uses Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; 'closest div'
+];
+echo form_button('load_btn', 'Load Content', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">And here's how the same result can be achieved with pure HTML:</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="closest div"&gt;Load Content&lt;/button&gt;[/code]
+
+<h3>Using Tag Selectors:</h3>
+<p>You can target any HTML element using its tag name as a selector (e.g., 'body', 'main', 'footer'). The server response will replace the entire contents of the <b>first matching element</b> on the page.</p>
+
+<p>Using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; 'body'
+];
+echo form_button('load_btn', 'Load Content', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">If you'd rather work directly with HTML, here's the code:</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="body"&gt;Load Content&lt;/button&gt;[/code]
+
+<h3>No Content Replacement (none):</h3>
+<p>When <code>mx-target="none"</code> is specified, the server request will be made but no content will be updated on the page. This is useful when you need to trigger a server action without needing to update the UI, such as logging events or performing background tasks.</p>
+
+<p>Here's an example, using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =&gt; 'api/data',
+  'mx-target' =&gt; 'none'
+];
+echo form_button('no_replacement_btn', 'No Replacement', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Here's how the same result can be achieved with pure HTML:</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="none"&gt;No Replacement&lt;/button&gt;[/code]
+
+<style>
+tr > td:nth-child(1) {
+  white-space: nowrap;
+}
+</style>

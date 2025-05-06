@@ -1,0 +1,99 @@
+<div class="container">
+  <h1>download()</h1>
+  <p class="signature">function download(string $file_path, bool $as_attachment = true): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Initiates a file download or displays it inline in the browser. This method prepares and sends the appropriate HTTP headers to either force a file download or display the file directly in the browser, depending on the <code>$as_attachment</code> parameter.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$file_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>It checks if the file exists and is readable. If the file is inaccessible or does not exist, an exception is thrown.</li>
+      <li>If the file is valid, it clears any output buffers to prevent interference with the file download.</li>
+      <li>It sets the appropriate HTTP headers based on the <code>$as_attachment</code> parameter:
+        <ul>
+          <li>If <code>$as_attachment</code> is <code>true</code>, the browser will prompt the user to download the file.</li>
+          <li>If <code>$as_attachment</code> is <code>false</code>, the file will be displayed inline in the browser (if supported by the file type).</li>
+        </ul>
+      </li>
+      <li>The file is then read and sent to the output buffer using <code>readfile()</code>.</li>
+      <li>The script terminates immediately after sending the file to prevent additional output.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the file exists and is accessible before calling this method. If the file is restricted, inaccessible, or does not exist, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the file that needs to be downloaded or displayed. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$as_attachment</td>
+        <td>bool</td>
+        <td>Determines whether the file should be downloaded as an attachment (<code>true</code>) or displayed inline (<code>false</code>).</td>
+        <td>true</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$file_path</code> is restricted by security rules (e.g., accessing sensitive directories).</li>
+      <li>The file does not exist at the specified path.</li>
+      <li>The file is not readable or accessible.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <div class="return-value">
+    <p><strong>void</strong></p>
+    <p>This method does not return a value. It sends the file to the browser and terminates the script.</p>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Force downloading a file
+try {
+    $file = new File();
+    $file->download('/path/to/file.pdf');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Displaying a file inline in the browser
+try {
+    $file = new File();
+    $file->download('/path/to/image.jpg', false);
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $file->download('/path/to/restricted/file.txt');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this file is restricted: /path/to/restricted/file.txt"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the file path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Check File Accessibility:</strong> Verify the file exists and is readable before attempting to download or display it.</li>
+      <li><strong>Use Appropriate Headers:</strong> Set the <code>$as_attachment</code> parameter based on the desired behavior (download or inline display).</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths.</li>
+      <li><strong>Terminate Script:</strong> Ensure no additional output is sent after calling this method, as it terminates the script to prevent interference with the file download.</li>
+    </ul>
+  </div>
+</div>

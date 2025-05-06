@@ -1,0 +1,58 @@
+<h1>File Handling with Trongate</h1>
+<p>Trongate provides robust support for file handling and image manipulation through its built-in <a href="documentation-ref/list_refs/class_reference/the-file-class" target="_blank">File</a> and <a href="documentation-ref/list_refs/class_reference/the-image-class" target="_blank">Image</a> classes. These classes are designed to make file operations secure, efficient, and easy to manage. Whether you need to upload files, resize images, or perform other file-related tasks, Trongate has you covered.</p>
+
+<h2>File Class</h2>
+<p>The <code>File</code> class is a comprehensive file management tool that supports a wide range of file operations. It includes functionalities for reading, writing, and managing directories. The class is designed with security in mind, preventing access to critical directories and ensuring that file operations are performed safely.</p>
+[code=php]
+// Example usage of the File class for reading a file
+$file = new File();
+$file_path = 'path/to/your/file.txt';
+
+try {
+    $content = $file-&gt;read($file_path);
+    echo "File content: " . $content;
+} catch (Exception $e) {
+    echo "Error reading file: " . $e-&gt;getMessage();
+}
+
+// Example usage of the File class for writing to a file
+$new_content = "This is some new content to write to the file.";
+try {
+    $file-&gt;write($file_path, $new_content);
+    echo "File written successfully.";
+} catch (Exception $e) {
+    echo "Error writing to file: " . $e-&gt;getMessage();
+}
+[/code]
+
+<h2>Image Class</h2>
+<p>The <code>Image</code> class is specifically designed for handling image files. It supports various image formats (JPEG, GIF, PNG, WEBP) and provides functionalities for loading, resizing, and saving images. The class leverages PHP's GD library to perform these operations efficiently and securely.</p>
+[code=php]
+// Example usage of the Image class for resizing an existing image
+$image = new Image();
+$image_path = 'path/to/your/image.jpg';
+
+try {
+    $image-&gt;load($image_path);
+    $image-&gt;resize_to_width(800);
+    $image-&gt;save($image_path);
+    echo "Image resized successfully.";
+} catch (Exception $e) {
+    echo "Error resizing image: " . $e-&gt;getMessage();
+}
+[/code]
+
+<h2>Security Considerations</h2>
+<p>When handling files and images in a web environment, it is crucial to be aware of the security implications. Trongate's <code>File</code> and <code>Image</code> classes include measures such as validating upload paths to ensure they are within the application's directory structure and not in restricted areas. This helps mitigate risks associated with unauthorized access and directory traversal attacks. Always ensure that sensitive directories are protected and that file operations are performed within the application's scope. Additionally, consider the following best practices:</p>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Use validation rules to restrict the types and sizes of uploaded files.</li>
+        <li>Set appropriate permissions for upload directories to prevent unauthorized access.</li>
+        <li>Regularly review and update your security measures to protect against emerging threats.</li>
+    </ul>    
+</div>
+
+
+<h2>Next Steps</h2>
+<p>In the following sections, we will delve deeper into the specific methods and functionalities provided by the <code>File</code> and <code>Image</code> classes. You will learn how to use these classes to perform various file handling tasks and manipulate images effectively.</p>

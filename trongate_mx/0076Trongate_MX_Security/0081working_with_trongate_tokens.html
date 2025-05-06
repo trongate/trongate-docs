@@ -1,0 +1,233 @@
+<h1>Working with Trongate Tokens</h1>
+
+<p>The <code>mx-token</code> attribute in Trongate MX provides a mechanism for seamlessly integrating Trongate's authentication and authorisation system by attaching Trongate Tokens to outgoing HTTP requests.</p>
+
+<h2>Implementation Overview</h2>
+<p>The Trongate PHP framework includes a powerful module named <code>trongate_tokens</code>. This module facilitates authentication and authorisation tasks, enabling you to secure API endpoints with customisable rules. With the <code>trongate_tokens</code> module, you can enforce granular control over who can interact with your API.</p>
+
+<div class="alert alert-info">
+	<p>Trongate's authorisation system supports a variety of access control patterns. Examples of possible API authorisation rules are:</p>
+
+	<ol>
+		<li>Allow access to an API endpoint for users who <b>have a user level of 'admin'</b>.</li>
+		<li>Allow access to an API endpoint for users who <b>either have a user level of 'admin' or a user level of 'member'</b>.</li>
+		<li>Allow access to an API endpoint for <b>any logged in user</b>.</li>
+		<li>Allow access to an API endpoint for <b>users who signed up within the last half hour</b>.</li>
+	</ol>	
+</div>
+
+<h2>What Are 'Trongate Tokens'?</h2>
+<p>Trongate Tokens are unique, cryptographically generated strings managed by the <code>trongate_tokens</code> module. These tokens act as secure identifiers for users within your application, enabling robust stateful authentication mechanisms. Below is an example of a Trongate Token:</p>
+
+[code]JzMSngd6VJhYzzcXCKyatoYQr8SbpjzN[/code]
+
+<div class="alert alert-info">
+	<p>With a valid Trongate Token, you can:</p>
+	<ol>
+	  <li>Verify if a user is authenticated</li>
+	  <li>Retrieve associated user details, such as:
+	    <ul>
+	      <li>Username</li>
+	      <li>Email address</li>
+	      <li>User role/level</li>
+	      <li>Additional user metadata</li>
+	    </ul>
+	  </li>
+	</ol>
+</div>
+
+<h2>Using Trongate Tokens With Trongate MX</h2>  
+<p>Developers working with Trongate MX can easily take advantage of Trongate's inbuilt token-based security system.</p>  
+<p>Usage revolves around a three-step process:</p>  
+
+<ol>  
+  <li>Attach a Trongate Token to an element that triggers an HTTP response.</li>  
+  <li class="mt-1">Attempt to read a submitted token from your API endpoint.</li>  
+  <li class="mt-1">Have your API endpoint grant or deny access based on the presence or absence of a valid Trongate Token.</li>  
+</ol>  
+
+<p>Let's go through each of these three steps, one at a time.</p>
+
+<hr>
+
+<h2>1: Attaching Tokens to Elements</h2>
+<p>To attach a Trongate Token to an element, we need to first attempt to fetch a valid Trongate Token using PHP. This can be achieved by loading the 'trongate_tokens' module and invoking the <span class="feature-ref" ref-path="pre_installed/trongate_tokens">_attempt_get_valid_token()</span> method. For example:</p>
+
+[code=php]$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token();[/code]
+
+<h3>Passing The Token Into The View File</h3>
+<p>Having fetched a Trongate Token, our next task is to pass the fetched token into the associated view file. It's worth noting that the <span class="feature-ref" ref-path="pre_installed/trongate_tokens">_attempt_get_valid_token()</span> method will return a boolean of <b>false</b> if no valid token is found for the user. With that being the case, it's a good idea to make sure the value of your token is a (variable of a type) <i>string</i> - regardless of the response from the 'trongate_tokens' module. This can be achieved by using PHP's <code>settype()</code> function. For example:</p>
+
+[code=php]settype($token, 'string');
+$data['trongate_token'] = $token;[/code]
+
+<p>The lines of code, shown above, achieve two things:</p>
+<ol>
+	<li>They convert the value of <code>$token</code> to a type of string.</li>
+	<li>They add the value of the token onto a <code>$data</code> array - giving it a property of 'trongate_token'.</li>
+</ol>
+
+<p>As is normal practice, with Trongate, your corresponding view file or template can then be loaded having the <code>$data</code> array passed in. For example:</p>
+
+[code=php]
+$this->template('public', $data);
+[/code]
+
+<h3>Accessing The Token From The View File</h3>
+<p>Having fetched a token and passed it into your view file, your Trongate Token should now be available via a <code>$trongate_token</code> variable.</p>
+<p>As a reminder, if you failed to fetch a valid token for the user then the value for <code>$trongate_token</code> will be an empty string (since we used <code>settype()</code> in the controller file).</p>
+
+<h3>Appending The Token To An Element</h3>
+
+<p>We can then attach the fetched Trongate Token (which may or may not be a valid token) to an HTML element using the <code>mx-token</code> attribute. For example,</p>
+
+[code=vf]
+&lt;?php
+$attr = [
+    'mx-get' =&gt; 'api/protected_resource',
+    'mx-token' =&gt; $trongate_token
+];
+
+echo form_button('Fetch Protected Resource', $attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">If you prefer working with a more HTML-centered syntax, the same result can be achieved with:</p>
+
+[code=vf]
+&lt;button mx-get="http://localhost/api/protected_resource" 
+        mx-token="&lt;?= $trongate_token ?&gt;"&gt;
+    Fetch Protected Resource
+&lt;/button&gt;[/code]
+
+<p>Regardless of whether or not you choose to use Trongate's form helper functions the result will be the same - any HTTP request that gets invoked by clicking on the button will have a Trongate Token attached to the request header.</p>
+
+<div class="alert alert-info">
+	<h3 class="mt-0">Understanding HTTP Request Headers</h3>
+
+	<p>HTTP request headers are key-value pairs sent with every HTTP request that provide essential information about the request being made. They act like metadata that helps both the client and server better understand and process the communication.</p>
+
+	<p>Request headers serve multiple purposes:</p>
+	<ul>
+	  <li>They can provide context about the request (like what type of browser is making it)</li>
+	  <li>They can specify how the server should respond (such as preferred content format)</li>
+	  <li>They can contain authentication and security information</li>
+	  <li>They can help to manage caching behavior</li>
+	</ul>
+
+	<p>Accessing header values depends on your environment. In most PHP setups, you can use <code>getallheaders()</code> or the <code>$_SERVER</code> superglobal to access HTTP headers.</p>
+	<p>With Trongate, you can render an array of headers information with:</p>
+	[code=php]json($_SERVER);[/code]
+</div>
+
+<h2>2: Fetching Sent Tokens From The API</h2>
+
+<p>Having attached a Trongate Token onto your request header, the next task is to have your API endpoint <i>fetch</i> the Trongate Token from the header.</p>
+<p>There's actually two ways to do this:</p>
+<ol>
+	<li>By using the Trongate Tokens module.</li>
+	<li>By using pure PHP.</li>
+</ol>
+
+<p>Let's go through both of these options.</p>
+
+<h3>Fetching Tokens Using The Trongate Tokens Module</h3>
+<p>If you've been following along with this example, you'll know that we used the Trongate Tokens module to (attempt to!) fetch a Trongate Token which could <i>then</i> be passed into a view file and - ultimately - attached to an HTTP request.</p>
+<p>You can use the same methodology to fetch the token from your API endpoints. Here's a reminder of the syntax:</p>
+
+[code=php]$this->module('trongate_tokens');
+$token = $this->trongate_tokens->_attempt_get_valid_token();[/code]
+
+<div class="alert alert-warning">
+<p>The <span class="feature-ref" ref-path="pre_installed/trongate_tokens">_attempt_get_valid_token()</span> method, within the Trongate Tokens module, attempts to return a Trongate Token for a signed in user by checking:</p>
+<ol>
+	<li>The request headers</li>
+	<li>The user's session data</li>
+	<li>The user's cookie data</li>
+</ol>
+
+<p>That's three different places where Trongate Tokens can potentially be stored for any given user.</p>
+
+<p>This means that there's a hypothetical possibility of <span class="feature-ref" ref-path="pre_installed/trongate_tokens">_attempt_get_valid_token()</span> returning a false positive (i.e., signifying a user to be logged in) <i>even if</i> the user has failed to successfully attach a valid token to the HTTP request.</p>
+
+<p>In a live situation this is unlikely to be a problem. In a development environment, however, it could make the job of testing API endpoints quite difficult.</p>	
+</div>
+
+<h3 class="mt-3">Fetching Tokens Using Pure PHP</h3>
+<p>Instead of using the Trongate Tokens module to attempt to fetch the Trongate Token from the header, you can use pure PHP. This can be achieved with the following:</p>
+
+[code=php]$trongate_token = $_SERVER['HTTP_TRONGATETOKEN'];[/code]
+
+<p>Of course, this is not a perfect solution since an error would be thrown in instances where a Trongate Token has <i>not</i> been attached to the HTTP request header.</p>
+<p>This can be mitigated by using the ternary operator. For example, with the code below, we attempt to read a Trongate Token from an HTTP request header. However, if a token is not found in the header, the <code>$trongate_token</code> value will be assigned with an empty string.</p>
+
+[code=php]$trongate_token = $_SERVER['HTTP_TRONGATETOKEN'] ?? '';[/code]
+
+<div class="alert alert-info">
+<h3 class="mt-0">Learning More About Trongate's Token System</h3>
+<p>A full, in-depth explanation of Trongate's Token based security system is beyond the scope of the documentation for Trongate MX. However, if you require more information about this topic, please refer to: <a href="https://trongate.io/dox/information/how-trongates-token-system-works" target="_blank">How Trongate's Token System Works</a>.</p>	
+</div>
+
+<p>With the assumption that you know how to authenticate a user, based on the presence or lack of a valid Trongate Token, it's then for you - the developer - to decide whether or not to grant or allow access to an API endpoint.</p>
+
+<h2>Granting Or Denying API Access</h2>
+
+<p>Once you've validated (or invalidated) a Trongate Token, your API endpoint should respond appropriately using standard HTTP response codes. Here's how to handle common scenarios:</p>
+
+<h3>Successful Access</h3>
+<p>When a valid token is provided and meets all authorization requirements, your endpoint should return an HTTP response code within the success range.  For example:</p>
+[code=php]http_reponse_code(200);[/code]
+
+<p>Example of granting access:</p>
+[code=php]public function protected_endpoint() {
+    $token = $_SERVER['HTTP_TRONGATETOKEN'] ?? '';
+    
+    if ($this->_validate_token($token)) {
+        http_response_code(200);
+        echo json_encode(['message' => 'Access granted', 'data' => $your_data]);
+    }
+}[/code]
+
+<h3>Access Denied</h3>
+<p>When access needs to be denied, use appropriate status codes to indicate why.  Examples include but are not limited to the following:</p>
+<ul>
+    <li>HTTP 401 (Unauthorized) - When no token is provided or the token is invalid</li>
+    <li>HTTP 403 (Forbidden) - When the token is valid but the user lacks sufficient permissions</li>
+    <li>HTTP 429 (Too Many Requests) - When rate limiting is exceeded</li>
+</ul>
+
+<p>Example of denying access:</p>
+[code=php]public function protected_endpoint() {
+    $token = $_SERVER['HTTP_TRONGATETOKEN'] ?? '';
+    
+    if (!$token) {
+        http_response_code(401);
+        echo json_encode(['error' => 'No authorization token provided']);
+        die();
+    }
+    
+    if (!$this->_validate_token($token)) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid token']);
+        die();
+    }
+    
+    if (!$this->_check_user_permissions($token)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Insufficient permissions']);
+        die();
+    }
+}[/code]
+
+<div class="alert alert-success">
+<p>When implementing token-based access control:</p>
+<ol>
+    <li>Always use appropriate HTTP status codes to indicate the result</li>
+    <li>Include clear error messages in the response body</li>
+    <li>Log failed access attempts for security monitoring</li>
+    <li>Consider implementing rate limiting for your API endpoints</li>
+    <li>Use environment variables for any sensitive configuration</li>
+</ol>	
+</div>
+
+<p>Remember that proper error handling and clear response messages help both security and developer experience. Your API should be both secure and user-friendly.</p>

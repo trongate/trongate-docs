@@ -1,0 +1,50 @@
+<div class="container">
+  <h1>form_close()</h1>
+  <p class="signature">function form_close(): string</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates hidden CSRF token input field and a closing form tag.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <p>This function does not accept any parameters.</p>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated HTML closing tag for the form, including CSRF token.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example</h2>
+  <p>The code sample below demonstrates the basic usage of the <code>form_close</code> function.</p>
+  <pre>
+  echo form_open('submit_form');
+  echo form_input('username');
+  echo form_submit('submit', 'Submit');
+  echo form_close();
+  
+  // Output: 
+  // '&lt;form action="submit_form" method="post"&gt;
+  //  &lt;input type="text" name="username"&gt;
+  //  &lt;input type="submit" name="submit" value="Submit"&gt;
+  //  &lt;input type="hidden" name="csrf_token" value="..."&gt;
+  //  &lt;/form&gt;'
+  </pre>
+
+  <h2>Additional Notes</h2>
+  <p>The function automatically handles the insertion of a hidden CSRF token field, so developers do not need to manually include it in their forms.  If a CSRF token is not already present in the session, the function generates one using <code>bin2hex(random_bytes(32))</code> and stores it in the session under the key <code>csrf_token</code>. This ensures that the CSRF token is available for subsequent form submissions and validations.</p>
+
+  <p>The function also plays a role in initializing the rendering of inline form validation errors, if required.  For additional information on this topic, please view the documentation for <a href="../../form-handling/displaying-validation-errors.html">displaying validation errors</a>.</p>
+
+</div>

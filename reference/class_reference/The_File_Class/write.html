@@ -1,0 +1,117 @@
+<div class="container">
+  <h1>write()</h1>
+  <p class="signature">function write(string $file_path, mixed $data, bool $append = false): bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Writes or appends data to a file. This method ensures the file path is valid and accessible, writes the provided data to the file, and optionally appends the data instead of overwriting the file.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$file_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>If the path is valid, it writes the provided <code>$data</code> to the file using PHP's <code>file_put_contents()</code> function.</li>
+      <li>If the <code>$append</code> flag is set to <code>true</code>, the data is appended to the file instead of overwriting it.</li>
+      <li>If the write operation fails (e.g., due to insufficient permissions or an invalid path), an exception is thrown with a descriptive error message.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the file path is valid and writable before calling this method. If the file is restricted or inaccessible, or if the write operation fails, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the file where data should be written. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$data</td>
+        <td>mixed</td>
+        <td>The data to write to the file. This can be a string, array, or any other data type that can be converted to a string.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$append</td>
+        <td>bool</td>
+        <td>Determines whether the data should be appended to the file (<code>true</code>) or overwrite the file (<code>false</code>).</td>
+        <td>false</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$file_path</code> is restricted by security rules.</li>
+      <li>The write operation fails (e.g., due to insufficient permissions or an invalid path).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the data is successfully written to the file. If the operation fails, an exception is thrown instead of returning <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Writing data to a file (overwrite)
+try {
+    $file = new File();
+    $success = $file->write('/path/to/file.txt', 'Hello, world!');
+    if ($success) {
+        echo "Data written successfully.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Appending data to a file
+try {
+    $file = new File();
+    $success = $file->write('/path/to/file.txt', 'Appended text.', true);
+    if ($success) {
+        echo "Data appended successfully.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Writing an array to a file
+try {
+    $file = new File();
+    $data = ['line1', 'line2', 'line3'];
+    $success = $file->write('/path/to/file.txt', implode("\n", $data));
+    if ($success) {
+        echo "Array data written successfully.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the file path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Use Append Flag Wisely:</strong> Use the <code>$append</code> flag to avoid overwriting important data in existing files.</li>
+      <li><strong>Handle Large Data:</strong> For large data sets, consider writing data in chunks to avoid memory issues.</li>
+      <li><strong>Check Permissions:</strong> Ensure the script has sufficient permissions to write to the file and its directory.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths or data.</li>
+    </ul>
+  </div>
+</div>

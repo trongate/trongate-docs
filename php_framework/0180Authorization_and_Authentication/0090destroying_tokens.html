@@ -1,0 +1,49 @@
+<h1>Destroying Tokens</h1>
+
+<p>In certain scenarios, such as when a user logs out of a private members' area, it may be necessary to delete a token from the user's device and from your application's database. This can be accomplished by invoking the <span class="feature-ref">_destroy()</span> method from the <strong>Trongate Tokens</strong> module. This method does not require any arguments.</p>
+
+<h2>How It Works</h2>
+<p>The <span class="feature-ref">_destroy()</span> method systematically removes tokens from the following possible storage locations:</p>
+<ul>
+  <li><strong>Session Data:</strong> If a token is stored in the session, it will be cleared.</li>
+  <li><strong>Cookies:</strong> If a token is stored as a cookie, it will be deleted from the user's browser.</li>
+  <li><strong>Database Records:</strong> Any corresponding records in the <code>trongate_tokens</code> table will be removed.</li>
+</ul>
+
+<p>This ensures that the token is completely invalidated and cannot be reused for authentication or authorization purposes.</p>
+
+<h2>Example Usage</h2>
+<p>Below is an example of how to invoke the <span class="feature-ref">_destroy()</span> method:</p>
+
+<div class="code-block">
+[code=php]
+$this->module('trongate_tokens');
+$this->trongate_tokens->_destroy();
+[/code]
+</div>
+
+<h3>Explanation</h3>
+<ul>
+  <li><strong>Line 1:</strong> Loads the <code>trongate_tokens</code> module, making its methods available for use.</li>
+  <li><strong>Line 2:</strong> Invokes the <span class="feature-ref">_destroy()</span> method to clear tokens from the session, cookies, and database.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>This method clears any tokens that might be stored as either session data or cookie data on the user's device. If a token is found, the method will also delete corresponding records from the <code>trongate_tokens</code> table.</p>
+  <p>If the <span class="feature-ref">_destroy()</span> method is invoked when the end user does <em>not</em> have a valid token, nothing will happen, and no error messages will be produced.</p>
+</div>
+
+<h2>Security Implications</h2>
+<p>Properly destroying tokens is a critical aspect of maintaining application security. By invoking the <span class="feature-ref">_destroy()</span> method during logout or other relevant events, you ensure that:</p>
+<ul>
+  <li><strong>Session Termination:</strong> The user's session is terminated, preventing unauthorized access to protected resources.</li>
+  <li><strong>Token Cleanup:</strong> Tokens are removed from both the client side (session or cookies) and the server side (database), minimizing the risk of token reuse or hijacking.</li>
+</ul>
+
+<h2>Additional Considerations</h2>
+<p>While the <span class="feature-ref">_destroy()</span> method handles token cleanup comprehensively, developers should also consider the following best practices:</p>
+<ul>
+  <li><strong>Logout Confirmation:</strong> Provide users with feedback (e.g., a success message) after invoking the <span class="feature-ref">_destroy()</span> method to confirm that they have been logged out.</li>
+  <li><strong>Redirect After Logout:</strong> Redirect users to a public page (e.g., the login screen or homepage) after destroying their tokens to prevent accidental re-access to restricted areas.</li>
+  <li><strong>Token Expiry:</strong> Ensure that tokens have a reasonable lifespan and implement mechanisms to automatically expire and clean up unused tokens from the database.</li>
+</ul>

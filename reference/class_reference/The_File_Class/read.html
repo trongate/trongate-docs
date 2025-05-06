@@ -1,0 +1,100 @@
+<div class="container">
+  <h1>read()</h1>
+  <p class="signature">function read(string $file_path): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Reads the contents of a file and returns it as a string. This method ensures the file exists, validates the file path against predefined security rules, and reads the file's contents using PHP's <code>file_get_contents()</code> function.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$file_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>It checks if the file exists at the specified path. If the file does not exist, an exception is thrown.</li>
+      <li>If the file exists and the path is valid, it attempts to read the file's contents using <code>file_get_contents()</code>.</li>
+      <li>If the read operation fails (e.g., due to insufficient permissions or an invalid file), an exception is thrown with a descriptive error message.</li>
+      <li>If successful, the file's contents are returned as a string.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the file exists and is accessible before calling this method. If the file is restricted, inaccessible, or does not exist, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the file to be read. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$file_path</code> is restricted by security rules.</li>
+      <li>The file does not exist at the specified path.</li>
+      <li>The file cannot be read (e.g., due to insufficient permissions or an invalid file).</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the contents of the file as a string. If the operation fails, an exception is thrown instead of returning a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Reading a text file
+try {
+    $file = new File();
+    $content = $file->read('/path/to/file.txt');
+    echo $content;
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Reading a JSON file and decoding it
+try {
+    $file = new File();
+    $json_content = $file->read('/path/to/data.json');
+    $data = json_decode($json_content, true);
+    print_r($data);
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $content = $file->read('/path/to/restricted/file.txt');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this file is restricted: /path/to/restricted/file.txt"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Always ensure the file path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Check File Existence:</strong> Verify the file exists before attempting to read it, or handle the exception gracefully.</li>
+      <li><strong>Handle Large Files:</strong> For large files, consider using alternative methods (e.g., streaming) to avoid memory issues.</li>
+      <li><strong>Use Appropriate Encoding:</strong> If the file contains non-UTF-8 data, ensure proper encoding handling when processing the content.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths.</li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,149 @@
+<h1>Form Display Methods</h1>
+<p>When integrating forms into your web application, Trongate MX offers three powerful approaches to form presentation: default display, modal windows, and hidden forms with triggers. Each method serves different user experience needs while maintaining the dynamic capabilities of Trongate MX.</p>
+
+<h2>Default Display Method</h2>
+<p>The simplest approach is to display forms directly on the page load. This method works well for primary actions where form completion is the main goal.</p>
+
+<p>Here's how to create a basic form using Trongate's helper functions:</p>
+[code=vf]
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; 'users/create',
+    'mx-target' =&gt; '#response'
+];
+echo form_open('#', $form_attr);
+echo form_label('Username');
+echo form_input('username', '');
+echo form_label('Email');
+echo form_input('email', '');
+echo form_submit('submit', 'Create Account');
+echo form_close();
+?&gt;
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">For those who prefer working with pure HTML, here's how to achieve the same result:</p>
+[code=html]
+&lt;form mx-post="users/create" 
+      mx-target="#response"&gt;
+    &lt;label&gt;Username&lt;/label&gt;
+    &lt;input type="text" name="username"&gt;
+    &lt;label&gt;Email&lt;/label&gt;
+    &lt;input type="text" name="email"&gt;
+    &lt;button type="submit"&gt;Create Account&lt;/button&gt;
+&lt;/form&gt;
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<h2>Modal Window Forms</h2>
+<p>Modal windows create focused interactions by displaying forms in overlay dialogs. This approach is perfect for secondary actions that shouldn't disrupt the main content flow.</p>
+
+<p>First, let's create a button to trigger the modal using Trongate's helper functions:</p>
+[code=vf]
+&lt;?php
+// Button to trigger the modal
+$btn_attr = [
+    'mx-get' =&gt; 'users/get_modal_form',
+    'mx-build-modal' =&gt; json_encode([
+        'id' =&gt; 'user-form-modal',
+        'width' =&gt; '500px',
+        'modalHeading' =&gt; 'Create Account',
+        'showCloseButton' =&gt; 'true'
+    ])
+];
+echo form_button('create_btn', 'Create Account', $btn_attr);
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's how you can accomplish the same using standard HTML:</p>
+[code=html]
+&lt;button mx-get="users/get_modal_form"
+        mx-build-modal='{
+            "id": "user-form-modal",
+            "width": "500px",
+            "modalHeading": "Create Account",
+            "showCloseButton": "true"
+        }'&gt;Create Account&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Full documentation on how to build dynamic modals, with Trongate MX, is available <a href="documentation/display/trongate_mx/ui-enhancements/building-dynamic-modals">here</a>.</p>
+</div>
+
+<p>The corresponding view file for the modal content would look like this using helper functions:</p>
+[code=vf]
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; $form_location,
+    'mx-close-on-success' =&gt; 'true',
+    'class' =&gt; 'text-center'
+];
+echo form_open('#', $form_attr);
+echo form_label('Username');
+echo form_input('username', '');
+echo form_label('Email');
+echo form_input('email', '');
+echo form_submit('submit', 'Create Account');
+echo form_close();
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">To implement this using only HTML, see the example below:</p>
+[code=html]
+&lt;form mx-post="users/create" 
+      mx-close-on-success="true" 
+      class="text-center"&gt;
+    &lt;label&gt;Username&lt;/label&gt;
+    &lt;input type="text" name="username"&gt;
+    &lt;label&gt;Email&lt;/label&gt;
+    &lt;input type="text" name="email"&gt;
+    &lt;button type="submit"&gt;Create Account&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<p>And the controller method to serve the form:</p>
+[code=php]
+function get_modal_form() {
+    // This method returns the HTML content that will populate the modal
+    $data['form_location'] = 'users/create';
+    
+    // Load a view containing your form
+    $this-&gt;view('users/modal_form', $data);
+}
+[/code]
+
+<h2>Hidden Forms with Triggers</h2>
+<p>For a cleaner interface, forms can remain hidden until needed. This approach uses triggers to reveal forms dynamically.</p>
+
+<p>Here's how to implement this using Trongate's helper functions:</p>
+[code=vf]
+&lt;?php
+// Button to reveal the form
+$btn_attr = [
+    'mx-get' =&gt; 'users/get_form',
+    'mx-target' =&gt; '#form-container'
+];
+echo form_button('show_form', 'Show Form', $btn_attr);
+?&gt;
+&lt;div id="form-container"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">For a pure HTML approach, here's the corresponding code:</p>
+[code=html]
+&lt;button mx-get="users/get_form"
+        mx-target="#form-container"&gt;Show Form&lt;/button&gt;
+&lt;div id="form-container"&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+<h3>Best Practices for Form Display</h3>
+<ul>
+    <li>Use default display for primary page actions where form completion is the main goal.</li>
+    <li>Choose modals for secondary actions that require focused attention.</li>
+    <li>Implement hidden forms when you want to preserve space and provide progressive disclosure.</li>
+    <li>Always ensure clear visual feedback when forms are shown or hidden.</li>
+</ul>
+</div>
+
+<h2>Summary</h2>
+<p>Trongate MX provides flexible options for displaying forms, each suited to different scenarios. The default display method works well for primary forms, while modal windows create focused interactions for secondary tasks. Hidden forms with triggers help maintain a clean interface while providing progressive disclosure. By choosing the right display method and implementing it with Trongate MX's intuitive attributes, you can create engaging and user-friendly form experiences.</p>

@@ -1,0 +1,158 @@
+<div class="container">
+  <h1>save()</h1>
+  <p class="signature">function save(?string $filename = null, int $compression = 100, ?int $permissions = null): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Saves the currently loaded image to a file, with optional compression and file permissions settings. This method handles different image formats (JPEG, GIF, PNG, WEBP) and applies the specified compression level for formats that support it (JPEG, WEBP). File permissions can also be set if provided.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>If no filename is provided, the method uses the internal filename stored in the class instance (<code>$file_name</code>).</li>
+      <li>The image is saved in the format corresponding to the loaded image type (e.g., JPEG, PNG, etc.).</li>
+      <li>For JPEG and WEBP formats, the compression level can be adjusted to control the trade-off between file size and image quality.</li>
+      <li>Optional file permissions can be set to control access to the saved file.</li>
+      <li>Transparency is preserved for formats that support it (e.g., PNG and GIF).</li>
+    </ul>
+    <p><strong>Note:</strong> While the <code>save()</code> method writes the image to disk, it does not release the memory allocated for the image resource. To free up memory after saving, it is recommended to call the <code>destroy()</code> method, especially in scripts that process multiple images or large images.</p>
+  </div>
+  <h2>When to Use destroy() After save()</h2>
+  <div class="description">
+    <p>After calling <code>save()</code>, it is often advisable to call <code>destroy()</code> to explicitly free the memory allocated for the image resource. Here are some scenarios where using <code>destroy()</code> is particularly important:</p>
+    <ul>
+      <li><strong>Batch Processing:</strong> When processing multiple images in a loop, failing to free memory after each image can lead to excessive memory usage. Explicitly calling <code>destroy()</code> ensures efficient memory management.</li>
+      <li><strong>Large Images:</strong> Working with large images can consume significant memory. Releasing memory immediately after saving helps prevent memory exhaustion.</li>
+      <li><strong>Long-Running Scripts:</strong> In scripts that run for extended periods, memory leaks can accumulate if resources are not freed. Using <code>destroy()</code> ensures that memory is released as soon as it is no longer needed.</li>
+      <li><strong>Future-Proofing:</strong> Even in simple scripts that process only one image, calling <code>destroy()</code> is a good habit. It makes your code more robust and adaptable for future changes.</li>
+    </ul>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$filename</td>
+        <td>string|null</td>
+        <td>Optional. The path where the image file will be saved. If not provided, the method uses the internal default filename (<code>$file_name</code>) set in the class.</td>
+        <td>null</td>
+      </tr>
+      <tr>
+        <td>$compression</td>
+        <td>int</td>
+        <td>Optional. Compression level for JPEG and WEBP images, ranging from 0 (worst quality, smallest file) to 100 (best quality, largest file).</td>
+        <td>100</td>
+      </tr>
+      <tr>
+        <td>$permissions</td>
+        <td>int|null</td>
+        <td>Optional. File permissions to set on the saved file, using the format (e.g., <code>0644</code>). If not specified, the system's default permissions are used.</td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>InvalidArgumentException</strong> if:</p>
+    <ul>
+      <li>An unsupported image type is encountered.</li>
+      <li>Required properties (e.g., internal filename) are not set.</li>
+    </ul>
+    <p>Throws a <strong>RuntimeException</strong> if:</p>
+    <ul>
+      <li>Writing the file fails.</li>
+      <li>Setting the specified file permissions is unsuccessful.</li>
+    </ul>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value but ensures that the image is saved to the specified file with the requested settings.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Saving a Single Image
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Perform image operations (e.g., resize)
+    $this->image->resize_to_width(800);
+    
+    // Save the modified image
+    $this->image->save('path/to/output.jpg', 85, 0644);
+    
+    // Free up memory after saving
+    $this->image->destroy();
+    
+    echo "Image saved successfully, and memory has been freed.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Batch Image Processing
+$image_files = ['image1.jpg', 'image2.jpg', 'image3.jpg'];
+
+foreach ($image_files as $file) {
+    try {
+        // Load an image
+        $this->image->load("path/to/$file");
+        
+        // Perform image operations (e.g., resize)
+        $this->image->resize_to_width(800);
+        
+        // Save the modified image
+        $this->image->save("path/to/output/$file", 85, 0644);
+        
+        // Free up memory after saving
+        $this->image->destroy();
+        
+        echo "Processed and saved $file successfully.\n";
+    } catch (Exception $e) {
+        echo "Error processing $file: " . $e->getMessage() . "\n";
+    }
+}
+// Memory is efficiently managed for each image
+</pre>
+    <pre>
+// Example 3: Optional Use Case Without destroy()
+// In short-lived scripts, destroy() may not be strictly necessary
+try {
+    $this->image->load('path/to/image.jpg');
+    $this->image->resize_to_width(800);
+    $this->image->save('path/to/output.jpg', 85, 0644);
+    
+    // No explicit destroy() call
+    echo "Image saved successfully. Memory will be cleaned up automatically at script end.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Always Call <code>destroy()</code> After <code>save()</code>:</strong> This ensures immediate cleanup of memory, even if the script terminates shortly afterward.</li>
+      <li><strong>Batch Processing Requires <code>destroy()</code>:</strong> When processing multiple images, failing to free memory after each image can lead to memory exhaustion.</li>
+      <li><strong>Future-Proof Your Code:</strong> Even if your script currently handles only one image, explicitly calling <code>destroy()</code> makes your code more robust and adaptable for future changes.</li>
+      <li><strong>Validate File Paths:</strong> Ensure the provided file path is writable and valid to avoid runtime errors.</li>
+      <li><strong>Adjust Compression:</strong> Use appropriate compression levels to balance image quality and file size, especially for web-optimized images.</li>
+      <li><strong>Set Permissions Carefully:</strong> Use file permissions to control access to sensitive images, but avoid overly restrictive settings that might break functionality.</li>
+    </ul>
+  </div>
+</div>

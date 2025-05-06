@@ -1,0 +1,48 @@
+<h1>Code Distribution and Management</h1>
+<p>Trongate developers can use <a href="documentation/display/php_framework/controllers/using-packagist-with-trongate" target="_blank">Packagist</a> for sharing code, just as with other PHP frameworks. However, Trongate modules are designed to be entirely self-contained, enabling seamless distribution without reliance on external platforms. This means modules can be copied directly from one project and pasted into another, making them highly portable and easy to integrate.</p>
+<p>If a module includes an SQL file, Trongate activates a built-in <strong>Module Import Wizard</strong>. This wizard prompts the user to import SQL code with a single click, ensuring smooth integration of modules that depend on database structures. For more details, see the <a href="documentation/display/php_framework/the-module-import-wizard" target="_blank">Module Import Wizard chapter</a>.</p>
+<h2>Self-Contained Modules: A Key Strength</h2>
+<p>Trongate's modular architecture emphasizes independence and portability. Each module encapsulates all necessary components, including controllers, views, assets, and optional database configurations. This design allows developers to copy and paste modules between projects without additional setup or dependencies. Whether you're reusing modules within a single application or sharing them across multiple projects, the process is straightforward and efficient.</p>
+<h2>Trongate's Code Sharing Platform</h2>
+<p>For developers seeking pre-built modules, Trongate offers "<a href="https://trongate.io/module-market" target="_blank">The Module Market</a>"—a platform tailored specifically for Trongate modules. While not required for module distribution, The Module Market provides a centralized location for discovering high-quality, open-source modules that meet Trongate's standards for integration and compatibility. Each module is maintained by a single developer, ensuring accountability and consistent quality.</p>
+
+<h2>Comparative Overview of Code Sharing Platforms</h2>
+<p>The table below compares popular web development technologies, highlighting their approaches to managing and sharing intellectual assets such as code.</p>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Technology</th>
+                <th>Platform</th>
+                <th>Management Model</th>
+                <th>Security and Stability Focus</th>
+            </tr>
+        </thead>
+        <tbody class="sm">
+            <tr>
+                <td>Node.js</td>
+                <td>NPM (Node Package Manager)</td>
+                <td>Community-driven; multiple contributors</td>
+                <td>Dependencies managed by versions; potential security risks from open contributions</td>
+            </tr>
+            <tr>
+                <td>Ruby on Rails</td>
+                <td>RubyGems</td>
+                <td>Community-driven; multiple contributors per gem</td>
+                <td>Moderate; includes efforts to audit gems but remains open to community contributions</td>
+            </tr>
+            <tr>
+                <td>Other PHP Frameworks</td>
+                <td>Packagist</td>
+                <td>Community-driven; inter-version dependencies allowed</td>
+                <td>Security audits are less centralized; relies on community vigilance and Composer's dependency management</td>
+            </tr>
+            <tr>
+                <td>Trongate</td>
+                <td>Self-contained modules / Module Market</td>
+                <td>Single point of accountability; one developer responsible per module</td>
+                <td>Higher security and stability due to developer accountability and controlled updates</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

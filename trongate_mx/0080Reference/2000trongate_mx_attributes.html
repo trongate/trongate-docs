@@ -1,0 +1,207 @@
+<h1>Trongate MX Attributes</h1>
+<p>The table below offers a quick reference for all Trongate MX attributes.</p>
+
+<table id="attributesTable" class="mx-attributes-table">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div class="alert alert-info">
+    <p>In addition to the above attributes, the Trongate PHP framework also has the <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> function.  This function can be used on API endpoints to determine if an HTTP request came from Trongate MX or not.  Full details are available from, <a href="documentation/display/trongate_mx/core-http-operations/identifying-trongate-mx-requests">Identifying Trongate MX Requests</a>.</p>
+</div>   
+
+
+<script>
+    const attributes = [
+        {
+            attribute: 'mx-animate-error',
+            description: 'Triggers an error animation when an HTTP request returns a response code less than 200 or greater than or equal to 300 (failed request)',
+            url: 'ui-enhancements/error-animations'
+        },
+        {
+            attribute: 'mx-animate-success',
+            description: 'Triggers a success animation when an HTTP request returns a response code between 200 and 299 (successful request)',
+            url: 'ui-enhancements/success-animations'
+        },
+        {
+            attribute: 'mx-after-swap',
+            description: 'Executes a specified JavaScript function immediately after a successful content swap operation, allowing for further DOM manipulation or initialization.',
+            url: 'swapping-content/after-swap-operations'
+        },
+        {
+            attribute: 'mx-after-validation',
+            description: 'Executes a specified JavaScript function immediately after form validation errors are displayed.',
+            url: 'form-handling/after-validation-operations'
+        },
+        {
+            attribute: 'mx-build-modal',
+            description: 'Dynamically creates and populates modal dialogs with content fetched via HTTP request',
+            url: 'ui-enhancements/building-dynamic-modals'
+        },
+        {
+            attribute: 'mx-close-on-error',
+            description: 'Automatically closes an opened and visible modal when an HTTP request returns a response code less than 200 or greater than or equal to 300 (failed request)',
+            url: 'ui-enhancements/automatically-closing-modals'
+        },
+        {
+            attribute: 'mx-close-on-success',
+            description: 'Automatically closes an opened and visible modal when an HTTP request returns a response code between 200 and 299 (successful request)',
+            url: 'ui-enhancements/automatically-closing-modals'
+        },
+        {
+            attribute: 'mx-delete',
+            description: 'Issues a DELETE request to the specified URL',
+            url: 'core-http-operations/http-methods-in-trongate-mx'
+        },
+        {
+            attribute: 'mx-dom-vals',
+            description: 'Dynamically attach values from the DOM to outbound HTTP requests',
+            url: 'data-management/attaching-dom-values-to-requests'
+        },
+        {
+            attribute: 'mx-target-loading',
+            description: 'Controls the appearance or behavior of the target element while an AJAX request is in progress, such as cloaking or replacing content.',
+            url: 'swapping-content/target-element-control'
+        },
+        {
+            attribute: 'mx-get',
+            description: 'Issues a GET request to the specified URL',
+            url: 'core-http-operations/http-methods-in-trongate-mx'
+        },
+        {
+            attribute: 'mx-headers',
+            description: 'Specifies custom headers for the HTTP request',
+            url: 'trongate-mx-security/custom-headers'
+        },
+        {
+            attribute: 'mx-indicator',
+            description: 'Specifies an element to show as a loading indicator during the HTTP request',
+            url: 'ui-enhancements/loading-indicators'
+        },
+        {
+            attribute: 'mx-on-error',
+            description: 'Specifies an element to be initialized or updated after a failed HTTP request (response code less than 200 or 300 and above)',
+            url: 'events-and-responses/handling-request-errors'
+        },
+        {
+            attribute: 'mx-on-success',
+            description: 'Specifies an element to be initialized or updated after a successful HTTP request (response code 200-299)',
+            url: 'events-and-responses/handling-successful-requests'
+        },
+        {
+            attribute: 'mx-on-trigger',
+            description: 'Allows you to execute JavaScript functions immediately after a trigger event occurs, but before any HTTP request is made',
+            url: 'events-and-responses/on-trigger-operations'
+        },
+        {
+            attribute: 'mx-patch',
+            description: 'Issues a PATCH request to the specified URL',
+            url: 'core-http-operations/http-methods-in-trongate-mx'
+        },
+        {
+            attribute: 'mx-post',
+            description: 'Issues a POST request to the specified URL',
+            url: 'core-http-operations/http-methods-in-trongate-mx'
+        },
+        {
+            attribute: 'mx-push-url',
+            description: 'Dynamically update the address bar and push this change to the browser\'s history',
+            url: 'advanced-features/managing-browser-url-state'
+        },
+        {
+            attribute: 'mx-put',
+            description: 'Issues a PUT request to the specified URL',
+            url: 'core-http-operations/http-methods-in-trongate-mx'
+        },
+        {
+            attribute: 'mx-redirect-on-error',
+            description: 'Redirects users to a different URL after receiving an error status code (400-599) from an API endpoint.',
+            url: 'events-and-responses/redirect-on-error'
+        },
+        {
+            attribute: 'mx-redirect-on-success',
+            description: 'Redirects users to a different URL after receiving a success status code (200-299) from an API endpoint.',
+            url: 'events-and-responses/redirect-on-success'
+        },
+        {
+            attribute: 'mx-remove',
+            description: 'Removes the closest ancestor element from the DOM when an interactive element with the mx-remove attribute is triggered by a user action, such as a button click.',
+            url: 'ui-enhancements/element-removal-with-mx-remove'
+        },
+        {
+            attribute: 'mx-select',
+            description: 'Selects content to swap in from a response',
+            url: 'swapping-content/selecting-content'
+        },
+        {
+            attribute: 'mx-select-oob',
+            description: 'Selects content to swap in from a response, outside the target (out of band)',
+            url: 'swapping-content/out-of-band-swaps'
+        },
+        {
+            attribute: 'mx-swap',
+            description: 'Controls how content will be swapped in (innerHTML, outerHTML, beforebegin, etc.)',
+            url: 'swapping-content/swap-operations'
+        },
+        {
+            attribute: 'mx-swap-title',
+            description: 'Provides a simple way to update the page title based on the response from a server request.',
+            url: 'swapping-content/swapping-head-values'
+        },
+        {
+            attribute: 'mx-target',
+            description: 'Specifies the target element to be swapped',
+            url: 'core-http-operations/targeting-elements'
+        },
+        {
+            attribute: 'mx-throttle',
+            description: 'Allows you to limit the frequency of HTTP requests triggered by user interactions.',
+            url: 'advanced-features/throttling-http-requests'
+        },
+        {
+            attribute: 'mx-token',
+            description: 'Attaches a Trongate Token to the HTTP request for authentication',
+            url: 'trongate-mx-security/working-with-trongate-tokens'
+        },
+        {
+            attribute: 'mx-trigger',
+            description: 'Specifies the event that triggers the HTTP request',
+            url: 'events-and-responses/triggers-in-trongate-mx'
+        },
+        {
+            attribute: 'mx-vals',
+            description: 'Attach additional values to your HTTP requests as if they were submitted as part of an ordinary HTML form',
+            url: 'data-management/posting-additional-parameters'
+        }
+    ];
+
+    // Sort attributes by name
+    attributes.sort((a, b) => a.attribute.localeCompare(b.attribute));
+
+    // Populate table
+    const tbody = document.querySelector('#attributesTable tbody');
+    attributes.forEach(attr => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <code>
+                    <a href="documentation/display/trongate_mx/${attr.url}">${attr.attribute}</a>
+                </code>
+            </td>
+            <td>${attr.description}</td>
+        `;
+        tbody.appendChild(row);
+    });
+</script>
+
+
+<style>
+tr > td:nth-child(1) {
+  white-space: nowrap;
+}
+</style>

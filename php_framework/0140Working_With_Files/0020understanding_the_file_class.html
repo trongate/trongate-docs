@@ -1,0 +1,81 @@
+<h1>Understanding The File Class</h1>
+<p>The Trongate <a href="documentation-ref/list_refs/class_reference/the-file-class" target="_blank">File class</a> provides a comprehensive suite of methods for efficient and secure file management within your application. This class supports functionalities like uploading, deleting, reading, writing files, and managing directories. Access restrictions are in place to prevent unauthorized access to critical directories such as 'config', 'engine', and 'templates', as well as any files directly under the root application level (e.g., '.htaccess').</p>
+
+<h2>Getting Started</h2>
+<p>To use the Trongate File class, you need to instantiate the class and then call its methods. Here’s a basic example of how to use the <span class="feature-ref">read()</span> method:</p>
+
+[code=php]
+$file = new File();
+
+try {
+    $file_path = APPPATH.'public/uploads/example.txt';
+    $content = $file-&gt;read($file_path);
+    echo "File content: " . out($content);
+} catch (Exception $e) {
+    echo "Error: " . $e-&gt;getMessage();
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>In the above example, the <code>APPPATH</code> constant is used to return the absolute file path of the application's root directory.  Additional information about this and other helpful features are available <a href="documentation/display/php_framework/helpers-explained/other-helpful-features">from here</a>.</p>
+
+    <p>The example also uses Trongate's <span class="feature-ref">out()</span> function to remove potentially dangerous characters from rendered output.</p>
+</div>
+
+<h2>Available Methods</h2>
+<p>Below is a table listing all the available methods in the Trongate File class, along with a brief description of each method:</p>
+
+<table id="fileMethodsTable" class="file-methods-table">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">copy()</span></td>
+            <td>Copies a file from one location to another.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">create_directory()</span></td>
+            <td>Creates a new directory at the specified path.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">delete()</span></td>
+            <td>Deletes a file from the filesystem.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">download()</span></td>
+            <td>Initiates a file download or displays inline from the server or an external URL.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">exists()</span></td>
+            <td>Checks whether a file or directory exists at the specified path.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">info()</span></td>
+            <td>Retrieves metadata about a file.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">list_directory()</span></td>
+            <td>Lists files and directories within a specified directory.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">move()</span></td>
+            <td>Moves a file from one location to another.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">read()</span></td>
+            <td>Reads the contents of a file.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">upload()</span></td>
+            <td>Handles the file upload process with specified configuration.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref" ref-path="class_reference/The_File_Class">write()</span></td>
+            <td>Writes or appends data to a file.</td>
+        </tr>
+    </tbody>
+</table>

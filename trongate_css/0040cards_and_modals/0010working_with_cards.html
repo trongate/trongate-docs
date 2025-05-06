@@ -1,0 +1,182 @@
+<h1>Working With Cards</h1>
+
+<p>Cards are versatile containers that help organize and present content in a clean, structured way. Trongate CSS provides built-in card styling with minimal markup requirements.</p>
+
+<h2>Basic Card Structure</h2>
+<p>A basic card consists of two main parts: a heading and a body. Here's a simple example:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card">
+            <div class="card-heading">
+                Welcome Message
+            </div>
+            <div class="card-body">
+                <p>Welcome to our platform! This is a basic card example showing how content can be organized using Trongate's card component.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Welcome Message
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p&gt;Welcome to our platform! This is a basic card example showing how content can be organized using Trongate's card component.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Cards with Different Content Types</h2>
+<p>Cards can contain various types of content including text, lists, buttons, and more:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card">
+            <div class="card-heading">
+                Product Features
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Responsive Design</li>
+                    <li>Easy Integration</li>
+                    <li>Modern Architecture</li>
+                </ul>
+                <button class="mt-2">Learn More</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Product Features
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;ul&gt;
+            &lt;li&gt;Responsive Design&lt;/li&gt;
+            &lt;li&gt;Easy Integration&lt;/li&gt;
+            &lt;li&gt;Modern Architecture&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;button class="mt-2"&gt;Learn More&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Multiple Cards Layout</h2>
+<p>Cards can be arranged side by side using Trongate's flex utilities:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="flex-row">
+            <div class="card" style="width: 48%; margin-right: 2%;">
+                <div class="card-heading">
+                    Basic Plan
+                </div>
+                <div class="card-body text-center">
+                    <p>Perfect for individuals and small teams with a focus on efficiency.</p>
+                    <button class="success">Select Plan</button>
+                </div>
+            </div>
+            <div class="card" style="width: 48%;">
+                <div class="card-heading">
+                    Pro Plan
+                </div>
+                <div class="card-body text-center">
+                    <p>Ideal for growing businesses and organizations that need more.</p>
+                    <button class="primary">Select Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>In the example, we also use <code>.text-center</code> to center-align the modal body content.  Here's the source code:</p>
+
+[code=html]
+&lt;div class="flex-row"&gt;
+    &lt;div class="card" style="width: 48%; margin-right: 2%;"&gt;
+        &lt;div class="card-heading"&gt;
+            Basic Plan
+        &lt;/div&gt;
+        &lt;div class="card-body text-center"&gt;
+            &lt;p&gt;Perfect for individuals and small teams with a focus on efficiency.&lt;/p&gt;
+            &lt;button class="success"&gt;Select Plan&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="card" style="width: 48%;"&gt;
+        &lt;div class="card-heading"&gt;
+            Pro Plan
+        &lt;/div&gt;
+        &lt;div class="card-body text-center"&gt;
+            &lt;p&gt;Ideal for growing businesses and organizations that need more.&lt;/p&gt;
+            &lt;button class="primary"&gt;Select Plan&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Customizing Card Appearance</h2>
+<p>You can customize cards using CSS variables and additional styles:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card custom-card">
+            <div class="card-heading">
+                Custom Styled Card
+            </div>
+            <div class="card-body">
+                <p>This card demonstrates custom styling possibilities.</p>
+            </div>
+        </div>
+
+        <style>
+            .custom-card .card-heading {
+                background-color: var(--secondary);
+                border-color: var(--secondary-dark);
+            }
+            
+            .custom-card .card-body {
+                background-color: var(--neutral);
+            }
+        </style>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card custom-card"&gt;
+    &lt;div class="card-heading"&gt;
+        Custom Styled Card
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p&gt;This card demonstrates custom styling possibilities.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+    .custom-card .card-heading {
+        background-color: var(--secondary);
+        border-color: var(--secondary-dark);
+    }
+    
+    .custom-card .card-body {
+        background-color: var(--neutral);
+    }
+&lt;/style&gt;
+[/code]
+
+<h2>Top Tips</h2>
+<ul>
+    <li>Keep card content focused and concise</li>
+    <li>Use appropriate spacing within card bodies (utilize margin utility classes)</li>
+    <li>Ensure card headings are descriptive but brief</li>
+    <li>Consider mobile responsiveness when using multiple cards</li>
+    <li>Use consistent card sizes within the same row or section</li>
+</ul>
+
+<div class="alert alert-info">
+    <p>Cards automatically inherit your theme's primary color for their headings. You can override this using CSS variables or custom styles as shown in the examples above.</p>
+</div>

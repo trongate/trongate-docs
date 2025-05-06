@@ -1,0 +1,124 @@
+<div class="container">
+  <h1>destroy()</h1>
+  <p class="signature">function destroy(): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Frees up memory allocated to the image resource stored in this class's instance. This method should be invoked when the image is no longer needed, especially in scripts that process multiple or large images. Properly releasing memory helps prevent memory leaks and ensures efficient management of system resources.</p>
+    <p>Failure to call this method in scenarios involving multiple or large images can lead to increased memory usage and potential performance degradation.</p>
+    <p><strong>When to Use <code>destroy()</code>:</strong></p>
+    <ul>
+      <li>After modifying the image (e.g., resizing, cropping, saving).</li>
+      <li>When the image is no longer needed in the script.</li>
+      <li>In batch processing or long-running scripts to prevent memory leaks.</li>
+    </ul>
+    <p><strong>When <code>destroy()</code> Is Not Needed:</strong></p>
+    <ul>
+      <li>After read-only operations like <code>get_header()</code>, <code>get_height()</code>, or <code>get_width()</code>. These methods do not modify the image or allocate additional memory, so calling <code>destroy()</code> is unnecessary.</li>
+      <li>In short-lived scripts (e.g., scripts that terminate immediately after processing an image), calling <code>destroy()</code> is optional, as PHP automatically frees memory at the end of script execution. However, it is still considered a best practice to explicitly call <code>destroy()</code> for clean and predictable memory management.</li>
+    </ul>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>This method does not accept any parameters.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>This method does not throw any exceptions. It safely checks if an image resource exists before attempting to destroy it. If no image is loaded, the method does nothing.</p>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value but ensures that the memory associated with the image resource is freed.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Freeing memory after processing a single image
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Perform image operations (e.g., resize, crop, etc.)
+    $this->image->resize_to_width(800);
+    
+    // Save the modified image
+    $this->image->save('path/to/output.jpg');
+    
+    // Free up memory after processing
+    $this->image->destroy();
+    
+    echo "Image processing completed, and memory has been freed.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Batch processing multiple images
+$image_files = ['image1.jpg', 'image2.jpg', 'image3.jpg'];
+
+foreach ($image_files as $file) {
+    try {
+        // Load an image
+        $this->image->load("path/to/$file");
+        
+        // Perform image operations
+        $this->image->resize_to_width(800);
+        
+        // Save the modified image
+        $this->image->save("path/to/output/$file");
+        
+        // Free up memory after processing each image
+        $this->image->destroy();
+        
+        echo "Processed and saved $file successfully.\n";
+    } catch (Exception $e) {
+        echo "Error processing $file: " . $e->getMessage() . "\n";
+    }
+}</pre>
+    <pre>
+// Example 3: Optional use in short-lived scripts
+try {
+    $this->image->load('path/to/image.jpg');
+    $this->image->resize_to_width(800);
+    $this->image->save('path/to/output.jpg');
+    
+    // No explicit destroy() call (memory will be freed automatically at script end)
+    echo "Image processing completed.";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Always Call <code>destroy()</code> in Long-Running Scripts:</strong> In scripts that run for extended periods or process multiple images, explicitly calling <code>destroy()</code> ensures efficient memory management and prevents memory leaks.</li>
+      <li><strong>Use in Batch Processing:</strong> When processing multiple images in a loop, call <code>destroy()</code> after each image to free memory before loading the next one.</li>
+      <li><strong>Optional in Short-Lived Scripts:</strong> In scripts that terminate immediately after processing an image, calling <code>destroy()</code> is optional but still recommended for clean and predictable memory management.</li>
+      <li><strong>No Need for <code>destroy()</code> After Read-Only Operations:</strong> Methods like <code>get_header()</code>, <code>get_height()</code>, and <code>get_width()</code> do not modify the image or allocate additional memory, so calling <code>destroy()</code> is unnecessary after using them.</li>
+    </ul>
+  </div>
+</div>

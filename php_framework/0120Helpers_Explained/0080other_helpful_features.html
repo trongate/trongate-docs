@@ -1,0 +1,138 @@
+<h1>Other Helpful Features</h1>
+
+<p>Trongate includes several useful features that are not part of any specific helper file or class but play an integral role in streamlining web development. These features can be accessed from within any module controller or view file.</p>
+
+<h2>The Anchor Function</h2>
+<p>The <span class="feature-ref">anchor()</span> function generates a clickable text link pointing to a URL relative to <code>BASE_URL</code>.</p>
+<p>For instance, if the website <em>example.com</em> has a homepage located at:</p>
+[code]https://example.com[/code]
+<p>A contact page at <code>https://example.com/contact</code> can be linked using:</p>
+[code=vf]&lt;?= anchor("contact", "Get In Touch") ?&gt;[/code]
+<p>This function accepts up to three parameters:</p>
+<ul>
+    <li><strong>$target_url</strong> ~ The destination URL.</li>
+    <li><strong>$text</strong> ~ The displayed link text.</li>
+    <li><strong>$attributes</strong> (optional) ~ An array of key-value pairs added to the opening 'a' tag.</li>
+</ul>
+
+<p>This function supports both internal and external links by providing a full URL as an argument.</p>
+
+<div class="alert alert-danger">
+    <p><strong>Security Note:</strong> The <span class="feature-ref">anchor()</span> function does <b>not</b> escape the link text. For user-generated or database content, consider combining with the <span class="feature-ref">out()</span> function to prevent XSS attacks:</p>
+    [code=vf]&lt;?= anchor("contact", out($user_provided_text)) ?&gt;[/code]
+</div>
+
+<div class="alert alert-success">
+    <p>When using HTML in links (such as Font Awesome icons), make sure the content is from a trusted source:</p>
+    [code=vf]&lt;?= anchor("home", 'Home &lt;i class="fa fa-home"&gt;&lt;/i&gt;') ?&gt;[/code]
+    <p>For user-generated content, use in combination with the <span class="feature-ref">out()</span> function.  For example:</p>
+    [code=vf]&lt;?= anchor("user-profile", out($username)) ?&gt;[/code]
+</div>
+
+
+<h2>The IP Address Function</h2>
+
+<p>The <span class="feature-ref">ip_address()</span> function returns the IP address of the current visitor. Syntax:</p>
+
+<p>[code=php]ip_address();[/code]</p>
+
+<p>Example usage in a view file:</p>
+
+<p>[code=php]// Inside a view file
+Your IP Address is &lt;?= ip_address() ?&gt;.[/code]</p>
+
+<h2>Generating Random Strings</h2>
+
+<p>The <span class="feature-ref">make_rand_str()</span> function generates random strings. Example:</p>
+
+<p>[code=php]$str = make_rand_str(32);[/code]</p>
+
+<p>The first argument specifies the string length. Passing <strong>true</strong> as a second argument ensures uppercase output:</p>
+
+<p>[code=php]$code = make_rand_str(6, true);
+echo $code; // Example output: "A4WX28"[/code]</p>
+
+<div class="alert alert-info">
+    <p>Characters prone to misinterpretation (e.g., '0', '1', 'l') are excluded for clarity, particularly in scenarios where users read codes aloud.</p>
+</div>
+
+<h2>APPPATH</h2>
+
+<p>The <code>APPPATH</code> constant returns the absolute file path of the application directory. Example:</p>
+
+[code=php]echo APPPATH;[/code]
+
+<p>Within a view file, the <code>APPPATH</code> can be rendered using PHP short tags, like so:</p>
+
+[code=vf]&lt;?= APPPATH ?&gt;[/code]
+
+<div class="alert alert-info">
+    <p>The <code>BASE_URL</code> constant is also available, returning the main website URL as defined in <code>config.php</code>:</p>
+    <p>[code=php]echo BASE_URL;[/code]</p>
+</div>
+
+<h2>The JSON Function</h2>
+
+<p>The <span class="feature-ref">json()</span> function provides a visual representation of data within controllers or views. Syntax:</p>
+
+<p>[code=php]json($data);[/code]</p>
+
+<p>The optional second argument, when set to <strong>true</strong>, terminates script execution after displaying the data.</p>
+
+<p>Example usage in a view file:</p>
+
+[code=vf]&lt;h1&gt;&lt;?= $headline ?&gt;&lt;span class="sm"&gt;(Record ID: &lt;?= $update_id ?&gt;)&lt;/span&gt;&lt;/h1&gt;
+&lt;?= json($data) ?&gt;
+&lt;div class="card"&gt;
+  &lt;div class="card-heading"&gt;
+    Options
+  &lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;?php
+    echo anchor('members/manage', 'View All Members', array("class" =&gt; "button alt"));
+    echo anchor('members/create/'.$update_id, 'Update Details', array("class" =&gt; "button"));
+    $attr_delete = array(
+      "class" =&gt; "danger go-right",
+      "id" =&gt; "btn-delete-modal",
+      "onclick" =&gt; "openModal('delete-modal')"
+    );
+    echo form_button('delete', 'Delete', $attr_delete);
+    ?&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<p>Sample output:</p>
+
+<figure>
+    <img src="images/35/json_scrfqQY.png" alt="screenshot" style="width:100%">
+    <figcaption>Screenshot showing sample output after having invoked the <code>json()</code> function.</figcaption>
+</figure>
+
+<h2>The Out Function</h2>
+
+<p>The <span class="feature-ref">out()</span> function escapes and formats strings for safe output in different contexts. Parameters:</p>
+
+<ul>
+    <li><strong>$input</strong> ~ The string to escape.</li>
+    <li><strong>$encoding</strong> (optional) ~ Character encoding (default: 'UTF-8').</li>
+    <li><strong>$output_format</strong> (optional) ~ Output format: 'html' (default), 'xml', 'json', 'javascript', or 'attribute'.</li>
+</ul>
+
+<h3>Example 1: Safe Output from JSON Data</h3>
+
+<p>[code=php]$jsonString = "{"name": "&lt;script&gt;alert(\"XSS Attack\");&lt;/script&gt;", "age": 25}";
+$data = json_decode($jsonString, true);
+
+echo "&lt;p&gt;Name: ".out($data["name"], "json")."&lt;/p&gt;";
+echo "&lt;p&gt;Age: ".out($data["age"], "json")."&lt;/p&gt;";[/code]</p>
+
+<h3>Example 2: Securing Database Output</h3>
+
+<p>[code=php]echo out($name);
+echo out($email);[/code]</p>
+
+<div class="alert alert-info">
+    <p>More details pertaining to the <span class="feature-ref">out()</span> function are available from <a href="documentation/display/php_framework/form-handling/best-practices-for-handling-data">here</a>.</p>
+</div>
+

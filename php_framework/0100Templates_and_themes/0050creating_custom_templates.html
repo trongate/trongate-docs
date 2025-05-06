@@ -1,0 +1,107 @@
+<h1>Creating Custom Templates</h1>
+
+<p>Trongate allows you to create custom HTML templates to define the structure and layout of your web pages. This guide will walk you through the process of creating your own template.</p>
+
+<h2>Template Location</h2>
+
+<p>Templates in Trongate are stored within the 'templates' module, which is located in your application's root directory. This module follows the standard Trongate module structure, containing both 'controllers' and 'views' directories.</p>
+
+<h2>Creating a Custom Template</h2>
+
+<h3>Step 1: Define Your Template Name</h3>
+
+<p>Choose a meaningful name for your template that reflects its purpose. Template names should be in snake_case format and clearly indicate the template's intended use. Some examples of good template names include:</p>
+
+<ul>
+  <li>public_template</li>
+  <li>admin_dashboard</li>
+  <li>member_portal</li>
+  <li>auth_pages</li>
+  <li>sales_backend</li>
+</ul>
+
+<h3>Step 2: Create the Template Method</h3>
+
+<p>Open the Templates.php controller file in your templates/controllers directory and add a new method for your template:</p>
+
+[code=php]
+class Templates extends Trongate {
+
+    function custom_template(array $data): void {
+        $data['additional_includes_top'] = $this-&gt;_build_additional_includes($data['additional_includes_top'] ?? []);
+        $data['additional_includes_btm'] = $this-&gt;_build_additional_includes($data['additional_includes_btm'] ?? []);
+        load('custom_template', $data);
+    }
+
+}
+[/code]
+
+<h3>Step 3: Create the Template View</h3>
+
+<p>Create a new PHP file in your templates/views directory with the same name as your template method. For example, if your method is named 'custom_template', create custom_template.php:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+    &lt;link rel="stylesheet" href="css/trongate.css"&gt;
+    &lt;?= $additional_includes_top ?? '' ?&gt;
+    &lt;title&gt;&lt;?= $template_title ?? WEBSITE_NAME ?&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;nav&gt;
+            &lt;!-- Your navigation content --&gt;
+        &lt;/nav&gt;
+    &lt;/header&gt;
+
+    &lt;main&gt;
+        &lt;?= Template::display($data) ?&gt;
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        &lt;!-- Your footer content --&gt;
+    &lt;/footer&gt;
+
+    &lt;?= $additional_includes_btm ?? '' ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<h2>Key Template Components</h2>
+
+<p>Your template should include several important elements:</p>
+
+<ul>
+  <li>The <code>base</code> tag with <code>BASE_URL</code> for proper path resolution</li>
+  <li>Core stylesheet includes for your application</li>
+  <li>The <code>Template::display($data)</code> call where page content will be injected</li>
+  <li>Placeholders for additional includes (<code>$additional_includes_top</code> and <code>$additional_includes_btm</code>)</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>When creating a new template, ensure it's properly integrated with Trongate's core features by including the base href tag and Template::display() method. This ensures your template works seamlessly with the framework's routing and view management systems.</p>
+</div>
+
+<h2>Using Your Template</h2>
+
+<p>To use your new template from any controller, specify it when calling the template method:</p>
+
+[code=php]
+class Welcome extends Trongate {
+    
+    function index() {
+        $data['view_file'] = 'welcome';
+        $data['template_title'] = 'Welcome Page';
+        $this-&gt;template('custom_template', $data);
+    }
+
+}
+[/code]
+
+<div class="alert alert-warning">
+  <p>Always ensure your template name is unique within the Templates class to avoid conflicts with existing templates like 'admin' or 'public'.</p>
+</div>

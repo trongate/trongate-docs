@@ -1,0 +1,214 @@
+<h1>The Trongate Security Module</h1>
+
+<p>The <strong>Trongate Security</strong> module is an essential part of the Trongate framework, included with every installation to help manage authentication, authorization, and other security-related concerns. It provides a centralized hub for handling security tasks, ensuring that only authorized users can access restricted areas and resources within an application. By utilizing the Trongate Security module, developers can implement robust security measures with ease, enhancing overall application security.</p>
+
+<h2>Exploring the Code</h2>
+<p>The main PHP class for the Trongate Security module is somewhat unusual because it only has one method. Here's the code for the entire <code>Trongate_security</code> class (Trongate_security.php):</p>
+
+[code=php]
+&lt;?php
+class Trongate_security extends Trongate {
+
+  /**
+   * Ensures the user is allowed access for the specified scenario.
+   *
+   * @param string $scenario The scenario for access control. Default is 'admin panel'.
+   * @param array $params (Optional) Additional parameters for more granular control.
+   * @return string Returns a Trongate token or initializes the 'not allowed' procedure.
+   */
+  public function _make_sure_allowed(string $scenario = 'admin panel', array $params = []): string {
+    // Returns either a Trongate token or initializes the 'not allowed' procedure.
+
+    switch ($scenario) {
+      // case 'members area':
+      //   $this->module('members');
+      //   $token = $this->members->_make_sure_allowed();
+      //   break;
+      default:
+        $this->module('trongate_administrators');
+        $token = $this->trongate_administrators->_make_sure_allowed($scenario, $params);
+        break;
+    }
+
+    return $token;
+  }
+}
+[/code]
+
+<p>The <span class="feature-ref">_make_sure_allowed()</span> method accepts two possible arguments:</p>
+<ol>
+  <li>A required <code>$scenario</code> (string) argument</li>
+  <li>An optional <code>$params</code> (array) argument</li>
+</ol>
+
+<p>The <code>_make_sure_allowed()</code> method contains a PHP switch statement. Each item within the switch statement represents a different web application <b>scenario</b>, and the class is provided with the expectation that users will add their own scenarios to the switch statement as their application grows.</p>
+
+<h2>Understanding Scenarios</h2>
+<p>An important concept for those working with the Trongate Security module is <b>scenarios</b>.</p>
+<p>A <strong>scenario</strong>, in the context of Trongate Security, refers to a general situation or context where usage of the module may be desirable to enforce access control. Scenarios are not tied directly to specific user levels but rather represent broader access contexts that may involve multiple user levels. Below is an assortment of possible scenarios that could be relevant for a web application:</p>
+<ul>
+  <li><strong>Admin Panel:</strong> A restricted area for administrators to manage application settings.</li>
+  <li><strong>Discussion Forum:</strong> A space where users of various levels (e.g., moderators, members, guests) can interact.</li>
+  <li><strong>Private Members Area:</strong> A section of the application accessible only to registered members.</li>
+  <li><strong>Customer Account Page:</strong> A personalized dashboard for customers to view their orders, update their profiles, submit technical support requests, etc.</li>
+</ul>
+<p>Scenarios allow developers to define access rules that apply to specific parts of the application, irrespective of the user levels involved. For instance, a discussion forum might be accessible to multiple user levels, such as moderators, members, and even guests, depending on the application's requirements. The scenario itself exists independently of user levels, serving as a general context for access control.</p>
+<hr>
+<h2>Basic Example: Enforcing Access Control</h2>
+<p>To enforce access control using the Trongate Security module, you can utilize the <span class="feature-ref">_make_sure_allowed()</span> method from any other module. This method ensures that the user has the necessary permissions for a given scenario before proceeding.</p>
+
+<h3>Example: Restricting Access to an Admin Panel</h3>
+<p>The code below demonstrates how to restrict access to an admin panel by ensuring that only users with an "admin" user level can view it.</p>
+
+<div class="code-block">
+[code=php]
+&lt;?php
+class Admin_panel extends Trongate {
+
+  public function manage(): void {
+    // Ensure the user is allowed access to the 'admin panel' scenario.
+    $this->module('trongate_security');
+    $token = $this->trongate_security->_make_sure_allowed('admin panel');
+
+    // If the user is allowed, load the admin panel view.
+    $data['view_module'] = 'admin_panel';
+    $data['view_file'] = 'manage';
+    $this->load_template($data);
+  }
+}
+[/code]
+</div>
+
+<h3>Explanation</h3>
+<ul>
+  <li><strong>Line 5:</strong> Loads the <code>trongate_security</code> module, making its methods available for use.</li>
+[code=php]
+$this->module('trongate_security');
+[/code]
+
+  <li><strong>Line 6:</strong> Invokes the <span class="feature-ref">_make_sure_allowed()</span> method with the scenario name <code>'admin panel'</code>. This ensures that only users with the appropriate permissions can proceed.</li>
+
+[code=php]
+$token = $this->trongate_security->_make_sure_allowed('admin panel');
+[/code]
+
+  <li><strong>Lines 9-11:</strong> If the user is allowed, the admin panel view is loaded.</li>
+
+[code=php]
+// If the user is allowed, load the admin panel view.
+$data['view_module'] = 'admin_panel';
+$data['view_file'] = 'manage'; 
+$this->load_template($data);
+[/code]
+
+</ul>
+
+<div class="alert alert-info">
+  <p>The scenario of 'admin panel' is the default argument for the <span class="feature-ref">_make_sure_allowed()</span> method. This means that the same result could be achieved <i>without</i> actively declaring a value of 'admin panel' for the first argument. For example:</p>
+[code=php]
+$this->module('trongate_security');
+$token = $this->trongate_security->_make_sure_allowed();  
+[/code]
+</div>
+
+<h2>How the Trongate Administrators Module Interacts with Other Modules</h2>
+
+<p>To better understand how the Trongate Security module integrates with other modules, let's delve into the mechanics of the following two lines of code (taken from Trongate_security.php):</p>
+
+<div class="code-block">
+[code=php]
+$this->module('trongate_administrators');
+$token = $this->trongate_administrators->_make_sure_allowed($scenario, $params);
+[/code]  
+</div>
+
+<h3>Purpose of These Lines</h3>
+<p>These two lines of code delegate the mechanics of access control to another module - in this case, the 'Trongate Administrators' module.</p> 
+<p>Sure enough, within the 'Trongate Administrators' module, there is a method that is <i>also</i> named <code>_make_sure_allowed()</code>. <i>That</i> method makes sure the user is logged in as an administrator by invoking the 'Trongate Tokens' module. If a valid token is found, it is returned. Otherwise, the user is redirected to a login page.</p>
+<hr>
+
+<h2>Advanced Example: Granular Access Control in a Discussion Forum</h2>
+<p>Let's consider a scenario where we have a discussion forum module that allows users to create, edit, and delete comments. However, we want to restrict the editing and deletion of comments to either the user who created the comment or users with administrative privileges.</p>
+<p>To achieve this, we can utilize the <code>$params</code> argument in the <code>_make_sure_allowed()</code> method to pass additional data, such as the <code>record_id</code> of the comment being modified and the specific <code>action</code> being performed.</p>
+
+<h3>Example: Restricting Comment Editing and Deletion</h3>
+<p>In this example, we'll assume we have a <code>Forums</code> class with a <code>write_record()</code> method that handles the updating or deletion of comments.</p>
+
+<div class="code-block">
+[code=php]
+&lt;?php
+class Forums extends Trongate {
+  public function write_record($id = null): void {
+    // Ensure the user is allowed to edit or delete the comment
+    $params = ['record_id' => $id, 'action' => 'write record'];
+    $this->module('trongate_security');
+    $token = $this->trongate_security->_make_sure_allowed('discussion forum', $params);
+
+    // If the user is allowed, proceed with updating or deleting the comment
+    // ...
+  }
+}
+[/code]
+</div>
+
+<h3>Explanation</h3>
+<ul>
+  <li><strong>Line 5:</strong> The <code>write_record()</code> method takes an optional <code>$id</code> parameter, representing the ID of the comment being edited or deleted.</li>
+  
+  <li><strong>Line 7:</strong> We create a <code>$params</code> array containing the <code>record_id</code> key-value pair, where the value is the <code>$id</code> of the comment, and an <code>action</code> key-value pair specifying the action being performed (in this case, 'write record').</li>
+  
+  <li><strong>Line 8:</strong> We load the <code>trongate_security</code> module to access its methods.</li>
+  
+  <li><strong>Line 9:</strong> We invoke the <code>_make_sure_allowed()</code> method, passing the scenario as <code>'discussion forum'</code> and the <code>$params</code> array containing the <code>record_id</code> and <code>action</code>.</li>
+  
+  <li><strong>Lines 11-12:</strong> If the user is allowed to edit or delete the comment based on the scenario, <code>record_id</code>, and <code>action</code>, the method proceeds with the update or deletion logic.</li>
+</ul>
+
+<p>Implementing a solution like this would require adding an additional <b>case</b> to the switch statement within the 'Trongate_security' class.</p>
+
+[code=php]
+&lt;?php
+class Trongate_security extends Trongate {
+  /**
+   * Ensures the user is allowed access for the specified scenario.
+   *
+   * @param string $scenario The scenario for access control. Default is 'admin panel'.
+   * @param array $params (Optional) Additional parameters for more granular control.
+   * @return string Returns a Trongate token or initializes the 'not allowed' procedure.
+   */
+  public function _make_sure_allowed(string $scenario = 'admin panel', array $params = []): string {
+    // Returns either a Trongate token or initializes the 'not allowed' procedure.
+    switch ($scenario) {
+      case 'discussion forum':
+        $this->module('forum');
+        $token = $this->forum->_make_sure_allowed($params);
+        break;
+      default:
+        $this->module('trongate_administrators');
+        $token = $this->trongate_administrators->_make_sure_allowed($scenario, $params);
+        break;
+    }
+    return $token;
+  }
+}
+[/code]
+
+<p>By leveraging the <code>$params</code> argument and including the <code>action</code> property, we can enforce even more granular access control rules within the discussion forum module. This allows us to handle different actions, such as editing or deleting comments, with specific permissions based on the user's role or ownership of the comment.</p>
+
+<hr>
+
+<h2>Addressing Circular Dependency Concerns</h2>
+<p>At first glance, the pattern employed by the Trongate Security module might raise concerns about circular dependencies. For example, it allows for a scenario where 'Module A' invokes 'Module B', and then 'Module B' invokes a method from within 'Module A'. This circular nature of the code flow could potentially lead to confusion and make the codebase harder to understand.</p>
+
+<p>However, it's important to note that using the Trongate Security module is not a strict requirement. Developers have the option to bypass it altogether, for example, by directly calling the <code>_make_sure_allowed()</code> method from the 'Trongate Administrators' module instead.  However, while this approach may seem simpler and more straightforward, it comes with its own set of drawbacks.</p>
+
+
+<h3>Beware of Spaghetti Code!</h3>
+
+<p>Directly calling the <code>_make_sure_allowed()</code> method from the 'Trongate Administrators' module would result in a codebase that is more rigid and less adaptable to change. As the application evolves and grows, the rules for managing access to various areas, such as the admin panel, may need to be modified or expanded. Having security-related code scattered throughout different modules - with no common point of entry - can result in a codebase that is challenging to maintain and extremely difficult to upgrade.</p>
+
+<h3>The Benefits Of The Trongate Security Module</h3>
+
+<p>By channeling security-related functionality through the Trongate Security module, developers gain a centralized hub for handling all security matters. This centralization promotes code reusability, maintainability, and scalability. It allows for a more flexible and modular approach to managing access control across the entire application.</p>
+
+<p>While the Trongate Security module's approach may introduce some level of indirection and potential for circular dependencies, the benefits it provides in terms of code organization and maintainability outweigh the concerns. By consolidating security-related code into a dedicated module, developers can ensure that access control is handled consistently and can easily adapt to changing requirements.</p>

@@ -1,0 +1,129 @@
+<h1>Additional Includes</h1>
+
+<p>HTML templates often need to load different JavaScript or CSS files depending on the specific page being rendered. Trongate provides a flexible system for handling these additional includes through the <code>_build_additional_includes()</code> method in the <a href="https://github.com/trongate/trongate-framework/blob/master/templates/controllers/Templates.php" target="_blank">Templates class</a>.</p>
+
+<h2>Understanding Additional Includes</h2>
+
+<p>Additional includes allow you to dynamically add CSS and JavaScript files to your templates. These includes can be placed either in the header (top) or footer (bottom) of your HTML document.</p>
+
+<h3>Basic Structure</h3>
+
+<p>The Templates class processes additional includes using two key variables:</p>
+<ul>
+  <li><code>$additional_includes_top</code>: For files that need to be included in the document head</li>
+  <li><code>$additional_includes_btm</code>: For files that need to be included at the bottom of the body</li>
+</ul>
+
+<h2>Implementation in Templates</h2>
+
+<p>Here's how to implement additional includes in your template method:</p>
+
+[code=php]
+function admin(array $data): void {
+    $data['additional_includes_top'] = $this-&gt;_build_additional_includes($data['additional_includes_top'] ?? []);
+    $data['additional_includes_btm'] = $this-&gt;_build_additional_includes($data['additional_includes_btm'] ?? []);
+    load('admin', $data);
+}
+[/code]
+
+<h3>Template Usage</h3>
+
+<p>In your template file (e.g., <code>admin.php</code>), you can place the includes variables where you want the files to be loaded:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+    &lt;link rel="stylesheet" href="css/trongate.css"&gt;
+    &lt;?= $additional_includes_top ?&gt;
+    &lt;title&gt;Admin&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- Your content here --&gt;
+    
+    &lt;script src="js/admin.js"&gt;&lt;/script&gt;
+    &lt;?= $additional_includes_btm ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<h2>Adding Files from Controllers</h2>
+
+<p>To add additional files from your controllers, pass them in the <code>$data</code> array:</p>
+
+[code=php]
+class Dashboard extends Trongate {
+    
+    function index() {
+        $data['view_file'] = 'dashboard_view';
+        $data['additional_includes_top'] = [
+            'css/dashboard.css',
+            'css/custom_charts.css'
+        ];
+        
+        $data['additional_includes_btm'] = [
+            'js/dashboard_charts.js',
+            'js/dashboard_widgets.js'
+        ];
+        
+        $this-&gt;template('admin', $data);
+    }
+}
+[/code]
+
+<h2>How It Works</h2>
+
+<p>The <span class="feature-ref">_build_additional_includes()</span> method processes the files based on their extension:</p>
+<ul>
+  <li>For <code>.js</code> files: Generates <code>&lt;script src="..."&gt;&lt;/script&gt;</code> tags</li>
+  <li>For <code>.css</code> files: Generates <code>&lt;link rel="stylesheet" href="..."&gt;</code> tags</li>
+  <li>For other file types: Includes the file path as-is</li>
+</ul>
+
+<p>The method also maintains proper HTML formatting by:</p>
+<ul>
+  <li>Adding appropriate indentation</li>
+  <li>Handling newlines for clean source code</li>
+  <li>Ensuring proper closing of HTML tags</li>
+</ul>
+
+<div class="alert alert-success">
+    
+<p>When working with additional includes, consider the following best practices:</p>
+
+<h3>1. Group Your Includes Logically</h3>
+
+<p>Organize your includes based on their purpose and loading requirements:</p>
+
+[code=php]
+$data['additional_includes_top'] = [
+    'css/custom/styles.css',
+    'third_party/plugin/plugin.css'
+];
+
+$data['additional_includes_btm'] = [
+    'js/custom_scripts.js',
+    'js/plugins.js'
+];
+[/code]
+
+<h3>2. Use Conditional Loading</h3>
+
+<p>Load files only when they're needed for specific functionality:</p>
+
+[code=php]
+if ($need_charts) {
+    $data['additional_includes_btm'][] = 'js/charts.js';
+}
+[/code]
+
+</div>
+
+
+
+<div class="alert alert-info">
+  <p>Remember to verify that all file paths are correct relative to your application's base URL. Incorrect paths may result in resources failing to load properly.</p>
+</div>

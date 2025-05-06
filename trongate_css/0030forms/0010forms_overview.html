@@ -1,0 +1,109 @@
+<h1>Forms Overview</h1>
+
+<p>Trongate CSS provides elegant, responsive form styling out of the box. Forms are styled automatically without requiring additional classes - just write standard HTML and let Trongate CSS handle the presentation.</p>
+
+<h2>Basic Example</h2>
+<p>The form below uses <b>pure HTML</b> and looks beautiful on both desktop devices and mobile devices.  You may be surprised to discover, there are no classes or special attributes - in the source code - whatsoever.</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <form>
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Your name">
+
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Your email">
+            
+            <label>Enquiry Type <span>(optional)</span></label>
+            <select name="type">
+                <option value="">Choose an option...</option>
+                <option value="general">General Enquiry</option>
+                <option value="support">Technical Support</option>
+                <option value="billing">Billing Question</option>
+            </select>
+            
+            <label>Message</label>
+            <textarea name="message" placeholder="Enter your message"></textarea>
+            
+            <button>Send Message</button>
+        </form>
+
+    </div>
+</div>
+<p class="mt-3 mb-0">Here's the source code for the above form:</p>
+[code=html]
+&lt;form&gt;
+    &lt;label&gt;Name&lt;/label&gt;
+    &lt;input type="text" name="name" placeholder="Your name"&gt;
+
+    &lt;label&gt;Email Address&lt;/label&gt;
+    &lt;input type="email" name="email" placeholder="Your email"&gt;
+    
+    &lt;label&gt;Enquiry Type &lt;span&gt;(optional)&lt;/span&gt;&lt;/label&gt;
+    &lt;select name="type"&gt;
+        &lt;option value=""&gt;Choose an option...&lt;/option&gt;
+        &lt;option value="general"&gt;General Enquiry&lt;/option&gt;
+        &lt;option value="support"&gt;Technical Support&lt;/option&gt;
+        &lt;option value="billing"&gt;Billing Question&lt;/option&gt;
+    &lt;/select&gt;
+    
+    &lt;label&gt;Message&lt;/label&gt;
+    &lt;textarea name="message" placeholder="Enter your message"&gt;&lt;/textarea&gt;
+    
+    &lt;button&gt;Send Message&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<h2>Core Features</h2>
+
+<p>When you create forms with Trongate CSS, the following styles are automatically applied:</p>
+
+<ul>
+    <li>Forms take up 100% width of their container.</li>
+    <li>All form elements receive consistent padding (0.6em) and border-radius (6px).</li>
+    <li>Labels are positioned above their form elements with appropriate spacing.</li>
+    <li>Focus states are clearly visible using the primary theme color.</li>
+    <li>Font sizes and families remain consistent across all elements.</li>
+    <li>Forms automatically adapt for mobile devices.</li>
+</ul>
+
+<h2>Form Layout Options</h2>
+
+<p>Control form width by wrapping your form in one of Trongate's container classes:</p>
+
+[code=html]
+&lt;div class="container-xxs"&gt;
+    &lt;!-- Perfect for login forms (450px max width) --&gt;
+    &lt;form&gt;...&lt;/form&gt;
+&lt;/div&gt;
+
+&lt;div class="container-xs"&gt;
+    &lt;!-- Good for simple forms (640px max width) --&gt;
+    &lt;form&gt;...&lt;/form&gt;
+&lt;/div&gt;
+
+&lt;div class="container-sm"&gt;
+    &lt;!-- For larger forms (760px max width) --&gt;
+    &lt;form&gt;...&lt;/form&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>For additional information about containers, see our documentation for <a href="documentation/display/trongate_css/css-fundamentals/container-classes">Container Classes</a>.</p>
+</div>
+
+<h2>Label Spans</h2>
+
+<p>Span elements within labels are automatically styled in green. This is useful for letting users know if a form field is optional.  For example:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <label>Username <span>(optional)</span></label>
+        <input type="text" placeholder="Enter username here...">
+    </div>
+</div>
+
+[code=html]
+&lt;label&gt;Username &lt;span&gt;(optional)&lt;/span&gt;&lt;/label&gt;
+&lt;input type="text"&gt;
+[/code]

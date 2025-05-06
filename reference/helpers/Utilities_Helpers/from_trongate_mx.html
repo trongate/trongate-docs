@@ -1,0 +1,39 @@
+<div class="container">
+  <h1>from_trongate_mx()</h1>
+  <p class="signature">function from_trongate_mx(): bool</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Checks if the HTTP request has been invoked by Trongate MX. This function inspects the HTTP headers to determine if the request contains a specific header indicating that it originated from Trongate MX. It is useful for distinguishing requests made from Trongate MX from those made by other sources.</p>
+  </div>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns <code>true</code> if the request has the <code>X-Trongate-MX-Request</code> header set to <code>true</code>, otherwise <code>false</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example</h2>
+  <p>The code sample below demonstrates basic usage of the <code>from_trongate_mx</code> function.</p>
+  <pre>
+  if (from_trongate_mx()) {
+      echo 'Request is from Trongate MX';
+  } else {
+      echo 'Request is not from Trongate MX';
+  }
+  // Output: 'Request is from Trongate MX' if the header is set, otherwise 'Request is not from Trongate MX'
+  </pre>
+
+  <h2>Notes</h2>
+  <p>The function checks specifically for the <code>X-Trongate-MX-Request</code> header. If the header is not present or is set to a value other than <code>true</code>, the function will return <code>false</code>. Ensure that the header is correctly set in requests where this function needs to be utilized.</p>
+</div>

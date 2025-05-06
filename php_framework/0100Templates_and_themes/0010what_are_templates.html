@@ -1,0 +1,60 @@
+<h1>Introduction to Templates</h1>
+
+<p>Trongate uses pure PHP for rendering web pages, providing a straightforward and flexible approach to templating. This section explains the role of templates, how they differ from views, and how they operate within the Trongate framework.</p>
+
+<h2>What Are Templates?</h2>
+
+<p>In Trongate, a template is a PHP file that defines the complete structure of an HTML web page. Templates ensure consistency across an application by incorporating common elements—such as headers, footers, and navigation menus—into every page.</p>
+
+<h2>Templates vs. Views</h2>
+
+<p>It is essential to understand the distinction between templates and views:</p>
+
+<ul>
+  <li><strong>Templates:</strong> Define the full structure of a web page, including the <code>&lt;!DOCTYPE&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, and <code>&lt;body&gt;</code> tags. They often include reusable components like headers, footers, and sidebars.</li>
+  <li><strong>Views:</strong> Contain partial content that is injected into a template. A view typically represents a specific section of a page rather than the entire layout.</li>
+</ul>
+
+<p>Templates can load views, but views do not load templates. This separation ensures that templates maintain a consistent page structure while views handle dynamic content.</p>
+
+<h2>Where Templates Are Stored</h2>
+
+<p>Templates in Trongate are organized within a dedicated module named <code>templates</code>, located in the root directory of your application.</p>
+
+<div class="text-center">
+  <figure>
+    <img src="https://trongate.io/docs_pages_pictures/92/templatezep4.png" alt="Directory structure of the 'templates' module" style="width:100%">
+    <figcaption>The 'templates' directory in a Trongate application</figcaption>
+  </figure>
+</div>
+
+<h3>The Templates Module</h3>
+
+<p>The <code>templates</code> directory functions as a standard Trongate module, ensuring global accessibility while maintaining the framework's modular architecture. This module typically includes:</p>
+
+<ul>
+  <li><strong>controllers/:</strong> Contains <code>Templates.php</code>, the controller responsible for loading templates.</li>
+  <li><strong>views/:</strong> Stores the template files that define the structure of web pages.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>In this documentation, the terms <b>template module</b> and <b>template directory</b> refer to the same entity: the <code>templates</code> folder at the root of your Trongate application.</p>
+</div>
+
+<h2>Design Philosophy</h2>
+
+<p>Trongate's approach to templates is guided by the following principles:</p>
+
+<ul>
+  <li><strong>Stability:</strong> Trongate emphasizes long-term stability, allowing developers to build applications with confidence.</li>
+  <li><strong>Performance:</strong> Templates are designed to minimize overhead, ensuring efficient page rendering.</li>
+  <li><strong>Flexibility:</strong> Trongate provides developers with the freedom to implement custom designs or integrate third-party libraries as needed.</li>
+</ul>
+
+<h2>Independence from Third-Party Dependencies</h2>
+
+<p>Trongate does not impose dependencies on external CSS or JavaScript libraries. Unlike some frameworks that are tightly coupled with specific frontend tools (e.g., Bootstrap or Tailwind), Trongate allows developers to choose their preferred technologies. This approach avoids common issues such as dependency conflicts, security vulnerabilities, and design limitations.</p>
+
+<h2>In Summary</h2>
+
+<p>Trongate's templating system offers developers a flexible and robust foundation for building web applications. By combining pure PHP with a modular structure, Trongate enables the creation of consistent, reusable templates without imposing unnecessary restrictions. Whether you prefer to build from scratch or integrate third-party tools, Trongate provides the tools and flexibility to meet your needs.</p>

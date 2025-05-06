@@ -1,0 +1,158 @@
+<h1>Creating Custom Themes</h1>
+
+<p>Trongate's theming system allows you to create comprehensive design packages that include templates, stylesheets, JavaScript files, and other assets. This guide will walk you through the process of creating your own custom theme.</p>
+
+<h2>Theme Location</h2>
+
+<p>Themes in Trongate are stored in the <code>public/themes</code> directory of your application. Each theme gets its own subdirectory where all its resources are contained.</p>
+
+<h2>Creating a Custom Theme</h2>
+
+<h3>Step 1: Plan Your Theme Structure</h3>
+
+<p>Before creating your theme, plan its structure and organization. Consider what elements your theme needs:</p>
+
+<ul>
+  <li>Template files (<code>.php</code>)</li>
+  <li>Stylesheets (<code>.css</code>)</li>
+  <li>JavaScript files (<code>.js</code>)</li>
+  <li>Images and icons</li>
+  <li>Other assets (if needed)</li>
+</ul>
+
+<h3>Step 2: Create the Theme Directory</h3>
+
+<p>Create a new directory in <code>public/themes</code> for your theme. Choose a descriptive name that reflects its purpose. For example:</p>
+
+[code]
+public/themes/
+    └── modern_dashboard/
+        ├── default/
+        │   ├── css/
+        │   │   ├── style.css
+        │   │   └── components.css
+        │   ├── js/
+        │   │   └── theme.js
+        │   ├── images/
+        │   │   └── logo.png
+        │   └── dashboard.php
+        └── css/
+            └── shared.css
+[/code]
+
+<h3 class="mt-3">Step 3: Create the Template File</h3>
+
+<p>Create your main template file (e.g., <code>dashboard.php</code>) in your theme directory:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+    
+    &lt;?php
+    // Get root theme directory for shared assets
+    $trimmed_theme_dir = rtrim(THEME_DIR, '/');
+    $root_theme_dir = dirname($trimmed_theme_dir) . '/';
+    ?&gt;
+    
+    &lt;!-- Core and shared styles --&gt;
+    &lt;link rel="stylesheet" href="css/trongate.css"&gt;
+    &lt;link rel="stylesheet" href="&lt;?= $root_theme_dir ?&gt;css/shared.css"&gt;
+    
+    &lt;!-- Theme-specific styles --&gt;
+    &lt;link rel="stylesheet" href="&lt;?= THEME_DIR ?&gt;css/style.css"&gt;
+    &lt;link rel="stylesheet" href="&lt;?= THEME_DIR ?&gt;css/components.css"&gt;
+    
+    &lt;?= $additional_includes_top ?? '' ?&gt;
+    &lt;title&gt;&lt;?= $template_title ?? WEBSITE_NAME ?&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;nav&gt;
+            &lt;!-- Your navigation content --&gt;
+        &lt;/nav&gt;
+    &lt;/header&gt;
+    &lt;main&gt;
+        &lt;?= Template::display($data) ?&gt;
+    &lt;/main&gt;
+    &lt;footer&gt;
+        &lt;!-- Your footer content --&gt;
+    &lt;/footer&gt;
+    
+    &lt;!-- Theme JavaScript --&gt;
+    &lt;script src="&lt;?= THEME_DIR ?&gt;js/theme.js"&gt;&lt;/script&gt;
+    &lt;?= $additional_includes_btm ?? '' ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<h3>Step 4: Register Your Theme</h3>
+
+<p>Open <code>config/themes.php</code> and add your theme configuration:</p>
+
+[code=php]
+$modern_dashboard = [
+    "dir" =&gt; "modern_dashboard/default",
+    "template" =&gt; "dashboard.php",
+];
+
+$themes['modern_dashboard'] = $modern_dashboard;
+
+// If adding color variations
+$modern_dashboard_dark = [
+    "dir" =&gt; "modern_dashboard/dark",
+    "template" =&gt; "dashboard.php",
+];
+
+$themes['modern_dashboard_dark'] = $modern_dashboard_dark;
+[/code]
+
+<h2>Key Theme Components</h2>
+
+<p>Your theme should include:</p>
+
+<ul>
+  <li>A well-organized directory structure for assets</li>
+  <li>The <code>base</code> tag with <code>BASE_URL</code> for proper path resolution</li>
+  <li>Proper use of <code>THEME_DIR</code> for asset references</li>
+  <li>The <code>Template::display($data)</code> call for content injection</li>
+  <li>Support for additional includes (<code>$additional_includes_top</code> and <code>$additional_includes_btm</code>)</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>When creating shared assets, consider placing them in a common directory at the theme root level. This allows multiple variations of your theme to access the same base resources while maintaining their unique styles.</p>
+</div>
+
+<h2>Using Your Theme</h2>
+
+<p>To use your new theme from any controller, specify it when calling the template method:</p>
+
+[code=php]
+class Dashboard extends Trongate {
+    
+    function index() {
+        $data['view_file'] = 'dashboard_view';
+        $data['template_title'] = 'Modern Dashboard';
+        $this-&gt;template('modern_dashboard', $data);
+    }
+}
+[/code]
+
+<h2>Creating Theme Variations</h2>
+
+<p>To create variations of your theme (e.g., different color schemes):</p>
+
+<ol>
+    <li>Create a new directory within your theme folder for each variation</li>
+    <li>Include variation-specific assets (CSS, images, etc.)</li>
+    <li>Register each variation in <code>themes.php</code></li>
+    <li>Keep shared assets in a common location</li>
+</ol>
+
+<div class="alert alert-success">
+  <p>Always use unique, descriptive names for your themes to avoid conflicts with existing themes in the application or third-party theme packages.</p>
+  <p>By properly structuring your theme and its variations, you create a maintainable and portable design package that can be easily shared across projects or with the community.</p>
+</div>

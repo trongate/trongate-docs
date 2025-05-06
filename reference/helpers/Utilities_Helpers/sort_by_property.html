@@ -1,0 +1,92 @@
+<div class="container">
+  <h1>sort_by_property()</h1>
+  <p class="signature">function sort_by_property(array &$array, string $property, string $direction = 'asc'): array</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Sorts an array of associative arrays by a specified property. This function is useful when you need to organize data within an array of associative arrays based on one of the properties in each array element. The sorting can be done in either ascending or descending order.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$array</td>
+        <td>array</td>
+        <td>The array of associative arrays to be sorted. This parameter is passed by reference, meaning the original array will be modified.</td>
+      </tr>
+      <tr>
+        <td>$property</td>
+        <td>string</td>
+        <td>The property within each associative array by which to sort. The property must exist in each element of the array.</td>
+      </tr>
+      <tr>
+        <td>$direction</td>
+        <td>string</td>
+        <td>(optional) The direction in which to sort the array. Acceptable values are 'asc' for ascending (default) and 'desc' for descending.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>The sorted array of associative arrays.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates basic usage of the <code>sort_by_property</code> function with default parameters.</p>
+  <pre>
+  $data = [
+      ['name' => 'John', 'age' => 28],
+      ['name' => 'Jane', 'age' => 24],
+      ['name' => 'Doe', 'age' => 32],
+  ];
+  
+  $sorted_data = sort_by_property($data, 'age');
+  
+  // Output: [
+  //   ['name' => 'Jane', 'age' => 24],
+  //   ['name' => 'John', 'age' => 28],
+  //   ['name' => 'Doe', 'age' => 32],
+  // ]
+  </pre>
+
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates a more complex usage of the <code>sort_by_property</code> function, sorting in descending order.</p>
+  <pre>
+  $data = [
+      ['name' => 'Apple', 'price' => 3.5],
+      ['name' => 'Orange', 'price' => 2.75],
+      ['name' => 'Banana', 'price' => 1.25],
+  ];
+  
+  $sorted_data = sort_by_property($data, 'price', 'desc');
+  
+  // Output: [
+  //   ['name' => 'Apple', 'price' => 3.5],
+  //   ['name' => 'Orange', 'price' => 2.75],
+  //   ['name' => 'Banana', 'price' => 1.25],
+  // ]
+  </pre>
+
+  <h2>Notes</h2>
+  <p>If the specified property does not exist in any of the associative arrays, the behavior of the function may be unpredictable. Ensure that the property exists in each array element before calling this function.</p>
+</div>

@@ -1,0 +1,224 @@
+<h1>Building Dynamic Modals</h1>
+<p>
+  The <code>mx-build-modal</code> attribute in Trongate MX allows you to dynamically create and populate modal dialogs with content fetched via AJAX. This feature lets you craft interactive, on-demand modal experiences without requiring pre-defined modal structures in your HTML.
+</p>
+
+<h2>Demonstration</h2>
+<p>Click on the 'Create Modal' button to see a demonstration of dynamical modal creation.  The modal that is created will fetch the headline from the homepage of this website and insert the headline inside the modal body.</p>
+<style>
+.code-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.code-demo button {
+    margin-top: 0;
+}
+</style>
+
+
+<div class="code-demo text-center">
+
+<button mx-get="/" mx-select="h1" mx-target=".modal-body"   
+        mx-build-modal='{
+            "id": "demo-headline-modal",
+            "width": "640px",
+            "modalHeading": "Demonstration",
+            "showCloseButton": "true"
+        }'>
+    Create Modal
+</button>
+
+</div>
+
+<style>
+#demo-headline-modal h1 {
+  font-size: 33px;
+  text-align: center;
+}
+</style>
+
+
+<h2>Syntax</h2>
+[code=html]&lt;element mx-build-modal="modalOptions"&gt;[/code]
+<p>
+  The <code>modalOptions</code> can either be a string (representing the modal ID) or a JSON object for detailed configuration.
+</p>
+
+<h2>Basic Usage</h2>
+<p>Here's an example of using <code>mx-build-modal</code> with a string:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' => 'api/get_user_info',
+    'mx-build-modal' => 'user-info-modal'
+];
+
+echo form_button('view_btn', 'Build Modal', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Here's a pure HTML representation of the solution:</p>
+[code=html]
+&lt;button mx-get="api/get_user_info" 
+        mx-build-modal="user-info-modal"&gt;Build Modal&lt;/button&gt;
+[/code]
+
+<p>Key details about this example:</p>
+<ul>
+  <li>A modal with the ID "user-info-modal" is dynamically created upon clicking the button.</li>
+  <li>Default modal settings are applied, including no close button and standard width.</li>
+  <li>The modal body is populated with content fetched from the specified endpoint.</li>
+</ul>
+
+<h2>Advanced Usage</h2>
+<p>For more precise control, use a JSON object to configure the modal:</p>
+[code=vf]&lt;?php
+$attr = [
+  'mx-get' => 'title_boss/attempt_add_new_title',
+  'mx-build-modal' => json_encode([
+    'id' => 'add-element-modal',
+    'width' => '460px',
+    'marginTop' => '3vh',
+    'modalHeading' => 'Add New Title',
+    'showCloseButton' => 'true'
+  ])
+];
+echo form_button('add_new_title_btn', 'Add New Title', $attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">For an HTML-only approach, here's the corresponding code:</p>
+[code=html]
+&lt;button mx-get="title_boss/attempt_add_new_title" 
+        mx-build-modal='{
+            "id": "add-element-modal",
+            "width": "460px",
+            "marginTop": "3vh",
+            "modalHeading": "Add New Title",
+            "showCloseButton": "true"
+        }'&gt;Add New Title&lt;/button&gt;
+[/code]
+
+<p>Key details about this advanced example:</p>
+<ul>
+  <li>The modal is assigned a custom ID "add-element-modal".</li>
+  <li>A specific width of 460px is applied.</li>
+  <li>The modal appears 3vh from the top of the viewport.</li>
+  <li>A modal heading with the text, 'Add New Title' is rendered.</li>
+  <li>A close button is included for user convenience.</li>
+  <li>Content is dynamically fetched from the "title_boss/attempt_add_new_title" endpoint.</li>
+</ul>
+
+<h2>Modal Footers</h2>
+<p>Trongate MX gives you the ability to easily add beautiful modal footers onto dynamically generated modals.  These footers can contain anything you like.  However, a typical use case would be to have modal footers containing form submit buttons and, if required, 'Cancel' buttons.</p>
+<p>Click the 'View Example' button below to see an example of a modal with a footer.</p>
+
+<div class="code-demo text-center">
+
+<button mx-get="documentation-demo/sample_form"   
+        mx-build-modal='{
+            "id": "demo-headline-modal",
+            "width": "640px",
+            "modalHeading": "Demonstration",
+            "modalFooter": "<button class=\"alt\" onclick=\"closeModal()\">Cancel</button><button form=\"sample-form\">Submit</button>"
+        }'>
+    View Example
+</button>
+
+</div>
+
+<p>In order to have footer elements being added to dynamic modals, add a property of 'modalFooter' within the <b>mx-build-modal</b> attribute.  The 'modalFooter' property should be assigned with a value that represents the HTML code that is to be rendered within the modal footer.  For example:</p>
+
+[code=html]
+&lt;button mx-get="documentation-demo/sample_form"   
+        mx-build-modal='{
+            "id": "demo-headline-modal",
+            "width": "640px",
+            "modalHeading": "Demonstration",
+            "modalFooter": "&lt;button class=\"alt\" onclick=\"closeModal()\"&gt;Cancel&lt;/button&gt;&lt;button form=\"sample-form\"&gt;Submit&lt;/button&gt;"
+        }'&gt;
+    View Example
+&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+  
+  <p>In the example shown above, two buttons have been added inside the footer element.</p>
+  <ul>
+    <li>We have a 'Cancel' button and, when clicked, it will close the modal.  This closing effect is achieved by adding: <code>onclick="closeModal()"</code> within the cancel button element.</li>
+    <li>The form 'Submit' button is technically not inside the form opening and closing tags within the rendered modal body.   However, in the example, the submit button has been associated with the form by giving the button an attribute of "form" with a value equal to the 'id' of the target form element.  In the example, the rendered form has an ID of 'sample-form'.  So, the button is associated with the form by adding, <code>form="sample-form"</code> to the submit button.</li>
+  </ul>
+
+  <p><b>And Finally...</b></p>
+
+  <p>Don't forget to add backslashes when adding double quotes within the value that is being assigned to <b>modalFooter</b>!</p>
+</div>
+
+
+<h2>Modal Options</h2>
+<p>When using a JSON object, the following options are available:</p>
+<ul>
+  <li><strong>id</strong> (required): The modal's unique ID in the DOM.</li>
+  <li><strong>width</strong> (optional): Modal width (e.g., in px, %, or other CSS units).</li>
+  <li><strong>marginTop</strong>/<strong>margin-top</strong> (optional): Distance from the top of the viewport. Defaults to "12vh" if unspecified.</li>
+  <li><strong>showCloseButton</strong> (optional): Set to "true" to display a close button; omit or set to "false" to hide it.</li>
+  <li><strong>modalHeading</strong> (optional): HTML content for the modal heading.</li>
+  <li><strong>modalFooter</strong> (optional): HTML content for the modal footer.</li>
+  <li><strong>renderCloseIcon</strong> (optional): Controls whether a close icon appears when using modalHeading. Defaults to "true".</li>
+</ul>
+
+<div class="alert alert-info">
+<p><b>Important Note About Modal Headers</b></p>
+<p>When using <code>mx-build-modal</code> with a <code>modalHeading</code> property, Trongate MX automatically adds a close icon (×) to the top-right corner of your modal window. The system detects whether Font Awesome is available in your project. If it is, Trongate MX will use the <code>fa-times</code> icon. If Font Awesome isn't available, the system automatically generates a similar-looking SVG close icon instead.</p>
+<p><b>Controlling the Close Icon</b></p>
+<p>If you don't want the close icon to appear automatically when using a <code>modalHeading</code>, you can prevent this by setting the 'renderCloseIcon' property to 'false' in your modal options. This will create a modal header without any close button.</p>
+</div>
+
+<h2>Additional Features</h2>
+<p>Extend modal functionality with these related attributes:</p>
+<ul>
+  <li><strong>mx-close-on-success</strong>: Closes the modal upon successful AJAX requests.</li>
+  <li><strong>mx-close-on-error</strong>: Closes the modal if an AJAX request fails.</li>
+  <li><strong>mx-animate-success</strong>: Adds a success animation after successful AJAX responses.</li>
+  <li><strong>mx-animate-error</strong>: Adds an error animation after failed AJAX responses.</li>
+</ul>
+<p>For example:</p>
+[code=vf]&lt;?php
+$attr = [
+  'mx-get' => 'title_boss/attempt_add_new_title',
+  'mx-build-modal' => json_encode([
+    'id' => 'add-element-modal',
+    'width' => '460px',
+    'margin-top' => '5vh',
+    'showCloseButton' => 'true'
+  ]),
+  'mx-close-on-success' => 'true',
+  'mx-animate-success' => 'true'
+];
+
+echo form_button('add_new_title_btn', '<i class="fa fa-plus-circle"></i> Attempt Add New Title', $attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Alternatively, the same functionality can be achieved with pure HTML:</p>
+[code=html]
+&lt;button mx-get="title_boss/attempt_add_new_title" 
+        mx-build-modal='{
+            "id": "add-element-modal",
+            "width": "460px",
+            "margin-top": "5vh",
+            "showCloseButton": "true"
+        }' 
+        mx-close-on-success="true" 
+        mx-animate-success="true"&gt;Attempt Add New Title&lt;/button&gt;
+[/code]
+
+<h2>Additional Notes</h2>
+<ul>
+  <li>Modal styling is governed by your application's CSS - customise as needed.</li>
+  <li>Fetched content is inserted directly into the modal body.</li>
+  <li><code>mx-target</code> can specify where fetched content should appear within the modal.</li>
+  <li>Use <code>mx-on-success</code> or <code>mx-on-error</code> to handle AJAX responses.</li>
+  <li>Both <code>marginTop</code> and <code>margin-top</code> are valid property names for top margin settings.</li>
+</ul>
+<p>
+  By combining <code>mx-build-modal</code> with other Trongate MX attributes, you can effortlessly create dynamic and engaging modal experiences.
+</p>

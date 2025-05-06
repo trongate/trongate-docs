@@ -1,0 +1,188 @@
+<h1>Swap Operations</h1>
+
+<p>The <code>mx-swap</code> attribute determines how the response content is inserted into the target element, as specified by the <code>mx-target</code> attribute. If the <code>mx-swap</code> attribute is not provided, it defaults to <code>innerHTML</code>, which replaces the inner HTML of the target element.</p>
+
+<h2>Available Swap Methods:</h2>
+<table border="1" cellpadding="10" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Description</th>
+      <th>Example Syntax</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>innerHTML (default)</td>
+      <td>Replaces the inner HTML of the target element with the response content.</td>
+      <td><code>mx-swap="innerHTML"</code></td>
+    </tr>
+    <tr>
+      <td>outerHTML</td>
+      <td>Replaces the entire target element with the response content.</td>
+      <td><code>mx-swap="outerHTML"</code></td>
+    </tr>
+    <tr>
+      <td>textContent</td>
+      <td>Replaces the text content of the target element with the response content.</td>
+      <td><code>mx-swap="textContent"</code></td>
+    </tr>
+    <tr>
+      <td>beforebegin</td>
+      <td>Inserts the response content before the target element.</td>
+      <td><code>mx-swap="beforebegin"</code></td>
+    </tr>
+    <tr>
+      <td>afterbegin</td>
+      <td>Inserts the response content as the first child of the target element.</td>
+      <td><code>mx-swap="afterbegin"</code></td>
+    </tr>
+    <tr>
+      <td>beforeend</td>
+      <td>Inserts the response content as the last child of the target element.</td>
+      <td><code>mx-swap="beforeend"</code></td>
+    </tr>
+    <tr>
+      <td>afterend</td>
+      <td>Inserts the response content after the target element.</td>
+      <td><code>mx-swap="afterend"</code></td>
+    </tr>
+    <tr>
+      <td>delete</td>
+      <td>Removes the target element from the DOM.</td>
+      <td><code>mx-swap="delete"</code></td>
+    </tr>
+    <tr>
+      <td>value</td>
+      <td>Sets the value property of form elements (inputs, textareas, selects) with the response content.</td>
+      <td><code>mx-swap="value"</code></td>
+    </tr>
+    <tr>
+      <td>none</td>
+      <td>Does not insert any content into the DOM. Useful for out-of-band swaps where no direct DOM update is needed.</td>
+      <td><code>mx-swap="none"</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Examples:</h2>
+
+<h3>Prepend Data:</h3>
+<p>This code sample below uses the <code>mx-swap="afterbegin"</code> method to insert the response content as the first child of the target element.</p>
+
+<p><b>PLEASE NOTE:</b>  This example uses Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function.  There's no obligation to use Trongate's form helper functions and it's acceptable to work with pure HTML, if you wish.</p>
+
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =--&gt; 'api/data',
+  'mx-target' =&amp;gt; '#task-list',
+  'mx-swap' =&amp;gt; 'afterbegin'
+];
+echo form_button('add_task_btn', 'Add New Task', $btn_attr);
+?&amp;gt;
+
+&lt;ul id="task-list"&gt;
+  &lt;li&gt;Finish project documentation&lt;/li&gt;
+  &lt;li&gt;Review pull requests&lt;/li&gt;
+  &lt;li&gt;Update dependencies&lt;/li&gt;
+&lt;/ul&gt;[/code]
+
+<p class="mt-3 mb-0">Here's how you can accomplish the same using pure HTML:</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="#task-list" 
+        mx-swap="afterbegin"&gt;Add New Task&lt;/button&gt;
+
+&lt;ul id="task-list"&gt;
+  &lt;li&gt;Finish project documentation&lt;/li&gt;
+  &lt;li&gt;Review pull requests&lt;/li&gt;
+  &lt;li&gt;Update dependencies&lt;/li&gt;
+&lt;/ul&gt;[/code]
+
+<p>Clicking the button adds a new task to the top of the task list. For example, if the response text from the server is <code>&lt;li&gt;Schedule team meeting&lt;/li&gt;</code>, it will become the first item in the list.</p>
+
+<hr>
+
+<h3>Replace Entire Element:</h3>
+<p>Here, <code>mx-swap="outerHTML"</code> is used to replace the entire target element with the response content.</p>
+
+<p>Using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =--&gt; 'api/data',
+  'mx-target' =&amp;gt; '#result',
+  'mx-swap' =&amp;gt; 'outerHTML'
+];
+echo form_button('replace_btn', 'Replace Element', $btn_attr);
+?&amp;gt;
+
+&lt;div id="result"&gt;Old Content&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">For those who prefer working with pure HTML, the equivalent solution is here:</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="#result" 
+        mx-swap="outerHTML"&gt;Replace Element&lt;/button&gt;
+
+&lt;div id="result"&gt;Old Content&lt;/div&gt;[/code]
+
+<hr>
+
+<h3>Insert Before Target:</h3>
+<p>This example demonstrates how to insert content before the target element using <code>mx-swap="beforebegin"</code>.</p>
+
+<p>Using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+  'mx-get' =--&gt; 'api/data',
+  'mx-target' =&amp;gt; '#result',
+  'mx-swap' =&amp;gt; 'beforebegin'
+];
+echo form_button('insert_before_btn', 'Insert Before', $btn_attr);
+?&amp;gt;
+
+&lt;div id="result"&gt;Existing Content&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">Alternatively, the same functionality can be achieved with pure HTML:</p>
+[code=html]&lt;button mx-get="api/data" 
+        mx-target="#result" 
+        mx-swap="beforebegin"&gt;Insert Before&lt;/button&gt;
+
+&lt;div id="result"&gt;Existing Content&lt;/div&gt;[/code]
+
+<hr>
+
+<h3>Repopulate Form Field:</h3>
+<p>In the following example, <code>mx-swap="value"</code> is used to update the value of a form textarea element. This approach can be particularly useful for applications such as code beautifiers, date-pickers or any other tool that modifies form input values.</p>
+
+<p><b>PLEASE NOTE:</b> The code sample below utilises a variety of Trongate's form helper functions; however, their usage is entirely optional:</p>
+
+
+[code=vf]&lt;?php 
+$form_attr = [
+   'mx-post' =--&gt; 'beautify/submit_code',
+   'mx-target' =&amp;gt; '#code-input',
+   'mx-swap' =&amp;gt; 'value'
+];
+echo form_open('beautify/submit_code', $form_attr); 
+echo form_textarea('my_code', '', array('id' =&amp;gt; 'code-input'));
+echo form_submit('submit', 'Beautify Code');
+echo form_close();
+?&amp;gt;[/code]
+
+<p class="mt-3 mb-0">If you prefer a more HTML-centered approach, you could use the following syntax:</p>
+[code=html]&lt;form mx-post="beautify/submit_code" 
+      mx-target="#code-input" 
+      mx-swap="value"&gt;
+  &lt;textarea name="my_code" id="code-input"&gt;&lt;/textarea&gt;
+  &lt;input type="submit" name="submit" value="Beautify Code"&gt;
+&lt;/form&gt;[/code]
+
+<div class="alert alert-danger">
+  <p>Building web applications with pure HTML forms could potentially expose your application to Cross-Site Request Forgery (CSRF) attacks. For more information, please refer to our documentation pertaining to <a href="documentation/display/trongate_mx/trongate-mx-security/csrf-protection">CSRF Protection</a>.</p>
+</div>
+
+<style>
+tr > td:nth-child(1),
+tr > td:nth-child(3) {
+  white-space: nowrap;
+}
+</style>

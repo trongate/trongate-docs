@@ -1,0 +1,89 @@
+<h1>Attaching Tokens to HTTP Requests</h1>
+
+<h2>Overview</h2>
+<p>When interacting with Trongate API endpoints, it is essential to include the Trongate token in the HTTP request headers for authentication. This ensures that the server can validate the user's identity and authorize access to protected resources. Below are demonstrations of how to attach a Trongate token to HTTP requests using JavaScript, specifically with <code>XMLHttpRequest</code> and the modern <code>Fetch API</code>.</p>
+
+<div class="alert alert-info">
+  <p><strong>Note:</strong> The Trongate token should be included in the <code>trongateToken</code> header for all authenticated requests. Ensure that the token is securely stored and transmitted over HTTPS to prevent unauthorized access.</p>
+</div>
+
+<h2>Using XMLHttpRequest</h2>
+<p>The <code>XMLHttpRequest</code> object provides a traditional way to send HTTP requests in JavaScript. Below is an example of how to attach a Trongate token to the request headers using this approach:</p>
+
+[code=javascript]
+const targetUrl = 'your_base_url/trongate_tokens/id';
+const token = 'your_trongate_token'; // Replace with your actual Trongate token
+const http = new XMLHttpRequest();
+
+http.open('GET', targetUrl);
+http.setRequestHeader('Content-type', 'application/json');
+http.setRequestHeader('trongateToken', token);
+http.send();
+
+http.onload = function() {
+  console.log(http.status); // Logs the HTTP status code (e.g., 200 for success)
+  console.log(http.responseText); // Logs the response from the server
+};
+[/code]
+
+<h3>Explanation</h3>
+<ul>
+  <li><strong>targetUrl:</strong> Replace this with the actual URL of the Trongate API endpoint you wish to interact with.</li>
+  <li><strong>token:</strong> Replace this placeholder with the actual Trongate token generated for the user.</li>
+  <li><strong>setRequestHeader:</strong> The <code>trongateToken</code> header is explicitly set to include the token for authentication.</li>
+  <li><strong>onload:</strong> This event handler processes the server's response once the request is complete.</li>
+</ul>
+
+<h2>Using Fetch API</h2>
+<p>The <code>Fetch API</code> offers a more modern and promise-based approach to making HTTP requests. Below is an example of how to attach a Trongate token to the request headers using the <code>Fetch API</code>:</p>
+
+[code=javascript]
+const targetUrl = 'your_base_url/trongate_tokens/id';
+const token = 'your_trongate_token'; // Replace with your actual Trongate token
+
+fetch(targetUrl, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'trongateToken': token,
+  },
+})
+  .then((response) => response.json()) // Parse the JSON response
+  .then((data) => console.log(data)) // Log the parsed data
+  .catch((error) => console.error('Error:', error)); // Handle any errors
+[/code]
+
+<h3>Explanation</h3>
+<ul>
+  <li><strong>targetUrl:</strong> Replace this with the actual URL of the Trongate API endpoint you wish to interact with.</li>
+  <li><strong>token:</strong> Replace this placeholder with the actual Trongate token generated for the user.</li>
+  <li><strong>headers:</strong> The <code>trongateToken</code> header is included in the request to authenticate the user.</li>
+  <li><strong>Promises:</strong> The <code>Fetch API</code> uses promises to handle asynchronous operations, making it easier to manage responses and errors.</li>
+</ul>
+
+<div class="alert alert-success">
+  <p>Developers who are using <a href="documentation/display/trongate_mx">Trongate MX</a> are advised to use the 'mx-token' attribute to automatically add token data to HTTP requests.  For more information, <a href="documentation/display/trongate_mx/trongate-mx-security/working-with-trongate-tokens">click here</a>.</p>
+</div>
+
+<h2>Fetching Tokens from HTTP Headers Using Pure PHP</h2>
+<p>In server-side PHP code, tokens sent via HTTP headers can be accessed directly using the <code>$_SERVER</code> superglobal. For example:</p>
+
+[code=php]
+$token = $_SERVER['HTTP_TRONGATETOKEN'] ?? false;
+[/code]
+
+<p>In the code sample above, a <code>$token</code> variable is assigned the value of a 'Trongate token' passed via an HTTP request header. If no such header is found, the <code>$token</code> variable will be assigned a boolean value of <code>false</code>.</p>
+
+<div class="alert alert-warning">
+  <p>Accessing token data from the header via the <code>$_SERVER</code> superglobal does not confirm whether the token passed via the header is valid.</p>
+  <p>To validate token data, refer to the <a href="documentation/display/php_framework/authorization-and-authentication/token-validation">token validation documentation</a> for guidance on using the Trongate Tokens class.</p>
+</div>
+
+<h2>Security Considerations</h2>
+<p>When attaching tokens to HTTP headers, keep the following security considerations in mind:</p>
+<ul>
+  <li><strong>HTTPS:</strong> Always transmit tokens over HTTPS to encrypt the data and prevent interception by malicious actors.</li>
+  <li><strong>Token Storage:</strong> Store tokens securely on the client side. For web applications, consider using secure cookies or session storage to minimize exposure.</li>
+  <li><strong>Token Expiry:</strong> Ensure that tokens have a reasonable lifespan and implement mechanisms to refresh or regenerate them as needed.</li>
+  <li><strong>Error Handling:</strong> Implement robust error handling to detect and respond to failed authentication attempts or expired tokens.</li>
+</ul>

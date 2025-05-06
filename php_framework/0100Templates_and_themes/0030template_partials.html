@@ -1,0 +1,110 @@
+<h1>Template Partials</h1>
+
+<p>Partials are reusable pieces of code that represent specific sections of a web page. They allow developers to break down complex templates into smaller, more manageable components. Common examples of partials include:</p>
+
+<ul>
+  <li>Headers</li>
+  <li>Footers</li>
+  <li>Navigation bars</li>
+  <li>Sidebars</li>
+  <li>Login forms</li>
+</ul>
+
+<p>By using partials, you can maintain a consistent design across your application while reducing code duplication.</p>
+
+<div class="alert alert-info">
+  <p>The use of partials in templates is entirely <b>optional</b> and not required.</p> 
+
+  <p>While Trongate <i>does</i> support partials, this feature has been included primarily to accommodate developers who are accustomed to their use in other frameworks. We understand that transitioning to alternative methodologies can sometimes be challenging, but rest assured, there are other approaches that can be equally effective and more suited to modern development practices.</p>
+
+  <p>For those seeking alternatives to partials, Trongate offers the option to <a href="documentation/display/php_framework/modules-calling-modules/loading-modules-from-views">load entire modules directly from view files or templates</a>.</p>
+</div>
+
+<h2>How to Use Partials</h2>
+
+<p>In Trongate, partials are loaded using the <span class="feature-ref">partial()</span> method. This method allows you to include a partial file from the <code>templates/views/</code> directory. Here's a basic example:</p>
+
+[code=vf]
+&amp;lt;?= Template::partial("footer") ?&amp;gt;
+[/code]
+
+<p>In this example, the <code>footer.php</code> file located in <code>templates/views/</code> will be included in the template.</p>
+
+<h3>Passing Data to Partials</h3>
+
+<p>Partials can receive and display data passed from the calling module. You can pass data to a partial by including a <code>$data</code> array as the second argument:</p>
+
+[code=vf]
+&amp;lt;?= Template::partial("footer", $data) ?&amp;gt;
+[/code]
+
+<p>Inside the partial, all variables in the <code>$data</code> array are automatically extracted and can be accessed directly. For example, if <code>$data['year'] = 2023</code>, you can use <code>$year</code> inside the partial.</p>
+
+<hr>
+
+<h2>Nested Partials</h2>
+
+<p>Partials can include other partials, allowing you to create complex, nested structures. For example, a <code>footer.php</code> partial might itself include a <code>social_links.php</code> partial:</p>
+
+[code=vf]
+&amp;lt;footer&amp;gt;
+  &amp;lt;p&amp;gt;&amp;copy; 2023 My Company&amp;lt;/p&amp;gt;
+  &amp;lt;?= Template::partial("social_links") ?&amp;gt;
+&amp;lt;/footer&amp;gt;
+[/code]
+
+<p>This nesting capability makes partials a powerful tool for building modular and reusable templates.</p>
+
+<h2>Example: Template Without Partials</h2>
+
+<p>Here's an example of a template that does <strong>not</strong> use partials:</p>
+
+[code=vf]
+&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html lang="en"&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;meta charset="UTF-8"&amp;gt;
+  &amp;lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&amp;gt;
+  &amp;lt;title&amp;gt;Document&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;header&amp;gt;Acme Web Development Ltd&amp;lt;/header&amp;gt;
+  &amp;lt;main&amp;gt;&amp;lt;?= Template::display($data) ?&amp;gt;&amp;lt;/main&amp;gt;
+  &amp;lt;footer&amp;gt;&amp;amp;copy; Copyright 2088 - All rights reserved&amp;lt;/footer&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+[/code]
+
+<h2>Example: Template With Partials</h2>
+
+<p>Here's the same template, but with the footer being loaded as a partial:</p>
+
+[code=vf]
+&amp;lt;!DOCTYPE html&amp;gt;
+&amp;lt;html lang="en"&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;meta charset="UTF-8"&amp;gt;
+  &amp;lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&amp;gt;
+  &amp;lt;title&amp;gt;Document&amp;lt;/title&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;header&amp;gt;Acme Web Development Ltd&amp;lt;/header&amp;gt;
+  &amp;lt;main&amp;gt;&amp;lt;?= Template::display($data) ?&amp;gt;&amp;lt;/main&amp;gt;
+  &amp;lt;?= Template::partial('footer', $data) ?&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+[/code]
+
+<h2>Organizing Partials into Subdirectories</h2>
+
+<p>If you prefer to organize your partials into subdirectories (e.g., <code>templates/views/partials/</code>), you can do so by specifying the full path when calling <code>Template::partial()</code>. For example:</p>
+
+[code=vf]
+&amp;lt;?= Template::partial("partials/footer") ?&amp;gt;
+[/code]
+
+<p>This would look for <code>templates/views/partials/footer.php</code>.</p>
+
+<h2>In Summary</h2>
+
+<p>Partials are a powerful feature in Trongate that allow you to break down your templates into reusable components. Whether you're building a simple website or a complex web application, partials can help you maintain a clean and organized codebase. By using <code>Template::partial()</code>, you can easily include global or module-specific partials, pass data to them, and even nest partials within each other.</p>

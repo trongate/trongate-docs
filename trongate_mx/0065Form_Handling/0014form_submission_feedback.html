@@ -1,0 +1,195 @@
+<h1>Form Submission Feedback</h1>
+
+<p>When a form is submitted in Trongate MX, several automatic behaviors and visual feedback options help create a smooth user experience. This page explores the built-in features and customization options available during form submission.</p>
+
+<h2>Automatic Form Behaviors</h2>
+
+<p>When a form is submitted, Trongate MX automatically:</p>
+
+<ul>
+    <li>Disables all form elements to prevent double submission.</li>
+    <li>Re-enables the form elements once a response is received.</li>
+    <li>Clears any existing validation errors from previous submissions.</li>
+</ul>
+
+<p>These behaviors require no additional attributes - they're built into Trongate MX's form handling system.</p>
+
+<h2>Loading Indicators</h2>
+
+<p>Loading indicators provide visual feedback that a form submission is in progress. Here's how to implement this using Trongate's helper functions:</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; 'store/create',
+    'mx-indicator' =&gt; '#submit-spinner'
+];
+echo form_open('#', $form_attr);
+echo form_label('Product Name');
+echo form_input('product_name', '');
+echo form_submit('submit', 'Create Product');
+echo form_close();
+?&gt;
+
+&lt;div id="submit-spinner" class="spinner mx-indicator"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">For those who prefer working with pure HTML, here's the equivalent implementation:</p>
+[code=html]
+&lt;form mx-post="store/create"
+      mx-indicator="#submit-spinner"&gt;
+    &lt;label&gt;Product Name&lt;/label&gt;
+    &lt;input type="text" name="product_name"&gt;
+    &lt;button type="submit"&gt;Create Product&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;div id="submit-spinner" class="spinner mx-indicator"&gt;&lt;/div&gt;
+[/code]
+
+<p>The spinner automatically appears during form submission and hides when complete. The <code>mx-indicator</code> class ensures proper initialization and cleanup.</p>
+
+<h2>Target Element Control</h2>
+
+<p>You can control how the form appears during submission using <code>mx-target-loading</code>. Two approaches are available:</p>
+
+<h3>1. Cloaking the Form</h3>
+
+<p>Here's how to implement form cloaking using Trongate's helper functions:</p>
+[code=vf]
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; 'store/create',
+    'mx-target-loading' =&gt; 'cloak'
+];
+echo form_open('#', $form_attr);
+echo form_label('Product Name');
+echo form_input('product_name', '');
+echo form_submit('submit', 'Create Product');
+echo form_close();
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">To achieve the same cloaking effect using standard HTML:</p>
+[code=html]
+&lt;form mx-post="store/create"
+      mx-target-loading="cloak"&gt;
+    &lt;label&gt;Product Name&lt;/label&gt;
+    &lt;input type="text" name="product_name"&gt;
+    &lt;button type="submit"&gt;Create Product&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<h3>2. Showing a Loading Message</h3>
+
+<p>Using Trongate's form helper functions:</p>
+[code=vf]
+&lt;?php
+// First, create a hidden message
+echo '&lt;div id="loading-message" style="display: none;"&gt;';
+echo '&lt;div class="blink"&gt;Submitting your product...&lt;/div&gt;';
+echo '&lt;/div&gt;';
+
+// Then reference it in the form
+$form_attr = [
+    'mx-post' =&gt; 'store/create',
+    'mx-target-loading' =&gt; '#loading-message'
+];
+echo form_open('#', $form_attr);
+echo form_label('Product Name');
+echo form_input('product_name', '');
+echo form_submit('submit', 'Create Product');
+echo form_close();
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's how to implement the loading message using pure HTML:</p>
+[code=html]
+&lt;div id="loading-message" style="display: none;"&gt;
+    &lt;div class="blink"&gt;Submitting your product...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;form mx-post="store/create"
+      mx-target-loading="#loading-message"&gt;
+    &lt;label&gt;Product Name&lt;/label&gt;
+    &lt;input type="text" name="product_name"&gt;
+    &lt;button type="submit"&gt;Create Product&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<h2>Combining Multiple Feedback Methods</h2>
+
+<p>You can combine different feedback methods for a comprehensive user experience. Here's how to do it using Trongate's helper functions:</p>
+
+[code=vf]
+&lt;?php
+// Hidden loading message
+echo '&lt;div id="loading-message" style="display: none;"&gt;';
+echo '&lt;div class="blink"&gt;Processing Your Submission&lt;/div&gt;';
+echo '&lt;/div&gt;';
+
+// Form with multiple feedback methods
+$form_attr = [
+    'mx-post' =&gt; 'store/create',
+    'mx-target-loading' =&gt; '#loading-message',
+    'mx-indicator' =&gt; '#submit-spinner'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Product Name');
+echo form_input('product_name', '');
+echo form_submit('submit', 'Create Product');
+echo form_close();
+?&gt;
+
+&lt;div id="submit-spinner" class="spinner mx-indicator"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's the same comprehensive feedback implementation in straightforward HTML:</p>
+[code=html]
+&lt;div id="loading-message" style="display: none;"&gt;
+    &lt;div class="blink"&gt;Processing Your Submission&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;form mx-post="store/create"
+      mx-target-loading="#loading-message"
+      mx-indicator="#submit-spinner"&gt;
+    &lt;label&gt;Product Name&lt;/label&gt;
+    &lt;input type="text" name="product_name"&gt;
+    &lt;button type="submit"&gt;Create Product&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;div id="submit-spinner" class="spinner mx-indicator"&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+<p>When using <code>mx-indicator</code> with forms, place the loading indicator outside the form to ensure it remains visible when the form elements are disabled.</p>
+</div>
+
+<h2>Response Handling</h2>
+
+<p>After submission, Trongate MX automatically:</p>
+
+<ul>
+    <li>Re-enables all form elements.</li>
+    <li>Hides loading indicators.</li>
+    <li>Restores original content if using <code>mx-target-loading</code>.</li>
+    <li>Displays any validation errors if they exist.</li>
+</ul>
+
+<div class="alert alert-success">
+  <p>
+    When building or testing API integrations, you can use PHP's <code>sleep()</code> function to simulate realistic network latency. This is particularly useful for testing features like loading indicators, ensuring they appear correctly during delayed server responses.
+  </p>
+  <p>
+    For example, here's how you can introduce a 2-second delay to mimic a slow API response:
+  </p>
+[code=php]function test() {
+  sleep(2);
+  http_reponse_code(200);
+  echo 'Hello from the API!';
+}[/code]
+</div>
+
+<h2>Summary</h2>
+
+<p>Trongate MX provides a robust set of tools for handling form submissions gracefully. The automatic form element disabling prevents double submissions, while visual feedback options like loading indicators and content replacement keep users informed of the submission status. By combining these features, you can create form submissions that are both user-friendly and resilient.</p>

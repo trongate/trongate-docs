@@ -1,0 +1,154 @@
+<h1>Form Buttons</h1>
+
+<p>Trongate CSS provides several button styles and variations that can be used within forms. This guide explores the various button options and their common use cases.</p>
+
+<h2>Basic Buttons</h2>
+
+<p>The standard button style is achieved using either the button element or an anchor tag with the <code>.button</code> class:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button>Submit Form</button>
+        <a href="#" class="button mt-1">Link Button</a>
+    </div>
+</div>
+
+[code=html]
+&lt;button&gt;Submit Form&lt;/button&gt;
+&lt;a href="#" class="button"&gt;Link Button&lt;/a&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Trongate CSS file gives buttons a top margin. The relevant rule is:</p>
+[code=css]
+button,
+.button {
+  margin: 1em 0.1em 0 0;
+}
+[/code]
+
+<p>To mitigate this, a class of <code>.mt-0</code> can be added to buttons.  For example:</p>
+
+[code=html]&lt;button class="mt-0"&gt;Submit&lt;/button&gt;[/code]
+
+</div>
+
+<h2>Alternative Style</h2>
+
+<p>Add the <code>.alt</code> class to create buttons with an outline style:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="alt">Cancel</button>
+        <a href="#" class="button alt mt-1">Back</a>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="alt"&gt;Cancel&lt;/button&gt;
+&lt;a href="#" class="button alt"&gt;Back&lt;/a&gt;
+[/code]
+
+<h2>Status Buttons</h2>
+
+<p>Trongate CSS provides contextual button styles for different actions and states:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="success">Confirm Action</button>
+        <button class="warning mt-1">Proceed with Caution</button>
+        <button class="danger mt-1">Delete Item</button>
+        <button class="inverse mt-1">Cancel Action</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="success"&gt;Confirm Action&lt;/button&gt;
+&lt;button class="warning"&gt;Proceed with Caution&lt;/button&gt;
+&lt;button class="danger"&gt;Delete Item&lt;/button&gt;
+&lt;button class="inverse"&gt;Cancel Action&lt;/button&gt;
+[/code]
+
+<h2>Button Sizes</h2>
+
+<p>Buttons can be sized using Trongate's <a href="documentation/display/trongate_css/utility-classes/size-classes">size classes</a>:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="xs">Extra Small</button>
+        <button class="sm mt-1">Small Button</button>
+        <button class="mt-1">Normal Button</button>
+        <button class="lg mt-1">Large Button</button>
+        <button class="xl mt-1">Extra Large</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="xs"&gt;Extra Small&lt;/button&gt;
+&lt;button class="sm"&gt;Small Button&lt;/button&gt;
+&lt;button&gt;Normal Button&lt;/button&gt;
+&lt;button class="lg"&gt;Large Button&lt;/button&gt;
+&lt;button class="xl"&gt;Extra Large&lt;/button&gt;
+[/code]
+
+<h2>Form Actions</h2>
+
+<p>When positioning multiple buttons at the bottom of a form, consider using <code>.justify-between</code> for optimal spacing:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <form>
+            <input type="text" placeholder="Sample input field">
+            <div class="flex-row justify-between">
+                <button class="alt mb-0">Cancel</button>
+                <button class="mb-0">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+[code=html]
+&lt;form&gt;
+    &lt;input type="text" placeholder="Sample input field"&gt;
+    &lt;div class="flex-row justify-between"&gt;
+        &lt;button class="alt mb-0"&gt;Cancel&lt;/button&gt;
+        &lt;button class="mb-0"&gt;Submit&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+[/code]
+
+<h2>Special Button Styles</h2>
+
+<p>Trongate CSS includes metallic button styles for emphasis:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="gold">Gold Button</button>
+        <button class="silver mt-1">Silver Button</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="gold"&gt;Gold Button&lt;/button&gt;
+&lt;button class="silver"&gt;Silver Button&lt;/button&gt;
+[/code]
+
+<h2>Disabled State</h2>
+
+<p>Use the disabled attribute to indicate inactive buttons:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button disabled="">Disabled Button</button>
+        <button class="alt mt-1" disabled="">Disabled Alternative</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button disabled&gt;Disabled Button&lt;/button&gt;
+&lt;button class="alt" disabled&gt;Disabled Alternative&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Disabled buttons maintain their basic styling but have reduced opacity and a "not-allowed" cursor to indicate their inactive state.</p>
+</div>

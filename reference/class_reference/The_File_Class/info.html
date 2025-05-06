@@ -1,0 +1,128 @@
+<div class="container">
+  <h1>info()</h1>
+  <p class="signature">function info(string $file_path): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves metadata about a file, including its name, size, last modification time, permissions, MIME type, and human-readable size. This method is useful for gathering detailed information about a file for logging, debugging, or display purposes.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first checks if the file exists at the specified path. If the file does not exist, an exception is thrown.</li>
+      <li>If the file exists, it retrieves the following metadata:
+        <ul>
+          <li><strong>File Name:</strong> The base name of the file (e.g., <code>file.txt</code>).</li>
+          <li><strong>Size:</strong> The size of the file in bytes.</li>
+          <li><strong>Human-Readable Size:</strong> The size of the file formatted in a human-readable format (e.g., <code>1.23 MB</code>).</li>
+          <li><strong>Modified Time:</strong> The last modification time of the file as a Unix timestamp.</li>
+          <li><strong>Permissions:</strong> The file permissions in octal notation (e.g., <code>0644</code>).</li>
+          <li><strong>Readable Permissions:</strong> The file permissions formatted for readability (e.g., <code>0644</code>).</li>
+          <li><strong>MIME Type:</strong> The MIME type of the file (e.g., <code>text/plain</code>).</li>
+        </ul>
+      </li>
+      <li>The metadata is returned as an associative array.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the file exists and is accessible before calling this method. If the file does not exist, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$file_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the file for which metadata should be retrieved.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An associative array containing the following metadata:
+          <ul>
+            <li><code>file_name</code>: (string) The base name of the file.</li>
+            <li><code>size</code>: (int) The size of the file in bytes.</li>
+            <li><code>human_readable_size</code>: (string) The size of the file in a human-readable format.</li>
+            <li><code>modified_time</code>: (int) The last modification time as a Unix timestamp.</li>
+            <li><code>permissions</code>: (int) The file permissions in octal notation.</li>
+            <li><code>readable_permissions</code>: (string) The file permissions formatted for readability.</li>
+            <li><code>mime_type</code>: (string) The MIME type of the file.</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The file does not exist at the specified path.</li>
+    </ul>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Retrieving metadata for a file
+try {
+    $file = new File();
+    $file_info = $file->info('/path/to/file.txt');
+    print_r($file_info);
+    /*
+    Output:
+    Array
+    (
+        [file_name] => file.txt
+        [size] => 1024
+        [human_readable_size] => 1.00 KB
+        [modified_time] => 1698765432
+        [permissions] => 33188
+        [readable_permissions] => 0644
+        [mime_type] => text/plain
+    )
+    */
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Displaying human-readable file size
+try {
+    $file = new File();
+    $file_info = $file->info('/path/to/large_file.zip');
+    echo "File size: " . $file_info['human_readable_size']; // Output: "File size: 123.45 MB"
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Checking file permissions
+try {
+    $file = new File();
+    $file_info = $file->info('/path/to/protected_file.txt');
+    echo "File permissions: " . $file_info['readable_permissions']; // Output: "File permissions: 0644"
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Ensure the file path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths.</li>
+      <li><strong>Use for Debugging:</strong> This method is useful for debugging or logging file-related issues, such as permission errors or missing files.</li>
+      <li><strong>Combine with Other Methods:</strong> Use this method in conjunction with other file operations (e.g., <code>read()</code>, <code>write()</code>) to ensure the file is accessible and has the expected metadata.</li>
+    </ul>
+  </div>
+</div>

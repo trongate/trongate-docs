@@ -1,0 +1,130 @@
+<h1>Identifying Trongate MX Requests</h1>
+
+<p>When working with Trongate MX, it's often useful to know whether a request originated from Trongate MX or from another source. Trongate's PHP framework includes a function called <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> in its engine directory that helps identify these requests.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> function resides in Trongate's engine directory and is part of the PHP framework. While Trongate MX automatically sets the required header, the detection happens on the server side using this PHP function.</p>
+</div>
+
+<h2>How It Works</h2>
+<p>Trongate MX automatically adds a special header (<code>Trongate-MX-Request: true</code>) to all requests it makes. The <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> function checks for the presence of this header.</p>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Scenario</th>
+            <th>Description</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Trongate MX Request</td>
+            <td>Request made using mx-get, mx-post, etc.</td>
+            <td><span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> returns <code>true</code></td>
+        </tr>
+        <tr>
+            <td>Regular HTTP Request</td>
+            <td>Standard form submission, AJAX, etc.</td>
+            <td><span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> returns <code>false</code></td>
+        </tr>
+        <tr>
+            <td>Page Load</td>
+            <td>Direct URL visit or page refresh</td>
+            <td><span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> returns <code>false</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p>The code examples below use <code>if (from_trongate_mx() === true)</code> for explicit boolean checks.  However, the simpler syntax <code>if (from_trongate_mx())</code> will also work. Both approaches are valid, and you can choose the one that best suits your coding style or project requirements.</p>
+</div>
+
+<h2>Common Use Cases</h2>
+
+<h3>1. Differentiating Response Formats</h3>
+
+<p>The code sample below demonstrates a method (i.e., a function within a class) that could serve as an API endpoint for an HTTP request.  In the example, we're using <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> to determined if the inbound HTTP request was submitted using Trongate MX.</p>
+
+[code=php]public function get_users() {
+
+    $users = $this->model->get('users');
+    
+    if (from_trongate_mx() === true) {
+        // Return HTML for dynamic update
+        $data['users'] = $users;
+        $html = $this->view('users_list', $data);
+        echo $html;
+    } else {
+        // Return full page for direct visits
+        $data['users'] = $users;
+        $data['view_module'] = 'users';
+        $data['view_file'] = 'users_page';
+        $this->template('admin', $data);
+    }
+
+}[/code]
+
+<h3 class="mt-3">2. Handling Form Submissions</h3>
+
+<p>This next example demonstrates a method handles form submissions differently depending on the context of the request. Specifically, it uses <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> to determine if the form submission originated from a Trongate MX request or a traditional form submission.</p>  
+
+[code=php]public function submit_form() {
+
+    $name = post('name', true);
+    
+    if (from_trongate_mx() === true) {
+        // Return targeted update
+        echo "&lt;div class='alert success'&gt;Thanks, $name!&lt;/div&gt;";
+    } else {
+        // Redirect for traditional form submit
+        redirect('thank_you_page');
+    }
+
+}[/code]
+
+<p>In the code example above, if the request is found to have originated from Trongate MX:</p>
+<ul>
+    <li>A 'thank you' message is rendered.</li>
+</ul>
+
+<p>If the request is found to have <b>not</b> originated from Trongate MX:</p>
+<ul>
+    <li>The end user will be redirected to a different URL.</li>
+</ul>
+
+
+<div class="alert alert-info">
+    <p>In the example above, we haven't actually <i>processed</i> any form data!  So, please <i>do</i> keep in mind the fact that some of these examples have been deliberately simplified.  In a real-world application, you'd probably have a requirement to <i>do something</i> with submitted form data.</p>
+</div>
+
+<h3 class="mt-3">3. API Response Formatting</h3>
+
+<p>The final example shows how to adjust API responses based on the request type. If the request comes from Trongate MX, the method returns HTML for seamless frontend updates. For other requests, it outputs JSON, making the endpoint suitable for <i>both</i> Trongate MX usage <i>as well as</i> more traditional API use.</p>
+
+[code=php]public function get_data() {
+
+    $data = $this->model->get('items');
+    
+    if (from_trongate_mx() === true) {
+        // Return HTML for dynamic insertion
+        $html = $this->view('items_list', ['items' => $data]);
+        echo $html;
+    } else {
+        // Return JSON for API consumers
+        echo json_encode($data);
+    }
+    
+}[/code]
+
+<div class="alert alert-success">
+<ul>
+    <li>Use <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> when you need different response formats for dynamic updates versus direct visits</li>
+    <li>Consider using it for form submissions where you want different success behaviors</li>
+    <li>Leverage it to provide appropriate error responses based on the request source</li>
+    <li>Remember that the function is part of Trongate's PHP framework, not Trongate MX itself</li>
+</ul>  
+</div>
+
+<h2>Summary</h2>
+<p>Being able to identify Trongate MX requests enables you to create endpoints that can serve both dynamic updates and traditional page loads effectively. The <span class="feature-ref" ref-path="helpers/Utilities_Helpers">from_trongate_mx()</span> function provides a simple way to detect these requests and adjust your response accordingly, making it easier to build applications that work seamlessly with both Trongate MX and traditional HTTP requests.</p>

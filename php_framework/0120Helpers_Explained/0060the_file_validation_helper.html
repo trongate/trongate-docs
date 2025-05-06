@@ -1,0 +1,83 @@
+<h1>The File Validation Helper</h1>
+
+<p>Trongate is loaded with a variety of features that can assist with the uploading of files such as images. Before exploring Trongate's file validation helper, let's have a reminder of how to draw a file uploader form using Trongate:</p>
+
+[code=vf]
+&lt;?php
+echo form_open_upload("members/submit_upload_picture/".$update_id);  
+echo validation_errors();
+echo "Please choose a picture from your computer and then press \"Upload\".";  
+echo form_file_select("picture");  
+echo form_submit("submit", "Upload");  
+echo form_close();
+?&gt;
+[/code]
+
+<p>The code above could be used to produce a form that looks like this:</p>
+
+<figure>
+    <img src="images/29/pic_uploaQqj.png" alt="screenshot" style="width:100%">
+    <figcaption>Screenshot showing example of file uploader form.</figcaption>
+</figure>
+
+<div class="alert alert-warning">
+  The example shown in the screenshot contains some CSS and a little additional HTML to improve the appearance of the uploader form.
+</div>
+
+<h2>Understanding The Uploader Form</h2>
+
+<p>The uploader form, above, starts by invoking the <span class="feature-ref">form_open_upload()</span> method.</p>
+
+[code=vf]  
+echo form_open_upload("members/submit_upload_picture/".$update_id);  
+[/code]
+
+<p>As can see, an argument has been passed into the method. The argument represents the destination for the uploader form. The destination is the URL where the user is sent to when the form is submitted. The opening line produces the following HTML code:</p>
+
+[code=vf]  
+&lt;form action="http://localhost/your_app/members/submit_upload_picture/1" method="post" enctype="multipart/form-data"&gt;  
+[/code]
+
+<div class="alert alert-warning">
+  <p>The assumption being made with this example is that an <code>$update_id</code> variable has been passed into the view file. We're also assuming that the <code>BASE_URL</code> value is set to:</p> 
+[code]http://localhost/your_app/[/code].
+</div>
+
+<p>Next, we invoked Trongate's <span class="feature-ref">validation_errors()</span> method.</p>
+
+[code=vf]  
+validation_errors();  
+[/code]
+
+<p>The <code>validation_errors()</code> method displays form validation errors, if there are any.</p>
+
+<p>After displaying some text-based instructions, the next important part of our form is:</p>
+
+[code=vf]  
+echo form_file_select("picture");  
+[/code]
+
+<p>The <span class="feature-ref">form_file_select</span> method displays a form file uploader field. As you can see, the argument <code>'picture'</code> has been passed into the method. The <code>'picture'</code> argument represents the name of the file uploader form field. The HTML code that gets generated from the <code>form_file_select()</code> method is shown below:</p>
+
+[code=html]  
+&lt;input type="file" name="picture" value=""&gt;  
+[/code]
+
+<div class="alert alert-warning">
+  The <span class="feature-ref">form_file_select</span> method can accept the following three arguments:
+  <ul>
+    <li>name</li>
+    <li>attributes</li>
+  </ul>
+  <p>What these two attributes represent and how they behave is identical to how ordinary <span class="feature-ref">form_input()</span> methods work. See the <a href="documentation-ref/list_refs/helpers/form-helpers">Form Helpers API Reference</a> for details.</p>
+</div>
+
+<p>The 'submit' button has been assigned with a name of <b>'submit'</b> but the word 'Upload' appears inside the button.</p>
+
+[code=vf]  
+echo form_submit("submit", "Upload");  
+echo form_close();  
+[/code]
+
+<p>The uploader form is closed by invoking <span class="feature-ref">form_close()</span>.</p>
+

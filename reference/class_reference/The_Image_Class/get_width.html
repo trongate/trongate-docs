@@ -1,0 +1,103 @@
+<div class="container">
+  <h1>get_width()</h1>
+  <p class="signature">function get_width(): int</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Returns the width of the currently loaded image in pixels. This method utilizes PHP's GD library function <code>imagesx()</code> to retrieve the width of the image resource.</p>
+    <p><strong>Note:</strong> An image must be loaded before calling this method. If no image is loaded, the method throws an <strong>Exception</strong> to prevent misuse and ensure valid output.</p>
+    <p><strong>Common Use Cases:</strong></p>
+    <ul>
+      <li>Calculating the aspect ratio of an image (in combination with <code>get_height()</code>).</li>
+      <li>Performing resizing or cropping operations based on the image's dimensions.</li>
+      <li>Validating image dimensions before processing.</li>
+    </ul>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>This method does not accept any parameters.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if no image is loaded. This ensures that the method does not fail silently and provides clear feedback for debugging.</p>
+  </div>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int</td>
+        <td>The width of the image in pixels, if an image is loaded.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Retrieving the width of an image
+try {
+    // Load an image
+    $this->image->load('path/to/image.jpg');
+    
+    // Get the width of the image
+    $width = $this->image->get_width();
+    echo "Width of the image: " . $width . " pixels";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Calculating the aspect ratio of an image
+try {
+    $this->image->load('path/to/image.jpg');
+    $width = $this->image->get_width();
+    $height = $this->image->get_height();
+    
+    $aspect_ratio = $width / $height;
+    echo "Aspect ratio of the image: " . $aspect_ratio;
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Validating image dimensions before resizing
+try {
+    $this->image->load('path/to/image.jpg');
+    $width = $this->image->get_width();
+    
+    if ($width > 1200) {
+        echo "Image is too wide. Resizing...";
+        $this->image->resize_to_width(1200);
+    } else {
+        echo "Image width is within acceptable limits.";
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Always Check for Loaded Images:</strong> Ensure an image is loaded before calling <code>get_width()</code> to avoid exceptions.</li>
+      <li><strong>Combine with <code>get_height()</code>:</strong> Use <code>get_width()</code> in conjunction with <code>get_height()</code> for tasks like calculating aspect ratios or performing resizing operations.</li>
+      <li><strong>Validate Dimensions:</strong> Use this method to validate image dimensions before performing operations like resizing or cropping.</li>
+    </ul>
+  </div>
+</div>

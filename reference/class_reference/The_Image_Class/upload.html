@@ -1,0 +1,203 @@
+<div class="container">
+  <h1>upload()</h1>
+  <p class="signature">function upload(array $data): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Handles the entire process of uploading and processing an image file. This method performs the following steps:</p>
+    <ul>
+      <li>Delegates the initial file upload to the <code>File</code> class.</li>
+      <li>Loads the uploaded image for further processing.</li>
+      <li>Resizes the image if its dimensions exceed the specified maximum width or height.</li>
+      <li>Generates a thumbnail if requested.</li>
+    </ul>
+    <p><strong>Note:</strong> After processing the image (e.g., resizing or saving), it is recommended to call the <code>destroy()</code> method to free up memory, especially when handling multiple images or large files.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>Configuration array with settings for file destination, size limits, resizing dimensions, thumbnail creation, and more. See Configuration Properties table below for full details.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Configuration Properties</h2>
+  <table class="properties-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Example Values</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>destination</td>
+        <td>string</td>
+        <td>The directory path where the uploaded file will be saved.</td>
+        <td>uploads/images/</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>max_width</td>
+        <td>int</td>
+        <td>The maximum allowed width for the image. If the image exceeds this width, it will be resized.</td>
+        <td>1200</td>
+        <td>450</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>max_height</td>
+        <td>int</td>
+        <td>The maximum allowed height for the image. If the image exceeds this height, it will be resized.</td>
+        <td>1200</td>
+        <td>450</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>thumbnail_dir</td>
+        <td>string</td>
+        <td>The directory path where thumbnails should be saved, if thumbnail generation is enabled.</td>
+        <td>uploads/thumbnails/</td>
+        <td>''</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>thumbnail_max_width</td>
+        <td>int</td>
+        <td>The maximum width for thumbnails.</td>
+        <td>120</td>
+        <td>0</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>thumbnail_max_height</td>
+        <td>int</td>
+        <td>The maximum height for thumbnails.</td>
+        <td>120</td>
+        <td>0</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>upload_to_module</td>
+        <td>bool</td>
+        <td>Whether to upload the file to a module-specific directory. If true, uses the module's asset directory.</td>
+        <td>true/false</td>
+        <td>false</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>make_rand_name</td>
+        <td>bool</td>
+        <td>Whether to generate a random filename for the uploaded file to avoid name conflicts.</td>
+        <td>true/false</td>
+        <td>false</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>targetModule</td>
+        <td>string</td>
+        <td>The target module for module-specific uploads. Defaults to the value of <code>segment(1)</code>.</td>
+        <td>my_module</td>
+        <td>segment(1)</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An associative array containing details about the uploaded file, including:
+          <ul>
+            <li><strong>file_name</strong> (string): The name of the uploaded file.</li>
+            <li><strong>file_path</strong> (string): The full path to the uploaded file.</li>
+            <li><strong>file_type</strong> (string): The MIME type of the uploaded file.</li>
+            <li><strong>file_size</strong> (int): The size of the uploaded file in bytes.</li>
+            <li><strong>thumbnail_path</strong> (string, optional): The full path to the generated thumbnail, if applicable.</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The file upload fails.</li>
+      <li>There are issues during image processing (e.g., invalid directories or unsupported image types).</li>
+    </ul>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Uploading an image with resizing and thumbnail generation
+$config = [
+    'destination' => 'uploads/images/',
+    'max_width' => 1200,
+    'max_height' => 1200,
+    'thumbnail_dir' => 'uploads/thumbnails/',
+    'thumbnail_max_width' => 120,
+    'thumbnail_max_height' => 120,
+    'upload_to_module' => true,
+    'make_rand_name' => true
+];
+
+try {
+    $file_info = $this->image->upload($config);
+    $this->image->destroy(); // Free up memory after processing
+    echo 'File uploaded successfully. Details: ';
+    print_r($file_info);
+} catch (Exception $e) {
+    echo 'Upload failed: ' . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Uploading an image without thumbnail generation
+$config = [
+    'destination' => 'uploads/images/',
+    'max_width' => 800,
+    'max_height' => 800,
+    'upload_to_module' => false,
+    'make_rand_name' => false
+];
+
+try {
+    $file_info = $this->image->upload($config);
+    $this->image->destroy(); // Free up memory after processing
+    echo 'File uploaded successfully. Details: ';
+    print_r($file_info);
+} catch (Exception $e) {
+    echo 'Upload failed: ' . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Configuration:</strong> Ensure all required configuration keys (e.g., <code>destination</code>) are provided and valid.</li>
+      <li><strong>Use <code>destroy()</code> After Upload:</strong> In scripts that process multiple or large images, call <code>destroy()</code> to free up memory after processing.</li>
+      <li><strong>Batch Processing:</strong> When uploading multiple images, always call <code>destroy()</code> after each image to prevent memory leaks.</li>
+      <li><strong>Check File Permissions:</strong> Ensure the destination directories are writable to avoid upload failures.</li>
+    </ul>
+  </div>
+</div>

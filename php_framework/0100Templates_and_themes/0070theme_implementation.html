@@ -1,0 +1,163 @@
+<h1>Theme Implementation</h1>
+
+<p>This section covers the practical aspects of working with themes in Trongate, including theme structure, asset management, and theme creation.</p>
+
+<h2>Theme Location and Structure</h2>
+
+<p>Themes in Trongate are stored in the <code>public/themes/</code> directory. Within this directory, you have complete flexibility to structure your themes as needed for your application.</p>
+
+<h3>Example: Admin Theme Structure</h3>
+
+<p>The default admin theme demonstrates one possible way to organize theme variations:</p>
+
+[code]
+public/themes/default_admin/
+    ├── Black/
+    │   └── css/
+    ├── Blue/
+    │   └── css/
+    ├── Green/
+    │   └── css/
+    ├── Orange/
+    │   └── css/
+    └── Purple/
+        └── css/
+[/code]
+
+<p>Alternative structures are possible. For example, a theme with shared assets might use:</p>
+
+[code]
+public/themes/new_admin/
+    ├── css/
+    ├── dark/
+    │   ├── css/
+    │   ├── js/
+    │   └── admin.php
+    └── light/
+        ├── css/
+        ├── js/
+        └── admin.php
+[/code]
+
+<h2>Managing Theme Assets</h2>
+
+<p>Trongate provides the <code>THEME_DIR</code> constant for referencing theme-specific assets. This constant becomes available when a theme is loaded.</p>
+
+<h3>Example: Loading Theme-Specific and Shared Assets</h3>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    
+    &lt;?php
+    // Get the root theme directory for shared assets
+    $trimmed_theme_dir = rtrim(THEME_DIR, '/');
+    $root_theme_dir = dirname($trimmed_theme_dir) . '/';
+    ?&gt;
+    
+    &lt;!-- Load shared CSS for all theme variations --&gt;
+    &lt;link rel="stylesheet" href="&lt;?= $root_theme_dir ?&gt;css/adminroot.css"&gt;
+    
+    &lt;!-- Load variation-specific CSS --&gt;
+    &lt;link rel="stylesheet" href="&lt;?= THEME_DIR ?&gt;css/admintheme.css"&gt;
+&lt;/head&gt;
+[/code]
+
+<p>This approach allows you to:</p>
+<ul>
+    <li>Share common assets across theme variations</li>
+    <li>Override specific styles for each variation</li>
+    <li>Maintain a clean separation between shared and variation-specific assets</li>
+</ul>
+
+<h2>Registering Themes</h2>
+
+<p>Themes are registered in the <code>config/themes.php</code> file. Each theme requires two key properties:</p>
+
+<ul>
+    <li><code>dir</code>: The theme's directory path relative to <code>public/themes/</code></li>
+    <li><code>template</code>: The primary template file for the theme</li>
+</ul>
+
+<h3>Example: Theme Registration</h3>
+
+[code=php]
+// Admin theme with color variation
+$admin_theme = [
+    "dir" =&gt; "default_admin/blue",
+    "template" =&gt; "admin.php",
+];
+$themes['admin'] = $admin_theme;
+
+// Desktop app theme
+$desktop_app_mx = [
+    "dir" =&gt; "desktop_app_mx/blue",
+    "template" =&gt; "desktop_app_mx.php",
+];
+$themes['desktop_app_mx'] = $desktop_app_mx;
+
+// Define themes constant
+define('THEMES', $themes);
+[/code]
+
+<div class="alert alert-info">
+    <p>Theme keys (e.g., 'admin', 'desktop_app_mx') should be unique and descriptive, as they'll be used to reference the theme in your application code.</p>
+</div>
+
+<h2>Theme Loading Process</h2>
+
+<p>When a theme is loaded via the <span class="feature-ref">template()</span> method, Trongate:</p>
+
+<ol class="mt-1">
+    <li>Checks if the requested template exists in <code>THEMES</code></li>
+    <li class="mt-1">If found, constructs the theme path using the theme's directory and template file</li>
+    <li class="mt-1">Defines <code>THEME_DIR</code> for asset referencing</li>
+    <li class="mt-1">Loads the template file with any provided data</li>
+</ol>
+
+<div class="alert alert-success">
+    <ul>
+        <li><strong>Asset Organization:</strong> Consider separating shared and variation-specific assets</li>
+        <li><strong>Theme Variations:</strong> Use consistent directory structures across variations</li>
+        <li><strong>Asset References:</strong> Always use <code>THEME_DIR</code> for theme-specific assets</li>
+        <li><strong>Theme Registration:</strong> Use clear, descriptive keys in <code>themes.php</code></li>
+        <li><strong>Directory Structure:</strong> Choose a structure that makes sense for your specific needs - there's no mandatory layout</li>
+    </ul>    
+</div>
+
+<h2>The Benefits of Using Themes</h2>
+
+<p>While templates serve their purpose for basic page layouts, themes offer several significant advantages that make them invaluable for modern web applications:</p>
+
+<ul>
+    <li><strong>Portability:</strong> Entire design packages can be contained within a single folder, making them easy to transfer between projects or share with the community</li>
+    
+    <li><strong>Complete Design Systems:</strong> Themes can include everything needed for a consistent look and feel:
+        <ul>
+            <li>Templates</li>
+            <li>Stylesheets</li>
+            <li>JavaScript files</li>
+            <li>Images and icons</li>
+            <li>Fonts</li>
+            <li>Color schemes</li>
+        </ul>
+    </li>
+    
+    <li><strong>Easy Switching:</strong> Change the entire appearance of your application by modifying a single line in your theme configuration</li>
+    
+    <li><strong>Version Control:</strong> Keep entire design packages under version control as a single unit, making it easier to track design changes</li>
+    
+    <li><strong>Resource Management:</strong> The <code>THEME_DIR</code> constant provides a reliable way to reference theme-specific assets, eliminating path management headaches</li>
+    
+    <li><strong>Multiple Variations:</strong> Support different color schemes or design variations without duplicating your entire codebase</li>
+    
+    <li><strong>Clean Separation:</strong> Keep design assets separate from your application logic, improving maintainability</li>
+    
+    <li><strong>Rapid Deployment:</strong> Quick implementation of new designs by switching themes, perfect for A/B testing or seasonal changes</li>
+</ul>
+
+<p>These benefits make themes particularly valuable for applications that require flexible styling, multiple design variations, or the ability to quickly change their appearance.</p>

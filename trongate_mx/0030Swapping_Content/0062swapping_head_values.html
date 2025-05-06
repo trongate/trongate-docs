@@ -1,0 +1,83 @@
+<h1>Dynamic Browser Tabs</h1>
+
+<p>With the <code>mx-swap-title</code> attribute, you can update your browser tab titles instantly as users navigate through your content - no page reloads required!</p>
+
+<h2>Why Update Page Titles?</h2>
+
+<p>Imagine you're building a movie review website. When visitors browse different films, you'd want the browser tab to show which film they're currently viewing. This helps users:</p>
+<ul>
+  <li>Quickly find your page among multiple browser tabs</li>
+  <li>Create accurate bookmarks for specific content</li>
+  <li>See meaningful titles in their browser history</li>
+</ul>
+
+<h2>How to Update Page Titles</h2>
+
+<p>Using <code>mx-swap-title</code> is straightforward. Here's a simple example:</p>
+
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' => 'films/view/123',
+    'mx-target' => '#film-details',
+    'mx-swap-title' => 'true'
+];
+echo form_button('view_film_btn', 'View Film Details', $btn_attr);
+?&gt;
+
+&lt;div id="film-details"&gt;&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">For an HTML-only approach, here's the corresponding code:</p>
+[code=html]
+&lt;button mx-get="films/view/123"
+        mx-target="#film-details"
+        mx-swap-title="true"&gt;View Film Details&lt;/button&gt;
+
+&lt;div id="film-details"&gt;&lt;/div&gt;
+[/code]
+
+<h2>Understanding the Code</h2>
+
+<p>Let's break down what's happening:</p>
+<ol>
+  <li>When the button is clicked, it fetches content from <code>films/view/123</code>.</li>
+  <li>The film details are loaded into the <code>#film-details</code> div.</li>
+  <li>The page title automatically updates to match the page title from the target API endpoint.</li>
+</ol>
+
+<div class="alert alert-info">
+<p><strong>Important:</strong> Your server response needs to include a <code>&lt;title&gt;</code> tag. For example:</p>
+[code=html]&lt;title&gt;The Matrix (1999) - Movie Reviews&lt;/title&gt;[/code]
+</div>
+
+<h2>Real-World Example</h2>
+
+<p>Here's how you might use this in a product catalog:</p>
+
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' => 'shop/product/456',
+    'mx-target' => '#product-display',
+    'mx-swap-title' => 'true'
+];
+
+echo form_button('view_product', 'View Product', $btn_attr);
+?&gt;
+
+<div id="product-display"></div>[/code]
+
+<p>Now when customers browse different products, your page title will automatically update to show the current product name - perfect for when they have multiple items open in different tabs!</p>
+
+<h2>Top Tips for Title Swapping</h2>
+
+<div class="alert alert-success">
+<ul>
+  <li><strong>Keep Titles Descriptive:</strong> Include both the specific content (e.g., product name) and your site name</li>
+  <li><strong>Be Consistent:</strong> Maintain a consistent title format across all your pages</li>
+  <li><strong>Test Navigation:</strong> Ensure titles update correctly when users use browser back/forward buttons</li>
+  <li><strong>Mind Your Length:</strong> Keep titles under 60 characters - they'll look better in browser tabs and history</li>
+</ul>
+</div>
+
+<h2>Summary</h2>
+
+<p>Dynamic page titles might seem like a small detail, but they significantly improve the user experience of your web applications. With <code>mx-swap-title</code>, Trongate MX makes it easy to implement this professional touch. Just add the attribute to your elements, ensure your server returns the right title tags, and you're ready to go!</p>

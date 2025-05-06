@@ -1,0 +1,88 @@
+<h1>Securing File Uploads</h1>
+
+<h2>Built-in Security Features</h2>
+<p>Trongate provides a comprehensive suite of security features designed to ensure that file uploads are handled safely and efficiently.</p>
+
+<h3 class="mt-3">File Validation</h3>
+<p>Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> offers extensive control over allowed file types and characteristics. For example:</p>
+[code=php]
+$validation_str = 'allowed_types[gif,jpg,jpeg,png,webp]|max_size[2000]|max_width[1200]|max_height[1200]';
+$this->validation->set_rules('picture', 'item picture', $validation_str);
+[/code]
+
+<p>Trongate implements several security measures during file validation, including:</p>
+<ul>
+    <li>MIME type verification using PHP's finfo_file()</li>
+    <li>Automatic path traversal protection to prevent directory manipulation</li>
+    <li>Built-in protection against upload-based PHP code execution</li>
+    <li>Automatic file extension normalization and validation</li>
+    <li>Content scanning to detect potential security threats in the file</li>
+</ul>
+
+<h3 class="mt-3">File Upload Settings</h3>
+<p>Settings pertaining to upload behavior can be declared inside modules. The framework includes several built-in protections, such as:</p>
+<ul>
+    <li>Automatic validation of upload destinations for proper permissions and security</li>
+    <li>Prevention of uploads to restricted system directories</li>
+    <li>Memory usage monitoring for safe image processing</li>
+    <li>Secure file naming system that prevents naming conflicts</li>
+</ul>
+
+<p>Example settings configuration:</p>
+
+[code=php]
+function _init_picture_settings() { 
+    $picture_settings['max_file_size'] = 2000;
+    $picture_settings['max_width'] = 1200;
+    $picture_settings['max_height'] = 1200;
+    $picture_settings['destination'] = 'pictures';
+    $picture_settings['upload_to_module'] = true;
+    return $picture_settings;
+}
+[/code]
+
+<h2>Framework Philosophy</h2>
+<p>Trongate's approach to file uploading is designed to provide essential security features out of the box while allowing flexibility for additional measures. The framework emphasizes:</p>
+<ul>
+    <li>Robust security features to protect against common vulnerabilities</li>
+    <li>Efficient and maintainable core implementation</li>
+    <li>Flexibility to extend and customize security measures as needed</li>
+</ul>
+
+<h2>Example Implementation</h2>
+<p>Here's a typical implementation:</p>
+[code=php]
+class Upload extends Trongate {
+    
+    private $acceptable_file_types = ['jpg', 'jpeg', 'png', 'gif'];
+    
+    function upload_file() {
+        $this->module('trongate_security');
+        $this->trongate_security->_make_sure_allowed();
+
+        $validation_str = 'allowed_types['.implode(',', $this->acceptable_file_types).']';
+        $validation_str.= '|max_size[2000]';
+        
+        $this->validation->set_rules('file', 'File', $validation_str);
+        $result = $this->validation->run();
+
+        if ($result === true) {
+            // proceed with upload
+            $data['destination'] = 'uploads/files';
+            $data['upload_to_module'] = false;
+            $uploaded_data = $this->upload_file($data);
+        }
+    }
+}
+[/code]
+
+<h2>Making Security Decisions</h2>
+<p>When evaluating if you need additional security measures, consider:</p>
+<ul>
+    <li>Who can upload files?</li>
+    <li>What types of files are allowed?</li>
+    <li>How sensitive is your application?</li>
+    <li>What are the consequences of a malicious upload?</li>
+</ul>
+
+<p>Based on these answers, you can determine if Trongate's built-in features are sufficient or if you need additional security measures.</p>

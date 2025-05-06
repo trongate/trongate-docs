@@ -1,0 +1,70 @@
+<h1>Text Alignment</h1>
+
+<p>In HTML, paragraphs and text blocks are usally aligned to the left by default. However, Trongate CSS offers three utility classes for controlling text alignment.  There are:</p>
+<ol>
+  <li><code>.text-left</code></li>
+  <li><code>.text-right</code></li>
+  <li><code>.text-center</code></li>
+</ol>
+
+<p>Within the internals of Trongate CSS, each of the above text align classes are written with a declaration of <code>!important</code>.   For example:</p>
+
+[code=css]
+.text-left {
+  text-align: left !important;
+}
+[/code]
+
+<p>The <code>!important</code> declaration in CSS is used to give a style rule higher priority, overriding other conflicting rules for the same property on an element. </p>
+
+<div class="alert alert-warning">
+  <p>Normally, when working with CSS, using <code>!important</code> should generally be avoided as it can make debugging and maintaining CSS more difficult.</p>
+</div>
+<hr>
+<h2>Left Alignment</h2>
+<p>To align text to the left, use the <code>.text-left</code> class. This is the default alignment for text, but you can apply it explicitly if needed. </p>[code=html]&lt;p class="text-left"&gt;This text is left-aligned.&lt;/p&gt;[/code] 
+
+<p>Here's the result:</p>
+<div class="trongate-css-demo">
+  <div>
+    <p class="text-left">This text is left-aligned.</p>
+  </div>
+</div>
+<hr>
+<h2>Right Alignment</h2>
+<p>To align text to the right, use the <code>.text-right</code> class. This can be useful for aligning elements like captions, footnotes, or certain types of content. </p>[code=html]&lt;p class="text-right"&gt;This text is right-aligned.&lt;/p&gt;[/code] 
+
+<p>Here's the result:</p>
+<div class="trongate-css-demo">
+  <div>
+    <p class="text-right">This text is right-aligned.</p>
+  </div>
+</div>
+<hr>
+<h2>Center Alignment</h2>
+<p>To center text, use the <code>.text-center</code> class. This is commonly used for headings, titles, or any content you want to highlight in the center of the page. </p>[code=html]&lt;p class="text-center"&gt;This text is centered.&lt;/p&gt;[/code] 
+
+<p>Here's the result:</p>
+<div class="trongate-css-demo">
+  <div>
+    <p class="text-center">This text is centered.</p>
+  </div>
+</div>
+
+<div class="alert alert-success">
+  <p class="mt-0">The <code>.text-center</code> class aligns the text to the center of the container, making it perfect for headlines or emphasizing certain content. </p>
+</div>
+<h2>Summary</h2>
+<p>Trongate CSS provides three text alignment classes for your convenience:</p>
+<ul>
+  <li>
+    <code>.text-left</code> – Aligns text to the left.
+  </li>
+  <li>
+    <code>.text-right</code> – Aligns text to the right.
+  </li>
+  <li>
+    <code>.text-center</code> – Centers the text horizontally.
+  </li>
+</ul>
+<p>All classes use the <code>!important</code> declaration to ensure they take precedence over other styles, providing a quick and reliable way to manage text alignment across your website. </p>

@@ -1,0 +1,105 @@
+<h1>Custom Routing: An Introduction</h1>
+
+<p><b>Custom routing</b> allows you to create clean, intuitive URLs by mapping your desired URL patterns to specific controllers and methods. This feature is particularly useful for creating SEO-friendly URLs and intuitive navigation paths.</p>
+
+<h2>Configuration File</h2>
+<p>In Trongate, custom routes are defined within 'custom_routing.php'. This file is located in:</p>
+[code]public/ 
+  config/ 
+    custom_routing.php 
+[/code]
+
+<p>From a PHP/framework perspective, custom_routing.php does the following two things:</p>
+<ol>
+    <li>Defines a PHP array named <code>$routes</code>.</li>
+    <li>Assigns the value of <code>$routes</code> to a PHP constant named <code>CUSTOM_ROUTES</code>.</li>
+</ol>
+
+<div class="alert alert-info">
+    <p>In normal usage, you (as the developer) will not need to reference the <code>$routes</code> array or <code>CUSTOM_ROUTES</code> directly after 'custom_routing.php' has been properly set up and saved.</p>
+</div>
+
+<p class="mt-3">Here is an example of PHP code you might typically find in custom_routing.php:</p>
+
+[code=php]&lt;?php
+$routes = [
+    'shop' => 'store/products',
+    'shop/shirts' => 'store/category/1',
+    'shop/pants' => 'store/category/2'
+];
+
+define('CUSTOM_ROUTES', $routes);[/code]
+
+<h3 class="mt-3">An Overview Of How Custom Routing Rules Are Defined</h3>
+
+<p class="mt-1">In Trongate, the <code>$routes</code> array maps incoming HTTP requests to code. Each item within the array is a key-value pair that defines <b>a custom routing rule</b>.</p> 
+
+<p>The <b>key</b> (i.e., the <i>left side</i>) for each rule is <b>the desired URL pattern</b> you want to match.</p> 
+
+<p>The <b>value</b> (i.e., the <i>right side</i>) defines <b>what should be served</b> when someone visits a URL that matches the left side.</p>
+
+<p>Consider the following line of code from the example above:</p>
+[code=php]
+'shop' => 'store/products',
+[/code]
+<p>Here, we are effectively telling Trongate:</p>
+<p><i>"If someone visits <code>shop</code>, please behave as though they had just visited <code>store/products</base-url></code>."</i></p>
+
+<p>Assume the base URL is defined like this:</p>
+
+[code=php]
+define('BASE_URL', 'https://trongate.io/');
+[/code]
+
+<div class="alert alert-info">
+  <p>In Trongate, the <code>BASE_URL</code> is defined in 'config.php'. Here is the file location:</p>
+
+[code]
+  config/ 
+    config.php 
+[/code]
+</div>
+
+<p>In this case, a user who navigates to:</p>
+
+[code]https://trongate.io/shop[/code]
+
+<p>...would receive the same response from the website as if they had navigated to:</p>
+
+[code]https://trongate.io/store/products[/code]
+
+<div class="alert alert-success">
+  <h3 class="text-center mt-0 blink">THIS IS REALLY IMPORTANT</h3>
+  <p>All of the leading PHP frameworks have some kind of custom routing functionality.</p>
+  <p>Unfortunately, some developers appear to find the general topic of custom URL routing to be challenging. The main difficulty often comes from confusion about how custom URL routing differs from concepts like URL rewriting.</p>
+  <p>Let's clarify the topic at hand.</p>
+  <h3>Don't confuse custom routing with URL rewriting or URL redirecting!</h3>
+  <p><b>Custom routing</b> determines what content gets served when a user visits a given URL. Custom routing does not change the <i>actual</i> URL that appears in the browser's address bar.</p>
+
+  <h3>Custom Routing vs. URL Rewriting:</h3>
+
+  <h4>Custom Routing</h4>
+  <ul>
+      <li>In PHP frameworks like Trongate, <b>custom routing</b> maps incoming requests (URLs) to specific controllers or actions without altering the visible URL.</li>
+      <li><b>URL rewriting</b>, often handled by the server (e.g., Apache's <code>.htaccess</code> or Nginx rules), changes how URLs are processed internally by the server, sometimes hiding implementation details.</li>
+  </ul>
+
+  <h4>Redirecting</h4>
+  <ul>
+      <li><b>Redirecting</b> sends an HTTP response (e.g., 301, 302) to instruct the browser to navigate to a different URL. This <i>does</i> visibly change the address bar.</li>
+  </ul>
+</div>
+
+<h2>In Summary</h2>
+<p>Custom routing determines what content gets served when a user visits a given URL. It does <b>not</b> change the <i>actual</i> URL in the browser's address bar.</p>
+
+<p>With Trongate, custom routing is handled via the file 'custom_routing.php'.</p>
+
+<p>Custom routing rules are established by creating a <code>$routes</code> array, where each item is a key-value pair:</p>
+
+<ol>
+    <li>The <i>keys</i> represent desired URL paths.</li>
+    <li>The <i>values</i> represent what should be served.</li>
+</ol>
+
+<p>Now, let's learn about custom routing patterns...</p>

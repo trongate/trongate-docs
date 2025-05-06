@@ -1,0 +1,269 @@
+<h1>Flexbox Layout Classes</h1>
+
+<p>Trongate CSS provides utility classes for flexbox layouts, making it easy to create responsive and dynamic layouts. These classes control flex container direction, alignment, spacing, and item behavior.</p>
+<hr>
+<h2>Basic Flex Containers</h2>
+
+<p>Use <code>.flex-row</code> or <code>.flex-column</code> to create flex containers with different directions:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="flex-row" style="background: #f5f5f5; padding: 1em;">
+            <div style="background: var(--primary); color: white; padding: 1em; margin: 0.5em;">Item 1</div>
+            <div style="background: var(--primary); color: white; padding: 1em; margin: 0.5em;">Item 2</div>
+            <div style="background: var(--primary); color: white; padding: 1em; margin: 0.5em;">Item 3</div>
+        </div>
+        
+        <div class="flex-column mt-3" style="background: #f5f5f5; padding: 1em;">
+            <div style="background: var(--primary); color: white; padding: 1em; margin: 0.5em;">Item 1</div>
+            <div style="background: var(--primary); color: white; padding: 1em; margin: 0.5em;">Item 2</div>
+            <div style="background: var(--primary); color: white; padding: 1em; margin: 0.5em;">Item 3</div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;!-- Row direction --&gt;
+&lt;div class="flex-row"&gt;
+    &lt;div&gt;Item 1&lt;/div&gt;
+    &lt;div&gt;Item 2&lt;/div&gt;
+    &lt;div&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Column direction --&gt;
+&lt;div class="flex-column"&gt;
+    &lt;div&gt;Item 1&lt;/div&gt;
+    &lt;div&gt;Item 2&lt;/div&gt;
+    &lt;div&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+<hr>
+<h2 class="mt-1">Justify Content Classes</h2>
+
+<p>Control horizontal alignment using justify content classes:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="flex-row justify-start" style="background: #f5f5f5; padding: 1em; margin-bottom: 1em;">
+            <button>One</button>
+            <button class="ml-1">Two</button>
+        </div>
+
+        <div class="flex-row justify-center" style="background: #f5f5f5; padding: 1em; margin-bottom: 1em;">
+            <button>One</button>
+            <button class="ml-1">Two</button>
+        </div>
+
+        <div class="flex-row justify-end" style="background: #f5f5f5; padding: 1em; margin-bottom: 1em;">
+            <button>One</button>
+            <button class="ml-1">Two</button>
+        </div>
+
+        <div class="flex-row justify-between" style="background: #f5f5f5; padding: 1em; margin-bottom: 1em;">
+            <button>One</button>
+            <button>Two</button>
+        </div>
+
+        <div class="flex-row justify-around" style="background: #f5f5f5; padding: 1em;">
+            <button>One</button>
+            <button>Two</button>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="flex-row justify-start"&gt;
+    &lt;button&gt;One&lt;/button&gt;
+    &lt;button&gt;Two&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="flex-row justify-center"&gt;
+    &lt;button&gt;One&lt;/button&gt;
+    &lt;button&gt;Two&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="flex-row justify-end"&gt;
+    &lt;button&gt;One&lt;/button&gt;
+    &lt;button&gt;Two&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="flex-row justify-between"&gt;
+    &lt;button&gt;One&lt;/button&gt;
+    &lt;button&gt;Two&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="flex-row justify-around"&gt;
+    &lt;button&gt;One&lt;/button&gt;
+    &lt;button&gt;Two&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+<hr>
+<h2 class="mt-1">Align Items Classes</h2>
+
+<p>Control vertical alignment using align items classes:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="flex-row align-start" style="background: #f5f5f5; padding: 1em; height: 100px; margin-bottom: 1em;">
+            <div style="background: var(--primary); color: white; padding: 1em;">Top</div>
+        </div>
+
+        <div class="flex-row align-center" style="background: #f5f5f5; padding: 1em; height: 100px; margin-bottom: 1em;">
+            <div style="background: var(--primary); color: white; padding: 1em;">Center</div>
+        </div>
+
+        <div class="flex-row align-end" style="background: #f5f5f5; padding: 1em; height: 100px; margin-bottom: 1em;">
+            <div style="background: var(--primary); color: white; padding: 1em;">Bottom</div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="flex-row align-start"&gt;
+    &lt;div&gt;Top&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="flex-row align-center"&gt;
+    &lt;div&gt;Center&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="flex-row align-end"&gt;
+    &lt;div&gt;Bottom&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+<hr>
+<h2 class="mt-1">Flex Grow</h2>
+
+<p>Use <code>.flex-grow</code> to allow an item to fill available space:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="flex-row" style="background: #f5f5f5; padding: 1em;">
+            <button class="mt-0">Fixed Width</button>
+            <input type="text" class="flex-grow ml-1" placeholder="This input will grow">
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <p>Trongate CSS file gives buttons a top margin. The relevant rule is:</p>
+[code=css]
+button,
+.button {
+  margin: 1em 0.1em 0 0;
+}
+[/code]
+
+<p>To mitigate this, a class of <code>.mt-0</code> is added to the button, in the example.</p>
+</div>
+
+[code=html]
+&lt;div class="flex-row"&gt;
+    &lt;button class="mt-0"&gt;Fixed Width&lt;/button&gt;
+    &lt;input type="text" class="flex-grow ml-1" placeholder="This input will grow"&gt;
+&lt;/div&gt;
+[/code]
+<hr>
+<h2 class="mt-1">Flex Wrap</h2>
+
+<p>Flex containers in Trongate CSS allow you to control whether flex items stay on one line or wrap onto additional lines. This behaviour is controlled using the <code>.flex-wrap</code> and <code>.flex-nowrap</code> classes.</p>
+
+<p>The <code>.flex-wrap</code> class makes items wrap onto the next line when they exceed the container's width, ensuring a responsive layout. In contrast, the <code>.flex-nowrap</code> class forces all items to remain on a single line, even if they overflow the container.</p>
+
+<h3>Example: Wrapping Items</h3>
+
+<p>In this example, the <code>.flex-wrap</code> class is applied to a flex container. Items automatically wrap to a new line when there is not enough horizontal space in the container. Each button is styled with <code>flex: 1 1 auto;</code>, which allows them to grow and shrink proportionally, while also having consistent spacing through margins.</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row flex-wrap" style="background: #f5f5f5; padding: 1em; max-width: 400px;">
+        <button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;">Button One</button>
+        <button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;">Button Two</button>
+        <button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;">Button Three</button>
+        <button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;">Button Four</button>
+        <button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;">Button Five</button>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="flex-row flex-wrap" style="max-width: 400px; background: #f5f5f5; padding: 1em;"&gt;
+    &lt;button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;"&gt;Button One&lt;/button&gt;
+    &lt;button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Two&lt;/button&gt;
+    &lt;button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Three&lt;/button&gt;
+    &lt;button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Four&lt;/button&gt;
+    &lt;button style="flex: 1 1 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Five&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+
+<h3>Example: Preventing Wrapping</h3>
+
+<p>The following example uses the <code>.flex-nowrap</code> class to keep all items on a single line. Notice how the container may overflow horizontally, which can be addressed with <code>overflow-x: auto;</code>. This is particularly useful for layouts where items need to remain in a single row.</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row flex-nowrap" style="background: #f5f5f5; padding: 1em; overflow-x: auto;">
+        <button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;">Button One</button>
+        <button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;">Button Two</button>
+        <button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;">Button Three</button>
+        <button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;">Button Four</button>
+        <button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;">Button Five</button>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="flex-row flex-nowrap" style="background: #f5f5f5; padding: 1em; overflow-x: auto;"&gt;
+    &lt;button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;"&gt;Button One&lt;/button&gt;
+    &lt;button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Two&lt;/button&gt;
+    &lt;button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Three&lt;/button&gt;
+    &lt;button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Four&lt;/button&gt;
+    &lt;button style="flex: 0 0 auto; margin: 0.5em; padding: 0.8em;"&gt;Button Five&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>When working with flex wrap utilities, remember to combine them with appropriate margins, padding, and overflow styles to achieve the desired layout and usability. Wrapping is ideal for responsive designs, while preventing wrapping suits controlled, fixed-width layouts.</p>
+</div>
+
+<hr>
+<h2 class="mt-1">Practical Example</h2>
+
+<p>Here's a common layout pattern combining multiple flex utilities:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card">
+            <div class="card-heading">
+                    Product Details
+            </div>
+            <div class="card-body">
+                <div class="flex-row justify-between">
+                    <div>
+                        <p class="mb-0">Price: $99.99</p>
+                        <p class="sm">In stock: 42 units</p>
+                    </div>
+                    <div class="flex-row align-center">
+                        <button>View Item</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt; Product Details&lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="flex-row justify-between"&gt;
+            &lt;div&gt;
+                &lt;p class="mb-0"&gt;Price: $99.99&lt;/p&gt;
+                &lt;p class="sm"&gt;In stock: 42 units&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class="flex-row align-center"&gt;
+                &lt;button&gt;View Item&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Conclusion</h2>
+<p>Flexbox utilities in Trongate CSS empower developers to build responsive and highly customisable layouts with ease. By combining these utilities with margin, padding, and size classes, you can achieve precise alignment and spacing. Always keep in mind that flexbox properties only affect immediate child elements, making it essential to structure your HTML hierarchy thoughtfully for optimal results. Whether creating adaptive, wrapping designs or enforcing strict alignment, flexbox is a versatile tool to meet your layout needs.</p>

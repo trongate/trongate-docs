@@ -1,0 +1,92 @@
+<div class="container">
+  <h1>upload_file()</h1>
+  <p class="signature">protected function upload_file(array $config): ?array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Uploads a file using the <code>upload</code> method from the <code>File</code> class. This method serves as a simplified way to invoke the <code>File</code> class's upload functionality within the <code>Trongate</code> framework.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>It instantiates a <code>File</code> object.</li>
+      <li>It calls the <code>upload</code> method of the <code>File</code> class, passing the provided <code>$config</code> array as an argument.</li>
+      <li>The <code>upload</code> method handles the file upload process, including validation, security checks, and moving the file to the target destination.</li>
+      <li>If the upload is successful, it returns an array containing details about the uploaded file. If the upload fails, it throws an exception.</li>
+    </ul>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$config</td>
+        <td>array</td>
+        <td>An associative array containing upload configuration options. These options are passed directly to the <code>File</code> class's <code>upload</code> method. For details, refer to the <code>File</code> class documentation.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array|null</td>
+        <td>Returns an associative array containing details about the uploaded file if the operation is successful. The array includes:
+          <ul>
+            <li><code>file_name</code>: (string) The name of the uploaded file.</li>
+            <li><code>file_path</code>: (string) The full path to the uploaded file.</li>
+            <li><code>file_type</code>: (string) The MIME type of the uploaded file.</li>
+            <li><code>file_size</code>: (int) The size of the uploaded file in bytes.</li>
+          </ul>
+          If the upload fails, an exception is thrown, and no value is returned.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example: Uploading a PDF file with custom configuration
+$config = [
+    'destination' => 'documents/uploads/',
+    'upload_to_module' => false,
+    'make_rand_name' => true
+];
+
+try {
+    $file_info = $this->upload_file($config);
+    print_r($file_info);
+    /*
+    Output:
+    Array
+    (
+        [file_name] => random_filename.pdf
+        [file_path] => /path/to/documents/uploads/random_filename.pdf
+        [file_type] => application/pdf
+        [file_size] => 512000
+    )
+    */
+} catch (Exception $e) {
+    echo "Upload failed: " . $e->getMessage();
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Configuration:</strong> Ensure the upload configuration is valid and the destination path is accessible before calling this method.</li>
+      <li><strong>Use Random Filenames:</strong> When handling sensitive files, use <code>'make_rand_name' => true</code> to generate random filenames and avoid conflicts.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths.</li>
+    </ul>
+  </div>
+</div>

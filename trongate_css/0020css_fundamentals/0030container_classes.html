@@ -1,0 +1,95 @@
+<h1>Container Classes</h1>
+<p>Trongate CSS provides a range of container classes to help control content width and maintain consistent margins across different screen sizes, all while remaining highly responsive.</p>
+
+<h2>Default Container</h2>
+<p>The default container class sets content width to 90% of the viewport with a maximum width of 940px, ensuring readability and proper content organization across all device sizes.</p>
+[code=css]
+.container {
+  width: 90%;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 1em;
+}
+[/code]
+
+
+
+<h2>Container Sizes</h2>
+<p>Trongate CSS offers seven container variations to accommodate different content needs:</p>
+
+<div class="alert alert-info">
+  <p>The visual examples below are shown within the documentation's own container, so they cannot demonstrate their true maximum widths. To see the actual container widths in action, try the code examples on your own page.</p>
+</div>
+
+<div class="trongate-css-demo">
+  <div>
+    <div class="container-xxs" style="background: #f5f5f5; padding: 1em; margin-bottom: 1em">container-xxs (450px)</div>
+    <div class="container-xs" style="background: #f0f0f0; padding: 1em; margin-bottom: 1em">container-xs (640px)</div>
+    <div class="container-sm" style="background: #e8e8e8; padding: 1em; margin-bottom: 1em">container-sm (760px)</div>
+    <div class="container-md" style="background: #e0e0e0; padding: 1em; margin-bottom: 1em">container-md (820px)</div>
+    <div class="container" style="background: #d8d8d8; padding: 1em; margin-bottom: 1em">container (940px)</div>
+    <div class="container-lg" style="background: #d0d0d0; padding: 1em; margin-bottom: 1em">container-lg (960px)</div>
+    <div class="container-xl" style="background: #c8c8c8; padding: 1em; margin-bottom: 1em">container-xl (1100px)</div>
+    <div class="container-xxl" style="background: #c0c0c0; padding: 1em">container-xxl (1300px)</div>
+  </div>
+</div>
+
+[code=html]
+&lt;div class="container-xxs"&gt;Extra extra small container content&lt;/div&gt;
+&lt;div class="container-xs"&gt;Extra small container content&lt;/div&gt;
+&lt;div class="container-sm"&gt;Small container content&lt;/div&gt;
+&lt;div class="container-md"&gt;Medium container content&lt;/div&gt;
+&lt;div class="container"&gt;Default container content&lt;/div&gt;
+&lt;div class="container-lg"&gt;Large container content&lt;/div&gt;
+&lt;div class="container-xl"&gt;Extra large container content&lt;/div&gt;
+&lt;div class="container-xxl"&gt;Extra extra large container content&lt;/div&gt;
+[/code]
+
+<div class="alert alert-success">
+  <p class="mt-0">All container classes maintain 90% width on smaller screens and automatically center themselves using margin: 0 auto. The 1em padding ensures content doesn't touch the container edges.</p>
+</div>
+
+<h2>Container Specifications</h2>
+<p>Each container class is optimized for specific use cases:</p>
+
+<ul>
+  <li><strong>container-xxs (450px)</strong>: Perfect for login forms, small widgets, and focused content areas</li>
+  <li><strong>container-xs (640px)</strong>: Ideal for simple forms, narrow content layouts, and focused reading experiences</li>
+  <li><strong>container-sm (760px)</strong>: Great for blog posts, articles, and medium-width content</li>
+  <li><strong>container-md (820px)</strong>: Balanced width for general content pages</li>
+  <li><strong>container (940px)</strong>: The default choice for most webpage content</li>
+  <li><strong>container-lg (960px)</strong>: Slightly wider than default for more spacious layouts</li>
+  <li><strong>container-xl (1100px)</strong>: Suitable for dashboards and data-rich interfaces</li>
+  <li><strong>container-xxl (1300px)</strong>: Best for full-width applications and complex layouts</li>
+</ul>
+
+<div class="alert alert-info">
+  <p class="mt-0">All container classes automatically adjust their width to 90% on mobile devices, ensuring a consistent margin on smaller screens while maintaining content readability.</p>
+</div>
+
+<h2>Common Use Cases</h2>
+<p>Here's an example of nested containers for creating complex layouts:</p>
+
+[code=html]
+&lt;div class="container-xl"&gt;
+  &lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;Dashboard&lt;/div&gt;
+    &lt;div class="card-body"&gt;
+      &lt;div class="container-sm"&gt;
+        &lt;!-- Centered content within a wide container --&gt;
+        &lt;p&gt;This content is centered within a wider container&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Summary</h2>
+<p>Trongate's container system provides:</p>
+<ul>
+  <li>Eight predefined container widths for various use cases</li>
+  <li>Consistent 90% width on mobile devices</li>
+  <li>Automatic horizontal centering</li>
+  <li>Built-in padding for content spacing</li>
+  <li>Responsive behavior without additional configuration</li>
+</ul>

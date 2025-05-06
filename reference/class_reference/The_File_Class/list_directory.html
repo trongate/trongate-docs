@@ -1,0 +1,126 @@
+<div class="container">
+  <h1>list_directory()</h1>
+  <p class="signature">function list_directory(string $directory_path, bool $recursive = false): array</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Lists files and directories within a specified directory. This method returns an array containing the names of files and directories within the specified directory. It also supports recursive listing, which includes all subdirectories and their contents.</p>
+    <p><strong>How It Works:</strong></p>
+    <ul>
+      <li>The method first validates the <code>$directory_path</code> to ensure it is not restricted by security rules (e.g., accessing sensitive directories like <code>config</code> or <code>engine</code>).</li>
+      <li>It checks if the specified path is a valid directory. If not, an exception is thrown.</li>
+      <li>It iterates through the contents of the directory using PHP's <code>DirectoryIterator</code>.</li>
+      <li>If the <code>$recursive</code> flag is set to <code>true</code>, it recursively lists the contents of subdirectories and stores them as nested arrays.</li>
+      <li>If the <code>$recursive</code> flag is <code>false</code>, it returns a flat array of file and directory names.</li>
+    </ul>
+    <p><strong>Note:</strong> Ensure the directory exists and is accessible before calling this method. If the directory does not exist or is restricted, an exception will be thrown.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$directory_path</td>
+        <td>string</td>
+        <td>The absolute or relative path to the directory whose contents are to be listed. The path must pass security validation.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$recursive</td>
+        <td>bool</td>
+        <td>Determines whether the listing should be recursive. If <code>true</code>, subdirectories and their contents are included in the result.</td>
+        <td>false</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An array containing the names of files and directories within the specified directory. If <code>$recursive</code> is <code>true</code>, subdirectories are represented as nested arrays.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Exceptions</h2>
+  <div class="exceptions">
+    <p>Throws an <strong>Exception</strong> if:</p>
+    <ul>
+      <li>The <code>$directory_path</code> is restricted by security rules.</li>
+      <li>The specified path does not exist or is not a directory.</li>
+    </ul>
+  </div>
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>
+// Example 1: Non-recursive listing
+try {
+    $file = new File();
+    $contents = $file->list_directory('/path/to/directory');
+    print_r($contents);
+    /*
+    Output:
+    Array
+    (
+        [0] => file1.txt
+        [1] => file2.jpg
+        [2] => subdirectory
+    )
+    */
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 2: Recursive listing
+try {
+    $file = new File();
+    $contents = $file->list_directory('/path/to/directory', true);
+    print_r($contents);
+    /*
+    Output:
+    Array
+    (
+        [0] => file1.txt
+        [1] => file2.jpg
+        [2] => subdirectory => Array
+            (
+                [0] => subfile1.txt
+                [1] => subfile2.jpg
+            )
+    )
+    */
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}</pre>
+    <pre>
+// Example 3: Handling restricted paths
+try {
+    $file = new File();
+    $contents = $file->list_directory('/path/to/restricted/directory');
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage(); // Output: "Access to this path is restricted: /path/to/restricted/directory"
+}</pre>
+  </div>
+  <h2>Best Practices</h2>
+  <div class="description">
+    <ul>
+      <li><strong>Validate Paths:</strong> Ensure the directory path is valid and does not conflict with restricted paths before calling this method.</li>
+      <li><strong>Use Recursive Flag Wisely:</strong> Use the <code>$recursive</code> flag only when necessary, as it can significantly increase the size of the returned array for directories with many subdirectories.</li>
+      <li><strong>Handle Exceptions:</strong> Use try-catch blocks to handle exceptions gracefully, especially when working with user-provided paths.</li>
+      <li><strong>Optimize for Large Directories:</strong> For directories with a large number of files or subdirectories, consider using alternative methods (e.g., pagination) to avoid performance issues.</li>
+      <li><strong>Combine with Other Methods:</strong> Use this method in conjunction with other file operations (e.g., <code>info()</code>, <code>delete()</code>) to perform bulk operations on listed files or directories.</li>
+    </ul>
+  </div>
+</div>

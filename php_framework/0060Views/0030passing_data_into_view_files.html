@@ -1,0 +1,48 @@
+<h1>Passing Data Into View Files</h1>
+<p>Passing data into view files in Trongate involves initializing an associative array within a controller and passing it to the <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method. This array contains variables that can be accessed directly within the view for dynamic content rendering.</p>
+<h2>Basic Data Passing</h2>
+<p>The technique for passing data from controller files into view files comprises of the creation of an associative array of key-value pairs. This data array is then passed as the second argument to the <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method:</p>
+[code=php]$data = [
+  "first_name" => "John",
+  "last_name" => "Smith"
+];
+$this->view("welcome", $data);
+[/code]
+<p>This example initializes <code>$data</code> with user information and renders the 'welcome' view, where variables like <code>$first_name</code> and <code>$last_name</code> can be accessed directly.</p>
+<h2>Complex Data Types</h2>
+<p>You can pass various data types such as arrays, objects, and booleans into view files. For instance, consider passing an array of cities and today's date to a view:</p>
+[code=php]function information() {
+$cities = ["New York", "London", "Paris"];
+$data = [
+  "cities" => $cities,
+  "today" => "Monday"
+];
+$this->view("information", $data);
+}
+[/code]
+<h2>Accessing Passed Data</h2>
+<p>Within view files, accessed data is available as standard variables. For debugging or development purposes, you can use:</p>
+[code=php]var_dump($data);[/code]
+<p>To display structured data in a formatted manner, use Trongate's <span class="feature-ref" ref-path="helpers/Utilities_Helpers">json()</span> method:</p>
+[code=php]json($data);[/code]
+<h2>Example: Rendering Dynamic Content</h2>
+<p>Enhance the <code>greeting()</code> method to pass a name variable into a view file:</p>
+[code=php]function greeting() {
+  $data["name"] = "John";
+  $this->view("greeting", $data);
+}
+[/code]
+<p>In the 'greeting.php' view file, you can directly echo the <code>$name</code> variable:</p>
+[code=php]&lt;h1&gt;Hello &lt;?= $name ?&gt;&lt;/h1&gt;
+&lt;p&gt;It's nice to see you!&lt;/p&gt;
+[/code]
+<p>Output:</p>
+<div class="text-center">
+    <figure>
+        <img src="images/75/hello_john.png" alt="Screenshot showing greeting message with a name" style="width:100%">
+        <figcaption>Screenshot showing greeting message with a name.</figcaption>
+    </figure>
+</div>
+<div class="alert alert-danger">
+    <p>When rendering data from untrusted sources like user inputs, always sanitize outputs to prevent security vulnerabilities. Trongate provides the <span class="feature-ref" ref-path="helpers/String_Helpers">json()</span> function for safe output encoding, protecting against XSS attacks by properly formatting content for HTML, XML, JSON, JavaScript, and HTML attributes.</p>
+</div>

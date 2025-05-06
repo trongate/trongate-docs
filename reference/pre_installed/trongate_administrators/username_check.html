@@ -1,0 +1,73 @@
+<div class="container">
+  <h1>username_check()</h1>
+  <p class="signature">public function username_check(string $str): string|bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Checks the availability of a username and validates it against existing usernames in the 'trongate_administrators' table.
+    </p>
+    <p>
+      This method is designed to be invoked as a form validation callback.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$str</td>
+        <td>string</td>
+        <td>The username to be checked.</td>
+        <td>N/A</td>
+        <td>Required</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|bool</td>
+        <td>Returns an error message (string) if the username is not available, otherwise returns TRUE (bool).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example Usage</h2>
+  <div class="example">
+    <pre>$submit = post('submit');
+
+if ($submit == 'Submit') {
+    // Set validation rules for username, password, and repeat password.
+    $this->validation->set_rules('username', 'username', 'required|min_length[5]|callback_username_check');
+    $this->validation->set_rules('password', 'password', 'required|min_length[5]');
+    $this->validation->set_rules('repeat_password', 'repeat password', 'matches[password]');
+
+    $result = $this->validation->run();
+
+    if ($result == true) {
+        // Form validation success.
+        echo 'Success!';
+    } else {
+        // Form validation error(s);
+        echo validation_errors('&lt;div class="error-message"&gt;', '&lt;/div&gt;');
+    }
+}</pre>
+  </div>
+</div>

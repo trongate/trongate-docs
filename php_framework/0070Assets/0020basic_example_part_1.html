@@ -1,0 +1,54 @@
+<h1>Basic Example - Part 1</h1>
+<p>To clearly illustrate the purpose and functionality of the <b>File Asset Manager</b>, it is beneficial to examine a practical example. This section will guide through a straightforward example using the 'welcome' module that's included with all Trongate framework installations. The objective is to store a JavaScript file within the 'welcome' module and display a simple webpage that executes the module's internal JavaScript file.</p>
+<h2>The Starting Point</h2>
+<p>A fresh installation of a Trongate web application includes a module named 'welcome', which contains a controller file named <b>Welcome.php</b>. The 'Welcome' controller file comprises a class with a single method, as illustrated below:</p>
+[code=php]&lt;?php
+class Welcome extends Trongate {
+
+  function index() {
+    $this-&gt;view("welcome");
+  }
+
+}
+[/code]
+<div class="alert alert-info">
+    <p>The precise code contained within the 'Welcome' controller file will differ from the example shown. For brevity, elements such as access modifiers (e.g., public/private/protected), type hinting, return types, and doc blocks have been omitted.</p>
+</div>
+<h2>Adding a New Method</h2>
+<p>Next, a new method will be added to the controller file. This method, named 'hello', will load a simple view file displaying the message 'hello world'. The updated controller code is as follows:</p>
+[code=php]&lt;?php
+class Welcome extends Trongate {
+
+  function index() {
+    $this-&gt;view("welcome");
+  }
+
+  function hello() {
+    $this-&gt;view("hello");
+  }
+
+}
+[/code]
+<h2>A Simple View File</h2>
+<p>Proceed by creating a view file containing basic HTML. The code sample below demonstrates a simple HTML template with the message 'Hello World' encapsulated within <code>&lt;h1&gt;</code> tags.</p>
+[code=vf]&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello World&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+<h2>Displaying Content</h2>
+<p>To verify, open a web browser and navigate to the application homepage, followed by <code>welcome/hello</code>. The 'Hello World' message should be displayed on the screen.</p>
+
+
+<figure>
+    <img src="images/3/_hello_wHCMx.png" alt="browser screenshot" style="width:100%">
+    <figcaption>Screenshot taken from the URL, &lt;base-url&gt;welcome/hello</figcaption>
+</figure>
+

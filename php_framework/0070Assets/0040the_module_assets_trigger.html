@@ -1,0 +1,35 @@
+<h1>The Module Assets Trigger</h1>
+<p>In the example from the previous page, a JavaScript file was successfully served from deep within our 'modules' directory. The target JavaScript file was loaded by setting a source ('src') value of:</p>
+<p><code>welcome_module/js/ahoy.js</code></p>
+<p>Under normal circumstances, such a short and concise file destination would produce file loading errors. However, the JavaScript file could be loaded without issue by invoking Trongate's <strong>Module Assets Trigger</strong>.</p>
+[code=php]&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Hello World&lt;/h1&gt;
+&lt;script src="welcome_module/js/ahoy.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+<h2>Understanding the Module Assets Trigger</h2>
+<p>The <em>Module Assets Trigger</em> serves as a specific string included in website URLs or file paths. When encountered, the File Asset Manager initiates a process to locate the requested asset within a module's <em>assets</em> directory. Assuming the file exists, the File Asset Manager handles the necessary file retrieval and response headers, facilitating modular development.</p>
+<p>By default, the Trongate framework's Module Assets Trigger is defined as the string '_module'. Any path containing this trigger prompts Trongate to identify and fetch files from the respective module's assets directory.</p>
+<div class="alert alert-danger">
+    <p>If <i>any</i> part of a URL or file path contains the Module Assets Trigger, Trongate's File Asset Manager will be invoked and the framework will attempt to serve files from within the application's 'modules' directory. This can lead to confusion and unwanted 404 errors. Therefore, it's advisable to exercise caution when naming modules and files. In particular, steps should be taken to ensure that modules and files do <b>not</b> contain the Module Assets Trigger within their assigned names.</p>
+</div>
+<h2>Configuration and Usage</h2>
+<p>The Module Assets Trigger is configured within the <code>config.php</code> file using the following line:</p>
+[code=php]define("MODULE_ASSETS_TRIGGER", "_module");
+[/code]
+<p>This configuration instructs Trongate to detect and interpret URLs or file paths containing '_module' to fetch assets from the corresponding module's assets directory. For example, to reference a file within the 'cars' module, the path should begin with:</p>
+[code=php]cars_module/[/code]
+<p>This indicates that the asset is located within the 'assets' subdirectory of the 'cars' module.</p>
+<h2>Customization Options</h2>
+<p>If customization of the Module Assets Trigger is necessary to suit specific preferences or naming conventions, simply modify the value assigned to <code>MODULE_ASSETS_TRIGGER</code> in the <code>config.php</code> file.</p>
+<div class="alert alert-success">
+    <p>When developing applications that interact with user input, consider implementing validation rules to prevent inadvertent triggering of the File Asset Manager. For instance, ensure that user-generated URLs or paths do not inadvertently contain the Module Assets Trigger phrase.</p>
+</div>
