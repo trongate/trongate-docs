@@ -1,0 +1,89 @@
+<div class="container">
+ <h1>set_flashdata()</h1>
+ <p class="signature">public function set_flashdata(string $msg): void</p>
+
+ <h2>Description</h2>
+ <div class="description">
+ <p>
+ Stores a one-time flash message into the session. This is the "set" half of the flashdata pattern — you call this method before a redirect, and the message persists in the session until it is retrieved by <code>flashdata()</code> on the next page load.
+ </p>
+ <p>
+ The method handles the following behaviour:
+ </p>
+ <ul>
+ <li>The message is stored in <code>$_SESSION['flashdata']</code> as a plain string.</li>
+ <li>Only one flash message can be stored at a time — a subsequent call overwrites any existing message.</li>
+ <li>The message persists across a single redirect and is automatically cleared once retrieved.</li>
+ <li>If the user refreshes the page without calling <code>flashdata()</code>, the message persists in the session.</li>
+ </ul>
+ </div>
+
+ <h2>Parameters</h2>
+ <table class="params-table">
+ <thead>
+ <tr>
+ <th>Parameter</th>
+ <th>Type</th>
+ <th>Description</th>
+ <th>Default</th>
+ <th>Required</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>$msg</code></td>
+ <td>string</td>
+ <td>The message text to store. This is typically a human-readable notification such as <code>'Record created successfully'</code> or <code>'Changes saved'</code>. The string is stored as-is without any escaping or transformation.</td>
+ <td>N/A</td>
+ <td><strong>Yes</strong></td>
+ </tr>
+ </tbody>
+ </table>
+
+ <h2>Return Value</h2>
+ <table>
+ <thead>
+ <tr>
+ <th>Type</th>
+ <th>Description</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>void</td>
+ <td>This method does not return a value. It stores the message directly in the PHP session.</td>
+ </tr>
+ </tbody>
+ </table>
+
+ <h2>Example #1: Basic Usage with Helper Function</h2>
+ <p>The most common pattern is to call <code>set_flashdata()</code> after a successful form submission, then redirect to another page where the message will be displayed.</p>
+ <pre><code>&lt;?php
+public function submit(): void {
+    $this->trongate_security->make_sure_allowed();
+
+    if (post('submit', true) === 'Submit') {
+        $data = $this->model->get_post_data_for_database();
+        $this->model->create_new_record($data);
+        // highlight-next-line
+        set_flashdata('Record created successfully');
+        redirect('tasks/manage');
+    }
+}
+?&gt;</code></pre>
+
+ <h2>Example #2: Using the Module Directly</h2>
+ <p>You may also call the module method directly via <code>Modules::run()</code> if you prefer explicit routing.</p>
+ <pre><code>&lt;?php
+Modules::run('flashdata/set_flashdata', 'Your changes have been saved');
+?&gt;</code></pre>
+
+ <h2>Notes</h2>
+ <ul>
+ <li><strong>One at a time:</strong> Only a single flash message can be stored. A second call overwrites the first.</li>
+ <li><strong>Redirect-friendly:</strong> Flashdata survives redirects because it is stored in the session, not in request data.</li>
+ <li><strong>No formatting:</strong> The message is stored as plain text. Use the <code>flashdata()</code> method or helper to apply HTML wrapping when displaying.</li>
+ <li><strong>Race condition awareness:</strong> If <code>set_flashdata()</code> is called but <code>flashdata()</code> is never called on the next page load, the message will remain in the session until the next call to <code>flashdata()</code> retrieves it.</li>
+ </ul>
+
+</div>
