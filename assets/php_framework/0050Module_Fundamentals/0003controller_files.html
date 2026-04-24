@@ -1,0 +1,134 @@
+[meta-description]Learn the structure and naming conventions for Controller Files in Trongate modules. Every module has one controller class (e.g., Users.php in the users/ directory) that extends Trongate. Discover how URLs map directly to methods and the rule against multiple classes per module.[/meta-description]
+<h1>Controller Files</h1>
+<p>Every module gets <strong>one</strong> controller file. Every controller file contains <strong>one</strong> PHP class. <strong>The boss.</strong></p>
+
+<div class="alert alert-info">
+    <p><strong>Trongate v2 killed the <code>controllers/</code> subfolder.</strong></p>
+
+    <p class="mt-1">We got rid of this →</p>
+    [code]modules/users/controllers/Users.php[/code]
+
+    <p class="mt-1">And, now we do this →</p>
+    [code]modules/users/Users.php[/code]
+
+    <p>You're welcome.</p>
+</div>
+
+<h2>Where They Live Now</h2>
+
+[code]
+modules/
+  users/
+    Users.php          ← the boss
+    views/
+    Users_model.php    ← optional
+[/code]
+<p>The text above demonstrates some file and directory locations for a hypothetical 'users' module.</p>
+<h2>Naming Rules</h2>
+
+<table class="sm" style="margin: 0 auto;">
+    <thead>
+        <tr>
+            <th>Thing</th>
+            <th>Rule</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Module Directory Name</td>
+            <td>lowercase, usually plural</td>
+            <td><code>luxury_wristwatches</code></td>
+        </tr>
+        <tr>
+            <td>Controller File Name</td>
+            <td>UppercaseFirst, snake_case + <code>.php</code></td>
+            <td><code>Luxury_wristwatches.php</code></td>
+        </tr>
+        <tr>
+            <td>Class Name</td>
+            <td>UppercaseFirst, snake_case</td>
+            <td><code>class Luxury_wristwatches</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Bare Minimum Controller</h2>
+
+[code=php]
+&lt;?php
+class Dice extends Trongate {
+
+    function roll() {
+        echo rand(1, 6);
+    }
+
+}
+[/code]
+
+<p>Visit: <code>https://yoursite.com/dice/roll</code> → rolls a die. No config. No YAML. No drama.</p>
+
+<hr>
+<h2 class="mt-0">Real-World Example: Users</h2>
+
+[code=php]
+&lt;?php
+class Users extends Trongate {
+
+    function index() {
+        $data['users'] = $this->db->get('id', 'desc');
+        $this->view('users_list', $data);
+    }
+
+    function profile($user_id) {
+        $user = $this->db->get_where($user_id);
+        $this->view('user_profile', $user);
+    }
+
+}
+[/code]
+
+<p>URL → Method magic:</p>
+<ul>
+    <li><code>/users</code> → <code>index()</code></li>
+    <li><code>/users/profile/42</code> → <code>profile(42)</code></li>
+</ul>
+<hr>
+<h2 class="mt-0">Constructors? Optional.</h2>
+
+<p>Don't need one? Don't write one. Need CORS? <a href="documentation/trongate_php_framework/intercepting-requests/working-with-cors">Read this</a>.  Auth? Go nuts:</p>
+
+<div class="alert alert-warning">
+    <p><strong>Never</strong> write an empty constructor just to call <code>parent::__construct()</code>. That's 2005. Let it go!</p>
+</div>
+
+<h2>Multiple Classes? Don't.</h2>
+
+<p>Want another class? Make a <strong>child module</strong>. Not another file in the same folder.</p>
+
+[code]
+modules/
+  users/
+    child_modules/
+      greetings/
+        Greetings.php
+[/code]
+
+<p>Copy. Paste. Works. No <code>require_once</code> hell.</p>
+
+<h2>Third-Party? Sure. But Why?</h2>
+
+<p>Need Guzzle? Stripe? Fine. Drop Composer in <code>vendor/</code>, autoload it:</p>
+
+[code=php]
+require_once APPPATH.'vendor/autoload.php';
+use GuzzleHttp\Client;
+[/code]
+
+<p>But 99% of the time Native PHP wins. Faster. Cleaner. No 3 AM updates.</p>
+
+<h2>Namespaces? Only When Forced</h2>
+
+<p>Using Packagist? Use their PascalCase namespaces. Otherwise? <strong>Snake case everything.</strong></p>
+
+<p class="text-center"><strong>One file. One class. Native PHP rules!</strong></p>

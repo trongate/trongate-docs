@@ -1,0 +1,160 @@
+ <div class="container">
+    <h1>delete()</h1>
+    <p class="signature">public function delete(string $file_path): bool</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Deletes a file from the filesystem. Throws an exception if the file does not exist, cannot be deleted, or is in a restricted path.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$file_path</td>
+                <td>string</td>
+                <td>The path to the file to be deleted.</td>
+            </tr>
+        </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>bool</td>
+                <td>Returns true if the file is successfully deleted.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic file deletion operation.</p>
+    [code=php]
+$file_path = 'modules/uploads/old_document.pdf';
+
+// Check if file exists before attempting deletion
+if ($this-&gt;file-&gt;exists($file_path)) {
+    $result = $this-&gt;file-&gt;delete($file_path);
+    
+    if ($result === true) {
+        echo 'File deleted successfully';
+    }
+} else {
+    echo 'File not found';
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Check Before You Act:</strong> The <code>delete()</code> method throws an exception if the file doesn't exist or cannot be deleted. It's recommended to always check if a file exists using <code>$this-&gt;file-&gt;exists($file_path)</code> before attempting deletion. This allows you to handle missing files gracefully with redirects or user-friendly messages, rather than relying on exception handling for expected conditions.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to delete a user's uploaded resume file when they request its removal.</p>
+    [code=php]
+public function delete_resume(): void {
+    $user_id = segment(3, 'int');
+    
+    // Get the user's current resume filename from the database
+    $user_obj = $this-&gt;db-&gt;get_where($user_id, 'users');
+    
+    if ($user_obj === false) {
+        redirect('users/not_found');
+    }
+    
+    $resume_filename = $user_obj-&gt;resume_file; // e.g., 'x7f9d2e1b4a.pdf'
+    
+    // Build the full path to the file
+    $file_path = 'modules/users/resumes/' . $resume_filename;
+    
+    // Check if file exists before attempting deletion
+    if ($this-&gt;file-&gt;exists($file_path)) {
+        $result = $this-&gt;file-&gt;delete($file_path);
+        
+        // Update database to remove the file reference
+        $data['resume_file'] = null;
+        $this-&gt;model-&gt;update($user_id, $data, 'users');
+        
+        set_flashdata('Resume deleted successfully');
+        redirect('users/profile/' . $user_id);
+    } else {
+        redirect('users/not_found');
+    }
+}
+[/code]
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates how to delete temporary files after processing is complete.</p>
+    [code=php]
+public function process_import(): void {
+    $import_id = segment(3, 'int');
+    
+    // Process an uploaded CSV file
+    $uploaded_file = 'temp/imports/data_' . $import_id . '.csv';
+    
+    // Check the file exists before processing
+    if ($this-&gt;file-&gt;exists($uploaded_file)) {
+        // Read and process the CSV
+        $csv_data = $this-&gt;file-&gt;read($uploaded_file);
+        // ... process the data ...
+        
+        // Clean up the temporary file after successful processing
+        $result = $this-&gt;file-&gt;delete($uploaded_file);
+        
+        set_flashdata('Import completed and temporary file cleaned up');
+        redirect('imports/success');
+    } else {
+        redirect('imports/not_found');
+    }
+}
+[/code]
+
+    <h2>Example #4</h2>
+    <p>The example above shows how to delete old backup files as part of a maintenance routine.</p>
+    [code=php]
+public function cleanup_old_backups(): void {
+    $backup_dir = 'backups/daily';
+    
+    if (!$this-&gt;file-&gt;exists($backup_dir)) {
+        redirect('backups/setup');
+    }
+    
+    // List all items in backup directory
+    $items = $this-&gt;file-&gt;list_directory($backup_dir);
+    
+    // Delete backups older than 30 days
+    $cutoff_date = strtotime('-30 days');
+    $deleted_count = 0;
+    
+    foreach ($items as $item) {
+        $file_path = $backup_dir . '/' . $item;
+        
+        // Skip directories
+        if (is_dir($file_path)) {
+            continue;
+        }
+        
+        if ($this-&gt;file-&gt;exists($file_path)) {
+            $file_date = filemtime($file_path);
+            
+            if ($file_date &lt; $cutoff_date) {
+                $this-&gt;file-&gt;delete($file_path);
+                $deleted_count++;
+            }
+        }
+    }
+    
+    set_flashdata("Deleted {$deleted_count} old backup files");
+    redirect('backups/manage');
+}
+[/code]
+
+    <div class="alert alert-warning">
+        <p><strong>Database Consistency:</strong> When deleting files that are referenced in your database, always update or remove the database record after a successful deletion. Failing to do this will result in broken file references and "file not found" errors when users try to access files that no longer exist on the filesystem.</p>
+    </div>
+</div>

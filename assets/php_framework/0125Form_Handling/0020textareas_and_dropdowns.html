@@ -1,0 +1,334 @@
+[meta-description]Learn how to use form_textarea() for multi-line input and form_dropdown() for select menus in Trongate. Build option arrays from databases, set defaults, and handle multiple selections with ease.[/meta-description]
+<h1>Textareas and Dropdowns</h1>
+
+<p>Two more essential form elements: multi-line text and select menus.</p>
+
+<h2>Textareas</h2>
+
+<p>Use <span class="feature-ref">form_textarea()</span> for multi-line text input:</p>
+
+[code=vf]
+echo form_textarea('description');
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;textarea name="description"&gt;&lt;/textarea&gt;
+[/code]
+
+<h3>With a Default Value</h3>
+
+[code=vf]
+$default_text = 'Enter your message here...';
+echo form_textarea('message', $default_text);
+[/code]
+
+<h3>With Attributes</h3>
+
+[code=vf]
+$attributes = [
+    'rows' => '8',
+    'placeholder' => 'Enter detailed description...',
+    'maxlength' => '500'
+];
+echo form_textarea('description', '', $attributes);
+[/code]
+
+<h3>Repopulating After Validation Errors</h3>
+
+<div class="alert alert-info">
+    <p><strong>Best Practice:</strong> Always pass form data from controller to view. The controller should fetch submitted data and pass it to the view.</p>
+</div>
+
+[code=vf]
+echo form_textarea('description', $description);
+[/code]
+
+<p>In your controller:</p>
+
+[code=php]
+// Fetch submitted data or use default
+$data['description'] = post('description', true);
+$this->view('create', $data);
+[/code]
+
+<p>If the form hasn't been submitted, this displays empty. If validation failed, it shows what the user typed.</p>
+
+<h2>Dropdowns (Select Menus)</h2>
+
+<p>Use <span class="feature-ref">form_dropdown()</span> to create select menus. The pattern is slightly different:</p>
+
+[code=vf]
+form_dropdown($name, $options, $selected, $attributes);
+[/code]
+
+<ul>
+    <li><strong>$name</strong> - the field name (required)</li>
+    <li><strong>$options</strong> - array of options (required)</li>
+    <li><strong>$selected</strong> - the selected value (optional)</li>
+    <li><strong>$attributes</strong> - array of HTML attributes (optional)</li>
+</ul>
+
+<h3>Basic Example</h3>
+
+[code=vf]
+$options = [
+    '1' => 'Option One',
+    '2' => 'Option Two',
+    '3' => 'Option Three'
+];
+echo form_dropdown('choice', $options);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;select name="choice"&gt;
+    &lt;option value="1"&gt;Option One&lt;/option&gt;
+    &lt;option value="2"&gt;Option Two&lt;/option&gt;
+    &lt;option value="3"&gt;Option Three&lt;/option&gt;
+&lt;/select&gt;
+[/code]
+
+<h3>With a Selected Value</h3>
+
+[code=vf]
+$options = [
+    'small' => 'Small',
+    'medium' => 'Medium',
+    'large' => 'Large'
+];
+echo form_dropdown('size', $options, $size);
+[/code]
+
+<p>Controller prepares the data:</p>
+
+[code=php]
+// In controller
+$data['size'] = post('size', true) ?? 'medium'; // Default to 'medium'
+$this->view('create', $data);
+[/code]
+
+<p>The appropriate option will be selected based on the <code>$size</code> variable.</p>
+
+<h3>With Attributes</h3>
+
+[code=vf]
+$options = [
+    '1' => 'Priority 1 - Critical',
+    '2' => 'Priority 2 - High',
+    '3' => 'Priority 3 - Normal'
+];
+$attributes = ['id' => 'priority-selector', 'required' => 'required'];
+echo form_dropdown('priority', $options, $priority, $attributes);
+[/code]
+
+<h2>Real-World Example: Status Selector</h2>
+
+[code=php]
+// In controller
+$status_options = [
+    'pending' => 'Pending',
+    'in_progress' => 'In Progress',
+    'completed' => 'Completed',
+    'canceled' => 'Canceled'
+];
+
+$data['status_options'] = $status_options;
+$data['status'] = post('status', true); // Gets submitted value or empty string
+$this->view('create', $data);
+[/code]
+
+[code=vf]
+// In view
+echo form_label('Status');
+echo form_dropdown('status', $status_options, $status);
+[/code]
+
+<h2>Building Options from a Database</h2>
+
+<p>The most common pattern is building dropdown options from database records. The controller builds the options array and passes it to the view:</p>
+
+[code=php]
+// In controller
+$categories = $this->db->get('id', 'categories');
+$category_options = [];
+
+foreach ($categories as $category) {
+    $category_options[$category->id] = $category->name;
+}
+
+// Pass both variables to view
+$data['category_options'] = $category_options;
+$data['selected_category'] = post('category_id', true);
+$this->view('create', $data);
+[/code]
+
+[code=vf]
+// In view - $category_options and $selected_category come from controller
+echo form_label('Category');
+echo form_dropdown('category_id', $category_options, $selected_category);
+[/code]
+
+<h2>Adding a Blank Option</h2>
+
+<p>Start with an empty or "please select" option:</p>
+
+[code=vf]
+$options = [
+    '' => '-- Please Select --',
+    '1' => 'Option One',
+    '2' => 'Option Two',
+    '3' => 'Option Three'
+];
+echo form_dropdown('choice', $options, $selected_choice);
+[/code]
+
+<h2>Working with Create/Update Forms</h2>
+
+<p>Here's the standard pattern for dropdowns that work for both creating and updating records:</p>
+
+[code=php]
+// In controller
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    // Fetch categories for dropdown
+    $categories = $this->db->get('id', 'categories');
+    $data['category_options'] = [];
+    foreach ($categories as $category) {
+        $data['category_options'][$category->id] = $category->name;
+    }
+    
+    // Get selected value (from DB or POST)
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        $record = $this->db->get_where($update_id, 'products');
+        $data['selected_category'] = $record->category_id;
+    } else {
+        $data['selected_category'] = post('category_id', true);
+    }
+    
+    $this->view('create', $data);
+}
+[/code]
+
+[code=vf]
+// In view - $category_options and $selected_category come from controller
+echo form_dropdown('category_id', $category_options, $selected_category);
+[/code]
+
+<h2>Multiple Selections</h2>
+
+<p>Allow users to select multiple options:</p>
+
+[code=php]
+// In controller
+$data['color_options'] = [
+    'red' => 'Red',
+    'blue' => 'Blue',
+    'green' => 'Green',
+    'yellow' => 'Yellow'
+];
+
+// For multiple selections, post() returns an array
+$data['selected_colors'] = post('colors', true) ?: [];
+$this->view('create', $data);
+[/code]
+
+[code=vf]
+// In view
+$attributes = ['multiple' => 'multiple'];
+echo form_dropdown('colors[]', $color_options, $selected_colors, $attributes);
+[/code]
+
+<p>Important notes:</p>
+<ul>
+    <li>The field name must end with <code>[]</code> to receive an array</li>
+    <li>Add <code>'multiple' => 'multiple'</code> to attributes</li>
+    <li>On submission, <span class="feature-ref">post()</span> returns an array of selected values</li>
+</ul>
+
+<h3>Pre-selecting Multiple Options</h3>
+
+[code=vf]
+$selected_colors = ['red', 'blue']; // Array of values
+echo form_dropdown('colors[]', $options, $selected_colors, ['multiple' => 'multiple']);
+[/code]
+
+<h2>Common Textarea Attributes</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>rows</code></td>
+            <td>Visible lines</td>
+            <td><code>['rows' => '10']</code></td>
+        </tr>
+        <tr>
+            <td><code>cols</code></td>
+            <td>Visible width</td>
+            <td><code>['cols' => '50']</code></td>
+        </tr>
+        <tr>
+            <td><code>placeholder</code></td>
+            <td>Hint text</td>
+            <td><code>['placeholder' => 'Enter text...']</code></td>
+        </tr>
+        <tr>
+            <td><code>maxlength</code></td>
+            <td>Character limit</td>
+            <td><code>['maxlength' => '1000']</code></td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>HTML5 validation</td>
+            <td><code>['required' => 'required']</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Common Dropdown Attributes</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>multiple</code></td>
+            <td>Allow multiple selections</td>
+            <td><code>['multiple' => 'multiple']</code></td>
+        </tr>
+        <tr>
+            <td><code>size</code></td>
+            <td>Visible options</td>
+            <td><code>['size' => '5']</code></td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>HTML5 validation</td>
+            <td><code>['required' => 'required']</code></td>
+        </tr>
+        <tr>
+            <td><code>disabled</code></td>
+            <td>Disable selection</td>
+            <td><code>['disabled' => 'disabled']</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p>Both <span class="feature-ref">form_textarea()</span> and <span class="feature-ref">form_dropdown()</span> automatically escape output for XSS protection.</p>
+</div>

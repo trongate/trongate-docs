@@ -1,0 +1,164 @@
+[meta-description]Master Trongate's post() function: retrieve form/JSON data, handle nested structures, clean whitespace, cast numeric values, understand checkbox patterns, and automatic content-type detection.[/meta-description]
+<h1>Retrieving Form Data</h1>
+
+<p>One function handles all POST data: <span class="feature-ref">post()</span>.</p>
+
+<h2>Basic Usage</h2>
+
+[code=php]
+post($field_name, $clean_up, $cast_numeric);
+[/code]
+
+<ul>
+    <li><strong>$field_name</strong> - field name, <code>null</code>, or <code>true</code> (to get all data)</li>
+    <li><strong>$clean_up</strong> - trim and collapse whitespace (optional, default: <code>false</code>)</li>
+    <li><strong>$cast_numeric</strong> - convert numbers to int/float (optional, default: <code>false</code>)</li>
+</ul>
+
+<h3>Get All Data (Returns array)</h3>
+
+[code=php]
+// All data, no cleaning
+$raw_data = post(); // or post(null)
+
+// All data with whitespace cleaning
+$clean_data = post(true);
+[/code]
+
+<h3>Get a Specific Field</h3>
+
+[code=php]
+// Raw value (string/array/bool)
+$username = post('username');
+
+// Cleaned value
+$clean_name = post('username', true);
+
+// Cleaned and cast if numeric
+$quantity = post('quantity', true, true);
+[/code]
+
+<h2>Understanding the $clean_up Parameter</h2>
+
+<p>When <code>$clean_up</code> is <code>true</code>, <span class="feature-ref">post()</span> performs two operations on string values:</p>
+
+<ol>
+    <li><strong>Trimming:</strong> Removes whitespace from the beginning and end of strings</li>
+    <li><strong>Collapsing:</strong> Reduces multiple consecutive spaces, tabs, or line breaks to a single space</li>
+</ol>
+
+[code=php]
+// Input: "   Hello    World   \n\n"
+$raw = post('message');               // Returns: "   Hello    World   \n\n"
+$clean = post('message', true);       // Returns: "Hello World"
+
+// Works recursively on arrays
+$clean_array = post('items', true);   // Cleans each string in array
+[/code]
+
+<h2>Numeric Casting</h2>
+
+<p>When <code>$cast_numeric</code> is <code>true</code>, purely numeric strings are converted to their appropriate PHP types:</p>
+
+[code=php]
+// "42" → 42 (integer)
+// "3.14" → 3.14 (float)
+// "abc" → "abc" (string - not numeric)
+// "0123" → "0123" (string - preserves leading zero)
+$value = post('field', false, true);
+[/code]
+
+<h2>Nested Data Access &amp; JSON Payloads</h2>
+
+<p><code>post()</code> automatically detects and parses JSON, and supports both common array notations:</p>
+
+<h3>Dot Notation (JSON/Nested Arrays)</h3>
+[code=php]
+// Data: {"user": {"profile": {"age": "25"}}}
+$age = post('user.profile.age'); // "25"
+[/code]
+
+<h3>Bracket Notation (Form/Arrays)</h3>
+[code=php]
+// Data: colors[0]=red&amp;colors[1]=blue
+$first = post('colors[0]'); // 'red'
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>JSON parsing:</strong> Malformed JSON throws an <code>Exception</code>. Wrap API endpoints in try-catch blocks.</p>
+</div>
+
+<h2>Checkbox Values: A Special Case</h2>
+
+<p>Checkboxes require special handling because unchecked checkboxes don't submit any data. This is HTML behavior, not Trongate.</p>
+
+[code=php]
+// After form submission:
+$raw = post('subscribe', true); 
+
+// If checkbox WAS checked: returns '1'
+// If checkbox was NOT checked: returns '' (empty string)
+
+// Convert to boolean for view display:
+$for_view = (bool) post('subscribe', true);    // true or false
+
+// Convert to integer for database storage:
+$for_db = (int) (bool) post('subscribe', true); // 1 or 0
+[/code]
+
+<p>This pattern is essential for proper checkbox handling in Trongate applications.</p>
+
+<h2>Real-World Patterns</h2>
+
+<h3>Form Processing Example</h3>
+[code=php]
+public function submit(): void {
+    $data['name'] = post('name', true);
+    $data['email'] = post('email', true);
+    $data['age'] = post('age', true, true); // Clean and cast to int
+    
+    // Checkbox conversion pattern
+    $data['active'] = (int) (bool) post('active', true);
+    $data['newsletter'] = (int) (bool) post('newsletter', true);
+
+    $this-&gt;db-&gt;insert($data, 'users');
+    redirect('users/manage');
+}
+[/code]
+
+<h3>API Endpoint with JSON</h3>
+[code=php]
+public function api_create(): void {
+    try {
+        // JSON data automatically parsed
+        $title = post('article.title', true);
+        $content = post('article.content', true);
+        
+        // Process API request...
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo json_encode(['error' =&gt; 'Invalid JSON']);
+    }
+}
+[/code]
+
+<div class="alert alert-danger">
+    <p>The <span class="feature-ref">post()</span> function is solely for data retrieval, cleanup, and type casting. <b>It does not perform HTML escaping</b>.</p>
+    <p>Always use the framework's output helper (i.e., <span class="feature-ref">out()</span>) or <code>htmlspecialchars()</code> when displaying retrieved form data in a view to prevent Cross-Site Scripting (XSS) vulnerabilities.</p>
+</div>
+
+<h2>Important Notes</h2>
+
+<ul>
+    <li>Missing fields return empty string (<code>''</code>).</li>
+    <li>Data is parsed once and cached for the duration of the request.</li>
+    <li>Use <code>post()</code> for all data, <code>post('field', true)</code> for specific fields (recommended).</li>
+    <li>Checkboxes require <code>(bool)</code> conversion for views and <code>(int) (bool)</code> for database.</li>
+    <li>Data validation must be handled separately using the Validation class.</li>
+</ul>
+
+<div class="alert alert-success">
+    <p>Instantly view the entire request <code>POST</code> payload (including JSON and nested arrays) by combining <span class="feature-ref">post()</span> with the <span class="feature-ref">json()</span> helper. For example:</p>
+    [code=php]json(post(), true);[/code]
+    <p>This makes form debugging super easy!</p>
+</div>

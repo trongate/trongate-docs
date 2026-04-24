@@ -1,0 +1,125 @@
+<h1>Top Five Tips for Mastering Trongate</h1>
+
+<section class="tips-intro">
+  <p class="sm">Five essential tips to help you work effectively with the Trongate framework.</p>
+</section>
+
+<section class="tips-grid">
+
+  <details>
+    <summary>1. Build Self-Contained Modules</summary>
+    <p>Trongate's architecture lets developers build modules that are entirely <b>self-contained</b> – including PHP, CSS, JavaScript, images, and even nested modules.</p>
+
+    <p>A common mistake is spreading a feature across multiple modules instead of encapsulating it within one. This makes reusability difficult. The solution: keep modules self-contained and take time to understand <a href="https://trongate.io/documentation/trongate_php_framework/module-fundamentals/child-modules" target="_blank">nested modules</a>. This approach pays dividends.</p>
+  </details>
+
+  <details>
+    <summary>2. Never Modify the "Engine" Directory</summary>
+    <p>The <code>engine</code> directory contains Trongate's core files and handles routing, controllers, rendering, and security. Don't modify it. Changes can break updates, compromise stability, and make your app incompatible with community modules.</p>
+
+    <p>Trongate is designed to be extended through custom modules and the normal application structure, not altered at its core.</p>
+
+    <p><b>One exception:</b> During development, you can temporarily set <code>$debug = true</code> in <code>Model.php</code> to inspect SQL queries. Just remember to set it back to <code>false</code> before production.</p>
+  </details>
+
+  <details>
+    <summary>3. Third-Party Dependencies Are Welcome</summary>
+
+    <p>Trongate integrates smoothly with third-party libraries and resources like Packagist, CSS frameworks, and JavaScript libraries.</p>
+
+    <p>The framework's strength is that it doesn't depend on anything beyond PHP itself. This keeps it stable and lightweight – you choose your own dependencies.</p>
+
+  </details>
+
+  <details>
+    <summary>4. Ask for Help</summary>
+    <p>If something's unclear, ask. The <a href="https://trongate.io/forums">discussion forums</a> are free and staffed by friendly developers.</p>
+    
+    <p>There's no such thing as a stupid question. Your questions also help the community understand what documentation needs improvement.</p>
+  </details>
+
+  <details>
+    <summary>5. Post Tutorials</summary>
+    <p>Teaching is one of the best ways to master a skill. Share what you know – a blog post, YouTube video, tweet thread, or course.</p>
+
+    <p>Don't wait until you feel "ready." Start where you are. Your perspective, especially if you're new to Trongate, helps others learn.</p>
+
+    <p>Interested in contributing to the <a href="https://www.youtube.com/@trongate" target="_blank">YouTube channel</a> or elsewhere? <a href="https://trongate.io/contactus">Get in touch.</a></p>
+  </details>
+
+  <details>
+      <summary>BONUS TIP: Documentation Feedback</summary>
+      <p>If something in the docs is confusing, unclear, or could be explained better, your feedback matters. Please <a href="https://trongate.io/contactus">contact us directly</a>.</p>
+
+      <p>Your voice helps improve the docs for everyone.</p>
+  </details>
+
+</section>
+
+<style>
+    :root {
+        --tips-grid-color: #2c3e50;
+        --accent-color: #3498db;
+        --bg-color: #f8f9fa;
+        --text-color: #333;
+    }
+
+    h1 {
+        color: var(--tips-grid-color);
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .tips-intro {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .tips-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        font-size: .833em;
+    }
+
+    .tips-grid details {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .tips-grid details:hover {
+        transform: translateY(-4px);
+    }
+
+    .tips-grid summary {
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0.5rem;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tips-grid summary::marker {
+        color: var(--accent-color);
+    }
+
+    .tips-grid details[open] summary {
+        color: var(--accent-color);
+    }
+
+    .tips-grid p {
+        margin: 1.6rem 0;
+        padding: 0 1rem;
+    }
+
+    .tips-grid details:focus-within {
+        outline: 2px solid var(--accent-color);
+        outline-offset: 2px;
+    }
+</style>

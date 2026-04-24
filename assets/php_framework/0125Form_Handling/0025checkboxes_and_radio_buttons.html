@@ -1,0 +1,346 @@
+[meta-description]Master checkboxes and radio buttons in Trongate using form_checkbox() and form_radio(). Learn the exact patterns for handling checked states, database storage, and the checkbox submission behavior.[/meta-description]
+<h1>Checkboxes and Radio Buttons</h1>
+
+<p>Checkboxes and radio buttons use a similar helper pattern as other form elements, with special handling for checked states.</p>
+
+<div class="alert alert-success">
+    <p><strong>Always do this:</strong></p>
+    <ol>
+        <li>In your view: Use <code>value="1"</code> for checkboxes</li>
+        <li>In your controller: Convert POST data to boolean for views, integer for database</li>
+        <li>In your database: Store as <code>0</code> or <code>1</code></li>
+    </ol>
+</div>
+
+<h2>Checkboxes</h2>
+
+<p>Use <span class="feature-ref">form_checkbox()</span>:</p>
+
+[code=php]
+form_checkbox($name, $value = '1', $checked = false, $attributes = []);
+[/code]
+
+<h3>Parameters</h3>
+<ul>
+    <li><code>$name</code> (string, required) - The name attribute for the checkbox</li>
+    <li><code>$value</code> (string|bool|int, optional) - The value attribute. Defaults to <code>'1'</code></li>
+    <li><code>$checked</code> (mixed, optional) - Whether the checkbox should be checked. Defaults to <code>false</code></li>
+    <li><code>$attributes</code> (array, optional) - Additional HTML attributes. Defaults to <code>[]</code></li>
+</ul>
+
+<h3>Recommended Pattern (Best Practice)</h3>
+
+<p>For accessibility and improved usability, <b>always wrap the checkbox input directly within the HTML <code>&lt;label&gt;</code> element.</b> This allows users to click the text to toggle the checkbox, increasing the target area.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note on Validity:</strong> Placing the input inside the label (implicit association) is <b>perfectly valid HTML5</b> and the industry-standard best practice for these elements.</p>
+</div>
+
+[code=vf]
+&lt;?php
+echo '&lt;label&gt;'; // Start the label wrapper
+echo form_checkbox('subscribe', 1, $subscribe_checked);
+echo ' Newsletter Subscription'; // Place the text after the input
+echo '&lt;/label&gt;'; // Close the label wrapper
+?&gt;
+[/code]
+
+<h2>The Checkbox Reality</h2>
+
+<p><strong>Unchecked checkboxes don't submit any data.</strong> This is HTML behavior, not Trongate.</p>
+
+<p>When a form submits:</p>
+<ul>
+    <li>Checked checkbox → POST contains <code>subscribe='1'</code></li>
+    <li>Unchecked checkbox → POST contains <strong>no</strong> <code>subscribe</code> field</li>
+</ul>
+
+[code=php]
+// After form submission:
+$raw_value = post('subscribe', true); 
+// If checked: returns '1'
+// If unchecked: returns '' (empty string)
+[/code]
+
+<div class="alert alert-success">
+    <p>Here's something crucial: <strong>unchecked checkboxes don't submit anything</strong>.</p>
+
+    <p>If a checkbox is checked, the form submits its value. If unchecked, the field doesn't appear in the POST data at all.</p>
+
+[code=php]
+// Checkbox was checked
+post('subscribe', true); // Returns '1' (or whatever value you set)
+
+// Checkbox was unchecked
+post('subscribe', true); // Returns '' (empty string)
+[/code]
+
+<p>This is why you often see this pattern:</p>    
+
+[code=php]
+// In controller (submit method)
+$data['subscribe'] = (int) (bool) post('subscribe', true);
+// Converts to 1 if checked, 0 if unchecked
+[/code]
+
+</div>
+
+<h2>The Complete Pattern</h2>
+
+<h3>Step 1: View File (Use Wrapping Pattern)</h3>
+[code=vf]
+&lt;?php
+echo '&lt;label&gt;';
+echo form_checkbox('newsletter', 1, $newsletter_checked);
+echo ' Newsletter Subscription';
+echo '&lt;/label&gt;';
+?&gt;
+[/code]
+
+<p><strong>Important:</strong> The third parameter (<code>$newsletter_checked</code>) must be <code>true</code> or <code>false</code>.</p>
+
+<h3>Step 2: Controller (Two different conversions)</h3>
+
+<p>Your controller needs to handle data differently depending on whether it's going to the view or to the database.</p>
+
+[code=php]
+class Members extends Trongate {
+    
+    // Display form (data goes TO view)
+    public function create(): void {
+        $update_id = segment(3, 'int');
+        
+        if ($update_id &gt; 0 &amp;&amp; REQUEST_TYPE === 'GET') {
+            // Editing existing record
+            $user = $this-&gt;db-&gt;get_where($update_id, 'users');
+            $data['newsletter_checked'] = (bool) $user-&gt;newsletter;
+        } else {
+            // New form OR redisplay after validation error
+            $data['newsletter_checked'] = (bool) post('newsletter', true);
+        }
+        
+        $this-&gt;view('user_form', $data);
+    }
+    
+    // Process submission (data goes TO database)
+    public function submit(): void {
+        $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+        
+        $result = $this-&gt;validation-&gt;run();
+
+        if ($result === true) {
+            $data['email'] = post('email', true);
+            
+            // Convert for database: 1 (checked) or 0 (unchecked)
+            $data['newsletter'] = (int) (bool) post('newsletter', true);
+            
+            $update_id = segment(3, 'int');
+            if ($update_id &gt; 0) {
+                $this-&gt;db-&gt;update($update_id, $data, 'users');
+                set_flashdata('User updated');
+            } else {
+                $this-&gt;db-&gt;insert($data, 'users');
+                set_flashdata('User created');
+            }
+            
+            redirect('users/manage');
+        } else {
+            $this-&gt;create(); // Redisplay form with errors
+            // Note: create() method fetches posted data for $newsletter_checked
+        }
+    }
+}
+[/code]
+
+<h3>Step 3: Database Schema</h3>
+[code=sql]
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255),
+    newsletter TINYINT(1) DEFAULT 0 -- 0 = no, 1 = yes
+);
+[/code]
+
+<h2>Two Different Conversions</h2>
+<p>When working with checkboxes the type of conversion that happens differs, depending on whether the goal is to render a view file or enter a checkbox value into a database.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Destination</th>
+            <th>Needs</th>
+            <th>Conversion</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>View (form_checkbox)</td>
+            <td>Boolean</td>
+            <td><code>(bool) post('field', true)</code></td>
+            <td><code>true</code> or <code>false</code></td>
+        </tr>
+        <tr>
+            <td>Database</td>
+            <td>Integer 0/1</td>
+            <td><code>(int) (bool) post('field', true)</code></td>
+            <td><code>1</code> or <code>0</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Common Pitfalls</h2>
+
+<div class="alert alert-danger">
+<p><strong>Never</strong> use string values for checkboxes.</p>
+
+[code=vf]
+// ❌ CONFUSING
+echo form_checkbox('newsletter', 'yes');
+[/code]
+
+[code=php]
+// Then you need messy checks:
+$value = post('newsletter', true); // 'yes' or ''
+$is_checked = ($value === 'yes'); // Have to check string
+$for_db = (int) ($value === 'yes'); // Even more complex
+[/code]
+
+</div>
+
+<div class="alert alert-success">
+    <p><strong>Do this:</strong> Always use <code>1</code> as the value</p>
+[code=vf]
+// ✅ CLEAR
+echo form_checkbox('newsletter', 1, $newsletter_checked);
+[/code]
+
+[code=php]
+// Simple conversions:
+$for_view = (bool) post('newsletter', true);    // true/false
+$for_db = (int) (bool) post('newsletter', true); // 1/0
+[/code]
+</div>
+
+<h2>Radio Buttons</h2>
+
+<p>Radio buttons are simpler - they always submit a value. You should also wrap the radio input within the <code>&lt;label&gt;</code> element for accessibility.</p>
+
+[code=php]
+form_radio($name, $value = '', $checked = false, $attributes = []);
+[/code]
+
+<h3>Parameters</h3>
+<ul>
+    <li><code>$name</code> (string, required) - The name attribute for the radio button</li>
+    <li><code>$value</code> (string|bool|int, optional) - The value attribute. Defaults to <code>''</code></li>
+    <li><code>$checked</code> (mixed, optional) - Whether the radio button should be checked. Defaults to <code>false</code></li>
+    <li><code>$attributes</code> (array, optional) - Additional HTML attributes. Defaults to <code>[]</code></li>
+</ul>
+
+<h3>Radio Group Example (Recommended Pattern)</h3>
+
+[code=vf]
+&lt;?php
+$status_options = [
+    'active' =&gt; 'Active',
+    'inactive' =&gt; 'Inactive', 
+    'pending' =&gt; 'Pending'
+];
+
+foreach ($status_options as $value =&gt; $label) {
+    $is_checked = ($current_status === $value);
+    echo '&lt;label&gt;';
+    echo form_radio('status', $value, $is_checked);
+    echo ' ' . $label;
+    echo '&lt;/label&gt;';
+}
+?&gt;
+[/code]
+
+[code=php]
+// Controller - both view and database use the same value
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id &gt; 0 &amp;&amp; REQUEST_TYPE === 'GET') {
+        $record = $this-&gt;db-&gt;get_where($update_id, 'items');
+        $data['current_status'] = $record-&gt;status;
+    } else {
+        $data['current_status'] = post('status', true);
+    }
+    
+    $this-&gt;view('form', $data);
+}
+
+public function submit(): void {
+    // Same value works for both view and database
+    $data['status'] = post('status', true);
+    $this-&gt;db-&gt;insert($data, 'items');
+}
+[/code]
+
+<h2>Multiple Checkboxes</h2>
+
+<p>For multiple selections, store as JSON array:</p>
+
+[code=vf]
+&lt;?php
+$categories = ['web', 'mobile', 'design', 'marketing'];
+$selected_cats = $selected_categories ?? [];
+
+foreach ($categories as $category) {
+    $is_checked = in_array($category, $selected_cats, true);
+    echo '&lt;label&gt;';
+    echo form_checkbox('categories[]', $category, $is_checked);
+    echo ' ' . ucfirst($category);
+    echo '&lt;/label&gt;';
+}
+?&gt;
+[/code]
+
+[code=php]
+// Controller
+public function submit(): void {
+    $selected = post('categories', true) ?: []; // Array or empty array
+    $data['categories'] = json_encode($selected);
+    $this-&gt;db-&gt;insert($data, 'projects');
+}
+[/code]
+
+<h2>Quick Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>View Code</th>
+            <th>To View (boolean)</th>
+            <th>To Database</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Checkbox</td>
+            <td><code>&lt;label&gt;...form_checkbox('field', 1, $checked)...&lt;/label&gt;</code></td>
+            <td><code>(bool) post('field', true)</code></td>
+            <td><code>(int) (bool) post('field', true)</code></td>
+        </tr>
+        <tr>
+            <td>Radio</td>
+            <td><code>&lt;label&gt;...form_radio('field', 'value', $checked)...&lt;/label&gt;</code></td>
+            <td><code>post('field', true)</code></td>
+            <td><code>post('field', true)</code></td>
+        </tr>
+        <tr>
+            <td>Text Input</td>
+            <td><code>form_input('field', $value)</code></td>
+            <td><code>post('field', true)</code></td>
+            <td><code>post('field', true)</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Remember:</strong> Checkboxes are the only form element that needs different handling for views vs. databases. Everything else uses the same value for both.</p>
+</div>

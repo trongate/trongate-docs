@@ -1,0 +1,455 @@
+[meta-description]Learn about Child Modules in Trongate v2: nest modules logically using the hyphenated URL format (parent-child) and access them from code using explicit loading or hyphenated property syntax. Includes correct asset serving for child modules.[/meta-description]
+<h1>Child Modules</h1>
+
+<p>Trongate v2 lets you nest modules inside other modules for perfect organization. No configuration. No ceremony. Just logical grouping that makes sense.</p>
+<p>Drop a module inside another → it's instantly a <strong>child module</strong>.</p>
+
+<hr>
+
+<h2>The Structure</h2>
+
+[code]
+modules/
+  shop/
+    Shop.php
+    product_reviews/           ← child module
+      Product_reviews.php
+      Product_reviews_model.php
+      views/
+      css/                     ← Child module assets go here
+      js/
+      images/
+[/code]
+
+<p><code>product_reviews</code> is a child of <code>shop</code>. That's the entire setup.</p>
+
+<hr>
+
+<h2>URL Access</h2>
+
+<p>Access child modules via URLs using the hyphenated format:</p>
+
+[code]
+https://yoursite.com/shop-product_reviews/display
+[/code]
+
+<p><strong>How It Works:</strong></p>
+<p>Trongate sees <code>shop-product_reviews</code> and automatically looks in <code>modules/shop/product_reviews/</code>.</p>
+<p>Underscores in URLs become hyphens in paths. It just works.</p>
+
+<h2>Accessing Child Modules From Code</h2>
+
+<h3>From a Controller:</h3>
+
+<p><strong>Method 1: Explicit Loading (Recommended)</strong></p>
+[code=php]
+// First load the child module explicitly
+$this->module('shop-product_reviews');
+
+// Now you can access it
+$reviews = $this->product_reviews->get_latest($product_id);
+[/code]
+
+<p><strong>Method 2: Hyphenated Property Syntax</strong></p>
+[code=php]
+// Use curly braces with hyphenated name
+$reviews = $this->{'shop-product_reviews'}->get_latest($product_id);
+[/code]
+
+<p><strong>Complete example:</strong></p>
+[code=php]&lt;?php
+class Shop extends Trongate {
+
+    function display_product($product_id) {
+        // Load child module first
+        $this-&gt;module('shop-product_reviews');
+        
+        // Now access child module methods
+        $data['reviews'] = $this-&gt;product_reviews-&gt;get_for_product($product_id);
+        $this-&gt;view('product_page', $data);
+    }
+    
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Important Note:</strong> Child modules require explicit loading before use. The framework cannot auto-detect that a module is a child of the current module when accessed via simple property syntax (<code>$this->child_module</code>).</p>
+</div>
+
+<h3>From a View:</h3>
+
+<p>Use <code>Modules::run()</code> with explicit data passing:</p>
+[code=vf]
+<?= Modules::run('shop-product_reviews/display', $product_id) ?>
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Remember:</strong> Trongate v2 requires explicit data passing. The second parameter can be <strong>any data type</strong> - strings, arrays, objects, integers, booleans, or null.</p>
+</div>
+
+<h3>From a Model:</h3>
+
+<p>Models can also access modules:</p>
+[code=php]
+// Inside any model file
+$this->module('shop-product_reviews');  // Models use module() method
+$reviews = $this->product_reviews->get_latest($product_id);
+[/code]
+
+<p>For more information about how model files can load modules, check out the documentation on <a href="documentation/trongate_php_framework/database-operations/loading-modules-from-models" target="_blank">Loading Modules From Models</a>.</p>
+
+<hr>
+
+<div class="alert alert-info">
+    <p><strong>Important Note:</strong> Remember that model files should only be used by their corresponding controller file. Other modules must not directly access another module's model file. For detailed information about model encapsulation and proper module interaction patterns, see the <a href="documentation/trongate_php_framework/module-fundamentals/model-files" target="_blank">Model Files documentation</a>.</p>
+</div>
+
+<hr>
+
+<h2>Child Module Models</h2>
+
+<p>Name your child module model files like this:</p>
+
+[code]
+modules/shop/product_reviews/Product_reviews_model.php
+[/code]
+
+<p>Inside the child controller, the model is auto-available:</p>
+[code=php]&lt;?php
+class Product_reviews extends Trongate {
+
+    function get_latest($product_id) {
+        // Auto-resolves to Product_reviews_model.php
+        $reviews = $this-&gt;model-&gt;fetch_recent($product_id, 5);
+        json($reviews);
+    }
+
+    function display($product_id) {
+        $data['reviews'] = $this-&gt;model-&gt;fetch_recent($product_id);
+        
+        // CRITICAL: Set view_module for child modules
+        $data['view_module'] = 'shop/product_reviews'; // Use slash format
+        
+        $this-&gt;view('reviews_page', $data);
+    }
+
+}
+[/code]
+
+<hr>
+
+<h2>Critical: View Files in Child Modules</h2>
+
+<div class="alert alert-warning">
+    <p><strong>IMPORTANT - Common Pitfall:</strong> When a module becomes a child module, you <strong>must</strong> set <code>view_module</code> in your data array when calling <code>$this->view()</code>.</p>
+</div>
+
+<h3>The Problem:</h3>
+<p>Without <code>view_module</code> set, the framework looks for views in <code>modules/child_module/views/</code> instead of <code>modules/parent_module/child_module/views/</code>.</p>
+
+<h3>The Solution:</h3>
+<p>Always include <code>view_module</code> in your data array when calling views from a child module controller:</p>
+
+[code=php]&lt;?php
+class Product_reviews extends Trongate {
+
+    function display($product_id) {
+        $data['reviews'] = $this-&gt;model-&gt;fetch_recent($product_id);
+        
+        // CRITICAL: Set view_module for child modules
+        $data['view_module'] = 'shop/product_reviews'; // Use slash format
+        
+        $this-&gt;view('reviews_page', $data);
+    }
+
+    function edit($review_id) {
+        $data['review'] = $this-&gt;model-&gt;get_review($review_id);
+        
+        // CRITICAL: Set view_module for child modules
+        $data['view_module'] = 'shop/product_reviews'; // Use slash format
+        
+        $this-&gt;view('edit_review', $data);
+    }
+
+}
+[/code]
+
+<h3>Key Points:</h3>
+<ul>
+    <li><strong>Format:</strong> Use slash format: <code>'parent/child'</code> (not hyphenated)</li>
+    <li><strong>Location:</strong> Must be in the <code>$data</code> array passed to <code>$this->view()</code></li>
+    <li><strong>Consistency:</strong> Apply to ALL <code>view()</code> calls in the child controller</li>
+    <li><strong>Error:</strong> Without this, you'll get "View not found" errors</li>
+</ul>
+
+<div class="alert alert-info">
+    <p><strong>Why This Happens:</strong> The framework uses the class name to guess the module location. For child modules, the class name (<code>Product_reviews</code>) doesn't match the actual path (<code>shop/product_reviews</code>).</p>
+</div>
+
+<hr>
+
+<h2>Serving Assets from Child Modules</h2>
+
+<div class="alert alert-info">
+    <p><strong>Trongate v2 Change:</strong> The old <code>assets/</code> folder is gone.</p>
+    <p>Store files directly in subdirectories like <code>css/</code>, <code>js/</code>, <code>images/</code>, <code>fonts/</code>, or any other name.</p>
+    <p>For more information about how to store and work with files that are inside modules, refer to the <a href="documentation/trongate_php_framework/module-fundamentals/module-assets" target="_blank">Module Assets Documentation</a>.</p>
+</div>
+
+<h3>Directory Structure:</h3>
+
+[code]
+modules/shop/product_reviews/
+  css/
+    reviews.css
+  js/
+    reviews.js
+  images/
+    star.png
+[/code]
+
+<h3>Serving the Assets:</h3>
+
+<p>Use the hyphenated module name with the <code>_module</code> trigger:</p>
+[code=html]
+&lt;!-- In your views --&gt;
+&lt;link rel="stylesheet" href="shop-product_reviews_module/css/reviews.css"&gt;
+&lt;script src="shop-product_reviews_module/js/reviews.js"&gt;&lt;/script&gt;
+&lt;img src="shop-product_reviews_module/images/star.png"&gt;
+[/code]
+
+<h3>Complete Example:</h3>
+
+<p>Child module controller using proper template pattern with additional includes:</p>
+[code=php]&lt;?php
+class Product_reviews extends Trongate {
+
+    function display($product_id) {
+        // Fetch data
+        $data['product'] = $this-&gt;model-&gt;get_product($product_id);
+        $data['reviews'] = $this-&gt;model-&gt;fetch_recent($product_id);
+        
+        // Add child module assets using proper additional_includes pattern
+        $data['additional_includes_top'][] = 'shop-product_reviews_module/css/reviews.css';
+        $data['additional_includes_btm'][] = 'shop-product_reviews_module/js/reviews.js';
+        
+        // CRITICAL: Set view_module for child modules
+        $data['view_module'] = 'shop/product_reviews'; // Use slash format
+        
+        // Use template for consistent layout
+        $data['view_file'] = 'reviews_page';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+    function edit($review_id) {
+        $data['review'] = $this-&gt;model-&gt;get_review($review_id);
+        
+        // CRITICAL: Set view_module for child modules
+        $data['view_module'] = 'shop/product_reviews'; // Use slash format
+        
+        $data['view_file'] = 'edit_review';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+}
+[/code]
+
+<p>Example from Forums.php showing the same pattern:</p>
+[code=php]&lt;?php
+class Forums extends Trongate {
+
+    function index() {
+        $this-&gt;module('forums-forum_categories');
+        $forum_categories = $this-&gt;forum_categories-&gt;get_forum_categories(true);
+
+        $data['forum_categories'] = $forum_categories;
+        $data['page_title'] = 'Trongate Forums - Official Community Discussions';
+        $data['meta_description'] = 'Join the official Trongate PHP Framework community forums...';
+        
+        // Proper pattern for adding module-specific JavaScript
+        $data['additional_includes_btm'][] = 'forums_module/js/forum_home.js';
+        
+        $data['view_module'] = 'forums';
+        $data['view_file'] = 'forums_home';
+        $this-&gt;templates-&gt;forum($data);
+    }
+
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important Rules:</strong></p>
+    <ul class="mb-0">
+        <li>Assets belonging to a child module <strong>must</strong> be in a subdirectory (not directly in the parent module root)</li>
+        <li>Use sensible directory names (<code>css/</code>, <code>js/</code>, <code>images/</code>, etc.)</li>
+        <li>Never name a module with <code>_module</code> suffix</li>
+        <li>Assets are served securely - PHP files and sensitive files are blocked</li>
+    </ul>
+</div>
+
+<hr>
+
+<h2>When to Use Child Modules</h2>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">✅ Perfect For</h5>
+                <ul class="mb-0">
+                    <li>Reviews for products</li>
+                    <li>Comments for blog posts</li>
+                    <li>Items in an order</li>
+                    <li>Settings for a user</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">❌ Avoid When</h5>
+                <ul class="mb-0">
+                    <li>Feature is standalone</li>
+                    <li>Used by multiple parents</li>
+                    <li>Deep nesting needed</li>
+                    <li>Temporary functionality</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-success mt-3">
+    <p><strong>Best Practice:</strong> One level deep is ideal. If you're thinking "grandparent-parent-child," go for a long walk and reconsider your life choices.</p>
+</div>
+
+<h2>Troubleshooting Child Modules</h2>
+
+<div class="alert alert-warning">
+    <p><strong>Common Issues and Solutions:</strong></p>
+</div>
+
+<h3>1. "View not found" Error</h3>
+<p><strong>Symptom:</strong> Getting "View 'filename' not found" when accessing a child module.</p>
+<p><strong>Solution:</strong> Ensure <code>$data['view_module'] = 'parent/child';</code> is set in ALL <code>$this->view()</code> calls.</p>
+
+<h3>2. Module Not Found in Controller</h3>
+<p><strong>Symptom:</strong> "Module controller not found" when accessing <code>$this->child_module</code>.</p>
+<p><strong>Solution:</strong> Use explicit loading first: <code>$this->module('parent-child_module');</code> or use hyphenated property syntax: <code>$this->{'parent-child_module'}</code></p>
+
+<h3>3. Module Not Found with Modules::run()</h3>
+<p><strong>Symptom:</strong> "Controller not found" error when using <code>Modules::run()</code>.</p>
+<p><strong>Solution:</strong> Use hyphenated format: <code>Modules::run('parent-child/method', $data)</code></p>
+
+<h3>4. Assets Not Loading</h3>
+<p><strong>Symptom:</strong> CSS/JS/images from child module not appearing.</p>
+<p><strong>Solution:</strong> Use hyphenated format with <code>_module</code> suffix: <code>parent-child_module/css/file.css</code></p>
+
+<h3>Quick Reference Table:</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Context</th>
+            <th>Format</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>URL Access</td>
+            <td>Hyphenated</td>
+            <td><code>/shop-product_reviews/display</code></td>
+        </tr>
+        <tr>
+            <td>Controller Access (Method 1)</td>
+            <td>Explicit loading then property</td>
+            <td><code>$this-&gt;module('shop-product_reviews'); $this-&gt;product_reviews-&gt;method()</code></td>
+        </tr>
+        <tr>
+            <td>Controller Access (Method 2)</td>
+            <td>Hyphenated property syntax</td>
+            <td><code>$this-&gt;{'shop-product_reviews'}-&gt;method()</code></td>
+        </tr>
+        <tr>
+            <td><code>Modules::run()</code></td>
+            <td>Hyphenated</td>
+            <td><code>Modules::run('shop-product_reviews/display', $data)</code></td>
+        </tr>
+        <tr>
+            <td><code>view_module</code> in data</td>
+            <td>Slash format</td>
+            <td><code>$data['view_module'] = 'shop/product_reviews'</code></td>
+        </tr>
+        <tr>
+            <td>Asset URLs</td>
+            <td>Hyphenated + _module</td>
+            <td><code>shop-product_reviews_module/css/style.css</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Migration Checklist: Converting to Child Module</h2>
+
+<p>When moving an existing module to become a child module, follow this checklist:</p>
+
+<ol>
+    <li><strong>Move Directory</strong>: Move module folder inside parent module
+        <pre><code>modules/child_module/ → modules/parent_module/child_module/</code></pre>
+    </li>
+    
+    <li><strong>Update URLs</strong>: Change all URL references to hyphenated format
+        <pre><code>child_module/method → parent-child_module/method</code></pre>
+    </li>
+    
+    <li><strong>Update <code>Modules::run()</code> calls</strong>: Use hyphenated format
+        <pre><code>Modules::run('child_module/method', $data)
+→ Modules::run('parent-child_module/method', $data)</code></pre>
+    </li>
+    
+    <li><strong>Add explicit module loading</strong>: Update controller code to load child modules explicitly
+        <pre><code>// Before: $this-&gt;child_module-&gt;method()
+// After: 
+$this-&gt;module('parent-child_module');
+$this-&gt;child_module-&gt;method();</code></pre>
+    </li>
+    
+    <li><strong>Add <code>view_module</code> to ALL view calls</strong>: Most critical step!
+        <pre><code>// In child controller methods:
+$data['view_module'] = 'parent/child_module'; // Slash format
+$this-&gt;view('view_file', $data);</code></pre>
+    </li>
+    
+    <li><strong>Update Asset URLs</strong>: Use hyphenated format with <code>_module</code> suffix
+        <pre><code>child_module_module/css/style.css
+→ parent-child_module_module/css/style.css</code></pre>
+    </li>
+    
+    <li><strong>Test Navigation</strong>: Verify all links work with new URL format</li>
+    
+    <li><strong>Test Views</strong>: Ensure all views render correctly</li>
+    
+    <li><strong>Test Assets</strong>: Confirm CSS, JS, images load properly</li>
+</ol>
+
+<div class="alert alert-success">
+    <p><strong>Pro Tip:</strong> Use search/replace in your code editor:</p>
+    <ul class="mb-0">
+        <li>Find: <code>'child_module/</code> → Replace: <code>'parent-child_module/</code></li>
+        <li>Find: <code>anchor('child_module/</code> → Replace: <code>anchor('parent-child_module/</code></li>
+        <li>Find: <code>Modules::run('child_module/</code> → Replace: <code>Modules::run('parent-child_module/</code></li>
+    </ul>
+</div>
+
+<h2>Bottom Line</h2>
+<p>Child modules give you logical organization without complexity. Trongate v2 provides multiple ways to access child modules, each suited for different scenarios.</p>
+
+<p><strong>Golden Rules for Child Modules:</strong></p>
+<ol>
+    <li>Always set <code>view_module</code> in your data array when calling views from child modules</li>
+    <li>Use explicit <code>$this-&gt;module('parent-child_module')</code> before accessing child modules via property syntax</li>
+    <li>For one-off access, use hyphenated property syntax: <code>$this-&gt;{'parent-child_module'}</code></li>
+    <li>For view integration, use <code>Modules::run('parent-child_module/method', $data)</code></li>
+</ol>
+
+<p>With these patterns, you can organize your code logically while maintaining clean, maintainable architecture.</p>

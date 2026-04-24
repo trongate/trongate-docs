@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct(?string $module_name = null)</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Constructor for the Trongate base controller. Sets the module name for the current controller instance. If no module name is provided, auto‑detects from the class name (e.g., a class named <code>Products</code> becomes module <code>products</code>).
+   </p>
+    <p>
+      <strong>Note:</strong> The framework automatically passes the module name when instantiating controllers via URL routing. You only need to call the constructor manually when creating controller instances programmatically.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>module_name</td>
+        <td>string|null</td>
+        <td>The module name for this controller instance. If null, derived from the class name.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Constructor does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic instantiation by framework (URL: /products/show/15)
+// Inside Products.php controller:
+class Products extends Trongate {
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name); // REQUIRED
+        // Your initialization code...
+    }
+}
+
+// Manual instantiation (rare)
+$controller = new Trongate('custom_module');[/code]
+</div>

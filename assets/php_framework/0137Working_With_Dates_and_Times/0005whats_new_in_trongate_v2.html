@@ -1,0 +1,177 @@
+[meta-description]What's new in Trongate v2 date and time handling: native PHP, pure HTML5 inputs, ISO 8601 formats, no JavaScript libraries, and modern database-first storage strategies.[/meta-description]
+<h1>What's New With Trongate v2</h1>
+
+<p>
+    Trongate v2 introduces a cleaner, more native, and more future-proof approach
+    to working with dates and times. The changes are deliberate, opinionated, and
+    grounded in the realities of modern web development.
+</p>
+
+<p>
+    This page provides a high-level overview of what has changed - and why.
+</p>
+
+<h2>A Shift Away From Custom Libraries</h2>
+
+<p>
+    In Trongate v1, the framework relied on an assortment of custom JavaScript and
+    CSS libraries to render date pickers, time pickers, date-time pickers, and
+    date-range pickers.
+</p>
+
+<p>
+    The code worked. However, it came at a cost.
+</p>
+
+<p>
+    Form handling for dates and times became unnecessarily esoteric, tightly
+    coupled to page-specific assets, and dependent upon additional configuration
+    being added wherever those inputs appeared.
+</p>
+
+<p>
+    This complexity did not just affect developers. It also posed challenges for
+    tooling and AI engines tasked with analyzing, understanding, and working with
+    the codebase.
+</p>
+
+<h2>Embracing Native Capabilities</h2>
+
+<p>
+    <b>PHP is exceptionally good at working with dates and times.</b> It provides a
+    mature, well-tested set of native functions specifically designed for this
+    purpose.
+</p>
+
+<p>
+    At the same time, modern HTML now offers a comprehensive range of built-in
+    form inputs for capturing dates and times directly in the browser.
+</p>
+
+<p>
+    These inputs:
+</p>
+
+<ul>
+    <li>Render with native, accessible user interfaces</li>
+    <li>Adapt automatically to mobile devices</li>
+    <li>Respect user locale preferences for display</li>
+    <li>Submit predictable, standardized values</li>
+</ul>
+
+<p>
+    Trongate v2 embraces these capabilities fully.
+</p>
+
+<p>
+    All custom JavaScript and CSS date libraries have been removed in favor of a
+    more native approach - using pure HTML for input and native PHP for
+    processing and manipulation.
+</p>
+
+<h2>A Rethink on Date and Time Storage</h2>
+
+<p>
+    Another significant change in Trongate v2 relates to how date and time values
+    are stored in the database.
+</p>
+
+<p>
+    Trongate v1 encouraged developers to store dates and times as Unix timestamps.
+    These values were stored as integers representing the number of seconds that
+    have elapsed since <strong>1 January 1970 at 00:00:00 UTC</strong>, commonly
+    generated in PHP using functions such as <code>time()</code>.
+</p>
+
+<p>
+    While Unix timestamps are compact and easy to generate, they introduce
+    limitations in modern applications.
+</p>
+
+<p>
+    They are difficult to read at a glance, provide no inherent timezone context,
+    restrict the use of native database date functions, and rely entirely on
+    application logic for validation and interpretation.
+</p>
+
+<p>
+    For these reasons, Trongate v2 now encourages developers to use native
+    database date and time types wherever possible.
+</p>
+
+<p>
+    This approach improves clarity, query expressiveness, long-term reliability,
+    and aligns naturally with the formats produced by modern HTML5 form inputs.
+</p>
+
+<h2>Standards Over Conventions</h2>
+
+<p>
+    At the heart of the new approach is a commitment to open standards.
+</p>
+
+<p>
+    HTML5 date and time inputs submit values using the <strong>ISO 8601</strong>
+    international standard - a format designed specifically for unambiguous,
+    language-agnostic data interchange.
+</p>
+
+<p>
+    These formats map cleanly to standard SQL date and time column types,
+    allowing data to flow from browser to database with minimal friction and no
+    guesswork.
+</p>
+
+<p>
+    The result is a system that is easier to reason about, easier to validate,
+    and easier to maintain.
+</p>
+
+<h2>Designed for Humans and Machines</h2>
+
+<p>
+    The changes introduced in Trongate v2 are not merely cosmetic.
+</p>
+
+<p>
+    They are designed to benefit:
+</p>
+
+<ul>
+    <li><strong>Developers</strong> - through simpler forms, cleaner validation, and readable data</li>
+    <li><strong>Users</strong> - through native, accessible input controls</li>
+    <li><strong>Databases</strong> - through proper use of native date and time types</li>
+    <li><strong>AI systems</strong> - through predictable structures and standardized formats</li>
+</ul>
+
+<p>
+    Dates and times are no longer special cases. They are first-class citizens.
+</p>
+
+<h2>What This Chapter Covers</h2>
+
+<p>
+    The pages that follow explore this new approach in detail.
+</p>
+
+<p>
+    You will learn how to:
+</p>
+
+<ul>
+    <li>Create date and time inputs using native HTML5 helpers</li>
+    <li>Validate submitted values using predictable, standard formats</li>
+    <li>Store dates and times using appropriate database column types</li>
+    <li>Format dates and times for display in any language or locale</li>
+    <li>Handle common real-world scenarios such as scheduling and deadlines</li>
+</ul>
+
+<p>
+    If you are new to Trongate v2, this chapter will establish the mental model
+    you need.
+</p>
+
+<p>
+    If you are returning from earlier versions, it will explain why these changes
+    were made - and why they matter.
+</p>

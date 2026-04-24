@@ -1,0 +1,222 @@
+ [meta-description]Master Trongate's Image module: GD library with zero abstraction. Learn when to use Image vs File modules, automatic security validation, and the upload-or-load, manipulate, save-or-output workflow for professional image handling.[/meta-description]
+
+<h1>Meet The Image Module</h1>
+
+<p>Modern web applications don't just <i>store</i> images - they <strong>process</strong> them. Whether you're building user profiles with cropped avatars, product galleries with responsive thumbnails, or content systems that require automatic image optimization, handling images correctly is essential.</p>
+
+<p>Trongate handles image operations with <strong>zero abstraction</strong> and <strong>full transparency</strong>. No opaque service layers. No configuration-heavy image processors. Instead, you get direct, predictable access to PHP's GD library through a clean, focused API.</p>
+
+<h2>The Trongate Approach</h2>
+
+<p>Trongate comes with its own <b>Image module</b>.  The <a href="documentation-ref/list_refs/included/image" target="_blank">Image module</a> exists for one purpose: to give you complete control over image manipulation while automatically handling security and validation.</p>
+
+<p>Think of it as <strong>GD with guardrails</strong> - all the power of native PHP image processing, combined with security checks that prevent the most common attack vectors.</p>
+
+<h3>What You'll Learn</h3>
+<p>By the end of this chapter, you'll be able to:</p>
+<ul>
+    <li><strong>Upload and validate</strong> images with automatic security scanning</li>
+    <li><strong>Load existing images</strong> from disk for batch processing</li>
+    <li><strong>Resize, crop, and scale</strong> images while preserving aspect ratios and transparency</li>
+    <li><strong>Generate thumbnails</strong> with multiple dimensions from a single source</li>
+    <li><strong>Serve images dynamically</strong> or save them to disk with proper compression</li>
+    <li><strong>Secure private images</strong> using Trongate v2's Interceptor pattern</li>
+</ul>
+
+
+<h2>Your Image Manipulation Toolkit</h2>
+
+<p>All operations, handled by the <strong>Image</strong> module, are accessible from any controller via <code>$this-&gt;image</code>.</p>
+
+[code=php]
+// Upload a NEW image
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// Or load an EXISTING image
+$this-&gt;image-&gt;load('modules/products/images/widget.jpg');
+
+// Manipulate it
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;crop(400, 400);
+
+// Save to disk or output to browser
+$this-&gt;image-&gt;save('modules/products/images/widget_thumb.jpg', 85);
+[/code]
+
+<p>The pattern is intentionally consistent: <code>$this-&gt;image-&gt;method()</code>. No dependency injection. No service containers. Just clean, predictable calls that map directly to GD library functions.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note for Trongate v1 Users:</strong> The Image module in Trongate v2 maintains the same internal code but adds enhanced security validation and better integration with the new modular architecture. If you're familiar with v1, you'll feel right at home.</p>
+</div>
+
+<h2>The GD Foundation: Zero Abstraction</h2>
+
+<p>Trongate's Image module is a <strong>thin wrapper</strong> around PHP's GD library. What you see in the code is what runs on the server - no hidden transformations, no complex abstraction layers.</p>
+
+<h3>Direct GD Mapping</h3>
+<p>Every Image module method corresponds directly to a GD function.  Examples include the following:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Trongate Method</th>
+            <th>GD Function</th>
+            <th>What It Does</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_to_width()</span></td>
+            <td><code>imagecopyresampled()</code></td>
+            <td>Proportional resizing with quality preservation</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-crop()</span></td>
+            <td><code>imagecrop()</code> + <code>imagecopyresampled()</code></td>
+            <td>Precise cropping with position control</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-save()</span></td>
+            <td><code>imagejpeg()</code> / <code>imagepng()</code> / etc.</td>
+            <td>Format-aware saving with compression</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-output()</span></td>
+            <td><code>imagepng()</code> + output buffering</td>
+            <td>Direct browser streaming</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Security by Design</h2>
+
+<p>Image uploads are a primary attack vector. Malicious files can bypass frontend validation, execute code, or consume server resources. The Image module applies <strong>four layers of automatic security validation</strong> on every upload:</p>
+
+<h3>1. MIME Type Verification</h3>
+<p>Checks that files are <i>really</i> images using both <code>finfo</code> and <code>getimagesize()</code>:</p>
+
+[code=php]
+// Automatic validation happens inside upload()
+$allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+// If MIME doesn't match: "Invalid file type. Only image files are allowed."
+[/code]
+
+<h3>2. File Signature Validation</h3>
+<p>Verifies the actual file signatures to prevent extension spoofing:</p>
+
+[code]
+// Checks file headers match claimed type:
+JPEG: \xFF\xD8\xFF
+PNG: \x89\x50\x4E\x47\x0D\x0A\x1A\x0A  
+GIF: "GIF87a" or "GIF89a"
+WEBP: "RIFF" + "WEBP"
+
+// If mismatch: "Invalid file signature"
+[/code]
+
+<h3>3. Script Injection Prevention</h3>
+<p>Scans the first 256 bytes for dangerous content:</p>
+
+[code=php]
+// Blocks files containing:
+&lt;?php
+&lt;script&gt;
+&lt;iframe&gt;
+&lt;object&gt;
+&lt;embed&gt;
+
+// If detected: "Potential security threat detected in image"
+[/code]
+
+<h3>4. Memory Limit Enforcement</h3>
+<p>Calculates required memory before processing to prevent server overload:</p>
+
+[code=php]
+// Formula: width × height × 4 × 1.5 buffer
+$required_memory = 1920 * 1080 * 4 * 1.5; // ~12MB for Full HD
+// If insufficient: "Image too large to process"
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> These security checks are invoked <i>automatically</i> by the <span class="feature-ref">included-image-upload()</span> method. You don't need to enable them or configure them - they're always active. This is what we mean by "security by design."</p>
+</div>
+
+<h2>Image Module vs. File Module: When to Use Which</h2>
+
+<p>Trongate v2 provides two modules for handling files. Choosing the right one depends on your needs:</p>
+
+<div class="alert alert-success">
+<p><strong>Use the <a href="documentation-ref/list_refs/included/image" target="_blank">Image module</a> when:</strong> You need to <i>process</i> images (resize, crop, optimize, convert formats).</p>
+
+<p><strong>Use the <a href="documentation-ref/list_refs/included/file" target="_blank">File module</a> when:</strong> You only need to <i>store</i> files (documents, archives, media without processing).</p>    
+</div>
+
+<h2>Two Ways to Get Images Into Memory</h2>
+
+<p>The Image module provides two methods for bringing images into memory:</p>
+
+<div class="alert alert-success">
+    <p><strong><span class="feature-ref">included-image-upload()</span> - For NEW Images</strong></p>
+    <p>Use when handling file uploads from users. Automatically validates, secures, and optionally resizes/thumbnails the image.</p>
+[code=php]
+$config = [
+    'destination' =&gt; 'avatars',
+    'upload_to_module' =&gt; true,
+    'max_width' =&gt; 800,
+    'max_height' =&gt; 800
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+// Image is now in memory, validated, and ready for further processing
+[/code]
+</div>
+
+<div class="alert alert-success">
+    <p><strong><span class="feature-ref">included-image-load()</span> - For EXISTING Images</strong></p>
+    <p>Use when working with images already stored on disk. Perfect for batch processing, generating new sizes, or creating variations.</p>
+[code=php]
+$this-&gt;image-&gt;load('modules/products/images/widget.jpg');
+// Image is now in memory, ready for manipulation
+[/code]
+</div>
+
+<h2>The Stateful Workflow Pattern</h2>
+
+<p>Once an image is in memory (via <code>upload()</code> or <code>load()</code>), the Image module follows a predictable stateful pattern:</p>
+
+[code=php]
+// 1. GET IMAGE INTO MEMORY
+// Option A: Upload a new image
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// Option B: Load an existing image
+$this-&gt;image-&gt;load('modules/gallery/photos/landscape.jpg');
+
+// 2. MANIPULATE it (any combination of operations)
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;crop(400, 400, 'center');
+
+// 3. Either SAVE to disk...
+$this-&gt;image-&gt;save('modules/gallery/photos/landscape_thumb.jpg', 85);
+
+// ...or OUTPUT directly to browser
+header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+$this-&gt;image-&gt;output();
+[/code]
+
+<p>This workflow ensures you always know what state your image is in and prevents accidental operations on unloaded images.</p>
+
+<div class="alert alert-success">
+    <p><strong>Key Principle:</strong> The Image module maintains one image in memory at a time. Each call to <code>upload()</code> or <code>load()</code> replaces the current image. Operations like <code>resize()</code> and <code>crop()</code> modify the loaded image directly.</p>
+</div>
+
+<h2>What's Next</h2>
+
+<p>The following page walks through building a complete image uploader for user profile pictures. You'll learn:</p>
+
+<ul>
+    <li>How to create an upload form with proper image validation</li>
+    <li>How to configure automatic resizing during upload</li>
+    <li>How to display uploaded images using Trongate v2's asset triggers</li>
+    <li>How to handle upload errors and user feedback</li>
+</ul>

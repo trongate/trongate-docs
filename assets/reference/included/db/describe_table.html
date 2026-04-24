@@ -1,0 +1,181 @@
+<div class="container">
+  <h1>describe_table()</h1>
+  <p class="signature">public function describe_table(string $table, bool $names_only = false): array|bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves structural information about a database table using MySQL's DESCRIBE statement. This method can return either detailed column information or just column names. It's useful for dynamic form generation, validation, and understanding table schema at runtime.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the table to describe.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>names_only</td>
+        <td>bool</td>
+        <td>If true, returns only column names. If false, returns full column details.</td>
+        <td>false</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array|bool</td>
+        <td>Returns array of column details/names on success, or false on failure (e.g., table doesn't exist).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Column Details Structure</h2>
+  <p>When <code>$names_only = false</code>, each array element contains these keys:</p>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Description</th>
+        <th>Example Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Field</td>
+        <td>Column name</td>
+        <td>'id', 'username', 'email'</td>
+      </tr>
+      <tr>
+        <td>Type</td>
+        <td>Data type with length/precision</td>
+        <td>'int(11)', 'varchar(255)', 'decimal(10,2)'</td>
+      </tr>
+      <tr>
+        <td>Null</td>
+        <td>Whether NULL values are allowed ('YES' or 'NO')</td>
+        <td>'NO', 'YES'</td>
+      </tr>
+      <tr>
+        <td>Key</td>
+        <td>Index information (PRI, UNI, MUL, or empty)</td>
+        <td>'PRI', 'UNI', 'MUL', ''</td>
+      </tr>
+      <tr>
+        <td>Default</td>
+        <td>Default value or NULL</td>
+        <td>'NULL', 'CURRENT_TIMESTAMP', '0'</td>
+      </tr>
+      <tr>
+        <td>Extra</td>
+        <td>Additional information (auto_increment, etc.)</td>
+        <td>'auto_increment', ''</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example #1: Getting Full Column Details</h2>
+  <p>The code sample below demonstrates how to retrieve complete column information from the 'users' table.</p>
+[code=php]
+$columns = $this-&gt;db-&gt;describe_table('users');
+
+if ($columns !== false) {
+    foreach ($columns as $column) {
+        echo "Column: " . $column['Field'] . "&lt;br&gt;";
+        echo "Type: " . $column['Type'] . "&lt;br&gt;";
+        echo "Primary Key: " . ($column['Key'] === 'PRI' ? 'Yes' : 'No') . "&lt;br&gt;";
+        echo "Nullable: " . $column['Null'] . "&lt;br&gt;";
+        echo "Default: " . ($column['Default'] ?? 'None') . "&lt;br&gt;";
+        echo "Extra: " . ($column['Extra'] ?? 'None') . "&lt;br&gt;&lt;br&gt;";
+    }
+} else {
+    echo "Failed to describe table or table doesn't exist.";
+}
+[/code]
+
+  <h2>Example #2: Getting Only Column Names</h2>
+  <p>The code sample below demonstrates how to retrieve just the column names from the 'products' table.</p>
+[code=php]
+$column_names = $this-&gt;db-&gt;describe_table('products', true);
+
+if ($column_names !== false) {
+    echo "Columns in 'products' table:&lt;br&gt;";
+    echo implode(', ', $column_names);
+    
+    // Can be used for dynamic form generation
+    foreach ($column_names as $column) {
+        if ($column !== 'id') { // Skip ID field
+            echo '&lt;input type="text" name="' . $column . '" placeholder="' . $column . '"&gt;';
+        }
+    }
+} else {
+    echo "Table 'products' not found.";
+}
+[/code]
+
+  <h2>Example #3: Using Column Information for Validation</h2>
+  <p>The code sample below demonstrates how to use column information to validate data before insertion.</p>
+[code=php]
+// Get column details
+$column_details = $this-&gt;db-&gt;describe_table('orders');
+
+if ($column_details !== false) {
+    $data_to_insert = [
+        'customer_id' =&gt; 123,
+        'total_amount' =&gt; 99.99,
+        'order_date' =&gt; date('Y-m-d H:i:s')
+    ];
+    
+    // Check if all columns in data exist in table
+    foreach (array_keys($data_to_insert) as $column) {
+        $column_exists = false;
+        foreach ($column_details as $col_detail) {
+            if ($col_detail['Field'] === $column) {
+                $column_exists = true;
+                break;
+            }
+        }
+        
+        if (!$column_exists) {
+            echo "Error: Column '$column' doesn't exist in 'orders' table.";
+        }
+    }
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The <code>$table</code> parameter is <strong>required</strong>.</li>
+    <li>Returns <code>false</code> on failure (e.g., table doesn't exist, database error).</li>
+    <li>Uses MySQL's <code>DESCRIBE</code> statement which is MySQL-specific (not portable to other databases).</li>
+    <li>When <code>$names_only = true</code>, returns a simple indexed array of column names.</li>
+    <li>When <code>$names_only = false</code>, returns an array of associative arrays with column details.</li>
+    <li>Useful for dynamic applications that need to adapt to different table structures.</li>
+    <li>Consider caching results if calling frequently on the same table.</li>
+    <li>For more detailed metadata, consider using <code>SHOW FULL COLUMNS FROM</code> or querying <code>INFORMATION_SCHEMA</code> directly.</li>
+  </ul>
+</div>

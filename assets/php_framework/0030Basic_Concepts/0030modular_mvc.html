@@ -1,0 +1,65 @@
+[meta-description]Trongate’s Modular MVC: one self-contained folder per feature with controller, optional model & views. Zero config, 100% portable - just copy, paste, and your module instantly works.[/meta-description]
+<h1>Modular MVC</h1>
+
+<p>The core of every Trongate application is the <strong>modules</strong> directory. Each module is self-contained, independent, and built with Native PHP  -  no Composer, no PSR-4 autoloaders, no hidden bloat.</p>
+
+<h2>Modules: The Only Part of Your App That Matters</h2>
+
+<p>Everything else is plumbing.<br>
+Your actual app? It lives in <code>modules/</code>. One folder per feature. Done.</p>
+
+<p>Here's an example of a real-world Trongate module:</p>
+
+[code]
+modules/
+  users/
+    Users.php              ← the boss
+    Users_model.php        ← only if you're fancy
+    views/                 ← pure PHP, no template engine
+    css/
+    js/
+    images/
+    child_modules/         ← nest child modules if you must
+[/code]
+
+<h2>Key Characteristics</h2>
+
+<ul>
+    <li>One controller file per module. <strong>Required.</strong></li>
+    <li>One model file per module. <strong>Optional.</strong></li>
+    <li>A <code>views/</code> folder. <strong>Optional.</strong></li>
+    <li>CSS, JS, images? Throw them in too, if you want. <strong>Optional.</strong></li>
+    <li>Child modules inside modules? Yes. <strong>Nesting allowed.</strong></li>
+</ul>
+
+<h2>The Benefits of Modular MVC</h2>
+
+<ul>
+    <li><strong>Copy → paste → works.</strong> No setup. No config. No faffing about.</li>
+    <li><strong>Don't like models? Fine.</strong> Write 50 lines in the controller. We don’t judge.</li>
+    <li><strong>Need models? Cool.</strong> Keep your controller skinny. We respect that too.</li>
+    <li><strong>Assets live with the code that uses them.</strong><br>
+        No more hunting through massive and confusing paths, such as: [code]public/assets/js/admin/users/whoops/wrong-folder[/code].</li>
+</ul>
+
+<div class="alert alert-info">
+    <p><strong>Trongate modules are 100% portable.</strong><br>
+    Steal one from your last project. Drop it in. Refresh. <strong>Boom!</strong></p>
+</div>
+
+<h2>How Trongate Modules Destroy “Traditional” MVC</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Other frameworks</th>
+            <th>Trongate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Modules need registration, routes, service providers</td><td>Drop folder. Done.</td></tr>
+        <tr><td>Assets scattered across 17 directories</td><td>Everything lives together. Like family.</td></tr>
+        <tr><td>Can’t reuse without Composer + config hell</td><td>Copy. Paste. Enjoy.</td></tr>
+        <tr><td>“Where’s my login module?” → 45-minute treasure hunt</td><td><code>modules/users/</code> → oh look, it’s right there.</td></tr>
+    </tbody>
+</table>

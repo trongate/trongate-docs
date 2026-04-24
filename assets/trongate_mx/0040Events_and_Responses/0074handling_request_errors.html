@@ -1,0 +1,136 @@
+<h1>Handling Request Errors</h1>
+<p>
+  The <code>mx-on-error</code> attribute in Trongate MX lets you specify which elements should 
+  update or reinitialise when an AJAX request fails. It offers a means of handling errors 
+  gracefully and keeping your users informed when things don't go quite as planned.
+</p>
+
+<div class="alert alert-warning">
+   <p>The <code>mx-on-error</code> attribute (which happens to be the focus of this page) is designed for triggering elements, <b>not</b> for executing custom JavaScript!</p>
+
+  <p>To execute your own custom JavaScript code after an HTTP request, use the <code>mx-after-swap</code> attribute. You can find the relevant documentation <a href="documentation/display/trongate_mx/swapping-content/after-swap-operations">here</a>.</p>
+</div>
+
+<h2>Syntax</h2>
+[code=vf]&lt;element mx-on-error="#error-element"&gt;[/code]
+
+<p>
+  Use a CSS selector as the value of <code>mx-on-error</code>. This tells Trongate MX which 
+  element should be updated or reinitialised after a request fails.
+</p>
+
+<h2>How It Works</h2>
+<p>
+  When Trongate MX encounters a failed AJAX request, here's what happens:
+</p>
+<ol>
+  <li>It checks if the triggering element has an <code>mx-on-error</code> attribute.</li>
+  <li>If it does, the framework finds the target element using your CSS selector.</li>
+  <li>Page load events tied to the target element are triggered, reinitialising it.</li>
+</ol>
+<p>
+  This makes it easy to display error messages or trigger fallback options when things go wrong.
+</p>
+
+<h2>Example</h2>
+<p>The code sample below demonstrates a form that posts data to an API endpoint.  When something goes wrong, an error message is fetched from the url <code>api/get_error_details</code> and the message is displayed within a <code>&lt;div&gt;</code> that has an id of 'error-message'.</p>
+
+[code=html]
+&lt;form mx-post="api/submit_data"
+      mx-target="#result-container"
+      mx-on-error="#error-message"&gt;
+  &lt;button type="submit"&gt;Submit Data&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;div id="result-container"&gt;&lt;/div&gt;
+
+&lt;div id="error-message" mx-get="api/get_error_details"
+                        mx-trigger="activate"&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+<p>Usually, if a form is submitted - and something goes wrong - it'll be appropriate to display <a href="documentation/display/trongate_mx/form-handling/form-validation-and-error-handling">form validation errors</a>. <b>That's not what's happening here!</b></p>
+<p>In our example, the assumption is that we have a more sophistated error message to display when things go wrong.  For example, let's imagine a user is enrolling to join a course.  Let's further assume that - at the last moment - somebody else has enrolled and there are no more spaces left!</p>
+<p>As complicated as it may seem, this is <i>precisely</i> the kind of situation where a more sophisticated error message would be appropriate (as opposed to just a form validation error).</p>
+<p>In the error message, we might explain that there are no more spaces left and we may wish to give the user an opportunity to join a waiting list so that they can be kept informed of future courses or even cancellations.</p>  
+<p>For information on how to render form validation errors with Trongate MX, <a href="documentation/display/trongate_mx/form-handling/form-validation-and-error-handling">click here</a>.</p>
+</div>
+
+
+<p class="mt-3 mb-0">The code sample above uses pure HTML.  Below is a <a href="documentation/display/trongate_mx/trongate-mx-security/csrf-protection">more secure</a>  solution that uses Trongate's form helper functions:</p>
+
+
+[code=vf]&lt;?php
+$form_attr = [
+    'mx-post' => 'api/submit_data',
+    'mx-target' => '#result-container',
+    'mx-on-error' => '#error-message'
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit', 'Submit Data');
+echo form_close();
+?&gt;
+
+&lt;div id="result-container"&gt;&lt;/div&gt;
+
+&lt;div id="error-message" mx-get="api/get_error_details"
+                        mx-trigger="activate"&gt;&lt;/div&gt;
+&lt;/div&gt;[/code]
+
+<p><strong>What's Happening?</strong></p>
+<ol>
+  <li>If the form submission fails, the <code>mx-on-error="#error-message"</code> attribute kicks in.</li>
+  <li>This triggers the <code>#error-message</code> element.</li>
+  <li>Since <code>#error-message</code> has <code>mx-get</code> and <code>mx-trigger="activate"</code>, it fetches and displays the error details.</li>
+</ol>
+
+<div class="alert alert-info">
+  <p>You might notice we're using a hash ('#') symbol in the <span class="feature-ref" ref-path="helpers/Form_Helpers">form_open()</span> function. This is because the <code>mx-post</code> attribute takes care of the form's destination and method.</p>
+</div>
+
+<div class="alert alert-success">
+  <p>Consider using in combination with <code>mx-trigger="activate"</code>.  Without this attribute, the element may respond to both user events AND programmatic triggers, which might not be what you want.  For more information on this topic, refer to our documentation on <a href="documentation/display/trongate_mx/events-and-responses/triggers-in-trongate-mx">Triggers in Trongate MX</a>.</p>
+  
+</div>
+
+<h2>Error Handling with Out-of-Band Swaps</h2>
+<p>
+  When using <code>mx-target="none"</code> with out-of-band swaps, you can still utilize <code>mx-on-error</code> to handle request failures gracefully.
+</p>
+
+[code=html]
+&lt;div id="dashboard-container" 
+     mx-get="api/dashboard_data" 
+     mx-target="none" 
+     mx-select-oob='[
+         {"select": ".visitors-data", "target": "#visitors-panel"},
+         {"select": ".revenue-data", "target": "#revenue-panel"}
+     ]'
+     mx-on-error="#dashboard-error"&gt;
+    
+    &lt;!-- Panels to be updated via OOB swaps --&gt;
+    &lt;div id="visitors-panel"&gt;&lt;/div&gt;
+    &lt;div id="revenue-panel"&gt;&lt;/div&gt;
+    
+    &lt;!-- Error message container (initially hidden) --&gt;
+    &lt;div id="dashboard-error" style="display: none;" 
+         mx-get="api/error_message" 
+         mx-trigger="activate"&gt;&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<p>
+  In this example, if the request to <code>api/dashboard_data</code> fails, the <code>#dashboard-error</code> element will be activated. It will then fetch an error message from <code>api/error_message</code> and display it to the user.
+</p>
+
+<p>
+  This pattern is particularly useful for real-time dashboards and polling scenarios where you need to gracefully handle intermittent API failures without disrupting the entire user interface.
+</p>
+
+
+<h2>Things to Keep in Mind</h2>
+<ul>
+  <li><code>mx-on-error</code> only works for client-side handling of failed AJAX requests.</li>
+  <li>It won't affect elements during the initial page load.</li>
+  <li>You can target multiple elements by separating selectors with spaces (e.g., "#error-message #status-panel #notification-area").</li>
+</ul>

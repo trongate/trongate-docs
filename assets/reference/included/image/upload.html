@@ -1,0 +1,415 @@
+ <div class="container">
+    <h1>upload()</h1>
+    <p class="signature">public function upload(array $data): array</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Handles the complete image upload process including validation, file storage, automatic resizing, and thumbnail generation. This method manages the entire upload workflow from receiving the uploaded file through to saving processed versions with proper security validation.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Validate Before Upload:</strong> Always use Trongate's validation module to check file requirements <em>before</em> calling <code>upload()</code>. The validation module verifies file type, size, and dimensions. The <code>upload()</code> method handles physical file transfer and processing after validation passes.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$data</td>
+                <td>array</td>
+                <td>Associative array containing upload configuration options.</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Configuration Array Keys</h2>
+    <p>The <code>$data</code> array controls all aspects of the upload process:</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Default</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>destination</td>
+                <td>string</td>
+                <td>Yes</td>
+                <td>N/A</td>
+                <td>Target directory path. Behaviour depends on upload_to_module setting.</td>
+            </tr>
+            <tr>
+                <td>upload_to_module</td>
+                <td>bool</td>
+                <td>No</td>
+                <td>false</td>
+                <td>If true, uploads to module directory. If false, uploads to public directory.</td>
+            </tr>
+            <tr>
+                <td>target_module</td>
+                <td>string</td>
+                <td>No</td>
+                <td>segment(1)</td>
+                <td>Specific module name when upload_to_module is true.</td>
+            </tr>
+            <tr>
+                <td>make_rand_name</td>
+                <td>bool</td>
+                <td>No</td>
+                <td>false</td>
+                <td>Generate random filename whilst preserving extension.</td>
+            </tr>
+            <tr>
+                <td>max_width</td>
+                <td>int</td>
+                <td>No</td>
+                <td>450</td>
+                <td>Maximum width in pixels. Images exceeding this are resized. Set to 0 to disable.</td>
+            </tr>
+            <tr>
+                <td>max_height</td>
+                <td>int</td>
+                <td>No</td>
+                <td>450</td>
+                <td>Maximum height in pixels. Images exceeding this are resized. Set to 0 to disable.</td>
+            </tr>
+            <tr>
+                <td>thumbnail_dir</td>
+                <td>string</td>
+                <td>No</td>
+                <td>''</td>
+                <td>Directory for thumbnail generation. Empty string disables thumbnails.</td>
+            </tr>
+            <tr>
+                <td>thumbnail_max_width</td>
+                <td>int</td>
+                <td>No</td>
+                <td>0</td>
+                <td>Maximum thumbnail width. 0 disables thumbnail generation.</td>
+            </tr>
+            <tr>
+                <td>thumbnail_max_height</td>
+                <td>int</td>
+                <td>No</td>
+                <td>0</td>
+                <td>Maximum thumbnail height. 0 disables thumbnail generation.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <p>Returns an associative array containing metadata about the successfully uploaded file:</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>file_name</td>
+                <td>string</td>
+                <td>The final filename as stored on disk (may differ from original).</td>
+            </tr>
+            <tr>
+                <td>file_path</td>
+                <td>string</td>
+                <td>The complete filesystem path to the uploaded file.</td>
+            </tr>
+            <tr>
+                <td>file_type</td>
+                <td>string</td>
+                <td>The detected MIME type (e.g., "image/jpeg", "image/png").</td>
+            </tr>
+            <tr>
+                <td>file_size</td>
+                <td>int</td>
+                <td>File size in bytes.</td>
+            </tr>
+            <tr>
+                <td>thumbnail_path</td>
+                <td>string</td>
+                <td>Complete path to generated thumbnail (only present if thumbnail created).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <p><strong>Automatic Security Validation:</strong> The <code>upload()</code> method performs four layers of security checks automatically: (1) MIME type verification using finfo and getimagesize(), (2) File signature validation to prevent extension spoofing, (3) Script injection prevention scanning first 256 bytes for dangerous content, (4) Memory limit enforcement to prevent server overload. These checks run automatically with no configuration required.</p>
+    </div>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic image upload.</p>
+[code=php]
+// Validate the upload
+$this-&gt;validation-&gt;set_rules('userfile', 'Image', 'required|allowed_types[jpg,png]|max_size[5000]');
+
+if ($this-&gt;validation-&gt;run() === true) {
+    // Configure upload
+    $config['destination'] = 'uploads';
+    $config['upload_to_module'] = true;
+    
+    // Upload the image
+    $file_info = $this-&gt;image-&gt;upload($config);
+    
+    set_flashdata('Image uploaded: ' . $file_info['file_name']);
+    redirect('gallery/success');
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The Standard Upload Pattern:</strong> Always validate first with the validation module, then call <code>upload()</code> only if validation passes. The method automatically handles file storage, security checks, and returns metadata for database storage or display.</p>
+    </div>
+
+    <h2>Example #2: Complete Upload Form</h2>
+    <p>The example above shows a complete image upload form that works with the <code>upload()</code> method.</p>
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;title&gt;Upload Image&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Upload Image&lt;/h1&gt;
+    
+    &lt;?= validation_errors() ?&gt;
+
+    &lt;div class="info"&gt;
+        &lt;p&gt;&lt;strong&gt;Allowed file types:&lt;/strong&gt; JPEG, PNG, GIF, WEBP&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Maximum file size:&lt;/strong&gt; 5 MB&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Maximum dimensions:&lt;/strong&gt; 3000 x 3000 pixels&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; Images larger than 800x800px will be automatically resized. A 150x150px thumbnail will be generated.&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;?php
+    echo form_open_upload('gallery/submit_upload');
+    echo form_label('Select Image:', ['for' =&gt; 'userfile']);
+
+    $select_attr = [
+        'id' =&gt; 'userfile',
+        'accept' =&gt; 'image/jpeg,image/png,image/gif,image/webp'
+    ];
+
+    echo form_file_select('userfile', $select_attr);
+    echo form_submit('submit', 'Upload Image');
+    echo form_close();
+    ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Form Requirements:</strong> Use <code>form_open_upload()</code> instead of <code>form_open()</code> - this automatically adds the <code>enctype="multipart/form-data"</code> attribute required for file uploads. The file input name (in this example, 'userfile') must match the name used in your validation rules.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above shows how to upload with automatic resizing and thumbnail generation.</p>
+[code=php]
+public function submit_product_image(): void {
+    $product_id = segment(3, 'int');
+    
+    // Validate image upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Product Image', 'required|allowed_types[jpg,png]|max_size[5000]|max_width[4000]|max_height[4000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload with automatic processing
+        $config = [
+            'destination' =&gt; 'products/images',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'products',
+            'make_rand_name' =&gt; true,
+            'max_width' =&gt; 1200,
+            'max_height' =&gt; 1200,
+            'thumbnail_dir' =&gt; 'products/images/thumbs',
+            'thumbnail_max_width' =&gt; 300,
+            'thumbnail_max_height' =&gt; 300
+        ];
+        
+        // Upload with automatic resizing and thumbnail generation
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Store image references in database
+        $data = [
+            'product_id' =&gt; $product_id,
+            'filename' =&gt; $file_info['file_name'],
+            'file_path' =&gt; $file_info['file_path'],
+            'thumbnail_path' =&gt; $file_info['thumbnail_path'],
+            'file_size' =&gt; $file_info['file_size'],
+            'uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;insert($data, 'product_images');
+        
+        set_flashdata('Product image uploaded successfully');
+        redirect('products/view/' . $product_id);
+    } else {
+        $this-&gt;image_upload_form($product_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Automatic Processing:</strong> When you configure max_width/max_height and thumbnail parameters, the <code>upload()</code> method automatically: resizes the main image if it exceeds dimensions (preserving aspect ratio), generates a thumbnail with specified dimensions, creates directories if they don't exist, and returns paths to both versions for database storage.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above demonstrates uploading user avatars with random filenames for security.</p>
+[code=php]
+public function submit_avatar(): void {
+    $user_id = segment(3, 'int');
+    
+    // Verify user exists
+    $user = $this-&gt;db-&gt;get_where($user_id, 'users');
+    
+    if ($user === false) {
+        redirect('users/not_found');
+    }
+    
+    // Validate avatar upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Avatar', 'required|allowed_types[jpg,png,gif]|max_size[3000]|max_width[2000]|max_height[2000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Delete old avatar if it exists
+        if (!empty($user-&gt;avatar_filename)) {
+            $old_avatar = 'modules/users/avatars/' . $user-&gt;avatar_filename;
+            if ($this-&gt;file-&gt;exists($old_avatar)) {
+                $this-&gt;file-&gt;delete($old_avatar);
+            }
+            
+            // Delete old thumbnail
+            $old_thumb = 'modules/users/avatars/thumbs/' . $user-&gt;avatar_filename;
+            if ($this-&gt;file-&gt;exists($old_thumb)) {
+                $this-&gt;file-&gt;delete($old_thumb);
+            }
+        }
+        
+        // Configure upload with random filename
+        $config = [
+            'destination' =&gt; 'avatars',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'users',
+            'make_rand_name' =&gt; true,
+            'max_width' =&gt; 400,
+            'max_height' =&gt; 400,
+            'thumbnail_dir' =&gt; 'avatars/thumbs',
+            'thumbnail_max_width' =&gt; 150,
+            'thumbnail_max_height' =&gt; 150
+        ];
+        
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Update user record
+        $update_data = [
+            'avatar_filename' =&gt; $file_info['file_name'],
+            'avatar_path' =&gt; $file_info['file_path'],
+            'thumbnail_path' =&gt; $file_info['thumbnail_path'],
+            'avatar_updated_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;update($user_id, $update_data, 'users');
+        
+        set_flashdata('Avatar updated successfully');
+        redirect('users/profile/' . $user_id);
+    } else {
+        $this-&gt;avatar_upload_form($user_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Random Filenames for Security:</strong> Setting <code>make_rand_name</code> to true prevents users from guessing file URLs. The method generates unique filenames like "img_6756d8e9a2b4f3.21.jpg" whilst preserving the original extension. Always store the returned filename in your database for later retrieval.</p>
+    </div>
+
+    <h2>Example #5</h2>
+    <p>The example above shows uploading to preserve original quality without resizing.</p>
+[code=php]
+public function submit_portfolio_image(): void {
+    $portfolio_id = segment(3, 'int');
+    
+    // Get portfolio record
+    $portfolio = $this-&gt;db-&gt;get_where($portfolio_id, 'portfolios');
+    
+    if ($portfolio === false) {
+        redirect('portfolios/not_found');
+    }
+    
+    // Validate high-resolution image
+    $this-&gt;validation-&gt;set_rules('userfile', 'Portfolio Image', 'required|allowed_types[jpg,png]|max_size[20000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload - preserve original dimensions
+        $config = [
+            'destination' =&gt; 'portfolios/originals',
+            'upload_to_module' =&gt; true,
+            'make_rand_name' =&gt; true,
+            'max_width' =&gt; 0,      // No resizing
+            'max_height' =&gt; 0,     // No resizing
+            'thumbnail_dir' =&gt; 'portfolios/previews',
+            'thumbnail_max_width' =&gt; 400,
+            'thumbnail_max_height' =&gt; 400
+        ];
+        
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load original to get actual dimensions
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        $original_width = $this-&gt;image-&gt;get_width();
+        $original_height = $this-&gt;image-&gt;get_height();
+        $this-&gt;image-&gt;destroy();
+        
+        // Create web-optimised version
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        $this-&gt;image-&gt;resize_to_width(1920);
+        
+        $web_dir = 'modules/portfolios/portfolios/web';
+        if (!$this-&gt;file-&gt;exists($web_dir)) {
+            $this-&gt;file-&gt;create_directory($web_dir, 0755);
+        }
+        
+        $web_path = $web_dir . '/' . $file_info['file_name'];
+        $this-&gt;image-&gt;save($web_path, 85);
+        $this-&gt;image-&gt;destroy();
+        
+        // Store all versions in database
+        $data = [
+            'portfolio_id' =&gt; $portfolio_id,
+            'original_filename' =&gt; $file_info['file_name'],
+            'original_path' =&gt; $file_info['file_path'],
+            'original_width' =&gt; $original_width,
+            'original_height' =&gt; $original_height,
+            'web_path' =&gt; $web_path,
+            'thumbnail_path' =&gt; $file_info['thumbnail_path'],
+            'file_size' =&gt; $file_info['file_size'],
+            'uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;insert($data, 'portfolio_images');
+        
+        set_flashdata('Portfolio image uploaded successfully');
+        redirect('portfolios/view/' . $portfolio_id);
+    } else {
+        $this-&gt;image_upload_form($portfolio_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Preserving Original Quality:</strong> Set both <code>max_width</code> and <code>max_height</code> to 0 to disable automatic resizing entirely. This preserves original dimensions and quality, useful for archival purposes, print-ready images, or when you want to create custom processed versions later. You can still generate thumbnails whilst preserving the original.</p>
+    </div>
+
+</div>

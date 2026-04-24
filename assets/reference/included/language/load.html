@@ -1,0 +1,70 @@
+<div class="container">
+  <h1>load()</h1>
+  <p class="signature">public function load(string $path): array</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Loads a language‑specific file, typically containing translation arrays. The path can contain the placeholder <code>{lang}</code>, which is automatically replaced with the current language code (from <code>get_language()</code>).</p>
+    <p>This method is primarily used by the Validation module to load error messages in the appropriate language, but can be adapted for other translation needs.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$path</td>
+        <td>string</td>
+        <td>Path to the language file, relative to <code>APPPATH</code>. Use <code>{lang}</code> as a placeholder for the language code.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An associative array of translation strings loaded from the file, or an empty array if the file doesn't exist.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Load validation error messages for current language
+$errors = $this->language->load('modules/validation/language/{lang}/validation_errors.php');
+// Returns array like ['required' => 'The {field} field is required.', ...]
+
+// Load custom translation file
+$translations = $this->language->load('modules/my_module/language/{lang}/ui.php');
+
+// Manual path without placeholder (fixed language)
+$french_errors = $this->language->load('modules/validation/language/fr/validation_errors.php');
+
+// Usage in validation setup
+public function init_validation() {
+    $error_messages = $this->language->load('modules/validation/language/{lang}/validation_errors.php');
+    // Use $error_messages to customize validation errors
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>The path is relative to <code>APPPATH</code> (application root).</li>
+    <li>The file must return an array variable named <code>$validation_errors</code> (convention from Validation module).</li>
+    <li>If the file doesn't exist, an empty array is returned (no error thrown).</li>
+    <li>Use <code>{lang}</code> placeholder for dynamic language loading; omit it for fixed‑language files.</li>
+  </ul>
+</div>

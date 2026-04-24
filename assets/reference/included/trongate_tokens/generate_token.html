@@ -1,0 +1,115 @@
+<div class="container">
+  <h1>generate_token()</h1>
+  <p class="signature">public function generate_token(array $data): string</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Generates a new Trongate token and stores it in the database. Tokens are 64‑character hexadecimal strings used for user authentication.</p>
+    <p>This method is typically called during login or when creating API access tokens.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>Associative array with token generation parameters:
+          <ul>
+            <li><code>user_id</code> (int) – <strong>Required.</strong> The user ID to associate with the token.</li>
+            <li><code>expiry_date</code> (int) – Optional. Unix timestamp for token expiration. Default: 30 days from now.</li>
+            <li><code>set_cookie</code> (bool) – Optional. If true, sets the token as a browser cookie. Default: false.</li>
+            <li><code>code</code> (string) – Optional. Custom code for the token (advanced usage).</li>
+          </ul>
+        </td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The generated 64‑character hexadecimal token.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Generate token for user #123 (30‑day expiration, set cookie)
+$token = $this->trongate_tokens->generate_token([
+    'user_id' => 123,
+    'expiry_date' => time() + (30 * 24 * 60 * 60),
+    'set_cookie' => true
+]);
+
+// Generate API token (no cookie)
+$api_token = $this->trongate_tokens->generate_token([
+    'user_id' => 456,
+    'expiry_date' => time() + (365 * 24 * 60 * 60) // 1 year
+]);
+
+// Login controller
+public function submit_login() {
+    $username = post('username', true);
+    $password = post('password', true);
+    $user = $this->model->validate_credentials($username, $password);
+    
+    if ($user !== false) {
+        $token = $this->trongate_tokens->generate_token([
+            'user_id' => $user->id,
+            'set_cookie' => true
+        ]);
+        $_SESSION['trongatetoken'] = $token;
+        set_flashdata('Login successful.');
+        redirect('members/dashboard');
+    } else {
+        set_flashdata('Invalid credentials.');
+        redirect('members/login');
+    }
+}
+
+// Create long‑lived API token
+public function create_api_key() {
+    $user_id = $this->trongate_tokens->get_user_id();
+    if ($user_id === false) {
+        http_response_code(401);
+        die();
+    }
+    $token = $this->trongate_tokens->generate_token([
+        'user_id' => $user_id,
+        'expiry_date' => time() + (365 * 24 * 60 * 60),
+        'code' => 'api_key'
+    ]);
+    echo json_encode(['token' => $token]);
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Calls <code>$this->model->generate_token($data)</code> which creates the token and inserts it into the database.</li>
+    <li>Tokens are stored in the <code>trongate_tokens</code> table with columns: <code>token</code>, <code>user_id</code>, <code>expiry_date</code>, <code>code</code>.</li>
+    <li>Default expiration is 30 days (2,592,000 seconds) if <code>expiry_date</code> is omitted.</li>
+    <li>If <code>set_cookie</code> is true, sets <code>$_COOKIE['trongatetoken']</code> with a 30‑day lifetime.</li>
+    <li>The <code>code</code> parameter can be used to differentiate token types (e.g., 'api_key', 'password_reset').</li>
+    <li>Use <code>regenerate()</code> to extend an existing token's expiration.</li>
+  </ul>
+</div>

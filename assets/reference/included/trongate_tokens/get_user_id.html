@@ -1,0 +1,91 @@
+<div class="container">
+  <h1>get_user_id()</h1>
+  <p class="signature">public function get_user_id(?string $token = null): int|bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves the user ID associated with a token. If no token is provided, checks session, cookie, and HTTP headers automatically.</p>
+    <p>This method is the primary way to identify the authenticated user in token‑based workflows (APIs, member areas).</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$token</td>
+        <td>string|null</td>
+        <td>A 64‑character hexadecimal token. If null, the method searches session, cookie, and HTTP headers.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int|bool</td>
+        <td>
+          <ul>
+            <li><strong>int</strong> – User ID (positive integer)</li>
+            <li><strong>false</strong> – Token not found or invalid</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Get user ID from current request (auto‑detect token)
+$user_id = $this->trongate_tokens->get_user_id();
+if ($user_id !== false) {
+    echo "User ID: " . $user_id;
+}
+
+// Get user ID from a specific token (e.g., from API request)
+$token = $_SERVER['HTTP_TRONGATETOKEN'] ?? null;
+$user_id = $this->trongate_tokens->get_user_id($token);
+
+// Protect an API endpoint
+public function get_profile() {
+    $user_id = $this->trongate_tokens->get_user_id();
+    if ($user_id === false) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid token']);
+        die();
+    }
+    $profile = $this->model->get_profile($user_id);
+    echo json_encode($profile);
+}
+
+// Check if user is logged in
+public function is_logged_in(): bool {
+    return $this->trongate_tokens->get_user_id() !== false;
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Calls <code>$this->model->get_user_id($token)</code> which validates token expiration.</li>
+    <li>Token search order when <code>$token</code> is null: HTTP header → cookie → session.</li>
+    <li>Returns <code>false</code> if token is expired, invalid, or not found.</li>
+    <li>User ID corresponds to the <code>id</code> column in the <code>trongate_users</code> (or custom users) table.</li>
+    <li>Use <code>get_user_obj()</code> to get the full user object instead of just the ID.</li>
+  </ul>
+</div>

@@ -1,0 +1,169 @@
+<h1>Posting Additional Parameters</h1>
+<p>The <code>mx-vals</code> attribute in Trongate MX allows you to attach additional values to your HTTP requests as if they were submitted as part of an ordinary HTML form.</p>
+
+<h2>Syntax Options</h2>
+<p>The <code>mx-vals</code> attribute requires a JSON object where each key-value pair represents a form field and its value. Here are the different ways to use this attribute:</p>
+
+<h3>1. Direct JSON String</h3>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-post' =&gt; 'cart/add_item',
+    'mx-vals' =&gt; '{"item_id": 123, "quantity": 2}'
+];
+echo form_button('add_to_cart_btn', 'Add to Cart', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;button mx-post="cart/add_item"
+        mx-vals='{"item_id": 123, "quantity": 2}'&gt;
+    Add to Cart
+&lt;/button&gt;[/code]
+
+<h3>2. Using PHP's json_encode()</h3>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-post' =&gt; 'cart/add_item',
+    'mx-vals' =&gt; json_encode(['item_id' =&gt; 123, 'quantity' =&gt; 2])
+];
+echo form_button('add_to_cart_btn', 'Add to Cart', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;button mx-post="cart/add_item"
+        mx-vals='{"item_id": 123, "quantity": 2}'&gt;
+    Add to Cart
+&lt;/button&gt;[/code]
+
+<h3>3. Using Predefined Arrays (Recommended)</h3>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$mx_vals = [
+    'item_id' =&gt; 123,
+    'quantity' =&gt; 2,
+    'timestamp' =&gt; time()
+];
+
+$btn_attr = [
+    'mx-post' =&gt; 'cart/add_item',
+    'mx-vals' =&gt; json_encode($mx_vals)
+];
+echo form_button('add_to_cart_btn', 'Add to Cart', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;button mx-post="cart/add_item"
+        mx-vals='{"item_id": 123, "quantity": 2, "timestamp": 1703116800}'&gt;
+    Add to Cart
+&lt;/button&gt;[/code]
+
+<h2>Usage with Forms</h2>
+<p>The <code>mx-vals</code> attribute is particularly powerful when combined with form submissions. Here's a complete example:</p>
+
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+// Define additional values to be sent with the form
+$mx_vals = [
+    'last_name' =&gt; 'Doe',
+    'age' =&gt; 30
+];
+
+// Create form attributes
+$form_attr = [
+    'mx-post' =&gt; 'test/submit',
+    'mx-vals' =&gt; json_encode($mx_vals)
+];
+
+// Build the form
+echo form_open('#', $form_attr);
+echo form_input('first_name', 'David', array('placeholder' =&gt; 'Enter your first name here....'));
+echo form_submit('submit_btn', 'Submit');
+echo form_close();
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;form mx-post="test/submit"
+      mx-vals='{"last_name": "Doe", "age": 30}'&gt;
+    &lt;input type="text" 
+           name="first_name" 
+           value="David" 
+           placeholder="Enter your first name here...."&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;[/code]
+
+<p>When this form is submitted, it will send:</p>
+<ul>
+    <li>The visible form field (<code>first_name</code>).</li>
+    <li>The additional values defined in <code>mx-vals</code> (<code>last_name</code> and <code>age</code>).</li>
+</ul>
+
+<h2>Server-Side Handling</h2>
+<p>Here's how to handle the submitted data in your PHP endpoint:</p>
+
+[code=vf]&lt;?php
+public function submit() {
+    $first_name = post('first_name');  // From visible form field
+    $last_name = post('last_name');    // From mx-vals
+    $age = post('age');                // From mx-vals
+    
+    // Process the data...
+}
+?&gt;[/code]
+
+<h2>Technical Details</h2>
+<ul>
+    <li>Values from <code>mx-vals</code> are merged with regular form data before the request is sent.</li>
+    <li>Both visible form fields and mx-vals values are accessible using the same methods on the server.</li>
+    <li>In case of naming conflicts, the last value processed takes precedence.</li>
+</ul>
+
+<div class="alert alert-success">
+    <ol>
+        <li><strong>Use json_encode()</strong>
+            <ul>
+                <li>Prefer <code>json_encode()</code> over manual JSON string construction.</li>
+                <li>Helps prevent syntax errors and ensures proper escaping.</li>
+            </ul>
+        </li>
+        <li><strong>Organize Values</strong>
+            <ul>
+                <li>Define mx-vals arrays separately for better code organization.</li>
+                <li>Makes it easier to modify values dynamically.</li>
+            </ul>
+        </li>
+        <li><strong>Value Types</strong>
+            <ul>
+                <li>Numbers don't need quotes: <code>"age": 30</code>.</li>
+                <li>Booleans are supported: <code>"is_active": true</code>.</li>
+                <li>Strings must use double quotes: <code>"name": "John"</code>.</li>
+            </ul>
+        </li>
+        <li><strong>Security</strong>
+            <ul>
+                <li>Always validate mx-vals data on the server side.</li>
+                <li>Don't trust client-side values for critical operations.</li>
+                <li>Use appropriate data types and validation rules.</li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<h2>Common Pitfalls to Avoid</h2>
+<ul>
+    <li>Don't use single quotes for JSON property names.</li>
+    <li>Don't use unquoted property names.</li>
+    <li>Don't use PHP array notation directly in the mx-vals value.</li>
+    <li>Don't use array syntax instead of object syntax.</li>
+</ul>
+
+<h2>Error Handling</h2>
+<p>If the JSON in mx-vals is invalid:</p>
+<ul>
+    <li>An error will be logged to the browser console.</li>
+    <li>The values will not be included in the request.</li>
+    <li>The rest of the form submission will proceed normally.</li>
+</ul>
+
+<h2>Summary</h2>
+<p>The <code>mx-vals</code> attribute provides a powerful way to include additional data with your HTTP requests in Trongate MX. Whether you're adding hidden parameters to a button click or combining additional data with form submissions, mx-vals offers flexibility and convenience. By using PHP's <code>json_encode()</code> with predefined arrays, you can maintain clean, organized code while ensuring all your required data is properly transmitted to your server endpoints.</p>

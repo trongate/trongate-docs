@@ -1,0 +1,156 @@
+[meta-description]Trongate form handling: Native PHP helpers generate clean HTML, session-based validation with automatic error display, built-in CSRF protection, and Post-Redirect-Get pattern. Zero abstraction, maximum control.[/meta-description]
+<h1>Form Handling Fundamentals</h1>
+
+<p>Forms are the backbone of web applications. Login screens, user profiles, checkout pages, admin panels - they all need forms. And they all need the same things: clean HTML, solid validation, security, and a smooth user experience.</p>
+
+<p>Trongate gives you all of that with <strong>zero abstraction</strong>.</p>
+
+<h2>The Trongate Approach</h2>
+
+<p>No form builders. No XML config files. No "magic" methods that generate fifty lines of HTML you never asked for.</p>
+
+<p>Just <strong>Native PHP functions</strong> that output exactly what you tell them to - and nothing more.</p>
+
+<div class="alert alert-info">
+    <p><strong>Real-World Example:</strong> Want to see Trongate's form handling concepts in action? Check out the complete <strong>Tasks</strong> module example on GitHub:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2-Tasks-Module" target="_blank">https://github.com/trongate/Trongate-v2-Tasks-Module</a></p>
+    <p>It demonstrates form creation, validation, submission handling, error repopulation, checkbox conversion, flash messages, and the full Post-Redirect-Get pattern - all using pure Trongate v2 best practices.</p>
+</div>
+
+<h2>What Trongate Gives You For Form Handling</h2>
+
+<ul>
+    <li><strong>Form helpers</strong> - functions like <span class="feature-ref">form_input()</span>, <span class="feature-ref">form_dropdown()</span>, and <span class="feature-ref">form_checkbox()</span> that generate clean HTML</li>
+    <li><strong>Validation module</strong> - set rules, run checks, display errors automatically</li>
+    <li><strong>CSRF protection</strong> - built-in, automatic, zero setup required</li>
+    <li><strong>Post-Redirect-Get pattern</strong> - prevents duplicate submissions, works with flashdata for success messages</li>
+    <li><strong>Session-based error storage</strong> - validation errors survive redirects and display exactly where you want them</li>
+</ul>
+
+<h2>A Simple Example</h2>
+
+<p>Here's a complete working form in Trongate - create, validate, save, redirect:</p>
+
+[code=php]
+// Controller method
+public function create(): void {
+    $data['headline'] = 'Create New Task';
+    $data['form_location'] = BASE_URL.'tasks/submit';
+    $this-&gt;templates-&gt;admin($data);
+}
+
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('task_title', 'task title', 'required|min_length[2]');
+    $this-&gt;validation-&gt;set_rules('task_description', 'description', 'required');
+
+    $result = $this-&gt;validation-&gt;run();
+
+    if ($result === true) {
+        $data['task_title'] = post('task_title', true);
+        $data['task_description'] = post('task_description', true);
+
+        $new_id = $this-&gt;db-&gt;insert($data, 'tasks');
+
+        set_flashdata('Task successfully created');
+        redirect('tasks/show/'.$new_id);
+    } else {
+        $this-&gt;create(); // Redisplay form with errors
+    }
+}
+[/code]
+
+<p>And the view file:</p>
+
+[code=php]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+echo form_label('Task Title');
+echo form_input('task_title', post('task_title', true));
+echo form_label('Description');
+echo form_textarea('task_description', post('task_description', true));
+echo form_submit('submit', 'Create Task');
+echo form_close();
+?&gt;
+[/code]
+
+<p>That's it. No configuration. No registration. No twenty-step tutorial.</p>
+
+<h2>How It Works</h2>
+
+<ol>
+    <li><strong>User visits the form</strong> → <code>create()</code> method displays the view</li>
+    <li><strong>User submits</strong> → <code>submit()</code> validates the data</li>
+    <li><strong>Validation fails?</strong> → Errors stored in session, form redisplays with error messages</li>
+    <li><strong>Validation passes?</strong> → Data saved, flashdata set, user redirected to success page</li>
+</ol>
+
+<h2>The Post-Redirect-Get Pattern</h2>
+
+<p>When a form submits successfully, Trongate <strong>redirects</strong> instead of rendering directly. This prevents the dreaded "resubmit form?" browser warning when users hit refresh.</p>
+
+<p>Here's the flow:</p>
+
+<ul>
+    <li><strong>POST</strong> → User submits form data</li>
+    <li><strong>Process</strong> → Validate, save to database</li>
+    <li><strong>Redirect</strong> → Send user to a new page (via <span class="feature-ref">redirect()</span>)</li>
+    <li><strong>GET</strong> → Display success message (via <span class="feature-ref">flashdata()</span>)</li>
+</ul>
+
+<div class="alert alert-info">
+<p>Success messages survive the redirect using <a href="documentation-ref/list_refs/helpers/flashdata-helpers" target="_blank">flashdata</a>.  Validation errors work the same way - they are stored in the session, displayed after redirect, then automatically cleared.</p>
+</div>
+
+<h2>Security Built In</h2>
+
+<p>Every form that uses <span class="feature-ref">form_close()</span> automatically includes a CSRF token. Every form submission automatically validates it. If the token is missing or invalid, the request gets blocked. See <a href="documentation/trongate_php_framework/form-handling/csrf-protection">Form Handling → CSRF Protection</a> for details.</p>
+
+<p>You don't opt in. You don't configure it. <strong>It just works.</strong></p>
+
+<h2>Why This Beats Form Builders</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Form builders</th>
+            <th>Trongate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Generate HTML you can't control</td>
+            <td>You write the HTML (via helpers)</td>
+        </tr>
+        <tr>
+            <td>Require learning proprietary syntax</td>
+            <td>It's just PHP functions</td>
+        </tr>
+        <tr>
+            <td>Break when you need custom markup</td>
+            <td>Add any HTML you want, anywhere</td>
+        </tr>
+        <tr>
+            <td>Tie validation to the form object</td>
+            <td>Validation is separate and reusable</td>
+        </tr>
+        <tr>
+            <td>Bloated with features you'll never use</td>
+            <td>Lean helpers that do one thing well</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>What's Next</h2>
+
+<p>The following pages will show you:</p>
+
+<ul>
+    <li>How to generate every type of form element</li>
+    <li>How to retrieve and clean submitted data</li>
+    <li>How to validate with built-in rules and custom callbacks</li>
+    <li>How to display errors (general, inline, or JSON)</li>
+    <li>How to handle the create/update pattern like a pro</li>
+</ul>

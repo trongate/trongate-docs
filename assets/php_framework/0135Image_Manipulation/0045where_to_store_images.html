@@ -1,0 +1,150 @@
+[meta-description]Learn where to store images in Trongate applications: module directories for module-owned assets versus the public directory for shared site-wide images. Clear rules, real examples, no ambiguity.[/meta-description]
+
+<h1>Where to Store Images</h1>
+
+<p>In a Trongate application, image storage is a design decision - not a personal preference. Every image must live either inside a module or in the public directory, and the correct location is determined by <strong>ownership</strong> and <strong>scope</strong>.</p>
+
+<div class="alert alert-success">
+    <p>Store images inside a module only when they are owned and rendered exclusively <i>by</i> the module.</p>
+</div>
+
+<h2>Storing Images Inside a Module</h2>
+
+<p>An image belongs in a module when it exists <strong>because the module exists</strong>. If removing the module would render the image useless, that image is module-owned.</p>
+
+<h3>Use Module Storage When the Image Is:</h3>
+
+<p><strong>Content-bound to a module:</strong></p>
+<ul>
+    <li>Product images belonging to shop items</li>
+    <li>User profile pictures managed by a users module</li>
+    <li>Featured images for blog posts</li>
+    <li>Category thumbnails used exclusively by a news module</li>
+</ul>
+
+<p><strong>Generated or transformed by the module:</strong></p>
+<ul>
+    <li>Cropped profile images produced by an editor</li>
+    <li>Watermarked images created during processing</li>
+    <li>QR codes generated for tickets, invoices, or downloads</li>
+</ul>
+
+<p><strong>Specific to a single feature’s interface:</strong></p>
+<ul>
+    <li>“Hot Topic”, “Pinned”, or “Solved” icons in a forum</li>
+    <li>Status badges such as “Draft”, “Published”, or “Archived” in a CMS</li>
+</ul>
+
+<p><strong>Third-party branding used in a narrow context:</strong></p>
+<ul>
+    <li>Payment provider logos shown only during checkout</li>
+    <li>Social network icons used only within a share widget</li>
+    <li>Shipping carrier logos displayed only after purchase</li>
+</ul>
+
+<h3>Module Storage Configuration</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'products',
+    'upload_to_module' =&gt; true,
+    'thumbnail_dir' =&gt; 'products/thumbs',
+    'thumbnail_max_width' =&gt; 300,
+    'thumbnail_max_height' =&gt; 300
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// Filesystem path: ../modules/shop/products/laptop.jpg
+// Browser URL: shop_module/products/laptop.jpg
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Why Module Storage Works:</strong></p>
+    <ul>
+        <li><strong>Clear ownership:</strong> The module controls its own assets</li>
+        <li><strong>Portability:</strong> The module can be moved or reused intact</li>
+        <li><strong>Isolation:</strong> Assets do not leak into unrelated features</li>
+        <li><strong>Organisation:</strong> Code and content stay together</li>
+    </ul>
+</div>
+
+<h2>Storing Images in the Public Directory</h2>
+
+<p>An image belongs in the public directory when it represents the <strong>application as a whole</strong> or is used by more than one module.</p>
+
+<h3>Use Public Storage When the Image Is:</h3>
+
+<p><strong>Part of site-wide branding:</strong></p>
+<ul>
+    <li>Main site logo used in headers, footers, emails, or PDFs</li>
+    <li>Logo variations for light, dark, or icon-only contexts</li>
+    <li>Favicons and app icons</li>
+</ul>
+
+<p><strong>A global user interface element:</strong></p>
+<ul>
+    <li>Navigation icons shared across modules</li>
+    <li>Reusable UI symbols such as search, menu, or close icons</li>
+    <li>Generic buttons or decorative separators</li>
+</ul>
+
+<p><strong>Used for layout or visual structure:</strong></p>
+<ul>
+    <li>Background images appearing across multiple pages</li>
+    <li>Hero images for landing or marketing sections</li>
+    <li>Textures, gradients, or decorative patterns</li>
+</ul>
+
+<p><strong>Consumed outside standard page rendering:</strong></p>
+<ul>
+    <li>Images embedded in emails</li>
+    <li>Images used in PDFs or downloadable files</li>
+    <li>Open Graph and social preview images</li>
+</ul>
+
+<h3>Public Storage Configuration</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'gallery'
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// Filesystem path: gallery/landscape.jpg
+// Browser URL: gallery/landscape.jpg
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Why Public Storage Works:</strong></p>
+    <ul>
+        <li><strong>Shared access:</strong> Multiple modules can reference the same asset</li>
+        <li><strong>Simpler URLs:</strong> No module asset trigger required</li>
+        <li><strong>Clear intent:</strong> Assets represent the entire site</li>
+    </ul>
+</div>
+
+<h2>The One Question That Settles Every Decision</h2>
+
+<p>When you are unsure where an image belongs, ask one question:</p>
+
+<p><strong>“If I remove this module, does the image still make sense?”</strong></p>
+
+<p>If the answer is no, store the image inside the module. If the answer is yes, it belongs in the public directory.</p>
+<hr>
+<h2>Quick Decision Checklist</h2>
+
+<p><strong>Store in a MODULE if:</strong></p>
+<ul>
+    <li>✅ The image is created, uploaded, or processed by one module</li>
+    <li>✅ The image represents content owned by that module</li>
+    <li>✅ Removing the module makes the image irrelevant</li>
+</ul>
+
+<p><strong>Store in PUBLIC if:</strong></p>
+<ul>
+    <li>✅ The image is shared across modules</li>
+    <li>✅ The image represents site-wide branding or UI</li>
+    <li>✅ The image appears in layouts, emails, or downloads</li>
+</ul>

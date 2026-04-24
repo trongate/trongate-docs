@@ -1,0 +1,134 @@
+[meta-description]Trongate file handling: zero abstraction, raw PHP power. Upload, delete, copy, move, read, write - all with one simple module. No config files, no service containers, just clean code that works.[/meta-description]
+<h1>File Handling Fundamentals</h1>
+
+<p>Many web applications need to work with files - whether that means accepting user uploads, processing CSV imports, storing documents, serving media assets, or managing generated files such as reports and invoices. When they do, file handling should be predictable, secure, and easy to understand.</p>
+
+<p>Trongate handles file operations with <strong>zero abstraction</strong> and no unnecessary ceremony.</p>
+
+<h2>The Trongate Approach</h2>
+
+<p>No bloated file managers. No configuration-heavy services. No opaque layers that make debugging harder than it needs to be.</p>
+
+<p>Instead, Trongate comes with a single, focused <b>File</b> module that gives you direct control over common file handling tasks.</p>
+
+<h3>What's Coming Up</h3>
+<p>In this chapter, you'll learn how to handle <a href="documentation-ref/list_refs/included/file" target="_blank">file management</a> tasks like a pro.  By the end of this chapter, you'll be able to do all of the following:</p>
+<ul>
+    <li><strong>Upload files</strong> with validation and security checks</li>
+    <li><strong>Manage files</strong> - delete, copy, move, rename, read, write</li>
+    <li><strong>Work with directories</strong> - create, list, and organize</li>
+    <li><strong>Protect downloads</strong> - prevent traversal and unauthorized access</li>
+</ul>
+
+<p>Everything is built using <strong>Native PHP</strong>, so what you see is exactly what runs.</p>
+
+<h2>Your Swiss Army Knife: The File Module</h2>
+
+<p>All file management operations in Trongate are handled by the <b>File</b> module - a module that can be called from any controller using the syntax <code>$this->file</code>.</p>
+
+[code=php]
+// In any controller
+$file_info = $this-&gt;file-&gt;upload($config);
+$this-&gt;file-&gt;delete($file_path);
+$content = $this-&gt;file-&gt;read($file_path);
+$files = $this-&gt;file-&gt;list_directory($directory_path);
+[/code]
+
+<p>The pattern is intentionally simple: <code>$this-&gt;file-&gt;method()</code>. No service containers. No dependency injection. No additional setup.</p>
+
+<div class="alert alert-info">
+    <p>The <span class="feature-ref">included-file-upload()</span> method, within the File module, is used for merely <i>uploading</i> of files.  In the strictest sense this means, "moving a file from 'point A' to 'point B'.</p>
+    <p>This is important because <i>picture uploading</i> usually requires some kind of processing - such  as resizing.  For this reason, it's advisible to <b>not</b> use the File module for uploading of pictures.</p>
+    <p>For picture uploading, use the <b>Image</b> module.</p>
+</div>
+
+<h2>A Simple Upload Flow</h2>
+
+<p>File uploads in Trongate follow a clear, three-step pattern that mirrors how real applications are built:</p>
+
+[code=php]
+// 1. Display the upload form
+public function upload(): void {
+    $this-&gt;view('upload_form');
+}
+
+// 2. Handle the submission
+public function submit_upload(): void {
+    $this-&gt;validation-&gt;set_rules('userfile', 'file', 'required|max_size[2000]');
+
+    if ($this-&gt;validation-&gt;run() === true) {
+        $config['destination'] = 'uploads';
+        $file_info = $this-&gt;file-&gt;upload($config);
+
+        set_flashdata('File uploaded successfully');
+        redirect('files/success/'.$file_info['file_name']);
+    } else {
+        $this-&gt;upload();
+    }
+}
+
+// 3. Display confirmation
+public function success(string $filename): void {
+    $data['filename'] = $filename;
+    $this-&gt;view('upload_success', $data);
+}
+[/code]
+
+<p>Each method does one thing. There is no shared state, no hidden behavior, and no guesswork.</p>
+
+<h2>How This Differs From Other Frameworks</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Typical frameworks</th>
+            <th>Trongate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Layered upload services with complex APIs</td>
+            <td>A single <code>upload()</code> call with clear parameters</td>
+        </tr>
+        <tr>
+            <td>Separate validation and file handling systems</td>
+            <td>Validation works seamlessly with files</td>
+        </tr>
+        <tr>
+            <td>External packages for basic file operations</td>
+            <td>Everything included out of the box</td>
+        </tr>
+        <tr>
+            <td>Abstracted file systems that hide behavior</td>
+            <td>Direct, readable PHP code</td>
+        </tr>
+        <tr>
+            <td>Over-engineered exception hierarchies</td>
+            <td>Clear errors and predictable outcomes</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Security Built In</h2>
+
+<p>File handling is a common attack surface, so Trongate applies security checks automatically:</p>
+
+<ul>
+    <li><strong>Path validation</strong> to prevent directory traversal</li>
+    <li><strong>MIME verification</strong> to confirm file types</li>
+    <li><strong>Content scanning</strong> via the Validation module to detect malicious payloads before the upload is finalized</li>
+    <li><strong>File size limits</strong> enforced per upload</li>
+</ul>
+
+<p>There is nothing to enable and no security plumbing to wire up. Safe defaults are applied automatically, and you remain fully in control through explicit, readable configuration  -  no hidden behavior, no guesswork.</p>
+
+<h2>What’s Next</h2>
+
+<p>The following page walks through the simplest possible file uploader, using production-ready code you can apply immediately. You will learn:</p>
+
+<ul>
+    <li>How to build an upload form with correct encoding</li>
+    <li>How file validation integrates with the validation module</li>
+    <li>How to handle success and failure cleanly</li>
+    <li>How to present uploaded files to users</li>
+</ul>

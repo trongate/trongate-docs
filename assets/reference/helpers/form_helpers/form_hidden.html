@@ -1,0 +1,69 @@
+<div class="container">
+    <h1>form_hidden()</h1>
+    <p class="signature">function form_hidden(string $name, string|int|float|null $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+    <p>Generates a hidden input field for storing data that should not be visible to users but is submitted with the form.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$name</td><td>string</td><td>The name attribute for the input element.</td></tr>
+            <tr><td>$value</td><td>string|int|float|null</td><td>(optional) The value to be submitted with the form.</td></tr>
+            <tr><td>$attributes</td><td>array</td><td>(optional) HTML attributes for the input element. Defaults to an empty array ([]).</td></tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>An HTML hidden input element.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Hidden Field</h2>
+[code=php]
+echo form_hidden('update_id', 123);
+
+// Output:
+// &lt;input type="hidden" name="update_id" value="123"&gt;
+[/code]
+
+    <h2>Example #2: Hidden Field for User ID</h2>
+[code=php]
+$user_id = $_SESSION['user_id'] ?? 0;
+echo form_hidden('user_id', $user_id);
+
+// Output (when user_id = 42):
+// &lt;input type="hidden" name="user_id" value="42"&gt;
+[/code]
+
+    <h2>Example #3: Multiple Hidden Fields</h2>
+[code=php]
+// Common pattern for edit forms
+echo form_hidden('update_id', $update_id);
+echo form_hidden('original_title', $original_title);
+echo form_hidden('csrf_token', $_SESSION['csrf_token']);
+[/code]
+
+    <div class="alert alert-warning">
+        <p><strong>Security:</strong> Hidden fields are visible in page source. Never store sensitive data like passwords.</p>
+    </div>
+
+    <h2>Notes</h2>
+    
+    <ul>
+        <li>Hidden fields are not displayed to users but are included in form submissions.</li>
+        <li>Common uses: CSRF tokens, record IDs, tracking data, preserving state between requests.</li>
+        <li>Values can be strings, integers, or floats - all are converted to strings in HTML.</li>
+        <li>Access submitted values with <code>post('field_name', true)</code>.</li>
+        <li>For sensitive data, use session variables instead of hidden fields.</li>
+    </ul>
+</div>

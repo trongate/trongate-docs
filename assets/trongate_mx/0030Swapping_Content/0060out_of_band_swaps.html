@@ -1,0 +1,162 @@
+<h1>Out-of-Band Swaps</h1>
+
+<p>Have you ever wanted to update several different parts of your webpage with a single request? That's exactly what Trongate MX's out-of-band swaps let you do, using the <code>mx-select-oob</code> attribute. Let's explore how it works.</p>
+
+<h2>What Are Out-of-Band Swaps?</h2>
+
+<p>Imagine you're redecorating a room. Your main focus might be replacing the sofa, but while you're at it, you might want to update the curtains and swap out some cushions too. That's what out-of-band swaps do for your webpage - they let you update multiple elements in one go, even if they're in different places on the page.</p>
+
+<h2>Two Ways to Write Your Swaps</h2>
+
+<h3>1. The Simple Way: Using Lists</h3>
+
+<p>This is like writing a shopping list. You simply write what you want to get from the server and where you want to put it, separated by colons:</p>
+
+[code]
+mx-select-oob="#server-content:#page-location, .server-title:.page-title"
+[/code]
+
+<p>Each pair works like this:</p>
+<ul>
+    <li><strong>Before the colon:</strong> What you want to grab from the server's response</li>
+    <li><strong>After the colon:</strong> Where you want to put it on your current page</li>
+</ul>
+
+<h3>2. The Detailed Way: Using JSON</h3>
+
+<p>This method gives you more control, letting you specify exactly how you want to insert your content:</p>
+
+[code]
+mx-select-oob='[
+    {"select": "#server-content", "target": "#page-location", "swap": "innerHTML"},
+    {"select": ".server-title", "target": ".page-title", "swap": "outerHTML"}
+]'
+[/code]
+
+<h2>A Real-World Example</h2>
+
+<p>Let's say you're building a dashboard that needs to update several areas at once. The code below shows how you could do this using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
+[code=vf]
+&lt;?php
+$attributes = [
+    'mx-get' =&gt; 'dashboard/refresh',
+    'mx-select' =&gt; '#main-content',
+    'mx-select-oob' =&gt; '#notifications:#alert-area, #user-stats:#sidebar-stats, #activity-feed:#recent-activities'
+];
+
+echo form_button('refresh_btn', 'Refresh Dashboard', $attributes);
+?&gt;
+
+&lt;div id="dashboard"&gt;
+    &lt;div id="alert-area"&gt;&lt;/div&gt;
+    &lt;div id="sidebar-stats"&gt;&lt;/div&gt;
+    &lt;div id="main-content"&gt;&lt;/div&gt;
+    &lt;div id="recent-activities"&gt;&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's how the same result can be achieved with pure HTML:</p>
+[code=html]
+&lt;button mx-get="dashboard/refresh"
+        mx-select="#main-content"
+        mx-select-oob="#notifications:#alert-area, #user-stats:#sidebar-stats, #activity-feed:#recent-activities"&gt;
+    Refresh Dashboard
+&lt;/button&gt;
+
+&lt;div id="dashboard"&gt;
+    &lt;div id="alert-area"&gt;&lt;/div&gt;
+    &lt;div id="sidebar-stats"&gt;&lt;/div&gt;
+    &lt;div id="main-content"&gt;&lt;/div&gt;
+    &lt;div id="recent-activities"&gt;&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Cleaner Syntax Using JSON</h2>
+<p>Take another look at the code samples above.  You'll surely have noticed that the code pertaining to <code>mx-select-oob</code> is cumbersome and slightly messy.  The good news is, you can make your code much cleaner by combining Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function with some JSON encoding.</p>
+<p>Here's how it's done:</p>
+[code=vf]
+&lt;?php 
+$oob_swaps = [
+    [
+        'select' =&gt; '#notifications',
+        'target' =&gt; '#alert-area'
+    ],
+    [
+        'select' =&gt; '#user-stats',
+        'target' =&gt; '#sidebar-stats'
+    ],
+    [
+        'select' =&gt; '#activity-feed',
+        'target' =&gt; '#recent-activities'
+    ]
+];
+
+$attributes = [
+    'mx-get' =&gt; 'dashboard/refresh',
+    'mx-select' =&gt; '#main-content',
+    'mx-select-oob' =&gt; json_encode($oob_swaps)
+];
+
+echo form_button('refresh_btn', 'Refresh Dashboard', $attributes);
+?&gt;
+[/code]
+
+<p>That's much neater, right?</p>
+<p>The trick is to use <code>json_encode()</code> - a PHP function that comes as part of the PHP language.  You can learn more about the 'json_encode' function <a href="https://www.php.net/manual/en/function.json-encode.php" target="_blank">here</a>.</p>
+
+<p class="mt-3 mb-0">For those who prefer to write using pure HTML, we've got you covered!  Here's your alternative syntax:</p>
+[code=html]
+&lt;button mx-get="dashboard/refresh"
+        mx-select="#main-content"
+        mx-select-oob='[
+            {"select": "#notifications", "target": "#alert-area"},
+            {"select": "#user-stats", "target": "#sidebar-stats"},
+            {"select": "#activity-feed", "target": "#recent-activities"}
+        ]'&gt;
+    Refresh Dashboard
+&lt;/button&gt;
+[/code]
+
+<div class="alert alert-success">
+<p>Think of your selectors like addresses. The more specific they are, the more certainty you have that your content will end up exactly where you want it.</p>
+</div>
+
+<h2>Using OOB Swaps Without a Main Target</h2>
+
+<p>Sometimes you might want to update multiple elements with OOB swaps without updating any main content. In this case, you can use <code>mx-target="none"</code> to indicate that no primary content should be updated, while still allowing OOB swaps to occur.</p>
+
+<p>This is particularly useful for polling scenarios where you want to update multiple elements on a regular basis:</p>
+
+[code=html]
+&lt;div id="stats-container" 
+     mx-get="api/stats_update" 
+     mx-target="none" 
+     mx-select-oob='[
+         {"select": ".current-visitors", "target": "#visitor-count"},
+         {"select": ".server-status", "target": "#status-indicator"}
+     ]'&gt;
+    &lt;!-- This container won't be updated directly --&gt;
+&lt;/div&gt;
+[/code]
+
+<p>With this setup, the API would return HTML fragments like:</p>
+
+[code]
+&lt;div class="current-visitors"&gt;157 visitors online&lt;/div&gt;
+&lt;div class="server-status"&gt;All systems operational&lt;/div&gt;
+[/code]
+
+<p>When the response is received, Trongate MX will find the elements matching <code>.current-visitors</code> and <code>.server-status</code> in the response, and update the corresponding target elements on your page, without updating the container element itself.</p>
+
+<h2>Top Tips</h2>
+
+<ul>
+    <li>Use clear, specific IDs and classes that describe what the element contains</li>
+    <li>Keep your selectors as simple as possible while still being unique</li>
+    <li>Test your swaps with different types of content to ensure they work as expected</li>
+    <li>Remember that your server response needs to include all the elements you're trying to select</li>
+</ul>
+
+<h2>Summary</h2>
+
+<p>Out-of-band swaps are your secret weapon for creating smooth, efficient page updates. Instead of making multiple requests or reloading the entire page, you can update exactly what you need, where you need it, all in one go. Whether you choose the simple list approach or the more detailed JSON method, you now have the power to create more dynamic and responsive web applications.</p>

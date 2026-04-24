@@ -1,0 +1,118 @@
+<div class="container">
+  <h1>insert()</h1>
+  <p class="signature">public function insert(array $data, string $table): int</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Inserts a single record into a specified database table and returns the ID of the newly inserted record. This method validates table existence, constructs a parameterized INSERT query from an associative array, and uses prepared statements to prevent SQL injection. Returns the auto-generated ID from the last insert operation.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>Associative array where keys are column names and values are the data to insert.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table to insert into.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int</td>
+        <td>The ID of the newly inserted record. Always returns an integer (cast from lastInsertId()).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+    <li><strong>PDOException</strong> - If the database operation fails (e.g., constraint violation, connection error).</li>
+  </ul>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates how to insert a new user record into the 'users' table.</p>
+[code=php]
+$user_data = [
+    'username' =&gt; 'john_doe',
+    'email' =&gt; 'john@example.com',
+    'password' =&gt; password_hash('secret123', PASSWORD_DEFAULT),
+    'created_at' =&gt; date('Y-m-d H:i:s')
+];
+
+$new_user_id = $this-&gt;db-&gt;insert($user_data, 'users');
+echo "New user created with ID: " . $new_user_id;
+[/code]
+
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates how to insert a product record into the 'products' table.</p>
+[code=php]
+$product_data = [
+    'name' =&gt; 'Wireless Headphones',
+    'description' =&gt; 'Noise-cancelling over-ear headphones',
+    'price' =&gt; 199.99,
+    'stock_quantity' =&gt; 50,
+    'category_id' =&gt; 3
+];
+
+$product_id = $this-&gt;db-&gt;insert($product_data, 'products');
+echo "Product inserted with ID: " . $product_id;
+[/code]
+
+  <h2>Example #3</h2>
+  <p>The code sample below demonstrates how to insert a record with different data types (string, integer, float, and null).</p>
+[code=php]
+$order_data = [
+    'customer_name' =&gt; 'Jane Smith',           // string
+    'customer_id' =&gt; 123,                      // integer
+    'total_amount' =&gt; 149.50,                  // float
+    'notes' =&gt; null,                          // null value
+    'order_date' =&gt; date('Y-m-d')             // date string
+];
+
+$order_id = $this-&gt;db-&gt;insert($order_data, 'orders');
+echo "Order #" . $order_id . " has been created.";
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>Both parameters (<code>$data</code> and <code>$table</code>) are <strong>required</strong>.</li>
+    <li>The method validates that the table exists before executing the INSERT query.</li>
+    <li>Column names from the <code>$data</code> array are automatically used to construct the INSERT statement.</li>
+    <li>Uses prepared statements with parameter binding for security against SQL injection.</li>
+    <li>Returns the last insert ID as an integer (cast from string).</li>
+    <li>Requires the table to have an auto-increment column to return a meaningful ID.</li>
+    <li>Data types are automatically handled (strings, integers, floats, booleans, null values).</li>
+    <li>If debug mode is enabled, the generated SQL query will be displayed before execution.</li>
+  </ul>
+</div>

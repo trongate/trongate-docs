@@ -1,0 +1,298 @@
+[meta-description]Master Trongate's form input helpers: form_input(), form_email(), form_password(), form_number(), form_search(), and form_hidden(). One simple pattern generates clean HTML with full control over attributes.[/meta-description]
+<h1>Form Input Fields</h1>
+
+<p>Text-based form fields all work the same way in Trongate. Learn one, know them all.</p>
+
+<h2>The Pattern</h2>
+
+<p>Every input helper follows this structure:</p>
+
+[code=php]
+form_[type]($name, $value, $attributes);
+[/code]
+
+<ul>
+    <li><strong>$name</strong> - the field name (required)</li>
+    <li><strong>$value</strong> - the default value (optional)</li>
+    <li><strong>$attributes</strong> - array of HTML attributes (optional)</li>
+</ul>
+
+<h2>Available Input Types</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>HTML Type</th>
+            <th>Use Case</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_input()</span></td>
+            <td><code>text</code></td>
+            <td>General text input</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_email()</span></td>
+            <td><code>email</code></td>
+            <td>Email addresses</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_password()</span></td>
+            <td><code>password</code></td>
+            <td>Password fields</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_number()</span></td>
+            <td><code>number</code></td>
+            <td>Numeric input</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_search()</span></td>
+            <td><code>search</code></td>
+            <td>Search boxes</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_hidden()</span></td>
+            <td><code>hidden</code></td>
+            <td>Hidden fields</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Basic Examples</h2>
+
+<h3>Text Input</h3>
+[code=php]
+echo form_input('username');
+// Output: &lt;input type="text" name="username"&gt;
+[/code]
+
+<h3>With a Default Value</h3>
+[code=php]
+echo form_input('username', 'John Doe');
+// Output: &lt;input type="text" name="username" value="John Doe"&gt;
+[/code]
+
+<h3>With Attributes</h3>
+[code=vf]
+$attributes = [
+    'placeholder' =&gt; 'Enter your username',
+    'maxlength' =&gt; '50'
+];
+echo form_input('username', '', $attributes);
+// Output: &lt;input type="text" name="username" value="" placeholder="Enter your username" maxlength="50"&gt;
+[/code]
+
+<h2>Email Fields</h2>
+
+<p>Use <span class="feature-ref">form_email()</span> for email addresses. Browsers will validate the format automatically:</p>
+
+[code=vf]
+echo form_email('user_email', '', ['placeholder' =&gt; 'you@example.com']);
+[/code]
+
+<h2>Password Fields</h2>
+
+<p>Use <span class="feature-ref">form_password()</span> for password input. The value is never displayed:</p>
+
+[code=vf]
+echo form_password('password', '', ['placeholder' =&gt; 'Enter password']);
+[/code]
+
+<div class="alert alert-warning">
+    <p>Never pass a default value to <code>form_password()</code> in production. Passwords should never pre-populate.</p>
+</div>
+
+<h2>Number Fields</h2>
+
+<p>Use <span class="feature-ref">form_number()</span> for numeric input with optional min, max, and step:</p>
+
+[code=vf]
+$attributes = [
+    'min' =&gt; '1',
+    'max' =&gt; '100',
+    'step' =&gt; '1'
+];
+echo form_number('quantity', '1', $attributes);
+[/code]
+
+<h2>Search Fields</h2>
+
+<p>Use <span class="feature-ref">form_search()</span> for search boxes. Some browsers add a clear button automatically:</p>
+
+[code=vf]
+echo form_search('q', '', ['placeholder' =&gt; 'Search...']);
+[/code]
+
+<h2>Hidden Fields</h2>
+
+<p>Use <span class="feature-ref">form_hidden()</span> for data that needs to be submitted but not displayed:</p>
+
+[code=vf]
+echo form_hidden('user_id', '42');
+// Output: &lt;input type="hidden" name="user_id" value="42"&gt;
+[/code]
+
+<h2>How to Repopulate Forms After Validation Errors</h2>
+
+<p>When a form fails validation, you need to redisplay it with the user's entered values. In Trongate, this follows the MVC pattern:</p>
+
+<h3>Controller Example</h3>
+[code=php]
+public function create(): void {
+    // Fetch posted values (returns empty strings if form hasn't been submitted)
+    $data['product_code'] = post('product_code', true);
+    $data['email'] = post('email', true);
+    
+    // Pass data to view
+    $this->view('product_form', $data);
+}
+[/code]
+
+<h3>View Example</h3>
+[code=vf]
+&lt;?php
+echo form_open('products/submit');
+echo form_label('Product Code');
+echo form_input('product_code', $product_code);
+echo form_label('Email');
+echo form_email('email', $email);
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<p>The controller fetches the posted data using <span class="feature-ref">post()</span>, then passes it to the view. The view receives these values as variables.</p>
+
+<h2>Real-World Example: User Registration Form</h2>
+
+<p>First, the controller prepares the data:</p>
+
+[code=php]
+public function register(): void {
+    $data['full_name'] = post('full_name', true);
+    $data['email'] = post('email', true);
+    $this->view('register_form', $data);
+}
+[/code]
+
+<p>Then the view displays the form:</p>
+
+[code=vf]
+echo form_open('users/submit_registration');
+
+echo form_label('Full Name');
+echo form_input('full_name', $full_name, ['placeholder' =&gt; 'John Smith', 'required' =&gt; 'required']);
+
+echo form_label('Email Address');
+echo form_email('email', $email, ['placeholder' =&gt; 'you@example.com', 'required' =&gt; 'required']);
+
+echo form_label('Password');
+echo form_password('password', '', ['placeholder' =&gt; 'Minimum 8 characters', 'minlength' =&gt; '8']);
+
+echo form_label('Confirm Password');
+echo form_password('password_confirm', '', ['placeholder' =&gt; 'Re-enter password']);
+
+echo form_submit('submit', 'Create Account');
+echo form_close();
+[/code]
+
+<h2>Common Attributes</h2>
+
+<p>Here are the most commonly used attributes:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>placeholder</code></td>
+            <td>Hint text</td>
+            <td><code>['placeholder' =&gt; 'Enter name']</code></td>
+        </tr>
+        <tr>
+            <td><code>id</code></td>
+            <td>Element ID</td>
+            <td><code>['id' =&gt; 'username-field']</code></td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>HTML5 validation</td>
+            <td><code>['required' =&gt; 'required']</code></td>
+        </tr>
+        <tr>
+            <td><code>maxlength</code></td>
+            <td>Character limit</td>
+            <td><code>['maxlength' =&gt; '50']</code></td>
+        </tr>
+        <tr>
+            <td><code>autocomplete</code></td>
+            <td>Browser autocomplete</td>
+            <td><code>['autocomplete' =&gt; 'email']</code></td>
+        </tr>
+        <tr>
+            <td><code>readonly</code></td>
+            <td>Prevent editing</td>
+            <td><code>['readonly' =&gt; 'readonly']</code></td>
+        </tr>
+        <tr>
+            <td><code>disabled</code></td>
+            <td>Disable field</td>
+            <td><code>['disabled' =&gt; 'disabled']</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Multiple Attributes Example</h2>
+
+<p>Controller:</p>
+[code=php]
+public function create_product(): void {
+    $data['product_code'] = post('product_code', true);
+    $this->view('product_form', $data);
+}
+[/code]
+
+<p>View:</p>
+[code=vf]
+$attributes = [
+    'id' =&gt; 'product-code',
+    'placeholder' =&gt; 'e.g., PROD-001',
+    'maxlength' =&gt; '20',
+    'required' =&gt; 'required',
+    'pattern' =&gt; '[A-Z0-9-]+'
+];
+echo form_input('product_code', $product_code, $attributes);
+[/code]
+
+<h2>Working with Arrays</h2>
+
+<p>Field names can use array syntax for grouping related data. The controller handles the data extraction:</p>
+
+[code=php]
+public function create_user(): void {
+    // Use dot notation to access nested data
+    $data['first_name'] = post('user.first_name', true);
+    $data['last_name'] = post('user.last_name', true);
+    $data['email'] = post('user.email', true);
+    $this->view('user_form', $data);
+}
+[/code]
+
+<p>View:</p>
+[code=vf]
+echo form_input('user[first_name]', $first_name);
+echo form_input('user[last_name]', $last_name);
+echo form_email('user[email]', $email);
+[/code]
+
+<div class="alert alert-info">
+    <p>All input helpers automatically escape attribute values for XSS protection. You never have to worry about it.</p>
+</div>

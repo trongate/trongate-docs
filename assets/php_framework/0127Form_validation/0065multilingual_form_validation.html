@@ -1,0 +1,515 @@
+[meta-description]Support multiple languages in Trongate form validation. Use set_language() to switch validation error messages between languages, manage language files in modules/validation/language/, and display errors in your users' preferred language with automatic fallback to English.[/meta-description]
+
+<h1>Multilingual Form Validation</h1>
+
+<p>Trongate makes it easy to support form validation in multiple languages. The framework stores error messages in language-specific files and you can easily switch between languages on demand.</p>
+
+<h2>How It Works</h2>
+
+<p>Trongate's validation system loads error messages from language files based on the current language setting. When a validation error occurs, the framework displays the translated message for the selected language.</p>
+
+<div class="alert alert-info">
+    <p><strong>Key Concept:</strong> Language files are separate from your application code. You can add support for new languages simply by creating new language files - no changes to your validation rules are needed.</p>
+</div>
+
+<h2>Language File Structure</h2>
+
+<p>Language files are stored in the following directory structure:</p>
+
+[code=text]
+modules/validation/language/
+├── en/
+│   └── validation_errors.php
+├── fr/
+│   └── validation_errors.php
+├── es/
+│   └── validation_errors.php
+└── de/
+    └── validation_errors.php
+[/code]
+
+<p>Each language uses a two-character ISO language code:</p>
+
+<ul>
+    <li><code>en</code>  -  English</li>
+    <li><code>fr</code>  -  French</li>
+    <li><code>es</code>  -  Spanish</li>
+    <li><code>de</code>  -  German</li>
+    <li><code>it</code>  -  Italian</li>
+    <li><code>pt</code>  -  Portuguese</li>
+    <li><code>ja</code>  -  Japanese</li>
+    <li><code>zh</code>  -  Chinese</li>
+</ul>
+
+<h3>Language File Format</h3>
+
+<p>Each language file contains a PHP array of error messages. Keys match the validation rule names, and values are the translated error messages:</p>
+
+[code=php]
+&lt;?php
+/**
+ * English validation error messages for Trongate v2
+ */
+$validation_errors = [
+    'required_error'     =&gt; 'The [label] field is required.',
+    'valid_email_error'  =&gt; 'The [label] field must contain a valid email address.',
+    'min_length_error'   =&gt; 'The [label] field must be at least [param] characters long.',
+    'max_length_error'   =&gt; 'The [label] field cannot exceed [param] characters.',
+    // ... more error messages
+];
+[/code]
+
+<h3>Placeholder Substitution</h3>
+
+<p>Error messages use two types of placeholders that are automatically replaced. The framework supports both square-bracket and curly-brace formats:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Placeholder</th>
+            <th>Replaced With</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>[label]</code> or <code>{label}</code></td>
+            <td>The field label from <code>set_rules()</code></td>
+            <td>"The <strong>email address</strong> field is required."</td>
+        </tr>
+        <tr>
+            <td><code>[param]</code> or <code>{param}</code></td>
+            <td>Rule parameter (e.g., length, value)</td>
+            <td>"The username field must be at least <strong>3</strong> characters long."</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The default English language file uses square brackets (<code>[label]</code>, <code>[param]</code>), but both formats work interchangeably. When creating translations, you can use whichever style you prefer.</p>
+</div>
+
+<h2>Setting the Validation Language</h2>
+
+<p>Use <span class="feature-ref">set_language()</span> to switch the validation language:</p>
+
+[code=php]
+public function create(): void {
+    // Set validation language to French
+    $this-&gt;validation-&gt;set_language('fr');
+    
+    // Define validation rules (same as always)
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+    
+    // Load and display form...
+}
+[/code]
+
+<p>When validation fails, error messages will be displayed in French.</p>
+
+<div class="alert alert-success">
+    <p><strong>Pro Tip:</strong> The validation module uses Trongate's Language module to manage language preferences. When you call <code>set_language('fr')</code>, it sets <code>$_SESSION['app_lang'] = 'fr'</code> (and stores a cookie). This preference persists across requests and is shared with other parts of your application that use the Language module.</p>
+</div>
+
+<h2>Resetting to Default Language</h2>
+
+<p>Use <span class="feature-ref">reset_language()</span> to revert validation messages to the default language (English):</p>
+
+[code=php]
+public function create(): void {
+    // Reset to default language (English)
+    $this-&gt;validation-&gt;reset_language();
+    
+    // Validation messages will now be in English
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+}
+[/code]
+
+<p>This method removes the language preference from the session, allowing the framework to use the default language.</p>
+
+<h2>Real-World Example: Multi-Language Site</h2>
+
+<p>Here's a complete example of a multilingual registration form:</p>
+
+[code=php]
+class Users extends Trongate {
+
+    public function create(): void {
+        // Get the user's preferred language from a GET parameter, cookie, or session
+        $lang = post('lang') ?? $_COOKIE['preferred_lang'] ?? 'en';
+        
+        // Validate language code (security: only allow valid language codes)
+        $allowed_languages = ['en', 'fr', 'es', 'de'];
+        if (!in_array($lang, $allowed_languages)) {
+            $lang = 'en';
+        }
+        
+        // Set validation language
+        $this-&gt;validation-&gt;set_language($lang);
+        
+        // Define validation rules in the selected language
+        $this-&gt;validation-&gt;set_rules('first_name', 'first name', 'required|min_length[2]');
+        $this-&gt;validation-&gt;set_rules('last_name', 'last name', 'required|min_length[2]');
+        $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email|callback_email_unique');
+        $this-&gt;validation-&gt;set_rules('password', 'password', 'required|min_length[8]');
+        $this-&gt;validation-&gt;set_rules('confirm_password', 'password confirmation', 'required|matches[password]');
+        
+        // Prepare form data
+        $update_id = segment(3, 'int');
+        $submit = post('submit');
+
+        if (($update_id === 0) || ($submit === 'Submit')) {
+            $data = $this-&gt;model-&gt;get_data_from_post();
+        } else {
+            $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+        }
+
+        $data['lang'] = $lang;
+        $data['headline'] = ($update_id === 0) ? 'Create Account' : 'Update Profile';
+        $data['form_location'] = str_replace('/create', '/submit', current_url());
+
+        $this-&gt;view('create', $data);
+    }
+
+    public function submit(): void {
+        // Get the language again (maintain consistency)
+        $lang = post('lang') ?? 'en';
+        $allowed_languages = ['en', 'fr', 'es', 'de'];
+        if (!in_array($lang, $allowed_languages)) {
+            $lang = 'en';
+        }
+        
+        // Set the same language for validation
+        $this-&gt;validation-&gt;set_language($lang);
+        
+        // Define validation rules
+        $this-&gt;validation-&gt;set_rules('first_name', 'first name', 'required|min_length[2]');
+        $this-&gt;validation-&gt;set_rules('last_name', 'last name', 'required|min_length[2]');
+        $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email|callback_email_unique');
+        $this-&gt;validation-&gt;set_rules('password', 'password', 'required|min_length[8]');
+        $this-&gt;validation-&gt;set_rules('confirm_password', 'password confirmation', 'required|matches[password]');
+
+        if ($this-&gt;validation-&gt;run() === true) {
+            // Save user
+            $data = $this-&gt;model-&gt;get_data_from_post();
+            $update_id = segment(3, 'int');
+
+            if ($update_id === 0) {
+                $this-&gt;db-&gt;insert($data, 'users');
+                set_flashdata('Account created successfully');
+            } else {
+                $this-&gt;db-&gt;update($update_id, $data, 'users');
+                set_flashdata('Profile updated successfully');
+            }
+
+            redirect('users/login');
+        } else {
+            // Validation failed - redisplay form with errors in the same language
+            $this-&gt;create();
+        }
+    }
+
+    public function email_unique(string $email): string|bool {
+        block_url('users/email_unique');
+
+        $existing = $this-&gt;db-&gt;get_one_where('email', $email, 'users');
+        
+        if ($existing !== false) {
+            return 'This email address is already in use.';
+        }
+        
+        return true;
+    }
+}
+[/code]
+
+<p>In the view file, pass the language as a hidden field so it persists through form submission:</p>
+
+[code=vf]
+&lt;?php
+echo form_open($form_location, ['class' =&gt; 'highlight-errors']);
+
+// Pass language as hidden field so it's submitted with the form
+echo form_hidden('lang', $lang);
+
+echo form_label('First Name');
+echo validation_errors('first_name');
+echo form_input('first_name', $first_name);
+
+echo form_label('Last Name');
+echo validation_errors('last_name');
+echo form_input('last_name', $last_name);
+
+echo form_label('Email Address');
+echo validation_errors('email');
+echo form_email('email', $email);
+
+echo form_label('Password');
+echo validation_errors('password');
+echo form_password('password');
+
+echo form_label('Confirm Password');
+echo validation_errors('confirm_password');
+echo form_password('confirm_password');
+
+echo form_submit('submit', 'Register');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Adding a New Language</h2>
+
+<p>To add support for a new language, follow these steps:</p>
+
+<h3>Step 1: Create the Language Directory</h3>
+
+<p>Create a new directory in the validation module:</p>
+
+[code=text]
+modules/validation/language/pt/
+[/code]
+
+<h3>Step 2: Create the Language File</h3>
+
+<p>Create <code>validation_errors.php</code> in that directory with translated error messages:</p>
+
+[code=php]
+&lt;?php
+/**
+ * Mensagens de erro de validação em português para Trongate v2
+ */
+$validation_errors = [
+    'required_error'     =&gt; 'O campo [label] é obrigatório.',
+    'valid_email_error'  =&gt; 'O campo [label] deve conter um endereço de e-mail válido.',
+    'min_length_error'   =&gt; 'O campo [label] deve ter pelo menos [param] caracteres.',
+    'max_length_error'   =&gt; 'O campo [label] não pode exceder [param] caracteres.',
+    // ... include all error message keys
+];
+[/code]
+
+<h3>Step 3: Use the New Language</h3>
+
+<p>Now you can use the new language in your validation:</p>
+
+[code=php]
+$this-&gt;validation-&gt;set_language('pt'); // Portuguese
+$this-&gt;validation-&gt;set_rules('email', 'endereço de e-mail', 'required|valid_email');
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Ensure all error message keys in your new language file match the keys in the default English file. If a key is missing, the framework will display the generic error message "The {label} field failed validation." (Note: The framework supports both <code>{label}</code> and <code>[label]</code> placeholders.)</p>
+</div>
+
+<h2>Language Fallback Behavior</h2>
+
+<p>The validation system handles missing language files gracefully:</p>
+
+<ol>
+    <li>First, it looks for a language file matching the requested language code (e.g., <code>fr/validation_errors.php</code>)</li>
+    <li>If that file doesn't exist, it falls back to the default English language file (<code>en/validation_errors.php</code>)</li>
+    <li>If a specific error message key is missing from a language file, it displays a generic error message</li>
+</ol>
+
+<div class="alert alert-success">
+    <p><strong>Best Practice:</strong> Always keep your English language file complete with all possible error messages. This ensures a graceful fallback if a translated language file is incomplete or missing.</p>
+</div>
+
+<h2>Complete List of Language Strings</h2>
+
+<p>Here are all the validation error message keys you should include in your language files:</p>
+
+<h3>Standard Validation Rules</h3>
+
+[code=text]
+required_error
+integer_error
+numeric_error
+decimal_error
+valid_email_error
+valid_url_error
+valid_ip_error
+valid_date_error
+valid_time_error
+valid_datetime_local_error
+valid_month_error
+valid_week_error
+min_length_error
+max_length_error
+exact_length_error
+greater_than_error
+less_than_error
+matches_error
+[/code]
+
+<h3>File Validation Rules</h3>
+
+[code=text]
+allowed_types_error
+max_size_error
+min_size_error
+[/code]
+
+<h3>Image Validation Rules</h3>
+
+[code=text]
+is_image_error
+max_width_error
+min_width_error
+max_height_error
+min_height_error
+exact_width_error
+exact_height_error
+square_error
+[/code]
+
+<h3>Upload and Security Rules</h3>
+
+[code=text]
+upload_failed_error
+not_an_image_error
+invalid_file_error
+security_threat_error
+[/code]
+
+<h2>Best Practices</h2>
+
+<ol>
+    <li><strong>Validate the language code:</strong> Always whitelist acceptable language codes before setting a language. This prevents invalid language codes from being used.</li>
+    <li><strong>Pass language as a hidden field:</strong> When using forms, include the language as a hidden field so it persists through validation errors.</li>
+    <li><strong>Use ISO 639-1 codes:</strong> Stick to two-character language codes (en, fr, es, etc.) for consistency and compatibility.</li>
+    <li><strong>Keep language files in sync:</strong> When you add a new validation rule, update all language files with translations for that rule's error message.</li>
+    <li><strong>Create a language constant (optional):</strong> Define the constant <code>APP_LANG</code> in your configuration (e.g., <code>config/config.php</code>) to set your application's default language. The Language module checks this constant if no session or cookie preference exists.</li>
+    <li><strong>Store user language preference:</strong> Save the user's language preference in their account or a cookie for personalization.</li>
+    <li><strong>Use natural field labels:</strong> Use lowercase, natural language for field labels so error messages read naturally in all languages: "email address" not "email_address".</li>
+    <li><strong>Test all languages:</strong> Verify that error messages display correctly in each supported language before deploying.</li>
+    <li><strong>Include comprehensive translations:</strong> Don't leave error messages in English if you're supporting other languages - translate all messages for a professional user experience.</li>
+</ol>
+
+<h2>Custom Error Messages in Different Languages</h2>
+ 
+<p>When using custom validation callbacks, define error messages in your language files and simply return the key - the framework will handle the rest.</p>
+ 
+<p>For example, in a language file such as <code>fr/validation_errors.php</code> you could add:</p>
+[code]
+'email_already_exists_error' =&gt; 'Cette adresse e-mail est déjà utilisée.',
+[/code]
+ 
+<p>Then, your validation callback could be written like so:</p>
+[code=php]
+// In your callback:
+public function email_unique(string $email): string|bool {
+    block_url('users/email_unique');
+ 
+    $existing = $this-&gt;db-&gt;get_one_where('email', $email, 'users');
+    
+    if ($existing !== false) {
+        return 'email_already_exists_error'; // Framework looks this up in language file
+    }
+    
+    return true;
+}
+[/code]
+ 
+<div class="alert alert-info">
+    <p>In the scenario described above, Trongate will:</p>
+    <ol>
+        <li>Get the currently loaded language.</li>
+        <li>Attempt to read a language file associated with the currently loaded language.</li>
+        <li>Attempt to find and return an error message from the language file whose key matches the returned value from the form validation callback.</li>
+    </ol>
+    <p>If a matching error message cannot be found, the returned string will be rendered in the same manner as would happen with a normal custom form validation callback.</p>
+</div>
+
+<h2>Configuration Constants</h2>
+
+<p>If you are building a website that does not have English as the default language, you can define a default application language in your configuration. The Language module (which validation uses) checks the constant <code>APP_LANG</code>:</p>
+
+[code=php]
+// In any config file (e.g., config/config.php or config/site_owner.php):
+define('APP_LANG', 'fr');
+[/code]
+
+<p>The framework will use this default language if no language has been explicitly set via <code>set_language()</code> and no language preference exists in the session or cookies.</p>
+
+<h2>Session Behavior</h2>
+
+<p>The validation module integrates with Trongate's Language module. Language preference is stored in the session (<code>$_SESSION['app_lang']</code>) and optionally in a cookie:</p>
+
+<ul>
+    <li>When you call <code>set_language('fr')</code>, it sets <code>$_SESSION['app_lang'] = 'fr'</code> and stores a cookie</li>
+    <li>This preference persists across browser sessions (via cookie) and is shared with other application components</li>
+    <li>When you call <code>reset_language()</code>, it removes the session variable and cookie</li>
+    <li>When validating, the framework checks the Language module for the current language setting</li>
+</ul>
+
+<div class="alert alert-info">
+    <p><strong>Session Security:</strong> Since language preference is stored in the user's session, it's safe from tampering. However, you should still validate language codes on the server side before using them.</p>
+</div>
+
+<h2>Common Scenarios</h2>
+
+<h3>Scenario 1: User Selects Language from Dropdown</h3>
+
+[code=php]
+public function submit(): void {
+    $lang = post('language_select', true);
+    
+    // Whitelist allowed languages
+    $allowed = ['en', 'fr', 'es', 'de'];
+    if (!in_array($lang, $allowed)) {
+        $lang = 'en';
+    }
+    
+    // Set language and save to user profile
+    $this-&gt;validation-&gt;set_language($lang);
+    $user_id = $this-&gt;trongate_tokens-&gt;get_user_id();
+    $this-&gt;db-&gt;update($user_id, ['preferred_language' =&gt; $lang], 'users');
+    
+    set_flashdata('Language preference updated');
+    redirect('users/profile');
+}
+[/code]
+
+<h3>Scenario 2: Load User's Preferred Language Automatically</h3>
+
+[code=php]
+public function create(): void {
+    $user_id = $this-&gt;trongate_tokens-&gt;get_user_id();
+    $user = $this-&gt;db-&gt;get_one_where('id', $user_id, 'users');
+    
+    // Set language based on user's preference
+    if ($user &amp;&amp; !empty($user-&gt;preferred_language)) {
+        $this-&gt;validation-&gt;set_language($user-&gt;preferred_language);
+    }
+    
+    // Define validation rules (in user's preferred language)
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+    
+    // ... rest of method
+}
+[/code]
+
+<h3>Scenario 3: Multilingual API Response</h3>
+
+[code=php]
+public function api_create(): void {
+    $lang = post('language', true) ?? 'en';
+    
+    // Validate language
+    $allowed = ['en', 'fr', 'es'];
+    if (!in_array($lang, $allowed)) {
+        $lang = 'en';
+    }
+    
+    $this-&gt;validation-&gt;set_language($lang);
+    
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+    $this-&gt;validation-&gt;set_rules('name', 'name', 'required|min_length[2]');
+    
+    if ($this-&gt;validation-&gt;run() === false) {
+        validation_errors(422); // Returns JSON errors in the selected language
+    }
+    
+    echo json_encode(['success' =&gt; true]);
+}
+[/code]

@@ -1,0 +1,146 @@
+[meta-description]Learn how to use form_label() in Trongate for accessible form elements by passing attributes, including the 'for' attribute, correctly.[/meta-description]
+<h1>Form Labels</h1>
+
+<p>Every form input needs a label. Use <span class="feature-ref">form_label()</span> to create accessible, clickable labels that are correctly associated with their inputs.</p>
+
+<h2>Basic Usage and Signature</h2>
+
+[code=vf]function form_label(string $label_text, array $attributes = []): string[/code]
+
+<div class="alert alert-info">
+    <p><strong>Note on Association:</strong> To explicitly associate a label with an input, you must pass the <code>for</code> attribute inside the <code>$attributes</code> array. The value of <code>for</code> must match the <code>id</code> of the target input.</p>
+</div>
+
+<h2>Parameters</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$label_text</code></td>
+            <td>string</td>
+            <td>The text or HTML content displayed inside the label. **Not automatically escaped.**</td>
+        </tr>
+        <tr>
+            <td><code>$attributes</code></td>
+            <td>array</td>
+            <td>(optional) An associative array of HTML attributes (e.g., <code>class</code>, <code>id</code>, <code>for</code>). Defaults to <code>[]</code>.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Return Value</h2>
+<table>
+    <thead>
+        <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>string</td><td>The generated HTML label element.</td></tr>
+    </tbody>
+</table>
+
+<h3>Example 1: Simple Label (Implicit Association)</h3>
+<p>While valid, this method relies on the input being nested or immediately following the label.</p>
+[code=vf]
+echo form_label('Username');
+echo form_input('username', $username);
+
+// Output: <label>Username</label><input name="username" value="[...]" />
+[/code]
+
+<h3>Example 2: Explicit Association (Best Practice)</h3>
+<p>This is the recommended approach for accessibility. The <code>for</code> attribute links the label to the input via the input's <code>id</code>.</p>
+[code=vf]
+$input_id = 'email-field';
+$label_attrs = ['for' => $input_id];
+
+echo form_label('Email Address', $label_attrs);
+echo form_email('email', $email, ['id' => $input_id]);
+// Clicking the label will focus the input field.
+[/code]
+
+<h3>Example 3: With Additional Attributes</h3>
+[code=vf]
+$input_id = 'name-field';
+$label_attrs = [
+    'for' => $input_id,
+    'class' => 'form-label required',
+    'data-tooltip' => 'Enter your full name'
+];
+
+echo form_label('Full Name', $label_attrs);
+echo form_input('full_name', $full_name, ['id' => $input_id]);
+[/code]
+
+<h2>Checkbox and Radio Labels</h2>
+
+<p>Explicit association is particularly important for non-standard inputs like checkboxes and radios to make their text areas clickable.</p>
+
+[code=vf]
+// Option 1: Wrap input in label (Valid HTML)
+echo '&lt;label&gt;';
+echo form_checkbox('subscribe', 1, $subscribe);
+echo ' Subscribe to newsletter';
+echo '&lt;/label&gt;';
+
+// Option 2: Use the 'for' attribute (Recommended for external styling)
+echo form_label('Agree to terms', ['for' => 'terms-checkbox']);
+echo form_checkbox('terms', 1, $terms, ['id' => 'terms-checkbox']);
+[/code]
+
+<h2>Form Structure Pattern</h2>
+
+<p>It is best practice to wrap label/input pairs in a container for consistent layout and styling.</p>
+
+[code=vf]
+echo form_open('users/submit');
+
+echo '&lt;div class="form-group"&gt;';
+echo form_label('Full Name', ['for' => 'name-field']);
+echo form_input('full_name', $full_name, ['id' => 'name-field']);
+echo '&lt;/div&gt;';
+
+echo '&lt;div class="form-group"&gt;';
+echo form_label('Email', ['for' => 'email-field']);
+echo form_email('email', $email, ['id' => 'email-field']);
+echo '&lt;/div&gt;';
+
+echo form_submit('submit', 'Save');
+echo form_close();
+[/code]
+
+<h2>Required Field Indicators</h2>
+
+<p>Since <code>$label_text</code> is not escaped, you can safely include HTML for styling required field indicators.</p>
+
+[code=vf]
+echo form_label('Email Address &lt;span class="required-indicator"&gt;*&lt;/span&gt;', ['for' => 'email-field']);
+echo form_email('email', $email, ['id' => 'email-field']);
+[/code]
+
+<h2>Why Labels Matter</h2>
+
+<ul>
+    <li>**Accessibility**: Screen readers announce the label for the associated input.</li>
+    <li>**Usability**: Clicking the label text focuses the input field, increasing the clickable target area.</li>
+    <li>**Clarity**: Users immediately understand the purpose of the adjacent input.</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p><strong>Security Warning:</strong> The <code>$label_text</code> is not automatically HTML-escaped. If this value comes from user input (e.g., a database record name), you must manually sanitize it before outputting it.</p>
+    <p>Use the built-in <span class="feature-ref">out()</span> helper function to safely escape data for HTML output:</p>
+[code=php]
+$user_defined_label = "Name &lt;script&gt;alert('xss');&lt;/script&gt;";
+$safe_label = out($user_defined_label);
+echo form_label($safe_label, ['for' => 'field-id']);
+[/code]
+</div>
+
+<div class="alert alert-info">
+    <p>Always use labels and explicitly associate them with the <code>for</code> attribute. They are required for WCAG accessibility compliance and significantly improve usability.</p>
+</div>

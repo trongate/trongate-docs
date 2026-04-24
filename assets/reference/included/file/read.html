@@ -1,0 +1,163 @@
+<div class="container">
+    <h1>read()</h1>
+    <p class="signature">public function read(string $file_path): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Reads and returns the contents of a file. Access is restricted for critical application directories.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$file_path</td>
+                <td>string</td>
+                <td>The path to the file to be read.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>The contents of the file.</td>
+            </tr>
+        </tbody>
+    </table>
+
+ <h2>Example #1</h2>
+<p>The code sample below demonstrates the most basic file reading operation.</p>
+[code=php]
+$file_path = 'modules/documents/readme.txt';
+
+// Check if file exists before reading
+if ($this-&gt;file-&gt;exists($file_path)) {
+    $content = $this-&gt;file-&gt;read($file_path);
+    echo $content;
+} else {
+    echo 'File not found';
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Check Before You Act:</strong> The <code>read()</code> method throws an exception if the file doesn't exist or cannot be read. Always verify the file exists using <code>$this-&gt;file-&gt;exists($file_path)</code> before attempting to read it. This allows you to handle missing files gracefully rather than relying on exception handling.</p>
+</div>
+
+<h2>Example #2</h2>
+<p>The example above shows how to read and process a CSV file.</p>
+[code=php]
+public function import_contacts(): void {
+    $import_id = segment(3, 'int');
+    
+    // Get import record
+    $import = $this-&gt;db-&gt;get_where($import_id, 'imports');
+    
+    if ($import === false) {
+        redirect('imports/not_found');
+    }
+    
+    $file_path = 'modules/imports/uploads/' . $import-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($file_path)) {
+        redirect('imports/file_not_found');
+    }
+    
+    // Read the CSV file
+    $csv_content = $this-&gt;file-&gt;read($file_path);
+    $rows = array_map('str_getcsv', explode("\n", $csv_content));
+    
+    // Skip header row and process data
+    $imported = 0;
+    for ($i = 1; $i &lt; count($rows); $i++) {
+        if (count($rows[$i]) &gt;= 3) {
+            $data = [
+                'name' =&gt; $rows[$i][0],
+                'email' =&gt; $rows[$i][1],
+                'phone' =&gt; $rows[$i][2]
+            ];
+            $this-&gt;model-&gt;insert($data, 'contacts');
+            $imported++;
+        }
+    }
+    
+    set_flashdata("Imported {$imported} contacts");
+    redirect('contacts/manage');
+}
+[/code]
+
+<h2>Example #3</h2>
+<p>The example above demonstrates how to read a configuration file and parse its contents.</p>
+[code=php]
+public function load_settings(): array {
+    $settings_file = 'modules/settings/config/app_settings.json';
+    
+    if (!$this-&gt;file-&gt;exists($settings_file)) {
+        // Return default settings if file doesn't exist
+        return [
+            'site_name' =&gt; 'My Application',
+            'maintenance_mode' =&gt; false,
+            'max_upload_size' =&gt; 5242880
+        ];
+    }
+    
+    // Read and parse JSON configuration
+    $json_content = $this-&gt;file-&gt;read($settings_file);
+    $settings = json_decode($json_content, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        // Handle invalid JSON
+        throw new Exception('Invalid settings file format');
+    }
+    
+    return $settings;
+}
+[/code]
+
+<h2>Example #4</h2>
+<p>The example above shows how to read a log file and display its most recent entries.</p>
+[code=php]
+public function view_recent_logs(): void {
+    $log_file = 'modules/admin/logs/application.log';
+    
+    if (!$this-&gt;file-&gt;exists($log_file)) {
+        $data['log_entries'] = [];
+        $this-&gt;view('logs', $data);
+        return;
+    }
+    
+    // Read the entire log file
+    $log_content = $this-&gt;file-&gt;read($log_file);
+    
+    // Split into individual lines
+    $all_lines = explode("\n", trim($log_content));
+    
+    // Get the last 50 entries
+    $recent_entries = array_slice($all_lines, -50);
+    
+    // Reverse so newest appears first
+    $recent_entries = array_reverse($recent_entries);
+    
+    $data['log_entries'] = $recent_entries;
+    $data['total_entries'] = count($all_lines);
+    $this-&gt;view('logs', $data);
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Memory Considerations:</strong> The <code>read()</code> method loads the entire file contents into memory. For very large files (several megabytes or more), consider using PHP's native streaming functions like <code>fopen()</code> and <code>fgets()</code> to process the file line-by-line instead of loading it all at once.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Security Note:</strong> The method automatically validates paths to prevent access to restricted system directories (like <code>config</code> and <code>engine</code>). Attempting to read files from protected directories will throw an exception with the message "Access to this path is restricted".</p>
+</div>
+
+</div>

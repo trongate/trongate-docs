@@ -1,0 +1,98 @@
+<div class="container">
+  <h1>get_one_where()</h1>
+  <p class="signature">public function get_one_where(string $column, mixed $value, string $table): object|bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Fetches a single record based on a column value from a specified database table. This method validates the table existence and column name, then executes a parameterized query to retrieve the record where the specified column matches the provided value. Returns an object representation of the record if found, or false if no matching record exists.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>column</td>
+        <td>string</td>
+        <td>The name of the column to filter by. Must contain only alphanumeric characters and underscores.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>value</td>
+        <td>mixed</td>
+        <td>The value to match against the specified column. Can be any data type (string, int, float, etc.).</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table to be queried.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>object|bool</td>
+        <td>An object representing the fetched record (using PDO::FETCH_OBJ), or false if no matching record is found.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+    <li><strong>InvalidArgumentException</strong> - If the column name contains invalid characters (prevents SQL injection).</li>
+  </ul>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates how to fetch a user record by email address from the 'users' table.</p>
+[code=php]$user = $this-&amp;gt;db-&amp;gt;get_one_where('email', 'john@example.com', 'users');[/code]
+
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates how to fetch a product by SKU from the 'products' table and check if it exists.</p>
+[code=php]
+$product = $this-&amp;gt;db-&amp;gt;get_one_where('sku', 'ABC123', 'products');
+if ($product !== false) {
+    echo "Product found: " . $product-&amp;gt;name . " - Price: $" . $product-&amp;gt;price;
+} else {
+    echo "Product not found!";
+}
+[/code]
+
+  <h2>Example #3</h2>
+  <p>The code sample below demonstrates how to fetch a record by numeric ID from a custom table.</p>
+[code=php]$order = $this-&amp;gt;db-&amp;gt;get_one_where('order_number', 1001, 'orders');[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>All three parameters (<code>$column</code>, <code>$value</code>, and <code>$table</code>) are <strong>required</strong>.</li>
+    <li>Column names are validated using regex to prevent SQL injection attacks.</li>
+    <li>The method validates that the table exists before executing the query.</li>
+    <li>Uses prepared statements with parameter binding for security.</li>
+    <li>Returns only the first matching record if multiple records match the criteria.</li>
+    <li>Returns <code>false</code> (not null) when no matching record is found.</li>
+  </ul>
+</div>

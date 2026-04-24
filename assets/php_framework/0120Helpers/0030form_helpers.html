@@ -1,0 +1,223 @@
+[meta-description]Trongate Form Helpers: build forms with form_open(), form_input(), form_checkbox(), etc. Handle errors with validation_errors(). No classes, no bloat - just Native PHP.[/meta-description]
+
+<h1>Form Helpers</h1>
+
+<p>Trongate's <a href="documentation-ref/list_refs/helpers/form-helpers" target="_blank">form helpers</a> let you easily build HTML forms without the tedium. Call a function. Get perfect HTML.</p>
+
+<p>Zero config. Just functions:</p>
+
+<ul id="feature-ref-list" class="mt-2 feature-ref-list">
+  <li>
+    <span class="feature-ref">form_button()</span>
+    <span class="sm">Generates a generic button that requires JavaScript to perform actions.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_checkbox()</span>
+    <span class="sm">Outputs a checkbox input for binary choices.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_close()</span>
+    <span class="sm">Closes the form and automatically injects a CSRF token.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_date()</span>
+    <span class="sm">Generates a date input with browser-native date picker.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_datetime_local()</span>
+    <span class="sm">Generates a local datetime input with browser-native controls.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_dropdown()</span>
+    <span class="sm">Generates a select menu allowing single or multiple selections.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_email()</span>
+    <span class="sm">Creates an email input with built-in browser validation.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_file_select()</span>
+    <span class="sm">Generates a file picker input for uploading files.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_hidden()</span>
+    <span class="sm">Adds hidden fields for data that should not be visible to users.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_input()</span>
+    <span class="sm">Generates a standard text input field.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_label()</span>
+    <span class="sm">Generates an HTML label element for form fields.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_month()</span>
+    <span class="sm">Generates a month input with browser-native month picker.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_number()</span>
+    <span class="sm">Outputs a numeric input with browser-level validation and controls.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_open()</span>
+    <span class="sm">Outputs the opening <code>&lt;form&gt;</code> tag and initializes a new form.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_open_upload()</span>
+    <span class="sm">Opens a form configured for file uploads using multipart encoding.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_password()</span>
+    <span class="sm">Produces a password field that masks user input.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_radio()</span>
+    <span class="sm">Creates a radio button for mutually exclusive options.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_search()</span>
+    <span class="sm">Generates a search input with optional clear button.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_submit()</span>
+    <span class="sm">Creates a submit button for sending form data to the server.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_textarea()</span>
+    <span class="sm">Creates a multi-line text field for longer user input.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_time()</span>
+    <span class="sm">Generates a time input with browser-native time picker.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">form_week()</span>
+    <span class="sm">Generates a week input with browser-native week picker.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">post()</span>
+    <span class="sm">Retrieves submitted POST, JSON, or multipart form data.</span>
+  </li>
+
+  <li>
+    <span class="feature-ref">validation_errors()</span>
+    <span class="sm">Displays validation errors, supporting inline, grouped, or JSON output.</span>
+  </li>
+</ul>
+
+
+<hr>
+<h2>Building a Form</h2>
+
+<p>In a view file:</p>
+
+[code=vf]
+&lt;?php
+echo form_open('submit');
+echo form_input('username');
+echo form_password('password');
+echo form_checkbox('remember', '1', true);
+echo 'Remember me';
+echo form_submit('submit', 'Login');
+echo form_close();
+?&gt;
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;form action="submit" method="post"&gt;
+    &lt;input type="text" name="username"&gt;
+    &lt;input type="password" name="password"&gt;
+    &lt;input type="checkbox" name="remember" value="1" checked&gt; Remember me
+    &lt;input type="submit" name="submit" value="Login"&gt;
+    &lt;input type="hidden" name="csrf_token" value="abc123"&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>The <span class="feature-ref">form_close()</span> function automatically handles the insertion of a hidden CSRF token field, so developers do not need to manually include it in their forms.</p>    
+</div>
+<hr>
+<h2>File Uploads</h2>
+
+<p>For forms that accept files, just use <code>form_open_upload()</code> instead of <code>form_open()</code>. It adds the required <code>enctype="multipart/form-data"</code> automatically. No extra arguments needed.</p>
+
+<p>In a view file:</p>
+
+[code=vf]
+&lt;?php
+echo form_open_upload('products/upload_picture');
+echo form_label('Product Image');
+echo form_file_select('picture');
+echo form_submit('upload', 'Upload Image');
+echo form_close();
+?&gt;
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;form action="products/upload_picture" method="post" enctype="multipart/form-data"&gt;
+    &lt;label&gt;Product Image&lt;/label&gt;
+    &lt;input type="file" name="picture"&gt;
+    &lt;input type="submit" name="upload" value="Upload Image"&gt;
+    &lt;input type="hidden" name="csrf_token" value="abc123"&gt;
+&lt;/form&gt;
+[/code]
+<hr>
+<h2>Adding Attributes</h2>
+
+<p>All form helpers accept an optional third parameter: an associative array of HTML attributes.</p>
+
+<p>In a view file:</p>
+
+[code=vf]
+&lt;?php
+$email_attr = [
+    'placeholder' => 'Enter email address here...',
+    'required'    => true
+];
+echo form_email('email', '', $email_attr);
+?&gt;
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;input type="email" name="email" placeholder="Enter email address here..." required&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p>Form handling (in any web development framework!) has lots of moving parts.</p>
+    <p>Check out the <a href="documentation/trongate_php_framework/form-handling">Form Handling</a> chapter for a complete walkthrough of how to perform form handling with Trongate.</p>
+</div>
+
+<div class="alert alert-info">
+    <p>Looking for a super fancy way to do form handling but <i>without</i> page refreshes?</p>  
+    <p><b>Trongate MX has you covered!</b></p>
+    <p>Check out the <a href="documentation/trongate_mx/dynamic-form-handing/form-handling-overview">Trongate MX documentation</a> for more information.</p>
+</div>

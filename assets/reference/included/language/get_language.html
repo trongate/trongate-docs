@@ -1,0 +1,61 @@
+<div class="container">
+  <h1>get_language()</h1>
+  <p class="signature">public function get_language(): string</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves the current application language. Checks multiple sources in order of priority:</p>
+    <ol>
+      <li><strong>Session</strong> – <code>$_SESSION['app_lang']</code> (set via <code>set_language()</code>)</li>
+      <li><strong>Cookie</strong> – <code>$_COOKIE['app_lang']</code> (persistent across browser sessions)</li>
+      <li><strong>Constant</strong> – <code>APP_LANG</code> constant (if defined in config)</li>
+      <li><strong>Default</strong> – Falls back to <code>'en'</code> (English)</li>
+    </ol>
+    <p>This method is used internally by <code>load()</code> to determine which translation file to load.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The current language code (e.g., 'en', 'fr', 'es').</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Get current language
+$current_lang = $this->language->get_language();
+echo "Current language: " . $current_lang;
+
+// Conditionally load content based on language
+if ($this->language->get_language() === 'fr') {
+    // Load French content
+    $data['welcome'] = 'Bienvenue';
+} else {
+    // Load English content
+    $data['welcome'] = 'Welcome';
+}
+
+// Use in validation error loading
+$lang = $this->language->get_language();
+$errors = $this->language->load("modules/validation/language/{$lang}/validation_errors.php");[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>The default language is <code>'en'</code> (English).</li>
+    <li>To define a global default, set the <code>APP_LANG</code> constant in your configuration.</li>
+    <li>Session takes precedence over cookie, which allows users to temporarily override their saved language.</li>
+  </ul>
+</div>

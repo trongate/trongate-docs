@@ -1,0 +1,161 @@
+<h1>After Validation Operations</h1>
+
+<p>The <code>mx-after-validation</code> attribute in Trongate MX allows you to execute custom JavaScript functions immediately after form validation errors have been displayed. This opens the door to all kinds of powerful, user-friendly interactions.</p>
+
+<h2>Usage</h2>
+
+<p>Here's a simple example showing how to use the <code>mx-after-validation</code> attribute:</p>
+
+[code=vf]
+&lt;?php
+$form_attributes = [
+  'class' =&gt; 'highlight-errors',
+  'mx-post' =&gt; 'api/users/create',
+  'mx-after-validation' =&gt; 'show_error_count'
+];
+
+echo form_open('#', $form_attributes);
+echo '&lt;div id="error-summary"&gt;&lt;/div&gt;';
+echo form_input('username');
+echo form_input('email');
+echo form_submit('submit', 'Create User');
+echo form_close();
+?&gt;
+
+&lt;script&gt;
+function show_error_count() {
+  const error_fields = document.querySelectorAll('.form-field-validation-error');
+  const error_summary = document.getElementById('error-summary');
+  const count = error_fields.length;
+
+  error_summary.innerHTML = `&lt;div class="alert alert-danger"&gt;
+    Please correct the ${count} error${count !== 1 ? 's' : ''} below.
+  &lt;/div&gt;`;
+}
+&lt;/script&gt;
+[/code]
+
+<p>In this example, the <code>show_error_count</code> function is automatically called after validation errors appear. It simply counts how many validation issues were found and displays a summary message. It's a helpful way to guide users through corrections.</p>
+
+<h3>Alternative Syntax</h3>
+
+<p>If you prefer working directly with raw HTML rather than Trongate's form helper functions, you can still use <code>mx-after-validation</code> like this:</p>
+
+[code=html]
+&lt;form class="highlight-errors"
+      mx-post="api/users/create"
+      mx-after-validation="show_error_count"&gt;
+  &lt;div id="error-summary"&gt;&lt;/div&gt;
+  &lt;input type="text" name="username"&gt;
+  &lt;input type="email" name="email"&gt;
+  &lt;button type="submit"&gt;Create User&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;script&gt;
+function show_error_count() {
+  const error_fields = document.querySelectorAll('.form-field-validation-error');
+  const error_summary = document.getElementById('error-summary');
+  const count = error_fields.length;
+
+  error_summary.innerHTML = `&lt;div class="alert alert-danger"&gt;
+    Please correct the ${count} error${count !== 1 ? 's' : ''} below.
+  &lt;/div&gt;`;
+}
+&lt;/script&gt;
+[/code]
+
+<h2>More Examples</h2>
+
+<h3>Custom Error Styling</h3>
+
+<p>Want to draw attention to fields with validation issues? Here's a fun example that makes invalid fields briefly blink. It's just a demonstration - in real-world projects, you could use this feature to trigger animations, focus fields, show tooltips, and more:</p>
+
+[code=vf]
+&lt;?php
+$form_attributes = [
+  'class' =&gt; 'highlight-errors',
+  'mx-post' =&gt; 'api/products/create',
+  'mx-after-validation' =&gt; 'highlight_errors'
+];
+
+echo form_open('#', $form_attributes);
+echo form_input('product_name');
+echo form_textarea('description');
+echo form_submit('submit', 'Add Product');
+echo form_close();
+?&gt;
+
+&lt;script&gt;
+function highlight_errors() {
+  const error_fields = document.querySelectorAll('.form-field-validation-error');
+  error_fields.forEach(field =&gt; {
+    field.classList.add('blink');
+  });
+
+  setTimeout(() =&gt; {
+    error_fields.forEach(field =&gt; {
+      field.classList.remove('blink');
+    });
+  }, 3000);
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-info">
+  <h3 class="mt-0"><i class="fa fa-info-circle"></i> Understanding the <code>customEvent</code> Parameter</h3>
+  <p>When Trongate MX calls your validation handler function, it passes a <code>customEvent</code> object that contains valuable context. You can access it like this:</p>
+  <ul>
+    <li><code>customEvent.detail.element</code> - the form element that triggered validation</li>
+    <li><code>customEvent.detail.originalEvent</code> - the original submit event</li>
+  </ul>
+  <p>Include this parameter in your function if you want access to the event context. Otherwise, it's optional.</p>
+</div>
+
+<h3>Analytics and Error Tracking</h3>
+
+<p>Here’s a more advanced example showing how you might use <code>mx-after-validation</code> for analytics. It logs validation failures and could be wired up to your own analytics service:</p>
+
+[code=vf]
+&lt;?php
+$form_attributes = [
+  'class' =&gt; 'highlight-errors',
+  'mx-post' =&gt; 'api/orders/submit',
+  'mx-after-validation' =&gt; 'track_validation_errors'
+];
+
+echo form_open('#', $form_attributes);
+// Add your form fields here
+echo form_close();
+?&gt;
+
+&lt;script&gt;
+function track_validation_errors(customEvent) {
+  const error_fields = document.querySelectorAll('.form-field-validation-error');
+  const error_messages = document.querySelectorAll('.validation-error-report');
+
+  const error_data = {
+    timestamp: new Date().toISOString(),
+    form_id: customEvent.detail.element.id,
+    error_count: error_fields.length,
+    fields: Array.from(error_fields).map(field =&gt; field.name)
+  };
+
+  // Example only - replace with your own analytics logic
+  console.log('Tracking validation error:', error_data);
+  // send_to_analytics('form_validation_error', error_data);
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-success">
+  <ul>
+    <li><strong>Validation Context:</strong> You can access validation context via the <code>customEvent</code> object</li>
+    <li><strong>Error Elements:</strong> Target fields with <code>.form-field-validation-error</code></li>
+    <li><strong>Error Messages:</strong> Look for <code>.validation-error-report</code> elements</li>
+    <li><strong>Use Cases:</strong> Animate errors, log events, scroll to invalid fields, trigger alerts, disable buttons, or even guide users with voice feedback!</li>
+  </ul>
+</div>
+
+<h2>Summary</h2>
+
+<p>The <code>mx-after-validation</code> attribute provides an elegant, declarative way to respond to form validation errors. Whether you're flashing fields, logging metrics, or guiding users with messages - Trongate MX puts the full power of JavaScript at your fingertips <i>right after</i> validation errors appear. The examples shown here are just the beginning.</p>

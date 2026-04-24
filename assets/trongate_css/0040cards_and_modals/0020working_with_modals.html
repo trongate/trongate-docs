@@ -1,0 +1,372 @@
+<h1>Working With Modals</h1>
+
+<p>Modals are popup dialogs that appear over the main content of a webpage. The Trongate ecosystem provides elegant modal styling along with JavaScript functionality for seamless modal interactions.  Click the button below to see an example of a basic modal:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p class="text-center">
+            <button class="secondary-dark mt-0" onclick="openModal('example-modal')">Click Me!</button>
+        </p>
+    </div>
+</div>
+
+<div class="modal" id="example-modal" style="display: none">
+    <div class="modal-heading">
+        Example Modal
+    </div>
+    <div class="modal-body">
+        <p class="text-left">This is an example modal. It has a default margin top value of '12vh', which is defined as a CSS variable within Trongate CSS.</p>
+
+        <p class="text-left">The source code for this particular modal is hard-coded into the HTML of the webpage that you are currently viewing.</p>
+        <p class="text-center">
+            <button class="alt" onclick="closeModal()">Close</button>
+        </p>
+    </div>
+</div>
+
+<h2>Basic Modal Structure</h2>
+<p>A basic modal consists of a heading and body section. Here's the standard structure:</p>
+
+[code=html]
+&lt;div class="modal" id="example-modal" style="display: none"&gt;
+    &lt;div class="modal-heading"&gt;
+        Important Notice
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;p&gt;This is an example modal. In practice, modals would be triggered by JavaScript and appear as overlays.&lt;/p&gt;
+        &lt;p class="text-center"&gt;
+            &lt;button class="alt" onclick="closeModal()"&gt;Close&lt;/button&gt;
+        &lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Setting Up Modals</h2>
+<p>To use modals in your project, follow these steps:</p>
+
+<ol>
+    <li>Ensure you've included an appropriate JavaScript file (app.js/admin.js/trongate-mx.js) in your project.</li>
+    <li>Using <code>style="display: none"</code> to hide your modal element upon initial page load.</li>
+    <li>Add a trigger element (like a button) that calls <code>openModal()</code>, passing in the 'id' of the modal element that you'd like to have opened.</li>
+</ol>
+
+<p class="mt-3">Here's a complete example:</p>
+
+[code=html]
+&lt;!-- Modal Trigger Button --&gt;
+&lt;button onclick="openModal('info-modal')"&gt;Open Info Modal&lt;/button&gt;
+
+&lt;!-- Hidden Modal --&gt;
+&lt;div class="modal" id="info-modal" style="display: none"&gt;
+    &lt;div class="modal-heading"&gt;
+        Information
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;p&gt;This modal can be opened by clicking the button above.&lt;/p&gt;
+        &lt;p class="text-center"&gt;
+            &lt;button class="alt" onclick="closeModal()"&gt;Close&lt;/button&gt;
+        &lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h3 class="mt-3">Closing Modals</h3>
+<p>Opened modal elements can be closed by invoking the JavaScript function, <code>closeModal()</code>.  This function can be easily attached to elements, like buttons.  For example:</p>
+
+[code=html]
+&lt;button onclick="closeModal()"&gt;&lt;/button&gt;
+[/code]
+
+<h2>Modal with Footer</h2>
+<p>You can add a footer section to your modal for action buttons:</p>
+
+<div class="trongate-css-demo" style="background-color: #575757;">
+    <div class="text-center">
+        <div class="modal text-left" style="position: static; opacity: 1; margin: 0 auto;">
+            <div class="modal-heading">
+                Confirm Action
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to proceed with this action?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="alt" onclick="closeModal()">Cancel</button>
+                <button class="danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="modal" id="confirm-modal" style="display: none"&gt;
+    &lt;div class="modal-heading"&gt;
+        Confirm Action
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;p&gt;Are you sure you want to proceed with this action?&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-footer"&gt;
+        &lt;button class="alt" onclick="closeModal()"&gt;Cancel&lt;/button&gt;
+        &lt;button class="danger"&gt;Delete&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Form Inside Modal</h2>
+<p>Modals are perfect for containing forms:</p>
+
+<div class="trongate-css-demo" style="background-color: #575757;">
+    <div class="text-center">
+        <div class="modal text-left" style="position: static; opacity: 1; margin: 0 auto;">
+            <div class="modal-heading">
+                Contact Form
+            </div>
+            <div class="modal-body">
+                <form>
+                    <label>Name</label>
+                    <input type="text" placeholder="Your name">
+                    
+                    <label>Email</label>
+                    <input type="email" placeholder="Your email">
+                    
+                    <label>Message</label>
+                    <textarea rows="3" placeholder="Your message"></textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="alt">Cancel</button>
+                <button>Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="modal" id="contact-modal" style="display: none"&gt;
+    &lt;div class="modal-heading"&gt;
+        Contact Form
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;form&gt;
+            &lt;label&gt;Name&lt;/label&gt;
+            &lt;input type="text" placeholder="Your name"&gt;
+            
+            &lt;label&gt;Email&lt;/label&gt;
+            &lt;input type="email" placeholder="Your email"&gt;
+            
+            &lt;label&gt;Message&lt;/label&gt;
+            &lt;textarea rows="3" placeholder="Your message"&gt;&lt;/textarea&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-footer"&gt;
+        &lt;button class="alt" onclick="closeModal()"&gt;Cancel&lt;/button&gt;
+        &lt;button&gt;Send&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+
+<h2>Close Modal Icons</h2>
+
+<p>It's also possible to add 'close modal' icons onto modals, producing a result that's similar to the kind of user experience that we may find on a native desktop application.</p>
+
+<div class="trongate-css-demo" style="background-color: #575757;">
+    <div class="text-center">
+        <div class="modal text-left" style="position: static; opacity: 1; margin: 0 auto;">
+            <div class="modal-heading flex-row align-center justify-between">
+                <div>Example</div>
+                <div><i class="fa fa-times blink" onclick="alert('If I was inside a real modal, I probably wouldn\'t be blinking and clicking me would close the modal!')"></i></div>
+            </div>
+            <div class="modal-body">
+                <p>On the top right hand side of this modal there is a small cross.  In a real-use situation, clicking the icon would have the effect of closing the modal.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>Click the button below to see a working example of a modal that contains a 'close modal' icon:</p>
+<p class="text-center">
+    <button onclick=openModal("close-icon-modal")>Click Me!</button>
+</p>
+
+<div class="modal" id="close-icon-modal" style="display: none">
+    <div class="modal-heading flex-row align-center justify-between">
+        <div>Example Modal</div>
+        <div><i class="fa fa-times" onclick="closeModal()"></i></div>
+    </div>
+    <div class="modal-body">
+        <p class="text-left">On the top right hand side of this modal there is a small cross. Try clicking the icon and you'll notice that the modal window immediately closes.</p>
+    </div>
+</div>
+
+<p>In the example, the following CSS classes are being used to control the layout of the <code>.modal-header</code> element:</p>
+<ol>
+    <li><code>.flex-row</code></li>
+    <li><code>.align-center</code></li>
+    <li><code>.justify-between</code></li>
+</ol>
+
+<p>Here's the source code:</p>
+
+[code=html]
+&lt;div class="modal" id="close-icon-modal" style="display: none"&gt;
+    &lt;div class="modal-heading flex-row align-center justify-between"&gt;
+        &lt;div&gt;Example Modal&lt;/div&gt;
+        &lt;div&gt;&lt;i class="fa fa-times" onclick="closeModal()"&gt;&lt;/i&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;p class="text-left"&gt;On the top right hand side of this modal there is a small cross. Try clicking the icon and you'll notice that the modal window immediately closes.&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<style>
+.modal-heading .fa {
+    cursor: pointer;
+}
+</style>
+
+<div class="alert alert-info">
+    <p>In the example, we're using <a href="https://fontawesome.com/" target="_blank">Font Awesome</a> to render a 'close modal' icon.   Font Awesome can be loaded onto your webpage by adding the following line of code onto the <code>&lt;head&gt;</code> section of your webpage:</p>
+[code=html]
+&lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"&gt;
+[/code]
+
+<p class="mt-3">Don't forget to also add a CSS rule that turns the cursor into a pointer upon mouseover events!</p>
+[code=css]
+.modal-heading .fa {
+    cursor: pointer;
+}
+[/code]
+
+<p class="mt-3">If you don't like using Font Awesome, you're free to use any other icon of your choosing.  You may wish to even consider rendering a 'close icon' using <b>pure HTML</b>. For example:</p>
+
+[code=html]
+&lt;div onclick="closeModal()"&gt;&amp;times;&lt;/div&gt;
+[/code]
+
+</div>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Always provide a way to close the modal (close button or cancel option).</li>
+        <li>Keep modal content focused and concise.</li>
+        <li>Use appropriate modal sizes for different types of content.</li>
+        <li>Consider mobile responsiveness.</li>
+        <li>Use clear and descriptive heading text.</li>
+        <li>Ensure all modals have unique IDs.</li>
+    </ul>
+</div>
+
+<h2>JavaScript Functions</h2>
+<p>Two main functions are available for modal control:</p>
+
+<ol>
+    <li><code>openModal(modalId)</code>: Opens the modal with the specified ID</li>
+    <li><code>closeModal()</code>: Closes the currently open modal</li>
+</ol>
+
+Example usage:
+
+[code=html]
+&lt;!-- Trigger buttons --&gt;
+&lt;button onclick="openModal('example-modal')"&gt;Open Modal&lt;/button&gt;
+&lt;button onclick="closeModal()"&gt;Close Modal&lt;/button&gt;
+[/code]
+
+<h3 class="mt-3">Loading The JavaScript Code</h3>
+<p>The JavaScript code for handling modals is contained within the following JavaScript files:</p>
+
+<ol>
+    <li>app.js</li>
+    <li>admin.js</li>
+    <li>trongate-mx.js</li>
+</ol>
+
+<p>The JavaScript files are located in:</p>
+[code]public/ 
+  js/ 
+[/code]
+
+<p>All three of these files are provided with <i>every</i> installation of Trongate.</p>
+
+<div class="alert alert-info">
+<p>You only have to load <b><i>one</i></b> of the above JavaScript files to enjoy full modal opening and closing functionality.</p>    
+</div>
+
+<div class="alert alert-success">
+    <ul>
+        <li>If you're working with one of Trongate's pre-built admin panels, use <b>admin.js</b>.</li>
+        <li>If you're working with Trongate MX, use <b>trongate-mx.js</b>.</li>
+        <li>For all other situations, use <b>app.js</b>.</li>
+    </ul>
+
+    <p><b>IMPORTANT NOTE: </b> It's perfectly acceptable to load Trongate MX ('trongate-mx.js') onto a webpage that <i>already</i> uses either 'app.js' or 'admin.js'.</p>
+</div>
+
+<p class="mt-3">The following code demonstrates an example of basic HTML boilerplate required for implementing modal functionality with Trongate.</p>
+
+[code=html]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+    &lt;link rel="stylesheet" href="css/trongate.css"&gt;
+    &lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Ready!&lt;/h1&gt;
+    &lt;script src="js/app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<h2>Dynamic Modal Generation</h2>
+<p><b>Trongate MX</b> pushes the boundaries of modern web development by providing a mechanism for generating modals entirely <i>dynamically</i>. This means that developers who'd like to have modal elements within their applications <i>no longer</i> have a requirement to hard-code hidden modal elements into their source code.</p> <p>For example, if you click the button below, a modal will be dynamically generated. The contents of the modal will be extracted by fetching the headline element from the homepage of this website. Give it a try!</p>
+
+<div class="trongate-css-demo" style="padding-bottom: 2em;">
+    <div class="text-center">
+        <button mx-get="/" mx-select="h1" mx-target=".modal-body"   
+                mx-build-modal='{
+                    "id": "demo-headline-modal",
+                    "width": "640px",
+                    "modalHeading": "Dynamic Modal Demo",
+                    "showCloseButton": "true"
+                }'>
+            Open Dynamic Modal
+        </button>
+    </div>
+</div>    
+
+<p>To the untrained eye, the end result may look and behave like an ordinary modal. However, what's happening behind the scenes is remarkable. That's because the entire modal (both the contents and the modal window <i>itself</i>) are being generated and rendered dynamically.</p>
+
+<p>Here's the source code:</p>
+
+[code=html]
+&lt;button mx-get="/" mx-select="h1" mx-target=".modal-body"   
+        mx-build-modal='{
+            "id": "demo-headline-modal",
+            "width": "640px",
+            "modalHeading": "Dynamic Modal Demo",
+            "showCloseButton": "true"
+        }'&gt;
+    Open Dynamic Modal
+&lt;/button&gt;
+[/code]
+
+<div class="alert alert-warning">
+    <p>To make the above example work, you'll have to <a href="documentation/display/trongate_mx/introduction/trongate-mx-quick-start">load Trongate MX</a> onto your webpage.</p>
+</div>
+
+<div class="alert alert-success">
+<p>The example above is an attempt to introduce you to the general topic of dynamic modal generation.   Full instructions and guidance, pertaining to dynamic modal generation, is beyond the scope of the 'Trongate CSS' documentation.</p> 
+
+<p>If dynamic modal generation and advanced front-end development, with Trongate, is something you'd like to learn more about, please refer to the <a href="documentation/display/trongate_mx/ui-enhancements/building-dynamic-modals">Trongate MX Documentation</a>.</p>
+
+</div>
+
+
+
+

@@ -1,0 +1,142 @@
+<div class="container">
+  <h1>public()</h1>
+  <p class="signature">public function public(array $data): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Displays the public theme template with provided data. This method loads a clean, public-facing layout designed for websites and landing pages. It processes additional CSS/JavaScript includes before rendering the template. The method automatically injects your view content into the public layout using the <code>display()</code> helper. Unlike the admin template, the public template provides a minimal structure, giving you maximum flexibility for front-end design.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>An associative array containing the data to pass to the template view. Common keys include 'page_title', 'view_module', 'view_file', 'additional_includes_top', and 'additional_includes_btm'.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value. It outputs the complete HTML page directly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Additional Includes</h2>
+  <div class="description">
+    <p>
+      The <code>public()</code> method automatically processes two special array keys in the <code>$data</code> array: <code>additional_includes_top</code> and <code>additional_includes_btm</code>. These allow you to inject additional CSS files, JavaScript files, or raw HTML into specific locations within the template.
+   </p>
+    <h3>How It Works</h3>
+    <ul>
+      <li><strong>additional_includes_top</strong> - Files or HTML added to this array are inserted inside the <code>&lt;head&gt;</code> section of the page</li>
+      <li><strong>additional_includes_btm</strong> - Files or HTML added to this array are inserted just before the closing <code>&lt;/body&gt;</code> tag</li>
+    </ul>
+    <p>
+      The method automatically detects file types and generates the appropriate HTML:
+   </p>
+    <ul>
+      <li>Files ending in <code>.css</code> are wrapped in <code>&lt;link rel="stylesheet" href="..."&gt;</code> tags</li>
+      <li>Files ending in <code>.js</code> are wrapped in <code>&lt;script src="..."&gt;&lt;/script&gt;</code> tags</li>
+      <li>Full URLs and raw HTML strings are inserted exactly as provided</li>
+    </ul>
+  </div>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the simplest usage - loading the public template with just a page title. The view file would be automatically determined by the method name.</p>
+[code=php]public function about(): void {
+    $data['page_title'] = 'About Us';
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #2</h2>
+  <p>This example explicitly specifies which view file to load and which module it belongs to, providing clear documentation of the template structure.</p>
+[code=php]public function home(): void {
+    $data['page_title'] = 'Welcome to Our Site';
+    $data['view_module'] = 'welcome';
+    $data['view_file'] = 'homepage';
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #3</h2>
+  <p>This example shows how to pass database records to the view for rendering dynamic content on a public page.</p>
+[code=php]public function blog_post(): void {
+    $post_id = (int) segment(2);
+    $data['post'] = $this-&gt;db-&gt;get_where($post_id, 'blog_posts');
+    $data['page_title'] = $data['post']-&gt;title;
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #4</h2>
+  <p>This example demonstrates how to add external CSS frameworks and libraries that are specific to a particular page.</p>
+[code=php]public function landing_page(): void {
+    $data['page_title'] = 'Special Offer';
+    $data['additional_includes_top'][] = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    $data['additional_includes_top'][] = 'css/landing-page.css';
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #5</h2>
+  <p>This example shows how to add JavaScript files at the bottom of the page for optimal loading performance.</p>
+[code=php]public function contact(): void {
+    $data['page_title'] = 'Contact Us';
+    $data['additional_includes_btm'][] = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    $data['additional_includes_btm'][] = 'js/contact-map.js';
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #6</h2>
+  <p>This example demonstrates loading module-specific assets using the module assets trigger, keeping your public pages organised and maintainable.</p>
+[code=php]public function portfolio(): void {
+    $data['page_title'] = 'Our Portfolio';
+    $data['projects'] = $this-&gt;db-&gt;get('display_order', 'projects');
+    $data['additional_includes_top'][] = 'portfolio_module/css/gallery.css';
+    $data['additional_includes_btm'][] = 'portfolio_module/js/gallery-init.js';
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #7</h2>
+  <p>This comprehensive example shows how to add custom meta tags for SEO and social media sharing, along with page-specific styling and scripts.</p>
+[code=php]public function article(): void {
+    $article_id = (int) segment(2);
+    $data['article'] = $this-&gt;db-&gt;get_where($article_id, 'articles');
+    $data['page_title'] = $data['article']-&gt;title;
+    
+    // Add SEO and social media meta tags
+    $data['additional_includes_top'][] = '&lt;meta name="description" content="' . $data['article']-&gt;excerpt . '"&gt;';
+    $data['additional_includes_top'][] = '&lt;meta property="og:title" content="' . $data['article']-&gt;title . '"&gt;';
+    $data['additional_includes_top'][] = '&lt;meta property="og:image" content="' . $data['article']-&gt;image_url . '"&gt;';
+    
+    // Add syntax highlighting for code snippets
+    $data['additional_includes_top'][] = 'css/syntax-highlighter.css';
+    $data['additional_includes_btm'][] = 'js/syntax-highlighter.js';
+    
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+</div>

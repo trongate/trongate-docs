@@ -1,0 +1,633 @@
+[meta-description]Learn how to use form_time() in Trongate for time selection inputs. Native HTML5 time picker with HH:MM format, min/max attributes, step intervals, validation, and database storage examples.[/meta-description]
+<h1>Time Input Fields</h1>
+
+<p>The time input field allows users to select a time of day. It provides a user-friendly time picker and submits data in <code>HH:MM</code> or <code>HH:MM:SS</code> format.</p>
+
+<div class="alert alert-info">
+    <p><strong>Browser Display vs Submitted Format:</strong> Browsers display times according to user locale (12-hour with AM/PM in US, 24-hour in Europe), but always submit in consistent 24-hour format that your PHP code can rely on.</p>
+</div>
+
+<h2>Basic Usage</h2>
+
+<p>Use <span class="feature-ref">form_time()</span> to create a time input field:</p>
+
+[code=php]
+echo form_time('start_time');
+// Output: &lt;input type="time" name="start_time"&gt;
+[/code]
+
+<h2>Demonstration</h2>
+<p>Below is the native HTML5 time input rendered by <code>form_time()</code>:</p>
+<div class="code-demo text-center">
+    <p><input type="time" name="start_time"></p>
+</div>
+
+<h2>Function Signature</h2>
+
+[code=php]
+function form_time(string $name, ?string $value = null, array $attributes = []): string
+[/code]
+
+<h3>Parameters</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$name</code></td>
+            <td>string</td>
+            <td>The name attribute for the input (required)</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td><code>$value</code></td>
+            <td>string|null</td>
+            <td>The value in HH:MM or HH:MM:SS format</td>
+            <td>null</td>
+        </tr>
+        <tr>
+            <td><code>$attributes</code></td>
+            <td>array</td>
+            <td>Additional HTML attributes</td>
+            <td>[]</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>With a Default Value</h2>
+
+[code=php]
+echo form_time('start_time', '09:00');
+// Output: &lt;input type="time" name="start_time" value="09:00"&gt;
+[/code]
+
+<h2>With Attributes</h2>
+
+[code=php]
+$attributes = [
+    'min' => '09:00',
+    'max' => '17:00',
+    'required' => true
+];
+echo form_time('meeting_time', '', $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;input type="time" name="meeting_time" value="" min="09:00" max="17:00" required&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Downloadable Demo:</strong> Want to see the <span class="feature-ref">form_time()</span> function in action? A fully working demo is just one click away! Check out the complete <strong>Room Bookings</strong> demo module example on GitHub:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2-Room-Bookings" target="_blank">https://github.com/trongate/Trongate-v2-Room-Bookings</a></p>
+    <p>This repository provides a ready-to-use example of building a room booking system using the Trongate PHP framework (version 2). It includes pagination, form validation, secure admin access, native HTML5 time input handling, custom time range validation, and clean separation of concerns.</p>
+</div>
+
+<h2>Common Attributes</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>min</code></td>
+            <td>Earliest selectable time (HH:MM)</td>
+            <td><code>['min' => '09:00']</code></td>
+        </tr>
+        <tr>
+            <td><code>max</code></td>
+            <td>Latest selectable time (HH:MM)</td>
+            <td><code>['max' => '17:00']</code></td>
+        </tr>
+        <tr>
+            <td><code>step</code></td>
+            <td>Time interval in seconds</td>
+            <td><code>['step' => 900]</code> (15 min)</td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>Field must have a value</td>
+            <td><code>['required' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>readonly</code></td>
+            <td>Prevent user editing</td>
+            <td><code>['readonly' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>disabled</code></td>
+            <td>Disable the input</td>
+            <td><code>['disabled' => true]</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Understanding the Step Attribute</h2>
+
+<p>The <code>step</code> attribute controls the time interval in seconds:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Step Value</th>
+            <th>Interval</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>60</code></td>
+            <td>1 minute</td>
+            <td>09:00, 09:01, 09:02...</td>
+        </tr>
+        <tr>
+            <td><code>300</code></td>
+            <td>5 minutes</td>
+            <td>09:00, 09:05, 09:10...</td>
+        </tr>
+        <tr>
+            <td><code>900</code></td>
+            <td>15 minutes</td>
+            <td>09:00, 09:15, 09:30...</td>
+        </tr>
+        <tr>
+            <td><code>1800</code></td>
+            <td>30 minutes</td>
+            <td>09:00, 09:30, 10:00...</td>
+        </tr>
+        <tr>
+            <td><code>3600</code></td>
+            <td>1 hour</td>
+            <td>09:00, 10:00, 11:00...</td>
+        </tr>
+        <tr>
+            <td><code>1</code></td>
+            <td>1 second</td>
+            <td>09:00:00, 09:00:01...</td>
+        </tr>
+    </tbody>
+</table>
+
+[code=php]
+// 15-minute intervals
+$attributes = ['step' => 900];
+echo form_time('appointment_time', '', $attributes);
+
+// 30-minute intervals
+$attributes = ['step' => 1800];
+echo form_time('meeting_time', '', $attributes);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Default Step:</strong> If no step is specified, browsers typically default to 1-minute intervals (step="60").</p>
+</div>
+
+<h2>Setting Current Time as Default</h2>
+
+[code=php]
+$now = date('H:i');
+echo form_time('clock_in_time', $now);
+[/code]
+
+<h2>How to Repopulate Forms After Validation Errors</h2>
+
+<p>When a form fails validation, you need to redisplay it with the user's entered value:</p>
+
+<h3>Controller Example</h3>
+
+[code=php]
+public function create(): void {
+    // Fetch posted value (returns empty string if form hasn't been submitted)
+    $data['start_time'] = post('start_time', true);
+    $data['end_time'] = post('end_time', true);
+    
+    // Pass data to view
+    $this->view('schedule_form', $data);
+}
+[/code]
+
+<h3>View Example</h3>
+
+[code=php]
+&lt;?php
+echo form_open('schedules/submit');
+echo form_label('Start Time');
+echo form_time('start_time', $start_time);
+echo form_label('End Time');
+echo form_time('end_time', $end_time);
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Form Repopulation Pattern:</strong> Always use <code>post('field_name', true)</code> in the controller to fetch submitted values. The <code>true</code> parameter trims whitespace, ensuring clean data.</p>
+</div>
+
+<h2>Real-World Example: Store Opening Hours</h2>
+
+<p>Controller:</p>
+
+[code=php]
+public function create(): void {
+    $data['headline'] = 'Set Store Hours';
+    $data['opening_time'] = post('opening_time', true);
+    $data['closing_time'] = post('closing_time', true);
+    $data['form_location'] = BASE_URL . 'settings/submit';
+    $this->templates->admin($data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('opening_time', 'opening time', 'required|valid_time');
+    $this->validation->set_rules('closing_time', 'closing time', 'required|valid_time|callback_closing_after_opening');
+
+    if ($this->validation->run() === true) {
+        $data['opening_time'] = post('opening_time', true);
+        $data['closing_time'] = post('closing_time', true);
+
+        $this->db->update(1, $data, 'store_settings');
+
+        set_flashdata('Store hours updated successfully');
+        redirect('settings/manage');
+    } else {
+        $this->create();
+    }
+}
+
+public function callback_closing_after_opening($closing_time): string|bool {
+    $opening_time = post('opening_time', true);
+    
+    if ($opening_time === '' || $closing_time === '') {
+        return true; // Let required rule handle empty values
+    }
+    
+    if (strtotime($closing_time) <= strtotime($opening_time)) {
+        return 'The {label} must be after the opening time.';
+    }
+    
+    return true;
+}
+[/code]
+
+<p>View:</p>
+
+[code=php]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Opening Time');
+$opening_attrs = ['step' => 900, 'required' => true]; // 15-min intervals
+echo form_time('opening_time', $opening_time, $opening_attrs);
+
+echo form_label('Closing Time');
+$closing_attrs = ['step' => 900, 'required' => true];
+echo form_time('closing_time', $closing_time, $closing_attrs);
+
+echo form_submit('submit', 'Save Hours');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Working with the Create/Update Pattern</h2>
+
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing record - load from database
+        $record = $this->db->get_where($update_id, 'appointments');
+        $data['appointment_time'] = $record->appointment_time; // Already in HH:MM:SS format
+    } else {
+        // New record OR validation error - use POST data
+        $data['appointment_time'] = post('appointment_time', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'appointments/submit/' . $update_id;
+    $this->view('appointment_form', $data);
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Type-Casting Segments:</strong> Always use <code>segment(3, 'int')</code> when expecting numeric IDs. This prevents type-related bugs and improves code clarity.</p>
+</div>
+
+<h2>Database Storage</h2>
+
+<p>Time inputs submit in <code>HH:MM</code> or <code>HH:MM:SS</code> format, which maps to the MySQL <code>TIME</code> type:</p>
+
+<h3>Table Schema</h3>
+
+[code=sql]
+CREATE TABLE store_hours (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    day_of_week VARCHAR(10),
+    opening_time TIME,
+    closing_time TIME
+);
+[/code]
+
+<h3>Inserting Data</h3>
+
+[code=php]
+public function submit(): void {
+    $this->validation->set_rules('opening_time', 'opening time', 'required|valid_time');
+    $this->validation->set_rules('closing_time', 'closing time', 'required|valid_time');
+    
+    if ($this->validation->run() === true) {
+        $data['day_of_week'] = post('day_of_week', true);
+        $data['opening_time'] = post('opening_time', true); // e.g., "09:00"
+        $data['closing_time'] = post('closing_time', true); // e.g., "17:00"
+        
+        $this->db->insert($data, 'store_hours');
+        redirect('settings/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Direct Storage:</strong> HTML5 time inputs submit in formats that MySQL's <code>TIME</code> type accepts directly. If the user submits <code>09:00</code>, MySQL automatically stores it as <code>09:00:00</code>.</p>
+</div>
+
+<h2>Formatting Times for Display</h2>
+
+<p>When displaying times to users, you may want different formats:</p>
+
+[code=php]
+// From database: 14:30:00
+
+// 12-hour format with AM/PM
+$time = new DateTime('14:30:00');
+echo $time->format('g:i A'); // 2:30 PM
+echo $time->format('h:i A'); // 02:30 PM
+
+// 24-hour format
+echo $time->format('H:i'); // 14:30
+
+// With seconds
+echo $time->format('H:i:s'); // 14:30:00
+
+// Locale-aware formatting
+$formatter = new IntlDateFormatter(
+    'en_US',
+    IntlDateFormatter::NONE,
+    IntlDateFormatter::SHORT
+);
+$datetime = new DateTime('1970-01-01 14:30:00'); // Need a date for formatter
+echo $formatter->format($datetime); // 2:30 PM
+
+// For French users (24-hour format is standard)
+$formatter = new IntlDateFormatter(
+    'fr_FR',
+    IntlDateFormatter::NONE,
+    IntlDateFormatter::SHORT
+);
+echo $formatter->format($datetime); // 14:30
+[/code]
+
+<h2>Validation</h2>
+
+<p>Use the <code>valid_time</code> validation rule to ensure the submitted value is in the correct format:</p>
+
+[code=php]
+$this->validation->set_rules('start_time', 'start time', 'required|valid_time');
+[/code]
+
+<p>This validates that the value matches <code>HH:MM</code> or <code>HH:MM:SS</code> format and represents a valid time.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Client vs Server Validation:</strong> While browsers validate time formats client-side, <strong>always</strong> use server-side validation with <code>valid_time</code>. Client validation can be bypassed and doesn't protect your database.</p>
+</div>
+
+<div class="alert alert-info">
+    <p>See the <strong>Validating Date and Time Data</strong> chapter for complete validation rule documentation.</p>
+</div>
+
+<h2>Business Hours Example</h2>
+
+<p>Here's a complete example for managing daily business hours:</p>
+
+[code=php]
+// Controller
+public function edit_hours(): void {
+    $data['days'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    foreach ($data['days'] as $day) {
+        $field_open = strtolower($day) . '_open';
+        $field_close = strtolower($day) . '_close';
+        $data[$field_open] = post($field_open, true);
+        $data[$field_close] = post($field_close, true);
+    }
+    
+    $this->view('hours_form', $data);
+}
+
+public function submit_hours(): void {
+    $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    
+    foreach ($days as $day) {
+        $this->validation->set_rules($day . '_open', $day . ' opening time', 'valid_time');
+        $this->validation->set_rules($day . '_close', $day . ' closing time', 'valid_time');
+    }
+    
+    if ($this->validation->run() === true) {
+        foreach ($days as $day) {
+            $data['day'] = $day;
+            $data['opening_time'] = post($day . '_open', true);
+            $data['closing_time'] = post($day . '_close', true);
+            
+            // Update or insert logic here
+            $this->db->update_where('day', $day, $data, 'business_hours');
+        }
+        
+        set_flashdata('Hours updated successfully');
+        redirect('settings/hours');
+    } else {
+        $this->edit_hours();
+    }
+}
+[/code]
+
+[code=php]
+// View
+&lt;?php
+echo form_open('settings/submit_hours');
+
+foreach ($days as $day) {
+    $day_lower = strtolower($day);
+    $field_open = $day_lower . '_open';
+    $field_close = $day_lower . '_close';
+    
+    echo '&lt;div class="day-row"&gt;';
+    echo '&lt;h3&gt;' . $day . '&lt;/h3&gt;';
+    
+    echo form_label('Opens');
+    echo form_time($field_open, $$field_open, ['step' => 900]);
+    
+    echo form_label('Closes');
+    echo form_time($field_close, $$field_close, ['step' => 900]);
+    
+    echo '&lt;/div&gt;';
+}
+
+echo form_submit('submit', 'Save All Hours');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Appointment Booking Example</h2>
+
+<p>Restricting time selection to business hours with 30-minute intervals:</p>
+
+[code=php]
+// Controller
+public function book(): void {
+    $data['appointment_time'] = post('appointment_time', true);
+    $this->view('booking_form', $data);
+}
+[/code]
+
+[code=php]
+// View
+&lt;?php
+$time_attrs = [
+    'min' => '09:00',
+    'max' => '17:00',
+    'step' => 1800, // 30-minute intervals
+    'required' => true
+];
+
+echo form_label('Appointment Time');
+echo form_time('appointment_time', $appointment_time, $time_attrs);
+?&gt;
+[/code]
+
+<h2>Common Patterns</h2>
+
+<h3>Office Hours (15-minute intervals)</h3>
+
+[code=php]
+$attributes = [
+    'min' => '08:00',
+    'max' => '18:00',
+    'step' => 900, // 15 minutes
+    'required' => true
+];
+echo form_time('meeting_time', $meeting_time, $attributes);
+[/code]
+
+<h3>Class Schedule (1-hour intervals)</h3>
+
+[code=php]
+$attributes = [
+    'min' => '08:00',
+    'max' => '20:00',
+    'step' => 3600, // 1 hour
+    'required' => true
+];
+echo form_time('class_time', $class_time, $attributes);
+[/code]
+
+<h3>Precise Time Entry (with seconds)</h3>
+
+[code=php]
+$attributes = [
+    'step' => 1, // 1 second
+    'required' => true
+];
+echo form_time('exact_time', $exact_time, $attributes);
+[/code]
+
+<h2>12-Hour vs 24-Hour Display</h2>
+
+<p>The browser automatically displays times in the user's preferred format:</p>
+
+<ul>
+    <li><strong>US users:</strong> Typically see 12-hour format with AM/PM</li>
+    <li><strong>European users:</strong> Typically see 24-hour format</li>
+    <li><strong>Data submitted:</strong> Always in 24-hour format (HH:MM)</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Best of Both Worlds:</strong> Users see time in their familiar format, but your application always receives consistent 24-hour format data. No conversion logic needed!</p>
+</div>
+
+<h2>Browser Rendering</h2>
+
+<p>Different browsers provide different time picker interfaces:</p>
+
+<ul>
+    <li><strong>Chrome/Edge:</strong> Dropdown with hour/minute selectors and AM/PM toggle (if 12-hour)</li>
+    <li><strong>Firefox:</strong> Separate hour and minute input boxes with increment/decrement buttons</li>
+    <li><strong>Safari:</strong> Native time picker wheel</li>
+    <li><strong>Mobile:</strong> Native time picker optimized for the device</li>
+</ul>
+
+<h2>Important Notes</h2>
+
+<ul>
+    <li>Times are always submitted in 24-hour format (<code>HH:MM</code> or <code>HH:MM:SS</code>)</li>
+    <li>The <code>step</code> attribute controls granularity in seconds</li>
+    <li>Default step is 60 seconds (1 minute) if not specified</li>
+    <li>Use MySQL's <code>TIME</code> type for time-only storage</li>
+    <li>Min/max attributes restrict the selectable time range</li>
+    <li>Browser validates format automatically, but server validation is still required</li>
+    <li>Display format (12h vs 24h) is determined by user's system locale</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p><strong>Value Format:</strong> The value attribute must be in <code>HH:MM</code> or <code>HH:MM:SS</code> format (24-hour). Values like <code>2:30 PM</code> or <code>14.30</code> will not work and the field will appear empty.</p>
+</div>
+
+<h2>Combining Date and Time</h2>
+
+<p>For applications that need both date and time, you have two options:</p>
+
+<h3>Option 1: Separate Fields</h3>
+
+[code=php]
+echo form_label('Event Date');
+echo form_date('event_date', $event_date);
+
+echo form_label('Event Time');
+echo form_time('event_time', $event_time);
+[/code]
+
+[code=php]
+// In submit handler, combine for database
+$datetime = post('event_date', true) . ' ' . post('event_time', true) . ':00';
+// Result: "2025-12-27 14:30:00"
+$data['event_datetime'] = $datetime;
+$this->db->insert($data, 'events');
+[/code]
+
+<h3>Option 2: Single datetime-local Field</h3>
+
+[code=php]
+// See the "DateTime Input Fields" chapter
+echo form_datetime_local('event_datetime', $event_datetime);
+[/code]
+
+<p>Each approach has its uses - separate fields give more control, while datetime-local is simpler for the user.</p>

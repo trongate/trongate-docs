@@ -1,0 +1,193 @@
+<div class="container">
+    <h1>form_textarea()</h1>
+    <p class="signature">function form_textarea(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML textarea element for multi-line text input. Textareas are ideal for longer content like comments, descriptions, or messages.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the textarea element.</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>(optional) The initial text content of the textarea.</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes for the textarea element. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>An HTML textarea element with the specified content and attributes.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Textarea</h2>
+[code=php]
+echo form_textarea('comments');
+
+// Output:
+// &lt;textarea name="comments"&gt;&lt;/textarea&gt;
+[/code]
+
+    <h2>Example #2: Textarea with Pre-filled Content</h2>
+    <p>Useful for editing existing content, like in a CMS or admin panel:</p>
+[code=php]
+$article_content = "Welcome to our newsletter!\n\nWe're excited to share our latest updates with you.";
+echo form_textarea('content', $article_content);
+
+// Output:
+// &lt;textarea name="content"&gt;Welcome to our newsletter!
+
+// We're excited to share our latest updates with you.&lt;/textarea&gt;
+[/code]
+
+    <h2>Example #3: Textarea with Size Attributes</h2>
+[code=php]
+$attributes = [
+    'rows' =&gt; '6',
+    'cols' =&gt; '50',
+    'placeholder' =&gt; 'Enter your message here...'
+];
+echo form_textarea('message', '', $attributes);
+
+// Output:
+// &lt;textarea name="message" rows="6" cols="50" placeholder="Enter your message here..."&gt;&lt;/textarea&gt;
+[/code]
+
+    <h2>Example #4: Resizable Textarea with Character Limits</h2>
+[code=php]
+$attributes = [
+    'rows' =&gt; '8',
+    'maxlength' =&gt; '500',
+    'minlength' =&gt; '10',
+    'required' =&gt; 'required',
+    'style' =&gt; 'resize: vertical;'
+];
+$existing_content = post('description', true);
+echo form_textarea('description', $existing_content, $attributes);
+
+// Output (with content):
+// &lt;textarea name="description" rows="8" maxlength="500" minlength="10" required="required" style="resize: vertical;"&gt;Existing content...&lt;/textarea&gt;
+[/code]
+
+    <h2>Common Textarea Attributes</h2>
+    
+    <table class="sm">
+        <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Purpose</th>
+                <th>Example</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>rows</code></td>
+                <td>Visible number of text lines</td>
+                <td><code>rows="5"</code></td>
+            </tr>
+            <tr>
+                <td><code>cols</code></td>
+                <td>Visible width in characters</td>
+                <td><code>cols="80"</code></td>
+            </tr>
+            <tr>
+                <td><code>maxlength</code></td>
+                <td>Maximum character count</td>
+                <td><code>maxlength="1000"</code></td>
+            </tr>
+            <tr>
+                <td><code>minlength</code></td>
+                <td>Minimum character count</td>
+                <td><code>minlength="10"</code></td>
+            </tr>
+            <tr>
+                <td><code>placeholder</code></td>
+                <td>Hint text when empty</td>
+                <td><code>placeholder="Type here..."</code></td>
+            </tr>
+            <tr>
+                <td><code>readonly</code></td>
+                <td>Prevents text modification</td>
+                <td><code>readonly="readonly"</code></td>
+            </tr>
+            <tr>
+                <td><code>disabled</code></td>
+                <td>Disables the textarea</td>
+                <td><code>disabled="disabled"</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <p>**Content Safety:** All textarea content is automatically HTML-escaped using <code>htmlspecialchars()</code> to prevent XSS vulnerabilities.</p>
+    </div>
+
+    <div class="alert alert-success">
+        <ul>
+            <li>Use <code>rows</code> and <code>cols</code> for basic size control</li>
+            <li>Consider CSS <code>width</code> and <code>height</code> for more precise sizing</li>
+            <li>Add <code>maxlength</code> to prevent excessively long submissions</li>
+            <li>Use <code>placeholder</code> text to guide users on expected content</li>
+            <li>Textareas preserve whitespace and line breaks from user input</li>
+            <li>Retrieve submitted content with <code>post('field_name', true)</code></li>
+            <li>For rich text editing, consider JavaScript WYSIWYG editors</li>
+        </ul>
+    </div>
+
+    <h2>Practical Example</h2>
+    <p>Here's how you might use a textarea in a contact form:</p>
+
+[code=vf]
+&lt;?php
+echo form_open('contact/submit');
+echo form_label('Your Message');
+echo form_textarea('message', post('message', true), [
+    'rows' =&gt; '6',
+    'placeholder' =&gt; 'Please describe your inquiry in detail...',
+    'required' =&gt; 'required'
+]);
+echo form_submit('send', 'Send Message');
+echo form_close();
+?&gt;
+[/code]
+
+    <h2>Usage Notes</h2>
+    <ul>
+        <li>The <code>$value</code> parameter is ideal for pre-populating editable content (like in edit forms)</li>
+        <li>For hint text that disappears when typing, use the <code>placeholder</code> attribute instead</li>
+        <li>Textareas automatically preserve line breaks and formatting from user input</li>
+        <li>Consider using <code>nl2br()</code> when displaying textarea content to preserve line breaks</li>
+        <li>For very long content, consider implementing a character counter with JavaScript</li>
+    </ul>
+</div>

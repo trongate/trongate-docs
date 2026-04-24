@@ -1,0 +1,165 @@
+<div class="container">
+    <h1>form_close()</h1>
+    <p class="signature">function form_close(): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Closes an HTML form. Always use this function instead of manually writing <code>&lt;/form&gt;</code>. It automatically adds a CSRF token for security and handles validation error highlighting.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <p>This function does not accept any parameters.</p>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>The closing <code>&lt;/form&gt;</code> tag with hidden CSRF token and optional error highlighting JavaScript.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Example Usage</h2>
+
+<p>Imagine that you're building a simple task manager application, within a module named 'tasks'.</p>
+<p>Your controller file, <b>Tasks.php</b> could have a method named <code>create()</code> which gets invoked when a user wishes to create a new task.</p>
+
+[code=php]
+&lt;?php
+class Tasks extends Trongate {
+
+    /**
+     * Display a webpage with a form for creating a task record.
+     *
+     * @return void
+     */
+    public function create(): void {
+
+        $data = [
+            'headline' => 'Create New Task Record',
+            'cancel_url' => BASE_URL.'tasks/manage',
+            'form_location' => BASE_URL.'tasks/submit',
+            'view_file' => 'create'
+        ];
+
+        $this->templates->admin($data);
+    }
+
+}
+[/code]
+
+    <p>Inside the Tasks module, your <code>create.php</code> view file could have the following code:</p>
+[code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+&lt;div class="card-body"&gt;
+    &lt;?php
+    echo form_open($form_location);
+    echo form_label('Task Title');
+    echo form_input('task_title');
+    echo form_label('Task Description');
+    echo form_textarea('task_description');
+    
+    echo '&lt;div class="text-center"&gt;';
+    echo anchor($cancel_url, 'Cancel', array('class' =&gt; 'button alt'));
+    echo form_submit('submit', 'Submit');
+    echo '&lt;/div&gt;';
+    
+    echo form_close();
+    ?&gt;
+&lt;/div&gt;
+[/code]
+
+<p>This generates:</p>
+[code=html]
+&lt;form action="https://yoursite.com/tasks/submit" method="post"&gt;
+&lt;!-- form fields here --&gt;
+&lt;input type="hidden" name="csrf_token" value="random-token-here"&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-warning">
+    <p>The code samples above are for demonstration purposes only. In a real-use case, you'd almost certainly need to add additional features such as security, pre-population of form fields, the ability to edit existing records and more.</p>
+</div>
+
+<h2>How It Works</h2>
+<ol>
+    <li>When you call <code>form_close()</code>, it adds a hidden CSRF token to your form</li>
+    <li>When the form is submitted, the <code>Validation::run()</code> method checks this token automatically</li>
+    <li>If the token is missing or invalid, the submission is rejected</li>
+</ol>
+
+<p>In the Tasks controller:</p>
+[code=php]
+public function submit(): void {
+    
+    $submit = post('submit', true);
+
+    if ($submit === 'Submit') {
+        $this->validation->set_rules('task_title', 'task title', 'required|min_length[2]|max_length[255]');
+        $this->validation->set_rules('task_description', 'task description', 'required|min_length[2]');
+
+        // CSRF validation happens automatically here ↓
+        $result = $this->validation->run();
+
+        if ($result === true) {
+            // Process the form...
+        } else {
+            $this->create(); // Redisplay form with errors
+        }
+    }
+}
+[/code]
+
+<h2>Automatic Error Highlighting</h2>
+<p>In addition to CSRF protection, <code>form_close()</code> also handles automatic validation error highlighting when used with forms that have the <code>highlight-errors</code> class.</p>
+
+<p>When validation errors exist in the session, <code>form_close()</code> automatically:</p>
+<ol>
+    <li>Injects errors as JavaScript (<code>window.trongateValidationErrors</code>)</li>
+    <li>Injects highlighting script that adds the <code>form-field-validation-error</code> class to fields with errors</li>
+    <li>Clears validation errors from the session</li>
+</ol>
+
+<p>Example form with error highlighting:</p>
+[code=vf]
+&lt;?php
+echo form_open($form_location, ['class' => 'highlight-errors']);
+echo form_label('Email');
+echo form_input('email', $email);
+echo form_label('Password');
+echo form_password('password');
+echo form_submit('submit', 'Login');
+echo form_close(); // Adds CSRF token + injects error highlighting if errors exist
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>The error highlighting feature works automatically when forms have the <code>highlight-errors</code> class. Default styling is provided in <code>trongate.css</code>. For more details, see the Displaying Validation Errors documentation.</p>
+</div>
+
+<h2>Important Notes</h2>
+<ul>
+    <li>Always use <code>form_close()</code> to close forms opened with <code>form_open()</code></li>
+    <li>GET forms (like search forms) don't need CSRF protection - but you should still use <code>form_close()</code> for consistency</li>
+    <li>The CSRF token is validated automatically by <code>$this-&gt;validation-&gt;run()</code></li>
+    <li>When validation errors exist in the session, <code>form_close()</code> injects error highlighting JavaScript and clears the errors</li>
+    <li>Error highlighting only works when the form has the <code>highlight-errors</code> class</li>
+</ul>
+
+<h2>Best Practice Pattern</h2>
+<p>Follow this simple pattern in your views:</p>
+[code=php]
+echo form_open($form_location, ['class' => 'highlight-errors']);
+// ... your form fields ...
+echo form_submit('submit', 'Submit');
+echo form_close(); // ← This is required
+[/code]
+</div>

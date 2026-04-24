@@ -1,0 +1,37 @@
+<div class="container">
+  <h1>not_found()</h1>
+  <p class="signature">public function not_found(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Renders a "Record Not Found" page with a descriptive message and a "Go Back" link. Called internally when a requested record doesn't exist or has been deleted.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Output rendered via the admin template.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Called automatically when a record is not found
+$record_data = $this->model->get_data_from_db($update_id);
+if ($record_data === false) {
+    $this->not_found();
+    return;
+}
+
+// Manual redirect from another controller
+if (!$user_exists) {
+    redirect('trongate_administrators/not_found');
+}
+
+// The page displays:
+// Headline: "Record Not Found"
+// Message: "The record you're looking for doesn't exist or has been deleted."
+// Button: "Go Back" linking to the manage page
+[/code]
+</div>

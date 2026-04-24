@@ -1,0 +1,125 @@
+<div class="container">
+  <h1>resequence_ids()</h1>
+  <p class="signature">public function resequence_ids(string $table_name): bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Resequences the ID column of a table to eliminate gaps, making IDs sequential starting from 1. Useful after deleting records to maintain clean, sequential IDs. The method uses a two‑pass update with temporary negative IDs to avoid primary key conflicts, wrapped in a transaction for atomicity.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>table_name</td>
+        <td>string</td>
+        <td>The name of the table whose IDs should be resequenced.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>True if resequencing was successful.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>Exception</strong> - If any database operation fails; the transaction is rolled back and the exception is re‑thrown.</li>
+  </ul>
+
+  <h2>Example #1: Basic Resequencing</h2>
+  <p>The code sample below demonstrates how to resequence IDs in a table after deletions.</p>
+[code=php]
+// After deleting some records, make IDs sequential again
+if ($this->db->resequence_ids('products')) {
+    echo "Product IDs have been resequenced successfully.";
+}
+[/code]
+
+  <h2>Example #2: Resequencing After Bulk Deletion</h2>
+  <p>The code sample below demonstrates resequencing as part of a cleanup routine.</p>
+[code=php]
+// Delete inactive users
+$this->db->query("DELETE FROM users WHERE active = 0");
+
+// Resequence the IDs to remove gaps
+try {
+    $this->db->resequence_ids('users');
+    echo "User IDs resequenced after cleanup.";
+} catch (Exception $e) {
+    echo "Failed to resequence IDs: " . $e->getMessage();
+}
+[/code]
+
+  <h2>Example #3: Maintenance Script for Multiple Tables</h2>
+  <p>The code sample below demonstrates resequencing IDs across multiple tables in a maintenance script.</p>
+[code=php]
+$tables_to_resequence = ['categories', 'tags', 'statuses'];
+
+foreach ($tables_to_resequence as $table) {
+    if ($this->db->table_exists($table)) {
+        try {
+            $this->db->resequence_ids($table);
+            echo "Resequenced IDs for table '$table'.<br>";
+        } catch (Exception $e) {
+            echo "Failed to resequence '$table': " . $e->getMessage() . "<br>";
+        }
+    }
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The <code>$table_name</code> parameter is <strong>required</strong>.</li>
+    <li>Uses a database transaction; if any step fails, all changes are rolled back.</li>
+    <li>Employs a two‑pass algorithm:
+      <ol>
+        <li>First pass: assign temporary negative IDs to avoid conflicts</li>
+        <li>Second pass: assign new sequential IDs starting from 1</li>
+      </ol>
+    </li>
+    <li>Resets the auto‑increment counter to 1 after resequencing.</li>
+    <li>If the table is empty, simply sets auto‑increment to 1 and returns true.</li>
+    <li>Performance considerations:
+      <ul>
+        <li>For large tables, this operation can be resource‑intensive</li>
+        <li>Locks the table during execution (via transaction)</li>
+        <li>Consider doing during low‑traffic periods</li>
+      </ul>
+    </li>
+    <li>Foreign‑key constraints: If other tables reference these IDs, resequencing will break those references. Use with caution in systems with complex relationships.</li>
+    <li>Always backup your data before using this method in production.</li>
+    <li>Primarily intended for:
+      <ol>
+        <li>Development and testing environments</li>
+        <li>Lookup tables with simple relationships</li>
+        <li>Systems where sequential IDs are required for external compliance</li>
+      </ol>
+    </li>
+  </ul>
+</div>

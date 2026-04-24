@@ -1,0 +1,351 @@
+ <div class="container">
+    <h1>upload()</h1>
+    <p class="signature">public function upload(array $config): array</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Handles the file upload process with specified configuration. This method validates the configuration, processes the uploaded file, performs security checks, generates a secure filename, and moves the file to the target destination.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Validation First:</strong> Always validate uploaded files using Trongate's validation module before calling <code>upload()</code>. The validation module checks file type, size, and required status. The <code>upload()</code> method handles the physical file transfer after validation passes.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$config</td>
+                <td>array</td>
+                <td>An associative array containing upload configuration options</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding The Configuration Array</h2>
+    <p>The <code>$config</code> array controls where and how files are uploaded. It determines the destination directory, whether to use module-specific paths, and how filenames should be generated. At minimum, you must specify a destination directory - all other options have sensible defaults.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Required</th>
+                <th>Expected Type</th>
+                <th>Description</th>
+                <th>Sample Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>destination</td>
+                <td>Yes</td>
+                <td>string</td>
+                <td>Target directory path. Behavior depends on upload_to_module setting.</td>
+                <td><code>'public/uploads'</code></td>
+            </tr>
+            <tr>
+                <td>upload_to_module</td>
+                <td>No</td>
+                <td>bool</td>
+                <td>If true, uploads to module directory. If false, uploads relative to application root. Default: false</td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td>target_module</td>
+                <td>No</td>
+                <td>string</td>
+                <td>Specific module name to use when upload_to_module is true. If not set, uses first URL segment. Default: current URL segment</td>
+                <td><code>'users'</code></td>
+            </tr>
+            <tr>
+                <td>make_rand_name</td>
+                <td>No</td>
+                <td>bool</td>
+                <td>Generate random 10-character alphanumeric filename while preserving extension. Default: false</td>
+                <td><code>true</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Configuration Options Explained</h2>
+    
+    <h3>destination</h3>
+    <p>The target directory where the file will be stored. Behavior depends on <code>upload_to_module</code>:</p>
+    <ul>
+        <li>When <code>upload_to_module</code> is <code>false</code>: Path relative to application root (e.g., <code>'public/uploads'</code>)</li>
+        <li>When <code>upload_to_module</code> is <code>true</code>: Path relative to module directory (e.g., <code>'documents'</code> becomes <code>'modules/your_module/documents'</code>)</li>
+    </ul>
+
+    <h3>upload_to_module</h3>
+    <p>Controls whether files are uploaded to a module directory or to the general application directory:</p>
+    <ul>
+        <li><code>false</code> (default): Uploads to path relative to application root</li>
+        <li><code>true</code>: Uploads to path relative to the module directory</li>
+    </ul>
+
+    <h3>target_module</h3>
+    <p>Specifies which module directory to use when <code>upload_to_module</code> is <code>true</code>:</p>
+    <ul>
+        <li>If not set: Uses the first URL segment as the module name</li>
+        <li>If set: Uses the specified module name (useful for custom routing or cross-module uploads)</li>
+    </ul>
+
+    <h3>make_rand_name</h3>
+    <p>Controls filename generation:</p>
+    <ul>
+        <li><code>false</code> (default): Preserves original filename (sanitized and made unique if needed)</li>
+        <li><code>true</code>: Generates random 10-character alphanumeric filename, preserving extension</li>
+    </ul>
+    
+    <h2>Return Value</h2>
+    <p>Returns an associative array containing metadata about the successfully uploaded file:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>file_name</td>
+                <td>string</td>
+                <td>The final filename as stored on disk (may differ from original - see note below)</td>
+            </tr>
+            <tr>
+                <td>file_path</td>
+                <td>string</td>
+                <td>The complete filesystem path to the uploaded file</td>
+            </tr>
+            <tr>
+                <td>file_type</td>
+                <td>string</td>
+                <td>The detected MIME type (e.g., "application/pdf", "text/csv")</td>
+            </tr>
+            <tr>
+                <td>file_size</td>
+                <td>int</td>
+                <td>File size in bytes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <p><strong>Important: Understanding file_name</strong></p>
+        <p>The returned <code>file_name</code> will often differ from the original uploaded filename due to security and uniqueness requirements:</p>
+        <ul>
+            <li><strong>Sanitization:</strong> Original names are processed by <code>sanitize_filename()</code>, which converts to lowercase, transliterates special characters (é → e), and replaces spaces/special characters with dashes</li>
+            <li><strong>Uniqueness:</strong> If a file with the same name exists, a numeric suffix is added (e.g., document_2.pdf, document_3.pdf)</li>
+            <li><strong>Randomization:</strong> When <code>make_rand_name</code> is true, the name becomes a random 10-character string (e.g., a7f9d2e1b4.pdf)</li>
+        </ul>
+        <p>Always use the returned <code>file_name</code> value for database storage and file references - never assume the original filename was preserved.</p>
+    </div>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic file upload operation.</p>
+    [code=php]
+public function submit_upload(): void {
+    // Validate the uploaded file
+    $this-&gt;validation-&gt;set_rules('userfile', 'File', 'required|allowed_types[pdf,doc,docx]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload destination
+        $config['destination'] = 'public/uploads';
+        
+        // Ensure destination directory exists
+        if (!$this-&gt;file-&gt;exists('public/uploads')) {
+            $this-&gt;file-&gt;create_directory('public/uploads', 0755);
+        }
+        
+        // Upload the file
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        set_flashdata('File uploaded: ' . $file_info['file_name']);
+        redirect('uploads/success');
+    } else {
+        // Validation failed - redisplay form
+        $this-&gt;upload_form();
+    }
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The "Check Before You Act" Pattern:</strong> Always ensure the destination directory exists before calling <code>upload()</code>. Use <code>$this-&gt;file-&gt;exists($directory)</code> to check, and <code>$this-&gt;file-&gt;create_directory($directory)</code> to create if needed. This prevents upload failures due to missing directories.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to upload files to a module directory with random filenames for security.</p>
+    [code=php]
+public function submit_document(): void {
+    $user_id = segment(3, 'int');
+    
+    // Validate file upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Document', 'required|allowed_types[pdf]|max_size[10000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure module upload with random naming
+        $config['destination'] = 'documents';
+        $config['upload_to_module'] = true;
+        $config['make_rand_name'] = true;
+        
+        // Ensure destination exists
+        $upload_dir = 'modules/users/documents';
+        if (!$this-&gt;file-&gt;exists($upload_dir)) {
+            $this-&gt;file-&gt;create_directory($upload_dir, 0755);
+        }
+        
+        // Upload the file
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        // Store file reference in database
+        $data = [
+            'user_id' =&gt; $user_id,
+            'filename' =&gt; $file_info['file_name'],
+            'file_path' =&gt; $file_info['file_path'],
+            'file_size' =&gt; $file_info['file_size'],
+            'uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;insert($data, 'user_documents');
+        
+        set_flashdata('Document uploaded successfully');
+        redirect('users/documents/' . $user_id);
+    } else {
+        $this-&gt;document_upload_form($user_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Random Filenames for Security:</strong> Setting <code>make_rand_name</code> to <code>true</code> prevents users from guessing file URLs and accessing other users' files. This is especially important for sensitive documents. Always store the returned <code>file_name</code> in your database so you can retrieve files later.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates organizing uploads into date-based subdirectories.</p>
+    [code=php]
+public function submit_invoice(): void {
+    // Validate uploaded invoice
+    $this-&gt;validation-&gt;set_rules('userfile', 'Invoice', 'required|allowed_types[pdf]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Create date-based directory structure (e.g., invoices/2024/12)
+        $year_month = date('Y/m');
+        $upload_path = 'modules/invoices/uploads/' . $year_month;
+        
+        // Ensure the dated directory exists
+        if (!$this-&gt;file-&gt;exists($upload_path)) {
+            $this-&gt;file-&gt;create_directory($upload_path, 0755, true);
+        }
+        
+        // Configure upload
+        $config['destination'] = 'uploads/' . $year_month;
+        $config['upload_to_module'] = true;
+        $config['target_module'] = 'invoices';
+        $config['make_rand_name'] = true;
+        
+        // Upload the file
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        // Create invoice record
+        $invoice_data = [
+            'invoice_number' =&gt; 'INV-' . date('Ymd') . '-' . rand(1000, 9999),
+            'filename' =&gt; $file_info['file_name'],
+            'file_path' =&gt; $file_info['file_path'],
+            'file_size' =&gt; $file_info['file_size'],
+            'upload_date' =&gt; date('Y-m-d H:i:s')
+        ];
+        $invoice_id = $this-&gt;model-&gt;insert($invoice_data, 'invoices');
+        
+        set_flashdata('Invoice uploaded successfully');
+        redirect('invoices/view/' . $invoice_id);
+    } else {
+        $this-&gt;invoice_upload_form();
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Using target_module:</strong> The <code>target_module</code> option is useful when you need to upload to a specific module directory regardless of the current URL structure. This is particularly valuable when using custom routing or when an admin module needs to upload files to other module directories.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows a complete file upload workflow with backup and cleanup.</p>
+    [code=php]
+public function process_cv_upload(): void {
+    $user_id = segment(3, 'int');
+    
+    // Verify user exists
+    $user = $this-&gt;db-&gt;get_where($user_id, 'users');
+    if ($user === false) {
+        redirect('users/not_found');
+    }
+    
+    // Validate CV file
+    $this-&gt;validation-&gt;set_rules('userfile', 'CV/Resume', 'required|allowed_types[pdf,doc,docx]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // If user already has a CV, back it up before replacing
+        if (!empty($user-&gt;cv_filename)) {
+            $old_cv_path = 'modules/users/cvs/' . $user-&gt;cv_filename;
+            if ($this-&gt;file-&gt;exists($old_cv_path)) {
+                $backup_dir = 'modules/users/cvs/backups';
+                if (!$this-&gt;file-&gt;exists($backup_dir)) {
+                    $this-&gt;file-&gt;create_directory($backup_dir, 0755);
+                }
+                $backup_path = $backup_dir . '/' . date('Ymd_His') . '_' . $user-&gt;cv_filename;
+                $this-&gt;file-&gt;copy($old_cv_path, $backup_path);
+            }
+        }
+        
+        // Ensure CV directory exists
+        $cv_dir = 'modules/users/cvs';
+        if (!$this-&gt;file-&gt;exists($cv_dir)) {
+            $this-&gt;file-&gt;create_directory($cv_dir, 0755);
+        }
+        
+        // Configure and execute upload
+        $config['destination'] = 'cvs';
+        $config['upload_to_module'] = true;
+        $config['target_module'] = 'users';
+        $config['make_rand_name'] = true;
+        
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        // Update user record with new CV
+        $update_data = [
+            'cv_filename' =&gt; $file_info['file_name'],
+            'cv_uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;update($user_id, $update_data, 'users');
+        
+        // Delete old CV file (after successful upload and DB update)
+        if (!empty($user-&gt;cv_filename)) {
+            $old_cv_path = 'modules/users/cvs/' . $user-&gt;cv_filename;
+            if ($this-&gt;file-&gt;exists($old_cv_path)) {
+                $this-&gt;file-&gt;delete($old_cv_path);
+            }
+        }
+        
+        set_flashdata('CV uploaded successfully');
+        redirect('users/profile/' . $user_id);
+    } else {
+        // Validation failed - show form with errors
+        $data['user'] = $user;
+        $this-&gt;view('cv_upload_form', $data);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Automatic Security Validation:</strong> The <code>upload()</code> method performs several security checks automatically: path validation prevents directory traversal attacks, MIME verification confirms file types match their extensions, content scanning checks for dangerous PHP patterns and executable code, filename sanitization removes dangerous characters, and memory checks verify sufficient system resources. These checks run automatically with no additional configuration required.</p>
+    </div>
+</div>

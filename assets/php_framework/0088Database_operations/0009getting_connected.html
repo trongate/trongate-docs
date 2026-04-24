@@ -1,0 +1,71 @@
+[meta-description]Learn how to configure MySQL or MariaDB connections in Trongate, edit the database config file, and set up multiple database connections for models. Get started with database access in the Trongate framework.[/meta-description]
+<h1>Getting Connected</h1>
+<p>With Trongate, everything gets handled by modules.  That includes database interaction.</p>
+
+<p>Trongate v2 comes with a <code>DB</code> module for querying databases.  The <a href="documentation-ref/list_refs/included/db" target="_blank">DB Module</a> talks to MySQL and MariaDB. That’s the deal. Other databases? Possible, but you're on your own.</p>
+
+<h2>The Config File</h2>
+
+<p>All connection details live in <code>config/database.php</code>.</p>
+
+<p>A fresh Trongate install gives you this:</p>
+
+[code=php]
+&lt;?php
+$databases = [
+    'default' => [
+        'host' => '127.0.0.1',
+        'port' => '3306',
+        'user' => 'root',
+        'password' => '',
+        'database' => 'trongate'
+    ],
+];
+[/code]
+
+<p>Edit. Refresh. Done.</p>
+
+<h2>Multiple Databases? Yes.</h2>
+
+<p>Add as many groups as you want:</p>
+
+[code=php]
+&lt;?php
+$databases = [
+    'default' => [
+        'host'     => '127.0.0.1',
+        'user'     => 'app_user',
+        'password' => 's3cureP@ss',
+        'database' => 'production'
+    ],
+    'analytics' => [
+        'host'     => 'analytics.yoursite.com',
+        'user'     => 'reader',
+        'password' => 'R3ad0nly!',
+        'database' => 'stats'
+    ],
+    'warehouse' => [ /* another one */ ]
+];
+[/code]
+
+<p>Controllers can only use the <b>default</b> database connection.</p>
+
+<p>Model files can use <b>any</b> database group you define:</p>
+
+[code=php]
+$stats = $this->analytics->get('id', 'page_views');
+$stock = $this->warehouse->get_where(42, 'items');
+[/code]
+
+<div class="alert alert-info">
+    <p>Secondary databases = models only. Keeps architecture sane.</p>
+</div>
+
+<h2>What You’ll Learn Next</h2>
+
+<ul>
+    <li>How to use the <code>db</code> module</li>
+    <li>Fetching, inserting, updating, deleting records</li>
+    <li>Raw queries + prepared statements</li>
+    <li>Debug mode that actually shows you the SQL</li>
+</ul>

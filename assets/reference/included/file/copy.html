@@ -1,0 +1,111 @@
+ <div class="container">
+    <h1>copy()</h1>
+    <p class="signature">public function copy(string $source_path, string $destination_path): bool</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Copies a file from one location to another. Validates access to the source path before copying.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$source_path</td>
+                <td>string</td>
+                <td>Path to the source file.</td>
+            </tr>
+            <tr>
+                <td>$destination_path</td>
+                <td>string</td>
+                <td>Path to the destination.</td>
+            </tr>
+        </tbody>
+    </table>
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>bool</td>
+                <td>Returns true on success.</td>
+            </tr>
+        </tbody>
+    </table>
+
+ <h2>Example #1</h2>
+<p>The code sample below demonstrates the most basic file copy operation.</p>
+[code=php]
+$source_path = 'modules/documents/original.pdf';
+$destination_path = 'modules/documents/copy_of_original.pdf';
+
+// Check if source file exists
+if ($this-&gt;file-&gt;exists($source_path)) {
+    $result = $this-&gt;file-&gt;copy($source_path, $destination_path);
+    
+    if ($result === true) {
+        echo 'File copied successfully';
+    }
+} else {
+    echo 'Source file not found';
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>The "Check Before You Act" Pattern:</strong> Always verify the source file exists using <code>$this-&gt;file-&gt;exists($source_path)</code> before calling <code>copy()</code>. Additionally, ensure the destination directory exists or create it first. This prevents exceptions and allows you to handle missing files gracefully with user-friendly messages or redirects.</p>
+</div>
+
+<h2>Example #2</h2>
+<p>The example above shows how to create a backup copy of a user's profile picture before processing a new upload.</p>
+[code=php]
+public function update_profile_picture(): void {
+    $user_id = segment(3, 'int');
+    
+    // Get user record
+    $user = $this-&gt;db-&gt;get_where($user_id, 'users');
+    
+    if ($user === false) {
+        redirect('users/not_found');
+    }
+    
+    $current_picture = $user-&gt;profile_picture; // e.g., 'profile_123.jpg'
+    $source_path = 'modules/users/pictures/' . $current_picture;
+    
+    // Check if current profile picture exists before backing it up
+    if ($this-&gt;file-&gt;exists($source_path)) {
+        // Create backup directory if it doesn't exist
+        $backup_dir = 'modules/users/pictures/backups';
+        if (!$this-&gt;file-&gt;exists($backup_dir)) {
+            $this-&gt;file-&gt;create_directory($backup_dir, 0755);
+        }
+        
+        // Create timestamped backup
+        $timestamp = date('Y-m-d_His');
+        $backup_filename = pathinfo($current_picture, PATHINFO_FILENAME) . '_' . $timestamp . '.' . pathinfo($current_picture, PATHINFO_EXTENSION);
+        $backup_path = $backup_dir . '/' . $backup_filename;
+        
+        // Copy the file
+        $result = $this-&gt;file-&gt;copy($source_path, $backup_path);
+        
+        if ($result === true) {
+            // Now safe to process new upload
+            set_flashdata('Previous picture backed up successfully');
+            redirect('users/upload_new_picture/' . $user_id);
+        }
+    } else {
+        // No existing picture to backup
+        redirect('users/upload_new_picture/' . $user_id);
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Copy vs Move:</strong> The <code>copy()</code> method duplicates the file, leaving the original in place. If you want to relocate the file (removing it from the source), use <code>move()</code> instead. Copy operations require more disk space and take longer than move operations since they duplicate the file data.</p>
+</div>
+
+</div>

@@ -1,0 +1,146 @@
+[meta-description]Load Trongate modules instantly from URLs (yoursite.com/module/method) or from code with $this-&gt;module-&gt;method() and Modules::run(). Pass ANY data type - arrays, strings, objects, integers - with total flexibility. Zero setup, zero bloat - just Native PHP magic.[/meta-description]
+<h1>Loading Modules</h1>
+
+<h3>Two ways. Zero drama.</h3>
+
+<p>Modules can be loaded from the URL or from code. No service containers. No CLI tools. No PSR autoloaders. Just Native PHP.</p>
+
+<h2>1. From the URL (the easy way)</h2>
+
+<p>Go to:</p>
+[code]https://yoursite.com/members/profile[/code]
+
+<p>Trongate runs:</p>
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    function profile() {
+        // go nuts
+    }
+
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important Trongate v2 Change!</strong></p>
+    <p>URL segments are <strong>no longer</strong> automatically passed as method parameters. This improves security and performance.</p>
+    <p>Use the <span class="feature-ref">segment()</span> function to explicitly fetch URL parameters when you need them.</p>
+</div>
+
+<h2>2. From Code (the fun way)</h2>
+
+<p>Inside any controller:</p>
+[code=php]
+// Load and use a 'tax' module (with one line of code!)
+$vat = $this-&gt;tax-&gt;calculate($amount);
+[/code]
+
+<p>Inside any view:</p>
+[code=php]
+&lt;div&gt;&lt;?= Modules::run('users/stats', $user_data) ?&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Attention Trongate v1 veterans!!!</strong></p>
+    <p><code>$this-&gt;module('tax')</code> is dead. We murdered it in v2.  There's no longer any need to write that.</p>
+    <p>You're <em>very</em> welcome.</p>
+</div>
+
+<h2>Passing Data? Pass <strong>ANYTHING</strong>.</h2>
+
+<div class="alert alert-success">
+    <p>The second parameter of <code>Modules::run()</code> accepts <strong>ANY PHP data type</strong>:</p>
+    <ul>
+        <li><strong>Arrays</strong> - Pass complex datasets</li>
+        <li><strong>Integers/Floats</strong> - Pass numeric values</li>
+        <li><strong>Strings</strong> - Pass text content</li>
+        <li><strong>Booleans</strong> - Pass true/false flags</li>
+        <li><strong>Objects</strong> - Pass complete objects</li>
+        <li><strong>Resources</strong> - Pass file handles, database connections</li>
+        <li><strong>NULL</strong> - Pass nothing explicitly</li>
+    </ul>
+    <p class="mb-0"><strong>One parameter. Every data type. Unlimited possibilities.</strong></p>
+</div>
+
+<h3>EXAMPLES</h3>
+
+<p><strong>Example 1: Pass a simple string</strong></p>
+[code=php]
+// Pass a single string value
+$result = Modules::run('email/send', 'john@example.com');
+[/code]
+
+<p><strong>Example 2: Pass an integer ID</strong></p>
+[code=php]
+// Pass a numeric ID
+$profile = Modules::run('users/get_profile', 88);
+[/code]
+
+<p><strong>Example 3: Pass a boolean flag</strong></p>
+[code=php]
+// Pass true/false for feature toggles
+$html = Modules::run('ui/render_widget', true); // true = show advanced version
+[/code]
+
+<p><strong>Example 4: Pass a complex array</strong></p>
+[code=php]
+// Pass a complete dataset as an array
+$order_data = [
+    'order_id' =&gt; 12345,
+    'customer' =&gt; 'Jane Smith',
+    'items' =&gt; [
+        ['id' =&gt; 1, 'qty' =&gt; 2, 'price' =&gt; 19.99],
+        ['id' =&gt; 2, 'qty' =&gt; 1, 'price' =&gt; 49.99]
+    ],
+    'shipping' =&gt; 'express'
+];
+$invoice = Modules::run('orders/generate_invoice', $order_data);
+[/code]
+
+<p><strong>Example 5: Pass an object</strong></p>
+[code=php]
+// Pass a complete object
+$user = new stdClass();
+$user-&gt;id = 88;
+$user-&gt;name = 'John Doe';
+$user-&gt;email = 'john@example.com';
+
+$welcome = Modules::run('messages/welcome_user', $user);
+[/code]
+
+<p><strong>Example 6: Pass NULL (explicitly pass nothing)</strong></p>
+[code=php]
+// Explicitly pass null (different from not passing anything)
+$default_view = Modules::run('dashboard/load_default', null);
+[/code]
+
+<h3>Inside your module method:</h3>
+[code=php]
+&lt;?php
+class Users extends Trongate {
+    
+    // Your method receives WHATEVER you pass
+    public function stats($data) {
+        // $data could be ANYTHING:
+        // - An array of user data
+        // - A single user ID (integer)
+        // - A user object
+        // - A boolean flag
+        // - NULL
+        
+        // Type checking is YOUR responsibility
+        if (is_array($data)) {
+            // Handle array
+        } elseif (is_int($data)) {
+            // Handle integer ID
+        } elseif (is_object($data)) {
+            // Handle object
+        }
+        
+        // Or just trust your code and use it directly
+        return "Processed data of type: " . gettype($data);
+    }
+}
+?&gt;
+[/code]

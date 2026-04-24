@@ -1,0 +1,114 @@
+<div class="container">
+    <h1>form_open()</h1>
+    <p class="signature">function form_open(string $location, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+    <p>Generates the opening tag for an HTML form. This is typically the first function called when building a form in Trongate.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$location</td><td>string</td><td>The URL or path where the form will be submitted.</td></tr>
+            <tr><td>$attributes</td><td>array</td><td>(optional) HTML attributes for the form element. Defaults to an empty array ([]).</td></tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The HTML opening tag for the form.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Form</h2>
+[code=php]
+echo form_open('users/submit');
+echo form_input('username', '');
+echo form_submit('submit', 'Save');
+echo form_close();
+
+// Output:
+// &amp;lt;form action="https://example.com/users/submit" method="post"&amp;gt;
+// &amp;lt;input type="text" name="username"&amp;gt;
+// &amp;lt;button type="submit" name="submit"&amp;gt;Save&amp;lt;/button&amp;gt;
+// &amp;lt;/form&amp;gt;
+[/code]
+
+    <h2>Example #2: Form with GET Method</h2>
+[code=php]
+$attributes = [
+    'method' =&gt; 'get',
+    'id' =&gt; 'search-form'
+];
+echo form_open('products/search', $attributes);
+
+// Output:
+// &amp;lt;form action="https://example.com/products/search" method="get" id="search-form"&amp;gt;
+[/code]
+
+    <h2>Example #3: Form with Automatic Error Highlighting</h2>
+[code=php]
+$attributes = [
+    'class' =&gt; 'highlight-errors'
+];
+echo form_open('users/register', $attributes);
+
+// Output:
+// &amp;lt;form action="https://example.com/users/register" method="post" class="highlight-errors"&amp;gt;
+[/code]
+
+    <h2>Example #4: Trongate MX Form</h2>
+[code=php]
+$attributes = [
+    'mx-post' =&gt; 'comments/create',
+    'mx-target' =&gt; '#comment-list',
+    'mx-swap' =&gt; 'beforeend'
+];
+echo form_open('#', $attributes);
+
+// Output:
+// &amp;lt;form mx-post="comments/create" mx-target="#comment-list" mx-swap="beforeend" action="#" method="post"&amp;gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Regarding Trongate MX:</strong> When using MX attributes like <code>mx-post</code>, the form submits asynchronously without page reloads. The <code>mx-post</code> attribute takes precedence over the <code>action</code> attribute.</p>
+
+    <p>Additional guidance on how to work with Trongate MX is available from the Trongate MX Documentation.</p>
+</div>
+
+    <h2>URL Handling</h2>
+    <p>The <code>$location</code> parameter supports different URL formats:</p>
+    
+[code=php]
+// Relative path (prepended with BASE_URL)
+echo form_open('products/create');
+// Output: &amp;lt;form action="https://example.com/products/create" method="post"&amp;gt;
+
+// Absolute path
+echo form_open('/admin/users');
+// Output: &amp;lt;form action="/admin/users" method="post"&amp;gt;
+
+// Full URL
+echo form_open('https://api.example.com/submit');
+// Output: &amp;lt;form action="https://api.example.com/submit" method="post"&amp;gt;
+[/code]
+
+<div class="alert alert-success">
+    <ul>
+        <li>Always pair <code>form_open()</code> with <code>form_close()</code> to ensure proper form structure and CSRF protection.</li>
+        <li>The default method is <code>post</code>. Specify <code>['method' =&gt; 'get']</code> for GET forms.</li>
+        <li>For file uploads, use <code>form_open_upload()</code> instead of <code>form_open()</code>.</li>
+        <li>Relative paths are automatically converted to full URLs using the <code>BASE_URL</code> constant.</li>
+        <li>All attributes are automatically HTML-escaped for security.</li>
+        <li>The <code>method</code> attribute is handled specially - it's extracted from the attributes array and placed in the proper position.</li>
+    </ul> 
+</div>
+
+</div>

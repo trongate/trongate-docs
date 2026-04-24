@@ -1,0 +1,87 @@
+[meta-description]Easily change the appearance of the built-in admin template in Trongate by setting the theme key in the `$data` array (e.g., `$data['theme'] = 'blue'`). Learn how to use the default themes (blue, red, green) and create custom color schemes by defining new CSS variables in `admin.css`.[/meta-description]
+<h1>Changing Color Schemes</h1>
+
+<p>The built-in admin template ships with multiple color schemes (default, blue, red, green) and switching between them is ridiculously simple.</p>
+
+<h2>How It Works</h2>
+
+<p>Just add a <code>theme</code> key to your <code>$data</code> array:</p>
+
+[code=php]
+public function manage(): void {
+    $data['page_title'] = 'Manage Products';
+    $data['theme'] = 'blue'; // or 'red', 'green', or any custom theme you create
+    $this->templates->admin($data);
+}
+[/code]
+
+<p>That’s it. One line.</p>
+
+<h2>What Happens Behind the Scenes</h2>
+
+<p>In <code>modules/templates/Templates.php</code> the <code>admin()</code> method does this:</p>
+
+[code=php]
+public function admin(array $data): void {
+    $data['theme'] = (isset($data['theme'])) ? $data['theme'] : 'default';
+    // …additional includes processing…
+    $this->display('admin', $data);
+}
+[/code]
+
+<p>Then inside <code>modules/templates/views/admin.php</code> you will find:</p>
+
+[code=html]
+&lt;body class="theme-&lt;?= $theme ?? 'default' ?&gt;"&gt;
+[/code]
+
+<p>The result: the <code>&lt;body&gt;</code> tag gets <code>class="theme-blue"</code>, <code>class="theme-red"</code>, etc.</p>
+
+<h2>The Built-In Themes</h2>
+
+<p>The default <code>admin.css</code> already contains these ready-to-use themes:</p>
+
+<ul>
+    <li><code>default</code> – dark charcoal (the original look)</li>
+    <li><code>blue</code></li>
+    <li><code>red</code></li>
+    <li><code>green</code></li>
+</ul>
+
+<h2>Creating Your Own Theme</h2>
+
+<p>Want purple, orange, or a high-contrast mode? Just add a new CSS block to <code>modules/templates/css/admin.css</code>:</p>
+
+[code=css]
+body.theme-purple {
+    --header-bg: #581c87;
+    --footer-bg: #581c87;
+    --sidebar: #6b21a8;
+    --submenu-bg: #581c87;
+    --submenu-hover-bg: #6b21a8;
+    /* copy and adjust as many variables as you like */
+}
+[/code]
+
+<p>Then use it exactly the same way:</p>
+
+[code=php]
+$data['theme'] = 'purple';
+$this->templates->admin($data);
+[/code]
+
+<p>No registration. No config files. No recompiling.</p>
+
+<h2>Per-User Themes (Real-World Example)</h2>
+
+[code=php]
+public function dashboard(): void {
+    $user_theme = $_SESSION['preferred_theme'] ?? 'default';
+    $data['theme'] = $user_theme;
+    $this->templates->admin($data);
+}
+[/code]
+
+<h2>Why This Rules</h2>
+<p>One line of PHP + one CSS block = instant theme switch.</p>
+<p>That’s the Trongate way!</p>

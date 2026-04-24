@@ -1,0 +1,46 @@
+<div class="container">
+  <h1>make_sure_allowed()</h1>
+  <p class="signature">public function make_sure_allowed(): ?string</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Ensures the current request is from an authenticated admin user (user level 1). Blocks direct URL access to this method for security.</p>
+    <p>In <strong>development mode</strong>, automatically logs in as the first active user if no valid token exists (convenience for development).</p>
+    <p>In <strong>production mode</strong>, redirects to the login page if no valid token is found.</p>
+    <p>For <strong>MX (Trongate MX) requests</strong>, returns HTTP 200 with the token or HTTP 401 on failure, then terminates.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>string|null</td><td>The authentication token string if access is granted, or null if redirected/terminated.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Protect any admin controller method
+public function manage() {
+    $this->trongate_security->make_sure_allowed();
+    // ... render admin page
+}
+
+// Get the token for further processing
+$token = $this->trongate_administrators->make_sure_allowed();
+$user_obj = $this->model->get_user_by_token($token);
+
+// Call from another module's controller
+class Products extends Trongate {
+    public function admin_panel() {
+        $this->trongate_administrators->make_sure_allowed();
+        // ... admin-only code
+    }
+}
+
+// Note: In production, an invalid/expired token redirects to login
+// In dev mode, auto-login occurs for convenience
+// MX requests receive a 200/401 status code response
+[/code]
+</div>

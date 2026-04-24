@@ -1,0 +1,149 @@
+<div class="container">
+  <h1>get_where_in()</h1>
+  <p class="signature">public function get_where_in(string $table, string $column, array $values, array $options = []): array</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves records from a database table where a column's value matches any value in a specified array. This method is useful for fetching multiple records with specific IDs or values in a single query. It validates table existence, uses parameter binding for security, and supports custom column selection and return types.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table to query.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>column</td>
+        <td>string</td>
+        <td>The name of the column to filter by.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>values</td>
+        <td>array</td>
+        <td>Array of values to match against the specified column. If empty, returns empty array.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>options</td>
+        <td>array</td>
+        <td>Optional settings array. See Options section below for details.</td>
+        <td>[]</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Options Array</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>columns</td>
+        <td>string|array</td>
+        <td>Columns to select. Can be string (e.g., 'id, name') or array (e.g., ['id', 'name']).</td>
+        <td>'*'</td>
+      </tr>
+      <tr>
+        <td>return_type</td>
+        <td>string</td>
+        <td>Result format: 'object' for objects or 'array' for associative arrays.</td>
+        <td>'object'</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>Array of objects or associative arrays representing the fetched rows. Returns empty array if $values array is empty.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+  </ul>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates how to fetch multiple users by their IDs from the 'users' table.</p>
+[code=php]
+$user_ids = [1, 5, 10, 15];
+$users = $this-&gt;db-&gt;get_where_in('users', 'id', $user_ids);
+
+foreach ($users as $user) {
+    echo $user-&gt;username . ' - ' . $user-&gt;email . '&lt;br&gt;';
+}
+[/code]
+
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates how to fetch products with specific statuses, selecting only certain columns and returning results as associative arrays.</p>
+[code=php]
+$statuses = ['active', 'pending', 'review'];
+$options = [
+    'columns' =&gt; ['id', 'name', 'price', 'status'],
+    'return_type' =&gt; 'array'
+];
+
+$products = $this-&gt;db-&gt;get_where_in('products', 'status', $statuses, $options);
+
+foreach ($products as $product) {
+    echo $product['name'] . ': $' . $product['price'] . '&lt;br&gt;';
+}
+[/code]
+
+  <h2>Example #3</h2>
+  <p>The code sample below demonstrates how to fetch orders with specific order numbers, selecting all columns (default) and returning objects (default).</p>
+[code=php]
+$order_numbers = [1001, 1005, 1010];
+$orders = $this-&gt;db-&gt;get_where_in('orders', 'order_number', $order_numbers);
+
+if (!empty($orders)) {
+    echo count($orders) . ' orders found.';
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The first three parameters (<code>$table</code>, <code>$column</code>, and <code>$values</code>) are <strong>required</strong>.</li>
+    <li>Returns an empty array immediately if the <code>$values</code> array is empty.</li>
+    <li>The method validates that the table exists before executing the query.</li>
+    <li>Uses parameter binding with unique parameter names for each value to prevent SQL injection.</li>
+    <li>When <code>$options['columns']</code> is an array, it's converted to a comma-separated string.</li>
+    <li>Default behavior selects all columns (*) and returns objects (PDO::FETCH_OBJ).</li>
+  </ul>
+</div>

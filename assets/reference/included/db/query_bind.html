@@ -1,0 +1,228 @@
+<div class="container">
+  <h1>query_bind()</h1>
+  <p class="signature">public function query_bind(string $sql, array $data, ?string $return_type = null): mixed</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Executes a raw SQL query with <strong>named parameter binding</strong> for maximum security. This is the <strong>required methodology</strong> for executing SQL queries with dynamic values in Trongate v2. It uses prepared statements with named parameters to prevent SQL injection attacks. Supports returning results as objects or arrays, or returning null for non-SELECT queries.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>sql</td>
+        <td>string</td>
+        <td>The SQL query with <strong>named parameters</strong> (e.g., <code>:name</code>, <code>:age</code>). <strong>Question mark placeholders are not supported.</strong></td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>Associative array where keys match parameter names in the SQL query (without the colon).</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>return_type</td>
+        <td>string|null</td>
+        <td>Result format: 'object' for objects, 'array' for associative arrays, or null for no return (non-SELECT queries).</td>
+        <td>null</td>
+        <td>No</td>
+    </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>
+          <ul>
+            <li>Array of objects if <code>$return_type === 'object'</code></li>
+            <li>Array of associative arrays if <code>$return_type === 'array'</code></li>
+            <li>null if <code>$return_type</code> is null or doesn't match 'object'/'array'</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-warning">
+    <p><strong>Critical Requirement:</strong> Trongate v2 <strong>requires named parameters</strong> (e.g., <code>:age</code>, <code>:city</code>). Unnamed parameters using question mark placeholders (<code>?</code>) are <strong>not supported and will not work</strong>. This is a deliberate design decision to ensure code clarity and consistency across all Trongate projects.</p>
+  </div>
+
+  <h2>Example #1: SELECT with Named Parameters</h2>
+  <p>The code sample below demonstrates executing a SELECT query with named parameters and returning objects.</p>
+[code=php]
+$sql = "SELECT * FROM users WHERE age &gt; :min_age AND status = :status AND city = :city ORDER BY last_login DESC";
+$params = [
+    'min_age' =&gt; 18,
+    'status' =&gt; 'active',
+    'city' =&gt; 'London'
+];
+
+$users = $this-&gt;db-&gt;query_bind($sql, $params, 'object');
+
+foreach ($users as $user) {
+    echo $user-&gt;username . ' - Age: ' . $user-&gt;age . ' - City: ' . $user-&gt;city . '&lt;br&gt;';
+}
+[/code]
+
+  <h2>Example #2: Complex JOIN with Array Results</h2>
+  <p>The code sample below demonstrates executing a complex JOIN query with date range parameters.</p>
+[code=php]
+$sql = "SELECT 
+          o.id as order_id,
+          o.order_date,
+          c.name as customer_name,
+          COUNT(oi.id) as item_count,
+          SUM(oi.quantity * oi.price) as total_amount
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.id
+        JOIN order_items oi ON o.id = oi.order_id
+        WHERE o.order_date BETWEEN :start_date AND :end_date
+          AND o.status = :status
+        GROUP BY o.id
+        HAVING total_amount &gt; :min_total
+        ORDER BY total_amount DESC";
+
+$params = [
+    'start_date' =&gt; '2024-01-01',
+    'end_date' =&gt; '2024-01-31',
+    'status' =&gt; 'completed',
+    'min_total' =&gt; 100.00
+];
+
+$orders = $this-&gt;db-&gt;query_bind($sql, $params, 'array');
+
+foreach ($orders as $order) {
+    echo "Order #" . $order['order_id'] . " - " . $order['customer_name'] . " - Total: $" . number_format($order['total_amount'], 2) . "&lt;br&gt;";
+}
+[/code]
+
+  <h2>Example #3: UPDATE with Parameter Binding</h2>
+  <p>The code sample below demonstrates executing an UPDATE query with parameter binding.</p>
+[code=php]
+// Update user's last login and increment login count
+$sql = "UPDATE users SET last_login = :login_time, login_count = login_count + 1 WHERE id = :user_id";
+$params = [
+    'login_time' =&gt; date('Y-m-d H:i:s'),
+    'user_id' =&gt; 123
+];
+
+$this-&gt;db-&gt;query_bind($sql, $params); // Returns null for UPDATE
+echo "User login updated.";
+[/code]
+
+  <h2>Example #4: DELETE with Multiple Conditions</h2>
+  <p>The code sample below demonstrates executing a DELETE query with multiple parameterized conditions.</p>
+[code=php]
+// Delete expired sessions for a specific user agent
+$sql = "DELETE FROM sessions WHERE expires_at &lt; :now AND user_agent = :user_agent";
+$params = [
+    'now' =&gt; date('Y-m-d H:i:s'),
+    'user_agent' =&gt; 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+];
+
+$this-&gt;db-&gt;query_bind($sql, $params);
+echo "Expired sessions cleaned up.";
+[/code]
+
+  <h2>Example #5: INSERT with Form Data Using Trongate's post()</h2>
+  <p>The code sample below demonstrates executing an INSERT query with form data safely retrieved using Trongate's post() function.</p>
+[code=php]
+// Safely retrieve and validate form data using Trongate's post() function
+$comment_data = [
+    'comment' =&gt; post('comment', true), // Clean up whitespace
+    'user_id' =&gt; post('user_id', false, true), // Cast to numeric
+    'post_id' =&gt; post('post_id', false, true), // Cast to numeric
+    'rating' =&gt; post('rating', false, true) // Cast to numeric
+];
+
+// Validate required fields
+if (!empty($comment_data['comment']) &amp;&amp; $comment_data['user_id'] &gt; 0 &amp;&amp; $comment_data['post_id'] &gt; 0) {
+    $sql = "INSERT INTO comments (comment, user_id, post_id, rating, created_at) 
+            VALUES (:comment, :user_id, :post_id, :rating, NOW())";
+    
+    $this-&gt;db-&gt;query_bind($sql, $comment_data);
+    echo "Comment added successfully.";
+} else {
+    echo "Please fill in all required fields.";
+}
+[/code]
+
+  <div class="alert alert-danger">
+    <p><strong>Important: Named Parameters Are Required</strong></p>
+[code=php]
+// ❌ WRONG - Unnamed parameters not supported in Trongate v2
+$sql = "SELECT * FROM users WHERE age &gt; ? AND city = ?";
+$params = [25, 'London'];
+$users = $this-&gt;db-&gt;query_bind($sql, $params, 'object'); // This will FAIL!
+
+// ✅ CORRECT - Named parameters required
+$sql = "SELECT * FROM users WHERE age &gt; :age AND city = :city";
+$params = ['age' =&gt; 25, 'city' =&gt; 'London'];
+$users = $this-&gt;db-&gt;query_bind($sql, $params, 'object'); // This works
+[/code]
+    <p>Trongate v2 <strong>only accepts named parameters</strong>. This ensures consistent, readable code and eliminates confusion about parameter ordering.</p>
+  </div>
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>All parameters (<code>$sql</code> and <code>$data</code>) are <strong>required</strong> (though <code>$data</code> can be an empty array).</li>
+    <li><strong>Named parameters are mandatory</strong> - use colon-prefixed placeholders like <code>:name</code>, <code>:age</code>.</li>
+    <li><strong>Question mark placeholders (<code>?</code>) are not supported</strong> in Trongate v2.</li>
+    <li>Data types are automatically detected and bound correctly (integers, strings, booleans, nulls).</li>
+    <li>Returns <code>null</code> for:
+      <ul>
+        <li>Non-SELECT queries (INSERT, UPDATE, DELETE, etc.)</li>
+        <li>When <code>$return_type</code> is null</li>
+        <li>When <code>$return_type</code> is not 'object' or 'array'</li>
+      </ul>
+    </li>
+    <li>Uses <code>PDO::FETCH_OBJ</code> for object returns (properties match column names).</li>
+    <li>Uses <code>PDO::FETCH_ASSOC</code> for array returns (associative arrays).</li>
+    <li>If debug mode is enabled, the SQL query with bound values will be displayed before execution.</li>
+    <li>For queries with no parameters, you can pass an empty array: <code>query_bind($sql, [], 'object')</code></li>
+    <li><strong>Always use Trongate's <code>post()</code> function</strong> to safely retrieve form data with options for cleaning and type casting.</li>
+  </ul>
+
+  <div class="alert alert-success">
+    <p><strong>When to use query_bind():</strong></p>
+    <ul>
+      <li>Any query with user input (forms, search, filters)</li>
+      <li>Queries with dynamic WHERE conditions</li>
+      <li>Complex JOIN queries with parameters</li>
+      <li>INSERT/UPDATE/DELETE operations with data</li>
+      <li>Any query where values come from outside your code</li>
+    </ul>
+    <p><strong>When to use query():</strong></p>
+    <ul>
+      <li>Static, hard-coded reporting queries (no parameters)</li>
+      <li>Migration scripts with no user input</li>
+      <li>Complex analytical queries with no parameters</li>
+      <li>Administrative operations with trusted, hard-coded data</li>
+    </ul>
+    <p><strong>Rule of thumb:</strong> If your SQL has any dynamic values, you <strong>must</strong> use <code>query_bind()</code> with named parameters.</p>
+  </div>
+</div>

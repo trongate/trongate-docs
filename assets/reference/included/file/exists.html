@@ -1,0 +1,115 @@
+<div class="container">
+    <h1>exists()</h1>
+    <p class="signature">public function exists(string $path): bool</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Checks whether a file or directory exists at the specified path.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$path</td>
+                <td>string</td>
+                <td>The path to the file or directory.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>bool</td>
+                <td>Returns true if the file or directory exists, otherwise false.</td>
+            </tr>
+        </tbody>
+    </table>
+
+<h2>Example #1</h2>
+<p>The code sample below demonstrates how to check if a user's profile picture exists before displaying it.</p>
+[code=php]
+public function view_profile(): void {
+    $user_id = segment(3, 'int');
+    
+    // Get user record
+    $user = $this->db->get_where($user_id, 'users');
+    
+    if ($user === false) {
+        redirect('users/not_found');
+    }
+    
+    // Check if profile picture exists
+    $picture_path = 'modules/users/pictures/' . $user->profile_picture;
+    
+    if ($this->file->exists($picture_path)) {
+        $data['picture_url'] = BASE_URL . $picture_path;
+    } else {
+        // Use default avatar if picture doesn't exist
+        $data['picture_url'] = BASE_URL . 'public/images/default_avatar.png';
+    }
+    
+    $data['user'] = $user;
+    $this->view('profile', $data);
+}
+[/code]
+
+<h2>Example #2</h2>
+<p>The example above shows how to verify a directory exists before attempting to list its contents.</p>
+[code=php]
+public function list_user_files(): void {
+    $user_id = segment(3, 'int');
+    $user_directory = 'modules/files/storage/user_' . $user_id;
+    
+    // Check if user directory exists
+    if ($this->file->exists($user_directory)) {
+        $contents = $this->file->list_directory($user_directory);
+        $data['files'] = $contents['files'];
+        $data['directories'] = $contents['directories'];
+    } else {
+        // Create directory if it doesn't exist
+        $this->file->create_directory($user_directory, 0755);
+        $data['files'] = [];
+        $data['directories'] = [];
+    }
+    
+    $data['user_id'] = $user_id;
+    $this->view('user_files', $data);
+}
+[/code]
+
+<h2>Example #3</h2>
+<p>The example above demonstrates how to safely clean up temporary files only if they exist.</p>
+[code=php]
+public function cleanup_temp_files(): void {
+    $temp_files = [
+        'temp/import_data.csv',
+        'temp/processing_log.txt',
+        'temp/validation_errors.json'
+    ];
+    
+    $deleted_count = 0;
+    
+    foreach ($temp_files as $file_path) {
+        if ($this->file->exists($file_path)) {
+            $this->file->delete($file_path);
+            $deleted_count++;
+        }
+    }
+    
+    echo "Cleaned up {$deleted_count} temporary files";
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Checking Files vs Directories:</strong> The <code>exists()</code> method returns <code>true</code> for both files and directories. If you need to specifically verify that a path is a directory (not a file), use PHP's native <code>is_dir($path)</code> function instead. Similarly, use <code>is_file($path)</code> to confirm a path is specifically a file.</p>
+</div>
+</div>

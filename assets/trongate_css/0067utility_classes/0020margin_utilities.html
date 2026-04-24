@@ -1,0 +1,109 @@
+<h1>Margin Utilities</h1>
+
+<p>Trongate CSS provides utility classes for controlling margins. These classes follow a simple naming convention where the first letter indicates the margin direction (t, b, l, r for top, bottom, left, right) and the number indicates the size in em units.</p>
+
+<h2>Margin Direction Classes</h2>
+
+<p>There are four types of margin utilities available:</p>
+
+<ul>
+    <li><code>mt-{n}</code> - Sets margin-top</li>
+    <li><code>mb-{n}</code> - Sets margin-bottom</li>
+    <li><code>ml-{n}</code> - Sets margin-left</li>
+    <li><code>mr-{n}</code> - Sets margin-right</li>
+</ul>
+
+<p>Where {n} can be 0 through 7, representing the size in em units.</p>
+
+<h2>Top and Bottom Margins</h2>
+
+<p>Here's a demonstration of top margin (<code>mt-</code>) and bottom margin (<code>mb-</code>) utilities:</p>
+
+<div class="trongate-css-demo">
+    <div style="background: #f5f5f5; padding: 1em;">
+        <div style="background: var(--primary); color: white; padding: 1em;">Default spacing</div>
+        <div style="background: var(--primary); color: white; padding: 1em;" class="mt-3">mt-3 adds 3em top margin</div>
+        <div style="background: var(--primary); color: white; padding: 1em;" class="mt-5">mt-5 adds 5em top margin</div>
+    </div>
+</div>
+
+[code=html]
+&lt;div&gt;Default spacing&lt;/div&gt;
+&lt;div class="mt-3"&gt;mt-3 adds 3em top margin&lt;/div&gt;
+&lt;div class="mt-5"&gt;mt-5 adds 5em top margin&lt;/div&gt;
+[/code]
+
+<h2>Left and Right Margins</h2>
+
+<p>Here's how to use left margin (<code>ml-</code>) and right margin (<code>mr-</code>) utilities:</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row">
+        <button>Base Button</button>
+        <button class="ml-2">With ml-2</button>
+        <button class="ml-4">With ml-4</button>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="flex-row"&gt;
+    &lt;button&gt;Base Button&lt;/button&gt;
+    &lt;button class="ml-2"&gt;With ml-2&lt;/button&gt;
+    &lt;button class="ml-4"&gt;With ml-4&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Common Use Cases</h2>
+
+<p>Margin utilities are particularly useful for:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <h3>Blog Post Example</h3>
+        <p class="mb-2">This paragraph has a 2em bottom margin.</p>
+        <h4 class="mb-1">Subheading with 1em bottom margin</h4>
+        <p class="mb-3">Another paragraph with 3em bottom margin.</p>
+        <div class="flex-row">
+            <button class="alt">Cancel</button>
+            <button class="ml-2">Submit</button>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;h3&gt;Blog Post Example&lt;/h3&gt;
+&lt;p class="mb-2"&gt;This paragraph has a 2em bottom margin.&lt;/p&gt;
+&lt;h4 class="mb-1"&gt;Subheading with 1em bottom margin&lt;/h4&gt;
+&lt;p class="mb-3"&gt;Another paragraph with 3em bottom margin.&lt;/p&gt;
+&lt;div class="flex-row"&gt;
+    &lt;button class="alt"&gt;Cancel&lt;/button&gt;
+    &lt;button class="ml-2"&gt;Submit&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Available Sizes</h2>
+
+<p>Each margin utility class is available in these sizes:</p>
+
+<ul>
+    <li><code>*-0</code> - Removes margin (sets to 0)</li>
+    <li><code>*-1</code> through <code>*-7</code> - Sets margin to 1em through 7em respectively</li>
+</ul>
+
+<h2>Removing Margins</h2>
+
+<p>Use the zero value to remove margins when needed:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="mt-0 mb-0">No Vertical Margins</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="mt-0 mb-0"&gt;No Vertical Margins&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Margin utilities can be combined to control spacing in multiple directions. For example, <code>mt-2 mb-3 ml-1</code> would set different margins for top, bottom, and left respectively.</p>
+</div>

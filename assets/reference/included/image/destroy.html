@@ -1,0 +1,213 @@
+ <div class="container">
+    <h1>destroy()</h1>
+    <p class="signature">public function destroy(): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Frees memory allocated to the loaded image resource. This method releases the GD image resource from memory and should be called when image processing is complete, especially when processing multiple or large images in a single request.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Memory Management:</strong> Failure to call <code>destroy()</code> in scripts that process multiple images can lead to memory exhaustion. PHP's garbage collector may not release image resources immediately, causing memory usage to accumulate throughout the request lifecycle.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <p>This method takes no parameters.</p>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It releases the image resource from memory.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of destroy().</p>
+[code=php]
+// Load and process an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('modules/gallery/photos/photo_resized.jpg');
+
+// Free memory when done
+$this-&gt;image-&gt;destroy();
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>When to Use destroy():</strong> Call <code>destroy()</code> after you've finished all operations on an image and have either saved it or output it to the browser. Once destroyed, you'll need to load a new image before performing additional operations.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to process multiple images efficiently by destroying each after processing.</p>
+[code=php]
+public function batch_resize_products(): void {
+    // Get all products with images
+    $products = $this-&gt;model-&gt;get_many_where('image_filename IS NOT NULL', 'products');
+    
+    if ($products === false) {
+        redirect('products/manage');
+    }
+    
+    $processed = 0;
+    
+    foreach ($products as $product) {
+        $source_path = 'modules/products/images/' . $product-&gt;image_filename;
+        
+        if ($this-&gt;file-&gt;exists($source_path)) {
+            // Load the product image
+            $this-&gt;image-&gt;load($source_path);
+            
+            // Resize to standard dimensions
+            $this-&gt;image-&gt;resize_to_width(600);
+            
+            // Save the resized version
+            $output_path = 'modules/products/images/resized_' . $product-&gt;image_filename;
+            $this-&gt;image-&gt;save($output_path, 85);
+            
+            // Critical: Free memory before processing next image
+            $this-&gt;image-&gt;destroy();
+            
+            $processed++;
+        }
+    }
+    
+    set_flashdata("Processed {$processed} product images");
+    redirect('products/manage');
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The Batch Processing Pattern:</strong> When processing multiple images in a loop, always call <code>destroy()</code> at the end of each iteration. This prevents memory from accumulating as each image is processed. Without this, processing 50 high-resolution images could easily exceed PHP's memory limit.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates managing memory when creating multiple size variations from a single source image.</p>
+[code=php]
+public function generate_image_sizes(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Define size variations
+    $sizes = [
+        'large' =&gt; 1200,
+        'medium' =&gt; 800,
+        'small' =&gt; 400,
+        'thumbnail' =&gt; 150
+    ];
+    
+    foreach ($sizes as $size_name =&gt; $width) {
+        // Load source image fresh for each size
+        $this-&gt;image-&gt;load($source_path);
+        
+        // Resize to target width
+        $this-&gt;image-&gt;resize_to_width($width);
+        
+        // Save the variation
+        $output_dir = 'modules/gallery/' . $size_name;
+        if (!$this-&gt;file-&gt;exists($output_dir)) {
+            $this-&gt;file-&gt;create_directory($output_dir, 0755);
+        }
+        
+        $output_path = $output_dir . '/' . $photo-&gt;filename;
+        $this-&gt;image-&gt;save($output_path, 85);
+        
+        // Free memory before loading next variation
+        $this-&gt;image-&gt;destroy();
+    }
+    
+    set_flashdata('All image sizes generated successfully');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <h2>Example #4</h2>
+    <p>The example above shows proper memory management in a method that processes user uploads and generates thumbnails.</p>
+[code=php]
+public function process_gallery_upload(): void {
+    $gallery_id = segment(3, 'int');
+    
+    // Validate upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Gallery Image', 'required|allowed_types[jpg,png,gif]|max_size[10000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'galleries/uploads',
+            'upload_to_module' =&gt; true,
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure directories exist
+        $upload_dir = 'modules/gallery/galleries/uploads';
+        $thumb_dir = 'modules/gallery/galleries/thumbs';
+        
+        if (!$this-&gt;file-&gt;exists($upload_dir)) {
+            $this-&gt;file-&gt;create_directory($upload_dir, 0755);
+        }
+        
+        if (!$this-&gt;file-&gt;exists($thumb_dir)) {
+            $this-&gt;file-&gt;create_directory($thumb_dir, 0755);
+        }
+        
+        // Upload the image
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load uploaded image for thumbnail generation
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        
+        // Create square thumbnail
+        $this-&gt;image-&gt;resize_to_width(200);
+        $this-&gt;image-&gt;crop(200, 200, 'center');
+        
+        // Save thumbnail
+        $thumb_path = $thumb_dir . '/' . $file_info['file_name'];
+        $this-&gt;image-&gt;save($thumb_path, 85);
+        
+        // Free memory now that processing is complete
+        $this-&gt;image-&gt;destroy();
+        
+        // Store in database
+        $data = [
+            'gallery_id' =&gt; $gallery_id,
+            'filename' =&gt; $file_info['file_name'],
+            'file_path' =&gt; $file_info['file_path'],
+            'thumbnail_path' =&gt; $thumb_path,
+            'file_size' =&gt; $file_info['file_size'],
+            'uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;insert($data, 'gallery_images');
+        
+        set_flashdata('Image uploaded and processed successfully');
+        redirect('gallery/view/' . $gallery_id);
+    } else {
+        $this-&gt;upload_form($gallery_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Automatic Cleanup:</strong> PHP will automatically release image resources at the end of script execution, so <code>destroy()</code> is not strictly required for single-image operations. However, it's good practice to explicitly free resources when done, especially in long-running scripts or when processing multiple images.</p>
+    </div>
+
+</div>

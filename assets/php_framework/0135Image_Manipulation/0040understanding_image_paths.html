@@ -1,0 +1,286 @@
+ [meta-description]Learn about the three types of image paths in Trongate: relative paths for PHP operations, absolute paths, and URLs for browser display. Master path conversion and the module asset trigger.[/meta-description]
+
+<h1>Understanding Image Paths</h1>
+
+<p>Successfully working with images in Trongate requires understanding three distinct types of paths and when to use each one.</p>
+
+<h2>The Three Types of Paths</h2>
+
+<p>Every image in a Trongate application can be referenced using three different path formats:</p>
+
+<div class="alert alert-info">
+    <p><strong>Path Types Explained:</strong></p>
+    <ul>
+        <li><strong>Relative path:</strong> Path relative to application root (e.g., <code>public/images/logo.png</code> or <code>../modules/shop/products/widget.jpg</code>)</li>
+        <li class="mt-2"><strong>Absolute path:</strong> Complete filesystem path from root (e.g., <code>/var/www/html/myapp/public/images/logo.png</code>)</li>
+        <li class="mt-2"><strong>URL:</strong> Web-accessible address (e.g., <code>https://example.com/images/logo.png</code> or <code>shop_module/products/widget.jpg</code>)</li>
+    </ul>
+</div>
+
+<h2>Which Path Type to Use When</h2>
+<p>Understanding when to use each path type is essential:</p>
+<div class="alert alert-info">
+    <p>The Image module methods operate on a <strong>loaded image resource</strong> in memory. Most operations don't take file paths at all - they work on the image already loaded via the <span class="feature-ref">included-image-upload()</span> method or the <span class="feature-ref">included-image-load()</span> method.</p>
+</div>
+
+<h3>For Image Module Operations</h3>
+
+<p>The Image module follows a three-step pattern:</p>
+
+<ol>
+    <li><strong>Upload/Load:</strong> Get the image into memory via <code>upload()</code> (for new uploads) or <code>load()</code> (for existing images)</li>
+    <li><strong>Process:</strong> Call methods like <code>resize_to_width()</code>, <code>resize_to_height()</code>, <code>resize_and_crop()</code></li>
+    <li><strong>Save:</strong> Write the result using <code>save()</code></li>
+</ol>
+
+<p>Only <code>upload()</code>, <code>load()</code>, and <code>save()</code> deal with file paths. When they do, use <strong>relative paths</strong>:</p>
+
+[code=php]
+// Step 1a: Upload NEW image (config array specifies destination directory)
+$config = [
+    'destination' =&gt; 'products',
+    'upload_to_module' =&gt; true
+];
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// Step 1b: Load EXISTING image (uses relative path)
+$this-&gt;image-&gt;load('modules/products/images/original.jpg');
+
+// Step 2: Process (no paths needed - works on loaded image)
+$this-&gt;image-&gt;resize_to_width(800);
+
+// Step 3: Save (uses relative path)
+// ✅ CORRECT: Relative path
+$this-&gt;image-&gt;save('modules/products/images/resized.jpg');
+
+// ⚠️ WORKS BUT NOT RECOMMENDED: Absolute path
+$this-&gt;image-&gt;save('/var/www/html/myapp/modules/products/images/resized.jpg');
+
+// ❌ DOES NOT WORK: URL
+$this-&gt;image-&gt;save('https://example.com/products/images/resized.jpg');
+
+// ❌ DOES NOT WORK: Module asset trigger
+$this-&gt;image-&gt;save('products_module/images/resized.jpg');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Why Relative Paths Are Recommended:</strong></p>
+    <p>Relative paths work consistently across development, staging, and production environments. Absolute paths break when you move your application to a different server or directory structure.</p>
+</div>
+
+<div class="alert alert-success">
+    <p><strong>When to Use upload() vs. load():</strong></p>
+    <ul>
+        <li><strong>upload():</strong> Use for NEW images coming from user file uploads. Automatically handles validation, security checks, and optional resizing/thumbnails.</li>
+        <li><strong>load():</strong> Use for EXISTING images already stored on disk. Perfect for batch processing, generating new sizes, or creating thumbnails from stored images.</li>
+    </ul>
+</div>
+
+<h3>For Browser Display</h3>
+
+<p>When displaying images in HTML, use <strong>URLs</strong>:</p>
+
+[code=php]
+// Public directory images - simple URL
+&lt;img src="&lt;?= BASE_URL ?&gt;gallery/photo.jpg" alt="Gallery Photo"&gt;
+
+// Module images - use module asset trigger
+&lt;img src="&lt;?= BASE_URL ?&gt;shop_module/products/widget.jpg" alt="Product"&gt;
+[/code]
+
+<h2>The Module Asset Trigger</h2>
+
+<p>Images stored in module directories require special handling for browser display. Trongate uses a naming convention called the "module asset trigger":</p>
+
+<div class="alert alert-success">
+    <p><strong>The Module Asset Trigger Pattern:</strong></p>
+    <p>To display images from a module, append <code>_module</code> to the module name in the URL:</p>
+    <ul>
+        <li><strong>Filesystem path (for PHP):</strong> <code>../modules/shop/products/widget.jpg</code></li>
+        <li><strong>Browser URL (for HTML):</strong> <code>shop_module/products/widget.jpg</code></li>
+    </ul>
+</div>
+
+<h3>Example: Converting Paths for Display</h3>
+
+[code=php]
+public function view_product(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product from database
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    // The database stores the filesystem path
+    // e.g., '../modules/shop/products/laptop.jpg'
+    $filesystem_path = $product-&gt;image_path;
+    
+    // Convert to browser URL for display
+    // Remove '../modules/' and replace '/' with '_module/'
+    $browser_url = str_replace('../modules/shop/', 'shop_module/', $filesystem_path);
+    
+    // Pass to view
+    $data['product'] = $product;
+    $data['image_url'] = $browser_url;
+    $this-&gt;view('product_detail', $data);
+}
+[/code]
+
+<p>In the view:</p>
+
+[code=vf]
+&lt;img src="&lt;?= BASE_URL . $image_url ?&gt;" alt="&lt;?= out($product-&gt;name) ?&gt;"&gt;
+&lt;!-- Renders as: &lt;img src="https://example.com/shop_module/products/laptop.jpg"&gt; --&gt;
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> The <code>_module</code> trigger only works in browser URLs. It does not work with Image module methods that operate on the filesystem.</p>
+</div>
+
+<h2>What You Get When Uploading Images</h2>
+
+<p>When you call <span class="feature-ref">included-image-upload()</span>, it returns an array with five pieces of information:</p>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'products',
+    'upload_to_module' =&gt; true,
+    'thumbnail_dir' =&gt; 'products/thumbs',
+    'thumbnail_max_width' =&gt; 300,
+    'thumbnail_max_height' =&gt; 300
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+/* Returns:
+[
+    'file_name' =&gt; 'laptop.jpg',
+    'file_path' =&gt; '../modules/shop/products/laptop.jpg',
+    'file_type' =&gt; 'image/jpeg',
+    'file_size' =&gt; 245760,
+    'thumbnail_path' =&gt; '../modules/shop/products/thumbs/laptop.jpg'
+]
+*/
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Understanding the Return Values:</strong></p>
+    <ul>
+        <li><strong>file_name:</strong> Just the filename - useful for display or storage</li>
+        <li><strong>file_path:</strong> Filesystem path - store this in your database</li>
+        <li><strong>file_type:</strong> MIME type - useful for validation</li>
+        <li><strong>file_size:</strong> Size in bytes - useful for display or quotas</li>
+        <li><strong>thumbnail_path:</strong> Filesystem path to thumbnail - store this too</li>
+    </ul>
+    <p class="mt-2">Notice that both <code>file_path</code> and <code>thumbnail_path</code> are <strong>filesystem paths</strong>, not URLs. You'll need to convert these when displaying images in your views.</p>
+</div>
+
+<h2>Common Path Scenarios</h2>
+
+<h3>Scenario 1: Public Directory Image</h3>
+
+[code=php]
+// Upload configuration
+$config['destination'] = 'gallery';
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// What you get back
+$file_info['file_path']; // 'gallery/landscape.jpg'
+[/code]
+
+<h3>Scenario 2: Module Directory Image</h3>
+
+[code=php]
+// Upload configuration
+$config = [
+    'destination' =&gt; 'avatars',
+    'upload_to_module' =&gt; true
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// What you get back
+$file_info['file_path']; // '../modules/users/avatars/profile.jpg'
+
+// How to display in browser (convert path to URL)
+$url = str_replace('../modules/users/', 'users_module/', $file_info['file_path']);
+[/code]
+
+<h3>Scenario 3: Loading and Processing Existing Images</h3>
+
+[code=php]
+// Load existing image using filesystem path
+$source = '../modules/products/images/original.jpg';
+$this-&gt;image-&gt;load($source);
+
+// Process the loaded image
+$this-&gt;image-&gt;resize_to_width(800);
+
+// Save the processed result
+$this-&gt;image-&gt;save('../modules/products/images/original_800.jpg');
+
+// Display image using URL (convert filesystem path to browser URL)
+$url = 'products_module/images/original_800.jpg';
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Load vs. Upload:</strong> Use <code>load()</code> when working with images that already exist on your server. This is perfect for batch processing jobs, creating additional sizes from stored images, or building image galleries from existing files. Use <code>upload()</code> only for handling new file uploads from users.</p>
+</div>
+
+<h3>Scenario 4: Processing Multiple Sizes from Database Path</h3>
+
+[code=php]
+// Get product from database
+$product = $this-&gt;db-&gt;get_where($product_id, 'products');
+
+// Database stores filesystem path
+$original_path = $product-&gt;image_path; // e.g., '../modules/products/images/widget.jpg'
+
+// Generate thumbnail
+$this-&gt;image-&gt;load($original_path);
+$this-&gt;image-&gt;resize_and_crop(150, 150);
+$thumbnail_path = '../modules/products/thumbnails/widget.jpg';
+$this-&gt;image-&gt;save($thumbnail_path);
+
+// Generate medium size
+$this-&gt;image-&gt;load($original_path); // Reload original
+$this-&gt;image-&gt;resize_to_width(600);
+$medium_path = '../modules/products/medium/widget.jpg';
+$this-&gt;image-&gt;save($medium_path);
+
+// Store both paths in database
+$update_data = [
+    'thumbnail_path' =&gt; $thumbnail_path,
+    'medium_path' =&gt; $medium_path
+];
+$this-&gt;model-&gt;update($product_id, $update_data, 'products');
+
+// In your view, convert to URLs for display:
+// Thumbnail: products_module/thumbnails/widget.jpg
+// Medium: products_module/medium/widget.jpg
+[/code]
+
+<div class="alert alert-success">
+  <p class="mt-0">Including a <code>&lt;base&gt;</code> tag in your page head ensures that all relative URLs - including module asset URLs such as shop_module/products/widget.jpg - resolve from the application root rather than the current request path.</p>
+
+  [code=html]
+  &lt;base href="&lt;?= BASE_URL ?&gt;"&gt;
+  [/code]
+<p>This is especially important in Trongate applications, where pages are often rendered from nested routes or modules. Setting a <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/base" target="_blank">base tag</a> prevents broken images, scripts, and links when URLs are constructed relative to deeper paths.</p>
+</div>
+
+<h2>Essential Guidelines</h2>
+
+<ul>
+    <li>✅ Use <code>upload()</code> for NEW images from user uploads</li>
+    <li>✅ Use <code>load()</code> for EXISTING images already on disk</li>
+    <li>✅ Use relative filesystem paths for Image module methods (<code>load()</code>, <code>save()</code>)</li>
+    <li>✅ Use URLs for browser display in HTML</li>
+    <li>✅ Store filesystem paths in your database</li>
+    <li>✅ Convert module paths to URLs using the <code>_module</code> trigger in views</li>
+    <li>✅ Public directory images have simpler URL construction</li>
+    <li>✅ The <code>_module</code> trigger only works in browser URLs, not PHP methods</li>
+    <li>❌ Never use URLs with Image module processing methods</li>
+    <li>❌ Never use filesystem paths in HTML image tags</li>
+    <li>❌ Never use absolute paths unless absolutely necessary (they break portability)</li>
+</ul>

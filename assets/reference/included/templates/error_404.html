@@ -1,0 +1,105 @@
+<div class="container">
+  <h1>error_404()</h1>
+  <p class="signature">public function error_404(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Displays the 404 error page. This method is automatically invoked by Trongate when a requested URL cannot be matched to any existing route. It loads the error_404 template view, which provides a user-friendly message indicating that the requested page could not be found. The method can be customised by editing the template view file or by changing the <code>ERROR_404</code> constant in the configuration file to point to a different module and method.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="5" style="text-align: center;">This method takes no parameters.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value. It outputs the complete HTML error page directly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1</h2>
+  <p>The code sample below shows the default <code>ERROR_404</code> constant definition found in config/config.php. This constant determines which module and method Trongate calls when a 404 error occurs.</p>
+[code=php]define('ERROR_404', 'templates/error_404');[/code]
+
+  <h2>Example #2</h2>
+  <p>This example demonstrates how to manually trigger a 404 error from within your own controller method when certain conditions are not met.</p>
+[code=php]public function view(): void {
+    $product_id = (int) segment(2);
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        // Product not found - show 404 page
+        $this-&gt;templates-&gt;error_404();
+        return;
+    }
+    
+    $data['product'] = $product;
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #3</h2>
+  <p>This example shows how to redirect the <code>ERROR_404</code> constant to a custom error handling method in a different module.</p>
+[code=php]
+&lt;?php
+// In config/config.php
+define('ERROR_404', 'errors/not_found');
+
+// In modules/errors/Errors.php
+class Errors extends Trongate {
+    public function not_found(): void {
+        $data['page_title'] = 'Page Not Found';
+        $data['message'] = 'Sorry, we could not find that page.';
+        $this-&gt;templates-&gt;public($data);
+    }
+}[/code]
+
+  <h2>Example #4</h2>
+  <p>This example demonstrates creating a custom 404 handler with additional logging functionality before displaying the error page.</p>
+[code=php]
+&lt;?php
+// In modules/errors/Errors.php
+class Errors extends Trongate {
+    public function custom_404(): void {
+        // Log the 404 error for analysis
+        $requested_url = $_SERVER['REQUEST_URI'];
+        $this-&gt;log_404_error($requested_url);
+        
+        // Display the 404 page
+        $this-&gt;templates-&gt;error_404();
+    }
+    
+    private function log_404_error(string $url): void {
+        $log_data['url'] = $url;
+        $log_data['timestamp'] = time();
+        $log_data['ip_address'] = $_SERVER['REMOTE_ADDR'];
+        $this-&gt;db-&gt;insert($log_data, 'error_logs');
+    }
+}[/code]
+
+</div>

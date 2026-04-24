@@ -1,0 +1,182 @@
+<h1>Loading Indicators</h1>
+<p>Trongate MX makes it incredibly easy to add loading indicators to your web applications. These indicators give users clear feedback that something is happening behind the scenes, improving your application's professionalism and user experience.</p>
+
+<h2>Quick Demonstration</h2>
+<p>Click the button below to see a loading indicator in action:</p>
+<div class="code-demo text-center">
+  <button 
+    mx-get="documentation/fetch_data_demo" 
+    mx-target=".code-demo .result" 
+    mx-indicator="#loading" 
+    mx-target-loading="cloak">
+    Fetch Data
+  </button>
+  <div id="loading" class="spinner mx-indicator"></div>
+  <div class="result"></div>
+</div>
+
+<style>
+.code-demo {
+  padding-bottom: 2em;
+}
+</style>
+
+<h2>What Are Loading Indicators?</h2>
+<p>Loading indicators are temporary visual cues displayed while your application processes requests or fetches data. Trongate MX makes implementing these indicators simple and intuitive.</p>
+
+<h2>Getting Started</h2>
+<h3>1. Add a Spinner Element</h3>
+<p>Trongate comes with a built-in spinner. To create one, add a <code>&lt;div&gt;</code> element with the class <code>spinner</code>. For example:</p>
+
+[code=html]&lt;div class="spinner"&gt;&lt;/div&gt;[/code]
+
+<p>To make the spinner function as a loading indicator, add the <code>mx-indicator</code> class:</p>
+[code=html]&lt;div class="spinner mx-indicator"&gt;&lt;/div&gt;[/code]
+
+<h3>2. Use the <code>mx-indicator</code> Attribute</h3>
+<p>Assign the <code>mx-indicator</code> attribute to the button (or any element) that triggers the HTTP request. The attribute value should match the CSS selector for your spinner element:</p>
+[code=html]
+&lt;button mx-get="api/fetch_data" 
+        mx-target="#result" 
+        mx-indicator=".spinner"&gt;Fetch Data&lt;/button&gt;
+[/code]
+
+<p>Here's a complete example, using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
+[code=vf]
+&lt;?php
+$btn_attr = [
+  'mx-get' => 'api/fetch_data',
+  'mx-target' => '#result',
+  'mx-indicator' => '.spinner'
+];
+echo form_button('fetch_btn', 'Fetch Data', $btn_attr);
+?&gt;
+
+&lt;div class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="result"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">For an HTML-only approach, here's the corresponding code:</p>
+
+[code=html]
+&lt;button mx-get="api/fetch_data" 
+        mx-target="#result" 
+        mx-indicator=".spinner"&gt;Fetch Data&lt;/button&gt;
+
+&lt;div class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="result"&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-success">
+<p>During development, use PHP's <code>sleep()</code> function to introduce a delay in your API responses. This gives you time to see how your indicators work:</p>
+[code=php]
+public function fetch_data() {
+    sleep(2);
+    echo 'Hello from the API!';
+}
+[/code]  
+</div>
+
+<div class="alert alert-info">
+  <p><b>Note:</b> The <code>spinner</code> class is part of the Trongate CSS library. It works straight out of the box without additional styles or JavaScript.</p>
+</div>
+
+<h2>Custom Loading Indicators</h2>
+<p>You're not limited to the default spinner. You can create custom indicators using any HTML element:</p>
+[code=html]
+&lt;div id="custom-loader" class="mx-indicator"&gt;
+  &lt;p class="blink"&gt;Saving your changes...&lt;/p&gt;
+  &lt;img src="images/custom-loader.gif" alt="Loading..."&gt;
+&lt;/div&gt;
+[/code]
+
+<p>Here's an example of using a custom loading indicator in a form:</p>
+[code=vf]
+&lt;?php
+$form_attr = [
+  'mx-post' => 'api/submit_form',
+  'mx-target' => '#response',
+  'mx-indicator' => '#custom-loader'
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit', 'Save Changes');
+echo form_close();
+?&gt;
+
+&lt;div id="custom-loader" class="mx-indicator"&gt;
+  &lt;p class="blink"&gt;Saving your changes...&lt;/p&gt;
+  &lt;img src="images/custom-loader.gif" alt="Loading..."&gt;
+&lt;/div&gt;
+
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">For an HTML-only approach, here's an alternative syntax:</p>
+
+[code=html]
+&lt;form mx-post="api/submit_form"
+      mx-target="#response"
+      mx-indicator="#custom-loader"&gt;
+    &lt;button type="submit"&gt;Save Changes&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;div id="custom-loader" class="mx-indicator"&gt;
+  &lt;p class="blink"&gt;Saving your changes...&lt;/p&gt;
+  &lt;img src="images/custom-loader.gif" alt="Loading..."&gt;
+&lt;/div&gt;
+
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>The class <code>blink</code> in Trongate CSS creates a smooth, fading animation that makes the text blink.</p>
+</div>
+
+<h2>Advanced Usage: Multiple Indicators</h2>
+<p>Need different indicators for different areas of your page? No problem! Assign unique <code>mx-indicator</code> attributes to each button:</p>
+[code=vf]
+&lt;?php
+// Button for user data
+$user_btn = [
+  'mx-get' => 'users/fetch_details',
+  'mx-target' => '#user-data',
+  'mx-indicator' => '#user-loader'
+];
+echo form_button('user_btn', 'Load User Data', $user_btn);
+
+// Button for order data
+$order_btn = [
+  'mx-get' => 'orders/fetch_recent',
+  'mx-target' => '#order-data',
+  'mx-indicator' => '#order-loader'
+];
+echo form_button('order_btn', 'Load Orders', $order_btn);
+?&gt;
+
+&lt;div id="user-loader" class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="user-data"&gt;&lt;/div&gt;
+
+&lt;div id="order-loader" class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="order-data"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's how the solution looks when written entirely in HTML:</p>
+
+[code=html]
+&lt;button mx-get="users/fetch_details"
+        mx-target="#user-data"
+        mx-indicator="#user-loader"&gt;Load User Data&lt;/button&gt;
+
+&lt;button mx-get="orders/fetch_recent"
+        mx-target="#order-data"
+        mx-indicator="#order-loader"&gt;Load Orders&lt;/button&gt;
+
+&lt;div id="user-loader" class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="user-data"&gt;&lt;/div&gt;
+
+&lt;div id="order-loader" class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="order-data"&gt;&lt;/div&gt;
+[/code]
+
+<h2>Summary</h2>
+<p>Loading indicators are an essential part of any modern web application. With Trongate MX, implementing them is simple, intuitive, and requires no JavaScript. Whether you use the built-in spinner or create custom indicators, you can deliver a polished and professional experience to your users.</p>

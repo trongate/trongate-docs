@@ -1,0 +1,128 @@
+[meta-description]Learn about Trongate v2 Interceptors, a powerful new feature that runs code on every inbound HTTP request before routing or controllers. See an example of an "Endpoint Listener" to record request data.[/meta-description]
+<h1>Interceptors</h1>
+<p>Trongate v2 introduces a new feature to rule every request  -  <strong>before</strong> routing, <strong>before</strong> controllers, <strong>before</strong> anything.</p>
+<p><strong>Meet INTERCEPTORS.</strong></p>
+
+<div class="alert alert-info">
+    <p>This page contains instructions on how to build an "Endpoint Listener" module that records inbound HTTP requests. You can download the complete Endpoint Listener module from <a href="https://github.com/trongate/Endpoint-Listener">GitHub</a>.</p>
+</div>
+
+<hr>
+<h2 class="mt-0">How It Works</h2>
+
+<p>In your main config file, you can define some code to be invoked whenever your application receives inbound HTTP requests.</p>
+<p>That's it.  There's nothing else!</p>
+<p>The rest of this page just walks you through an example.</p>
+
+<hr>
+
+<h2>Step 1: Turn It On</h2>
+
+<p>Open <code>config/config.php</code>. Add:</p>
+
+[code=php]
+$interceptors = [
+    'endpoint_listener' => 'record'
+];
+define('INTERCEPTORS', $interceptors);
+[/code]
+
+<p>Now <code>Endpoint_listener::record()</code> runs on <strong>every request</strong>.</p>
+
+<hr>
+
+<h2 class="mt-0">Step 2: Build the Listener</h2>
+
+<p>Create</p> 
+[code]modules/endpoint_listener/Endpoint_listener.php[/code]
+
+[code=php]
+&lt;?php
+class Endpoint_listener extends Trongate {
+
+    public function __construct() {
+        parent::__construct();
+        if (strtolower(ENV) !== 'dev') {
+            http_response_code(403);
+            echo 'Interceptors disabled in production.';
+            die();
+        }
+    }
+
+    public function record(): void {
+        $url = current_url();
+
+        // Skip self  -  no recursion
+        if (str_contains($url, BASE_URL . 'endpoint_listener')) return;
+
+        $headers = $this->collect_headers();
+        $payload = $this->get_payload();
+        $payload_str = is_scalar($payload) ? $payload : json_encode($payload, JSON_UNESCAPED_SLASHES);
+
+        $data = [
+            'url' => $url,
+            'request_type' => $_SERVER['REQUEST_METHOD'] ?? '',
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            'referrer' => $_SERVER['HTTP_REFERER'] ?? null,
+            'headers' => json_encode($headers, JSON_UNESCAPED_SLASHES),
+            'payload' => $payload_str,
+            'date_created' => time()
+        ];
+
+        $this->model->insert($data, 'endpoint_listener');
+    }
+
+    private function collect_headers(): array {
+        $headers = [];
+        foreach ($_SERVER as $k => $v) {
+            if (str_starts_with($k, 'HTTP_')) {
+                $headers[str_replace('_', '-', substr($k, 5))] = $v;
+            }
+        }
+        return $headers;
+    }
+
+    private function get_payload(): mixed {
+        $type = $_SERVER['CONTENT_TYPE'] ?? '';
+        if (str_contains($type, 'json')) {
+            $raw = file_get_contents('php://input');
+            $decoded = json_decode($raw, true);
+            return json_last_error() === JSON_ERROR_NONE ? $decoded : $raw;
+        }
+        return $_POST ?: file_get_contents('php://input') ?: null;
+    }
+}
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Step 3: Create the Table</h2>
+
+<p>Run once:</p>
+
+[code=sql]
+CREATE TABLE `endpoint_listener` (
+ `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+ `url` text NOT NULL,
+ `request_type` varchar(10) NOT NULL,
+ `ip_address` varchar(45) NOT NULL,
+ `user_agent` text DEFAULT NULL,
+ `referrer` text DEFAULT NULL,
+ `headers` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`headers`)),
+ `payload` longtext DEFAULT NULL,
+ `date_created` int(10) UNSIGNED NOT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Congratulations!</h2>
+
+<ul>
+    <li>Every request → captured</li>
+    <li>Runs before routing</li>
+    <li>Zero bloat. Zero config.</li>
+    <li>Dev-only by default</li>
+</ul>

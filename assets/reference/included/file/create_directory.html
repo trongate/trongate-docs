@@ -1,0 +1,352 @@
+ <div class="container">
+    <h1>create_directory()</h1>
+    <p class="signature">public function create_directory(string $directory_path, int $permissions = 0755, bool $recursive = true): bool</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Creates a new directory at the specified path. This method allows for the creation of nested directories if they do not exist, subject to application security restrictions.</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>Understanding Paths:</strong> The <code>create_directory()</code> method works with paths relative to your application's root directory. There is no automatic "module" or "public" folder detection - you specify exactly where you want the directory created.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$directory_path</td>
+                <td>string</td>
+                <td>The path where the directory should be created.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$permissions</td>
+                <td>int</td>
+                <td>Octal notation permissions (e.g., 0755).</td>
+                <td>0755</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$recursive</td>
+                <td>bool</td>
+                <td>If true, creates all parent directories in the path. If false, fails if any parent directory doesn't exist.</td>
+                <td>true</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>bool</td>
+                <td>Returns true if the directory was created successfully or already exists.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the $recursive Parameter</h2>
+    <p>The <code>$recursive</code> parameter controls whether the method will automatically create missing parent directories:</p>
+
+    <div class="alert alert-success">
+        <p><strong>When $recursive is true (default):</strong></p>
+        <p>If you try to create <code>uploads/documents/2024</code> and neither <code>uploads</code> nor <code>uploads/documents</code> exist, the method will create all three directories automatically.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>When $recursive is false:</strong></p>
+        <p>If you try to create <code>uploads/documents/2024</code> and <code>uploads/documents</code> doesn't exist, the method will fail and return false. All parent directories must already exist.</p>
+    </div>
+
+    <h3>Why Use Non-Recursive Mode?</h3>
+    <p>Setting <code>$recursive</code> to <code>false</code> is useful when:</p>
+    <ul>
+        <li>You want to ensure a specific directory structure already exists before proceeding</li>
+        <li>You're validating that setup or installation steps were completed correctly</li>
+        <li>You want to prevent accidental directory creation in unexpected locations</li>
+        <li>You're implementing defensive checks in production code</li>
+    </ul>
+
+    <h2>How Paths Work</h2>
+    <p>All paths are relative to your application's root directory (where your <code>config</code>, <code>engine</code>, and <code>modules</code> folders are located).</p>
+
+    <table class="table sm">
+        <thead>
+            <tr>
+                <th>If you specify...</th>
+                <th>It creates...</th>
+                <th>Best for...</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'uploads'</code></td>
+                <td><code>/your-app/uploads/</code></td>
+                <td>General upload storage</td>
+            </tr>
+            <tr>
+                <td><code>'public/uploads'</code></td>
+                <td><code>/your-app/public/uploads/</code></td>
+                <td>Web-accessible files</td>
+            </tr>
+            <tr>
+                <td><code>'modules/users/uploads'</code></td>
+                <td><code>/your-app/modules/users/uploads/</code></td>
+                <td>Module-specific storage</td>
+            </tr>
+            <tr>
+                <td><code>'/var/www/uploads'</code></td>
+                <td><code>/var/www/uploads/</code></td>
+                <td>Absolute path storage</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic directory creation operation.</p>
+    [code=php]
+$this-&gt;file-&gt;create_directory('uploads/documents');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Safe to Call Multiple Times:</strong> The method returns <code>true</code> if the directory already exists, making it safe to call repeatedly without checking first. This "idempotent" behavior means you can call <code>create_directory()</code> before every upload operation without worrying about errors if the directory is already there.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to create a directory with custom permissions.</p>
+    [code=php]
+// Create a private directory with restricted access
+$this-&gt;file-&gt;create_directory('private/user_data', 0700);
+
+// Create a web-accessible directory
+$this-&gt;file-&gt;create_directory('public/uploads', 0755);
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Understanding Permissions:</strong> The default permission <code>0755</code> gives the owner (your PHP process) full control, while others can read and access the directory. Use <code>0700</code> for sensitive data (only owner can access), or <code>0775</code> when both owner and group need write access (common in shared hosting).</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates creating nested directories automatically with recursive mode.</p>
+    [code=php]
+// Creates all missing parent directories automatically
+$this-&gt;file-&gt;create_directory('uploads/documents/2024/december');
+
+// This creates:
+// - uploads/
+// - uploads/documents/
+// - uploads/documents/2024/
+// - uploads/documents/2024/december/
+[/code]
+
+    <h2>Example #4</h2>
+    <p>The example above shows how to use non-recursive mode for validation.</p>
+    [code=php]
+public function create_user_directory(): void {
+    $user_id = segment(3, 'int');
+    
+    // Ensure base structure exists first
+    if (!$this-&gt;file-&gt;exists('uploads/users')) {
+        redirect('admin/setup_required');
+    }
+    
+    // Create user directory (fails if parent doesn't exist)
+    $user_dir = 'uploads/users/' . $user_id;
+    $result = $this-&gt;file-&gt;create_directory($user_dir, 0755, false);
+    
+    if ($result === true) {
+        set_flashdata('User directory created');
+        redirect('users/dashboard/' . $user_id);
+    } else {
+        redirect('admin/setup_required');
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>When to Check First:</strong> While <code>create_directory()</code> is safe to call multiple times, you may want to check if a directory exists first when: (1) you need to perform different actions based on whether it's new or existing, (2) you're validating system setup, or (3) you want to provide specific user feedback. Use <code>$this-&gt;file-&gt;exists($directory)</code> to check before creating.</p>
+    </div>
+
+    <h2>Example #5</h2>
+    <p>The example above demonstrates organizing uploads into date-based directory structures.</p>
+    [code=php]
+public function upload_invoice(): void {
+    // Validate file upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Invoice', 'required|allowed_types[pdf]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Create date-based directory structure
+        $date_path = 'uploads/invoices/' . date('Y/m');
+        $this-&gt;file-&gt;create_directory($date_path, 0755);
+        
+        // Configure and upload file
+        $config['destination'] = $date_path;
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        set_flashdata('Invoice uploaded successfully');
+        redirect('invoices/success');
+    } else {
+        $this-&gt;invoice_form();
+    }
+}
+[/code]
+
+    <h2>Example #6</h2>
+    <p>The example above shows how to set up a complete application directory structure.</p>
+    [code=php]
+public function setup_application_directories(): void {
+    $directories = [
+        'public/uploads/images',
+        'public/uploads/documents',
+        'private/user_data',
+        'modules/reports/exports',
+        'logs/application',
+        'temp/processing',
+        'backups/daily'
+    ];
+    
+    $created_count = 0;
+    
+    foreach ($directories as $dir) {
+        $result = $this-&gt;file-&gt;create_directory($dir, 0755);
+        if ($result === true) {
+            $created_count++;
+        }
+    }
+    
+    set_flashdata("Setup complete: {$created_count} directories ready");
+    redirect('admin/dashboard');
+}
+[/code]
+
+    <h2>Example #7</h2>
+    <p>The example above demonstrates creating user-specific directories with proper permissions.</p>
+    [code=php]
+public function initialize_user_storage(): void {
+    $user_id = segment(3, 'int');
+    
+    // Create base user directory
+    $user_base = 'modules/users/storage/' . $user_id;
+    $this-&gt;file-&gt;create_directory($user_base, 0755);
+    
+    // Create subdirectories for different content types
+    $subdirectories = ['documents', 'images', 'videos', 'temp'];
+    
+    foreach ($subdirectories as $subdir) {
+        $full_path = $user_base . '/' . $subdir;
+        $this-&gt;file-&gt;create_directory($full_path, 0755);
+    }
+    
+    // Update user record
+    $data['storage_initialized'] = true;
+    $data['storage_path'] = $user_base;
+    $this-&gt;model-&gt;update($user_id, $data, 'users');
+    
+    set_flashdata('User storage initialized');
+    redirect('users/profile/' . $user_id);
+}
+[/code]
+
+    <h2>Example #8</h2>
+    <p>The example above shows validation of required directory structure during application startup.</p>
+    [code=php]
+public function validate_directory_structure(): array {
+    $required_dirs = [
+        'uploads' =&gt; 'Upload storage',
+        'public' =&gt; 'Public assets',
+        'modules' =&gt; 'Application modules',
+        'logs' =&gt; 'Application logs'
+    ];
+    
+    $missing = [];
+    $validation_results = [];
+    
+    foreach ($required_dirs as $dir =&gt; $description) {
+        // Use non-recursive mode to check if base directories exist
+        $test_path = $dir . '/.test';
+        $result = $this-&gt;file-&gt;create_directory($test_path, 0755, false);
+        
+        if ($result === false) {
+            $missing[] = $description;
+            $validation_results[$dir] = false;
+        } else {
+            // Clean up test directory
+            rmdir($test_path);
+            $validation_results[$dir] = true;
+        }
+    }
+    
+    return [
+        'valid' =&gt; empty($missing),
+        'missing' =&gt; $missing,
+        'results' =&gt; $validation_results
+    ];
+}
+[/code]
+
+    <div class="alert alert-warning">
+        <p><strong>Non-Recursive Validation Pattern:</strong> When using <code>$recursive = false</code> for validation, the method returns <code>false</code> instead of throwing an exception if parent directories are missing. This makes it ideal for checking system requirements without disrupting application flow.</p>
+    </div>
+
+    <h2>Example #9</h2>
+    <p>The example above demonstrates creating temporary processing directories with unique names.</p>
+    [code=php]
+public function start_batch_import(): void {
+    $import_id = segment(3, 'int');
+    
+    // Create unique temporary directory for this import
+    $temp_id = uniqid();
+    $temp_dir = 'temp/imports/batch_' . $temp_id;
+    
+    $this-&gt;file-&gt;create_directory($temp_dir, 0755);
+    
+    // Store temp directory in session for cleanup later
+    $_SESSION['import_temp_dir'] = $temp_dir;
+    
+    // Update import record
+    $data['temp_directory'] = $temp_dir;
+    $data['status'] = 'processing';
+    $this-&gt;model-&gt;update($import_id, $data, 'imports');
+    
+    set_flashdata('Import processing started');
+    redirect('imports/process/' . $import_id);
+}
+[/code]
+
+    <h2>Example #10</h2>
+    <p>The example above shows how to handle different permission requirements for different directory types.</p>
+    [code=php]
+public function setup_secure_storage(): void {
+    // Public directories - web server can read
+    $this-&gt;file-&gt;create_directory('public/uploads', 0755);
+    $this-&gt;file-&gt;create_directory('public/assets', 0755);
+    
+    // Private directories - only PHP process can access
+    $this-&gt;file-&gt;create_directory('private/keys', 0700);
+    $this-&gt;file-&gt;create_directory('private/config', 0700);
+    
+    // Shared directories - PHP and group can write
+    $this-&gt;file-&gt;create_directory('shared/cache', 0775);
+    $this-&gt;file-&gt;create_directory('shared/sessions', 0775);
+    
+    // Temporary directories - PHP can write, others can read
+    $this-&gt;file-&gt;create_directory('temp/uploads', 0755);
+    
+    set_flashdata('Storage structure created with appropriate permissions');
+    redirect('admin/security');
+}
+[/code]
+
+    <div class="alert alert-danger">
+        <p><strong>Security Warning:</strong> Never use <code>0777</code> permissions on production servers. This gives <em>everyone</em> on the server full read/write/execute access to your directories, creating a major security risk. Stick to <code>0755</code> for general directories, <code>0700</code> for private data, and <code>0775</code> only when group write access is explicitly required.</p>
+    </div>
+</div>

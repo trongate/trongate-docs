@@ -1,0 +1,131 @@
+<h1>Pagination</h1>
+
+<p>Trongate CSS provides a sleek, user-friendly pagination system that ensures smooth navigation across multiple pages. By following the correct HTML structure, you can effortlessly implement consistent and visually appealing pagination components.</p>
+
+<h2>Basic Pagination</h2>
+
+<p>To create a basic pagination component, wrap your pagination links inside a container with the <code>.pagination</code> class:</p>
+
+<div class="trongate-css-demo">
+  <div>
+    <div class="pagination">
+      <a href="#">«</a>
+      <a href="#">1</a>
+      <a href="#" class="active">2</a>
+      <a href="#">3</a>
+      <a href="#">4</a>
+      <a href="#">»</a>
+    </div>
+  </div>
+</div>
+
+[code=html]
+&lt;div class="pagination"&gt;
+  &lt;a href="#"&gt;&amp;laquo;&lt;/a&gt;
+  &lt;a href="#"&gt;1&lt;/a&gt;
+  &lt;a href="#" class="active"&gt;2&lt;/a&gt;
+  &lt;a href="#"&gt;3&lt;/a&gt;
+  &lt;a href="#"&gt;4&lt;/a&gt;
+  &lt;a href="#"&gt;&amp;raquo;&lt;/a&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Styling Highlights</h2>
+
+<ul>
+  <li>Rounded corners for the first and last links.</li>
+  <li>Hover effects for interactive feedback.</li>
+  <li>Active links are styled with the primary colour for emphasis.</li>
+  <li>Consistent spacing and clean borders.</li>
+</ul>
+
+<h2>Using Multiple Pagination Blocks</h2>
+
+<p>Place pagination components at the top and bottom of your content. The first pagination block includes a bottom margin for spacing, while subsequent blocks add a top margin for consistency:</p>
+
+<div class="trongate-css-demo">
+  <div>
+    <div class="pagination">
+      <a href="#">«</a>
+      <a href="#" class="active">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">»</a>
+    </div>
+    
+    <div style="height: 100px; background: var(--neutral); display: flex; align-items: center; justify-content: center; margin: 1em 0;">
+      Content Area
+    </div>
+    
+    <div class="pagination">
+      <a href="#">«</a>
+      <a href="#" class="active">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">»</a>
+    </div>
+  </div>
+</div>
+
+[code=html]
+&lt;!-- Top pagination --&gt;
+&lt;div class="pagination"&gt;
+  &lt;a href="#"&gt;&amp;laquo;&lt;/a&gt;
+  &lt;a href="#" class="active"&gt;1&lt;/a&gt;
+  &lt;a href="#"&gt;2&lt;/a&gt;
+  &lt;a href="#"&gt;3&lt;/a&gt;
+  &lt;a href="#"&gt;&amp;raquo;&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- Content area --&gt;
+&lt;div class="content"&gt;
+  &lt;!-- Your content here --&gt;
+&lt;/div&gt;
+
+&lt;!-- Bottom pagination --&gt;
+&lt;div class="pagination"&gt;
+  &lt;a href="#"&gt;&amp;laquo;&lt;/a&gt;
+  &lt;a href="#" class="active"&gt;1&lt;/a&gt;
+  &lt;a href="#"&gt;2&lt;/a&gt;
+  &lt;a href="#"&gt;3&lt;/a&gt;
+  &lt;a href="#"&gt;&amp;raquo;&lt;/a&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Extended Example</h2>
+
+<p>For pages with more content, you can extend the pagination component to include additional page numbers and states:</p>
+
+<div class="trongate-css-demo">
+  <div>
+    <div class="pagination">
+      <a href="#">«</a>
+      <a href="#">1</a>
+      <a href="#">2</a>
+      <a href="#" class="active">3</a>
+      <a href="#">4</a>
+      <a href="#">5</a>
+      <a href="#">6</a>
+      <a href="#">7</a>
+      <a href="#">»</a>
+    </div>
+  </div>
+</div>
+
+[code=html]
+&lt;div class="pagination"&gt;
+  &lt;a href="#"&gt;&amp;laquo;&lt;/a&gt;
+  &lt;a href="#"&gt;1&lt;/a&gt;
+  &lt;a href="#"&gt;2&lt;/a&gt;
+  &lt;a href="#" class="active"&gt;3&lt;/a&gt;
+  &lt;a href="#"&gt;4&lt;/a&gt;
+  &lt;a href="#"&gt;5&lt;/a&gt;
+  &lt;a href="#"&gt;6&lt;/a&gt;
+  &lt;a href="#"&gt;7&lt;/a&gt;
+  &lt;a href="#"&gt;&amp;raquo;&lt;/a&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>By default, the previous and next links use <code>«</code> and <code>»</code>. You can replace these with icons or other symbols for custom designs.</p>
+</div>

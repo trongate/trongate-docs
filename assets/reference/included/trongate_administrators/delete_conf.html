@@ -1,0 +1,32 @@
+<div class="container">
+  <h1>delete_conf()</h1>
+  <p class="signature">public function delete_conf(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Displays a confirmation page before deleting a record. Prevents users from deleting their own account. Requires a valid update ID in URL segment 3.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters (uses URL segment 3 for the record ID).</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Output rendered via the admin template, or redirects on self‑deletion attempt.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// URL: /trongate_administrators/delete_conf/42
+// Shows confirmation for deleting record #42
+
+// In a view file (delete confirmation link)
+&lt;a href="&lt;?= BASE_URL ?&gt;trongate_administrators/delete_conf/&lt;?= $update_id ?&gt;" 
+   class="btn btn-danger"&gt;Delete Record&lt;/a&gt;
+
+// From another controller
+public function prompt_delete(int $id) {
+    redirect('trongate_administrators/delete_conf/' . $id);
+}
+[/code]
+</div>

@@ -1,0 +1,318 @@
+ [meta-description]Quick reference for all file handling methods in Trongate's File module. Includes file operations, directory management, and security features with practical examples.[/meta-description]
+
+<h1>File Handling Quick Reference</h1>
+
+<p>This reference lists all methods available in Trongate's <a href="documentation-ref/list_refs/included/file" target="_blank">File module</a> when calling <code>$this-&gt;file-&gt;method_name()</code>.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> All file operations include automatic security validation to prevent directory traversal attacks and unauthorized access to restricted areas (<code>config</code>, <code>engine</code>).</p>
+</div>
+
+<h2>File Upload</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-file-upload()</span></td>
+            <td><code>array $config</code></td>
+            <td><code>array</code></td>
+            <td>Uploads a file to the specified destination with security validation and optional random naming.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Configuration Array Keys</h3>
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>destination</code></td>
+            <td>string</td>
+            <td><em>required</em></td>
+            <td>Target directory path (relative to application root or module).</td>
+        </tr>
+        <tr>
+            <td><code>upload_to_module</code></td>
+            <td>bool</td>
+            <td><code>false</code></td>
+            <td>If true, uploads to the module directory.</td>
+        </tr>
+        <tr>
+            <td><code>target_module</code></td>
+            <td>string</td>
+            <td>current segment</td>
+            <td>Specifies which module to upload to when upload_to_module is true.</td>
+        </tr>
+        <tr>
+            <td><code>make_rand_name</code></td>
+            <td>bool</td>
+            <td><code>false</code></td>
+            <td>If true, generates a secure random 10-character alphanumeric filename.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Example Usage</h3>
+[code=php]
+$config = [
+    'destination' =&gt; 'uploads',
+    'upload_to_module' =&gt; true
+];
+
+$file_info = $this-&gt;file-&gt;upload($config);
+
+/* Returns:
+[
+    'file_name' =&gt; 'document.pdf',
+    'file_path' =&gt; 'modules/your_module/uploads/document.pdf',
+    'file_type' =&gt; 'application/pdf',
+    'file_size' =&gt; 245760
+]
+*/
+[/code]
+
+<h2>File Operations</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-file-delete()</span></td>
+            <td><code>string $file_path</code></td>
+            <td><code>bool</code></td>
+            <td>Deletes the specified file. Returns true on success.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-copy()</span></td>
+            <td><code>string $source</code><br><code>string $destination</code></td>
+            <td><code>bool</code></td>
+            <td>Copies a file from source to destination. Returns true on success.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-move()</span></td>
+            <td><code>string $source</code><br><code>string $destination</code></td>
+            <td><code>bool</code></td>
+            <td>Moves a file from source to destination. Returns true on success.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-read()</span></td>
+            <td><code>string $file_path</code></td>
+            <td><code>string</code></td>
+            <td>Reads and returns the entire contents of a file.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-write()</span></td>
+            <td><code>string $file_path</code><br><code>mixed $data</code><br><code>bool $append = false</code></td>
+            <td><code>bool</code></td>
+            <td>Writes content to a file. Set <code>$append</code> to true to add to existing content.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-download()</span></td>
+            <td><code>string $file_path</code><br><code>bool $as_attachment = true</code></td>
+            <td><code>void</code></td>
+            <td>Initiates file download or displays inline. Calls exit after sending file.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>File Information &amp; Directories</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-file-info()</span></td>
+            <td><code>string $file_path</code></td>
+            <td><code>array</code></td>
+            <td>Returns detailed metadata about a file (size, MIME type, permissions, etc.).</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-exists()</span></td>
+            <td><code>string $file_path</code></td>
+            <td><code>bool</code></td>
+            <td>Checks if a file or directory exists at the specified path.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-create_directory()</span></td>
+            <td><code>string $path</code><br><code>int $perms = 0755</code><br><code>bool $recursive = true</code></td>
+            <td><code>bool</code></td>
+            <td>Creates a directory with specified permissions. Returns true if created or already exists.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-delete_directory()</span></td>
+            <td><code>string $directory_path</code></td>
+            <td><code>bool</code></td>
+            <td>Recursively deletes a directory and all of its contents. Use with caution.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-list_directory()</span></td>
+            <td><code>string $path</code><br><code>bool $recursive = false</code></td>
+            <td><code>array</code></td>
+            <td>Lists all files/directories within the specified path. Returns nested array if recursive.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Validation Rules</h2>
+
+<p>Use these rules with <code>$this-&gt;validation-&gt;set_rules()</code> during file uploads.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Parameter</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>allowed_types</code></td>
+            <td>extensions</td>
+            <td>Comma-separated extensions (e.g., <code>allowed_types[jpg,png]</code>).</td>
+        </tr>
+        <tr>
+            <td><code>max_size</code></td>
+            <td>KB</td>
+            <td>Maximum file size in kilobytes (e.g., <code>max_size[2048]</code>).</td>
+        </tr>
+        <tr>
+            <td><code>max_width</code> / <code>max_height</code></td>
+            <td>Pixels</td>
+            <td>Maximum image dimensions.</td>
+        </tr>
+        <tr>
+            <td><code>min_width</code> / <code>min_height</code></td>
+            <td>Pixels</td>
+            <td>Minimum image dimensions.</td>
+        </tr>
+        <tr>
+            <td><code>square</code></td>
+            <td>None</td>
+            <td>Validates that the image has a 1:1 aspect ratio.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: Basic Upload with Validation</h3>
+<p>The simplest complete upload workflow following the three-method pattern.</p>
+
+[code=php]
+// Step 1: Display form
+function upload_form() {
+    $this-&gt;view('upload_form');
+}
+
+// Step 2: Process upload
+function submit_upload() {
+    $this-&gt;validation-&gt;set_rules('userfile', 'File', 'required|allowed_types[pdf]|max_size[5000]');
+    
+    $result = $this-&gt;validation-&gt;run();
+    
+    if ($result === true) {
+        $config['destination'] = 'uploads';
+        $config['upload_to_module'] = true;
+        
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        set_flashdata('File uploaded successfully');
+        redirect('documents/success/' . $file_info['file_name']);
+    } else {
+        $this-&gt;upload_form();
+    }
+}
+
+// Step 3: Show success
+function success() {
+    $filename = segment(3);
+    $data['filename'] = $filename;
+    $this-&gt;view('upload_success', $data);
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>The Three-Method Pattern:</strong> This clean pattern separates concerns - one method displays the form, one processes the upload, and one shows success. When validation fails, we call <code>$this-&gt;upload_form()</code> to redisplay the form with errors. When validation succeeds, we redirect to prevent duplicate submissions.</p>
+</div>
+
+<h3>Pattern 2: Temporary File Processing with Cleanup</h3>
+<p>When you need to process a file temporarily before moving it to permanent storage, use this pattern with automatic cleanup.</p>
+
+[code=php]
+function process_import() {
+    // Validate the uploaded file
+    $this-&gt;validation-&gt;set_rules('userfile', 'CSV File', 'required|allowed_types[csv]|max_size[5000]');
+    
+    $result = $this-&gt;validation-&gt;run();
+    
+    if ($result === true) {
+        // Create temporary directory for processing
+        $temp_dir = 'temp/import_' . uniqid();
+        $this-&gt;file-&gt;create_directory($temp_dir, 0700);
+        
+        try {
+            // Upload to temporary location
+            $config['destination'] = $temp_dir;
+            $file_info = $this-&gt;file-&gt;upload($config);
+            
+            // Process the file
+            $content = $this-&gt;file-&gt;read($file_info['file_path']);
+            // ... process CSV data ...
+            
+            // Move to permanent storage
+            $permanent_dir = 'uploads/imports';
+            $this-&gt;file-&gt;create_directory($permanent_dir, 0755);
+            $this-&gt;file-&gt;move($file_info['file_path'], $permanent_dir . '/' . $file_info['file_name']);
+            
+            set_flashdata('Import completed');
+            redirect('imports/success');
+            
+        } finally {
+            // Cleanup: always remove temporary directory
+            if ($this-&gt;file-&gt;exists($temp_dir)) {
+                $items = $this-&gt;file-&gt;list_directory($temp_dir);
+                foreach ($items as $item) {
+                    $this-&gt;file-&gt;delete($temp_dir . '/' . $item);
+                }
+                rmdir($temp_dir);
+            }
+        }
+    } else {
+        $this-&gt;import_form();
+    }
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Why Use a finally Block:</strong> The <code>finally</code> block ensures temporary files are always cleaned up, even if an error occurs during processing. This prevents orphaned temporary files from accumulating on your server. The cleanup code runs whether the upload succeeds or fails.</p>
+</div>

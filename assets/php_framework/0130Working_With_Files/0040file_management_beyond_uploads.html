@@ -1,0 +1,525 @@
+[meta-description]Master Trongate's file management: delete, copy, move, read, write, and get file info. Practical examples showing validation patterns and best practices for reliable file operations.[/meta-description]
+
+<h1>File Management Beyond Uploads</h1>
+
+<p>Uploading files is just the beginning. Once files are on your server, you need to <strong>manage</strong> them.</p>
+
+<p>Trongate's <a href="documentation-ref/list_refs/included/file" target="_blank">File module</a> provides methods for all common file operations:</p>
+
+<ul>
+    <li>Checking if files exist</li>
+    <li>Deleting files</li>
+    <li>Copying files</li>
+    <li>Moving/renaming files</li>
+    <li>Reading file contents</li>
+    <li>Writing to files</li>
+    <li>Getting file information</li>
+</ul>
+
+<div class="alert alert-info">
+    <p><strong>Before proceeding:</strong> This page assumes you understand <a href="documentation/trongate_php_framework/working-with-files/understanding-file-paths" target="_blank">how file paths work in Trongate</a>. All examples use relative paths for PHP operations.</p>
+</div>
+
+<h2>The Pattern: Check Before You Act</h2>
+
+<p>All file management methods follow a simple calling pattern:</p>
+
+[code=php]
+$this-&gt;file-&gt;method_name($path, $parameters...);
+[/code]
+
+<p>The methods introduced on this page throw exceptions for <strong>genuine errors</strong> (permission denied, disk full, file locked) - not for expected conditions that you should handle in advance.</p>
+
+<p>It's highly recommended to make sure appropriate conditions are met <i>before</i> trying to invoke file management methods.</p>    
+<div class="alert alert-success">
+<p>Make sure files exist before calling file management methods:</p>
+[code=php]
+// ✅ GOOD: Check first, then act
+if ($this-&gt;file-&gt;exists($file_path)) {
+    $this-&gt;file-&gt;delete($file_path);
+    set_flashdata('File deleted successfully');
+    redirect('files/manage');
+} else {
+    redirect('files/not_found');
+}
+
+// ❌ BAD: Don't rely on exceptions for validation
+try {
+    $this-&gt;file-&gt;delete($file_path);
+    set_flashdata('File deleted successfully'); // Wrong use of flashdata
+} catch (Exception $e) {
+    set_flashdata('Failed: ' . $e-&gt;getMessage()); // Wrong use of flashdata
+}
+[/code]
+
+</div>
+
+<h2>1. Checking File Existence</h2>
+
+<p>Use <span class="feature-ref">included-file-exists()</span> to make sure a file exists before operating on it:</p>
+
+[code=php]
+/**
+ * @param string $path File or directory path
+ * @return bool True if exists, false otherwise
+ */
+public function exists(string $path): bool
+[/code]
+
+<h3>Example: Verify Before Deletion</h3>
+
+[code=php]
+public function remove_user_file($file_id): void {
+    // Get the database record
+    $file_record = $this-&gt;db-&gt;get_where($file_id, 'user_files');
+    
+    if ($file_record === false) {
+        redirect('files/not_found');
+    }
+    
+    // Reconstruct the relative file path
+    $file_path = '../modules/users/uploads/' . $file_record-&gt;filename;
+    
+    // Check if file exists before attempting deletion
+    if ($this-&gt;file-&gt;exists($file_path)) {
+        $this-&gt;file-&gt;delete($file_path);
+        $this-&gt;db-&gt;delete($file_id, 'user_files');
+        set_flashdata('File removed successfully');
+        redirect('files/manage');
+    } else {
+        redirect('files/not_found');
+    }
+}
+[/code]
+
+<h2>2. Deleting Files</h2>
+
+<p>The <span class="feature-ref">included-file-delete()</span> method removes files from the file system:</p>
+
+[code=php]
+/**
+ * @param string $file_path Path to the file
+ * @return bool True if deleted successfully
+ * @throws Exception If file doesn't exist or can't be deleted
+ */
+public function delete(string $file_path): bool
+[/code]
+
+<h3>Example: Clean Up Old Uploads</h3>
+
+[code=php]
+public function cleanup_old_files(): void {
+    // Find files older than 30 days
+    $cutoff_date = date('Y-m-d H:i:s', strtotime('-30 days'));
+    $sql = 'SELECT id, filename FROM temp_uploads WHERE created_at &lt; ?';
+    $old_files = $this-&gt;db-&gt;query($sql, [$cutoff_date], 'object');
+    
+    $deleted_count = 0;
+    
+    foreach ($old_files as $file) {
+        $file_path = 'public/temp/' . $file-&gt;filename;
+        
+        if ($this-&gt;file-&gt;exists($file_path)) {
+            $this-&gt;file-&gt;delete($file_path);
+            $this-&gt;db-&gt;delete($file-&gt;id, 'temp_uploads');
+            $deleted_count++;
+        }
+    }
+    
+    set_flashdata("Cleaned up $deleted_count old files");
+    redirect('admin/maintenance');
+}
+[/code]
+
+<h2>3. Copying Files</h2>
+
+<p>The <span class="feature-ref">included-file-copy()</span> method  copies a file from one location to another.</p>
+
+[code=php]
+/**
+ * @param string $source_path Original file location
+ * @param string $destination_path Copy target location
+ * @return bool True if copied successfully
+ * @throws Exception If source doesn't exist or copy fails
+ */
+public function copy(string $source_path, string $destination_path): bool
+[/code]
+
+<h3>Example: Create Document Backup</h3>
+
+[code=php]
+public function backup_document($document_id): void {
+    $document = $this-&gt;db-&gt;get_where($document_id, 'documents');
+    
+    if ($document === false) {
+        redirect('documents/not_found');
+    }
+    
+    // Original file location
+    $source_path = '../modules/documents/storage/' . $document-&gt;filename;
+    
+    // Check source exists
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('documents/not_found');
+    }
+    
+    // Create dated backup directory if needed
+    $backup_dir = '../modules/documents/backups/' . date('Y-m-d');
+    if (!$this-&gt;file-&gt;exists($backup_dir)) {
+        $this-&gt;file-&gt;create_directory($backup_dir, 0755, true);
+    }
+    
+    // Create backup
+    $backup_path = $backup_dir . '/' . $document-&gt;filename;
+    $this-&gt;file-&gt;copy($source_path, $backup_path);
+    
+    set_flashdata('Backup created successfully');
+    redirect('documents/view/' . $document_id);
+}
+[/code]
+
+<h2>4. Moving Files</h2>
+
+<p>With <span class="feature-ref">included-file-move()</span> you can relocate or rename files in a single operation:</p>
+
+[code=php]
+/**
+ * @param string $source_path Current file location
+ * @param string $destination_path New file location
+ * @return bool True if moved successfully
+ * @throws Exception If source doesn't exist or move fails
+ */
+public function move(string $source_path, string $destination_path): bool
+[/code]
+
+<h3>Example: Organize Files by Date</h3>
+
+[code=php]
+public function organize_by_date($file_id): void {
+    $file = $this-&gt;db-&gt;get_where($file_id, 'uploads');
+    
+    if ($file === false) {
+        redirect('uploads/not_found');
+    }
+    
+    // Current location
+    $current_path = '../modules/uploads/incoming/' . $file-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($current_path)) {
+        redirect('uploads/not_found');
+    }
+    
+    // Organize into year/month structure
+    $year_month = date('Y/m', strtotime($file-&gt;created_at));
+    $organized_dir = '../modules/uploads/organized/' . $year_month;
+    
+    // Create directory structure if needed
+    if (!$this-&gt;file-&gt;exists($organized_dir)) {
+        $this-&gt;file-&gt;create_directory($organized_dir, 0755, true);
+    }
+    
+    // Move the file
+    $new_path = $organized_dir . '/' . $file-&gt;filename;
+    $this-&gt;file-&gt;move($current_path, $new_path);
+    
+    // Update database with new path
+    $data['file_path'] = $new_path;
+    $this-&gt;db-&gt;update($file_id, $data, 'uploads');
+    
+    set_flashdata('File organized successfully');
+    redirect('uploads/manage');
+}
+[/code]
+
+<h2>5. Reading Files</h2>
+
+<p>The <span class="feature-ref">included-file-read()</span> method returns complete file contents as a string:</p>
+
+[code=php]
+/**
+ * @param string $file_path Path to the file
+ * @return string Complete file contents
+ * @throws Exception If file doesn't exist or can't be read
+ */
+public function read(string $file_path): string
+[/code]
+
+<h3>Example: Process CSV Data</h3>
+
+[code=php]
+public function import_contacts($file_id): void {
+    $import = $this-&gt;db-&gt;get_where($file_id, 'imports');
+    
+    if ($import === false) {
+        redirect('imports/not_found');
+    }
+    
+    $file_path = '../modules/imports/uploads/' . $import-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($file_path)) {
+        redirect('imports/not_found');
+    }
+    
+    // Read the CSV file
+    $csv_content = $this-&gt;file-&gt;read($file_path);
+    $rows = array_map('str_getcsv', explode("\n", $csv_content));
+    
+    // Skip header row and process
+    $imported = 0;
+    for ($i = 1; $i &lt; count($rows); $i++) {
+        if (count($rows[$i]) &gt;= 3) {
+            $data = [
+                'name' =&gt; $rows[$i][0],
+                'email' =&gt; $rows[$i][1],
+                'phone' =&gt; $rows[$i][2]
+            ];
+            $this-&gt;db-&gt;insert($data, 'contacts');
+            $imported++;
+        }
+    }
+    
+    set_flashdata("Imported $imported contacts");
+    redirect('contacts/manage');
+}
+[/code]
+
+<h2>6. Writing Files</h2>
+
+<p>With the <span class="feature-ref">included-file-write()</span> method, you can create new files or update existing ones:</p>
+
+[code=php]
+/**
+ * @param string $file_path Path where file should be written
+ * @param mixed $data Content to write
+ * @param bool $append If true, append instead of overwrite (default: false)
+ * @return bool True if written successfully
+ * @throws Exception If write operation fails
+ */
+public function write(string $file_path, $data, bool $append = false): bool
+[/code]
+
+<h3>Example: Generate Export File</h3>
+
+[code=php]
+public function export_users(): void {
+    // Get all users
+    $users = $this-&gt;db-&gt;get('users', 'object');
+    
+    // Create CSV content
+    $csv = "Name,Email,Joined\n";
+    foreach ($users as $user) {
+        $csv .= "{$user-&gt;name},{$user-&gt;email},{$user-&gt;created_at}\n";
+    }
+    
+    // Write to exports directory
+    $filename = 'users_export_' . date('Y-m-d_His') . '.csv';
+    $file_path = '../modules/users/exports/' . $filename;
+    
+    $this-&gt;file-&gt;write($file_path, $csv);
+    
+    set_flashdata('Export file created');
+    redirect('users/manage');
+}
+[/code]
+
+<h3>Example: Append to Log File</h3>
+
+[code=php]
+public function log_activity($message): void {
+    $log_entry = date('[Y-m-d H:i:s] ') . $message . "\n";
+    $log_path = '../modules/admin/logs/activity.log';
+    
+    // Append to existing log file
+    $this-&gt;file-&gt;write($log_path, $log_entry, true);
+}
+[/code]
+
+<h2>7. Getting File Information</h2>
+
+<p>The <span class="feature-ref">included-file-info()</span> method can be used to retrieve comprehensive metadata about a file:</p>
+
+[code=php]
+/**
+ * @param string $file_path Path to the file
+ * @return array Associative array with file metadata
+ * @throws Exception If file doesn't exist
+ */
+public function info(string $file_path): array
+[/code]
+
+<p>Returns an array containing:</p>
+
+<ul>
+    <li><code>file_name</code> - The filename</li>
+    <li><code>size</code> - Size in bytes</li>
+    <li><code>human_readable_size</code> - Size formatted (e.g., "2.4 MB")</li>
+    <li><code>modified_time</code> - Unix timestamp of last modification</li>
+    <li><code>permissions</code> - File permissions</li>
+    <li><code>readable_permissions</code> - Formatted permissions (e.g., "0644")</li>
+    <li><code>mime_type</code> - MIME type of the file</li>
+</ul>
+
+<h3>Example: Display File Details</h3>
+
+[code=php]
+public function view_file_info($file_id): void {
+    $file = $this-&gt;db-&gt;get_where($file_id, 'documents');
+    
+    if ($file === false) {
+        redirect('documents/not_found');
+    }
+    
+    $file_path = '../modules/documents/storage/' . $file-&gt;filename;
+    
+    if ($this-&gt;file-&gt;exists($file_path)) {
+        $info = $this-&gt;file-&gt;info($file_path);
+        
+        $data['file_record'] = $file;
+        $data['file_info'] = $info;
+        $data['view_file'] = 'file_details';
+        
+        $this-&gt;view('file_details', $data);
+    } else {
+        redirect('documents/not_found');
+    }
+}
+[/code]
+
+<h2>Quick Reference Table</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-file-exists()</span></td>
+            <td>Check if file exists</td>
+            <td><code>if ($this-&gt;file-&gt;exists($path))</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-delete()</span></td>
+            <td>Remove a file</td>
+            <td><code>$this-&gt;file-&gt;delete($file_path)</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-copy()</span></td>
+            <td>Duplicate a file</td>
+            <td><code>$this-&gt;file-&gt;copy($source, $destination)</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-move()</span></td>
+            <td>Relocate/rename a file</td>
+            <td><code>$this-&gt;file-&gt;move($old_path, $new_path)</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-read()</span></td>
+            <td>Get file contents</td>
+            <td><code>$content = $this-&gt;file-&gt;read($file_path)</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-write()</span></td>
+            <td>Create or update file</td>
+            <td><code>$this-&gt;file-&gt;write($path, $data)</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-file-info()</span></td>
+            <td>Get file metadata</td>
+            <td><code>$info = $this-&gt;file-&gt;info($file_path)</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Common Patterns and Best Practices</h2>
+
+<h3>Pattern 1: Store Relative Paths in Database</h3>
+
+[code=php]
+// During upload, store the relative path
+$file_info = $this-&gt;file-&gt;upload($config);
+
+$data['filename'] = $file_info['file_name'];
+$data['file_path'] = $file_info['file_path'];  // Store the relative path
+$this-&gt;db-&gt;insert($data, 'documents');
+
+// Later, use the stored path directly
+$doc = $this-&gt;db-&gt;get_where($id, 'documents');
+
+if ($doc === false) {
+    redirect('documents/not_found');
+}
+
+if ($this-&gt;file-&gt;exists($doc-&gt;file_path)) {
+    $this-&gt;file-&gt;delete($doc-&gt;file_path);
+    $this-&gt;db-&gt;delete($id, 'documents');
+    set_flashdata('Document deleted');
+    redirect('documents/manage');
+} else {
+    redirect('documents/not_found');
+}
+[/code]
+
+<h3>Pattern 2: Store Filename, Reconstruct Path</h3>
+
+[code=php]
+// During upload, store just the filename
+$file_info = $this-&gt;file-&gt;upload($config);
+
+$data['filename'] = $file_info['file_name'];
+$this-&gt;db-&gt;insert($data, 'documents');
+
+// Later, reconstruct the relative path
+$doc = $this-&gt;db-&gt;get_where($id, 'documents');
+
+if ($doc === false) {
+    redirect('documents/not_found');
+}
+
+$file_path = '../modules/documents/storage/' . $doc-&gt;filename;
+
+if ($this-&gt;file-&gt;exists($file_path)) {
+    $this-&gt;file-&gt;delete($file_path);
+    $this-&gt;db-&gt;delete($id, 'documents');
+    set_flashdata('Document deleted');
+    redirect('documents/manage');
+} else {
+    redirect('documents/not_found');
+}
+[/code]
+
+<h3>Pattern 3: Complete Validation Flow</h3>
+
+[code=php]
+public function process_file($file_id): void {
+    // 1. Validate database record
+    $file = $this-&gt;db-&gt;get_where($file_id, 'uploads');
+    
+    if ($file === false) {
+        redirect('uploads/not_found');
+    }
+    
+    // 2. Build relative file path
+    $file_path = '../modules/uploads/storage/' . $file-&gt;filename;
+    
+    // 3. Validate file exists
+    if (!$this-&gt;file-&gt;exists($file_path)) {
+        redirect('uploads/not_found');
+    }
+    
+    // 4. Now safe to perform operations
+    $content = $this-&gt;file-&gt;read($file_path);
+    
+    // Process content...
+    $processed = strtoupper($content);
+    
+    // Write back to file
+    $this-&gt;file-&gt;write($file_path, $processed);
+    
+    set_flashdata('File processed successfully');
+    redirect('uploads/manage');
+}
+[/code]

@@ -1,0 +1,209 @@
+<div class="container">
+    <h1>info()</h1>
+    <p class="signature">public function info(string $file_path): array</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Retrieves metadata about a file, including its size, last modification time, permissions, and MIME type.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$file_path</td>
+                <td>string</td>
+                <td>The path to the file.</td>
+            </tr>
+        </tbody>
+    </table>
+
+ <h2>Return Value Details</h2>
+<p>The method returns an associative array containing the following keys:</p>
+<table>
+    <thead>
+        <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>file_name</td>
+            <td>string</td>
+            <td>The filename without the directory path (e.g., "document.pdf").</td>
+        </tr>
+        <tr>
+            <td>size</td>
+            <td>int</td>
+            <td>File size in bytes.</td>
+        </tr>
+        <tr>
+            <td>human_readable_size</td>
+            <td>string</td>
+            <td>Formatted file size (e.g., "2.45 MB").</td>
+        </tr>
+        <tr>
+            <td>modified_time</td>
+            <td>int</td>
+            <td>Last modification time as a Unix timestamp.</td>
+        </tr>
+        <tr>
+            <td>permissions</td>
+            <td>int</td>
+            <td>Raw file permissions as an integer.</td>
+        </tr>
+        <tr>
+            <td>readable_permissions</td>
+            <td>string</td>
+            <td>Formatted permissions in octal notation (e.g., "0644").</td>
+        </tr>
+        <tr>
+            <td>mime_type</td>
+            <td>string</td>
+            <td>The MIME type of the file (e.g., "application/pdf").</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-warning">
+    <p><strong>Exception Handling:</strong> This method throws an exception if the file does not exist. Always verify the file exists using <code>$this-&gt;file-&gt;exists($file_path)</code> before calling <code>info()</code>.</p>
+</div>
+
+<h2>Example #1</h2>
+<p>The code sample below demonstrates how to display detailed file information on a document management page.</p>
+[code=php]
+public function view_document_details(): void {
+    $document_id = segment(3, 'int');
+    
+    // Get document record
+    $document = $this-&gt;db-&gt;get_where($document_id, 'documents');
+    
+    if ($document === false) {
+        redirect('documents/not_found');
+    }
+    
+    $file_path = 'modules/documents/storage/' . $document-&gt;filename;
+    
+    // Check if file exists before getting info
+    if ($this-&gt;file-&gt;exists($file_path)) {
+        $file_info = $this-&gt;file-&gt;info($file_path);
+        
+        $data['document'] = $document;
+        $data['file_info'] = $file_info;
+        $this-&gt;view('document_details', $data);
+    } else {
+        redirect('documents/not_found');
+    }
+}
+[/code]
+
+<p>In the view file, you can display the file information:</p>
+[code=vf]
+&lt;h2&gt;&lt;?= out($document-&gt;title) ?&gt;&lt;/h2&gt;
+
+&lt;div class="file-details"&gt;
+    &lt;p&gt;&lt;strong&gt;Filename:&lt;/strong&gt; &lt;?= out($file_info['file_name']) ?&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;File Size:&lt;/strong&gt; &lt;?= out($file_info['human_readable_size']) ?&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;File Type:&lt;/strong&gt; &lt;?= out($file_info['mime_type']) ?&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Last Modified:&lt;/strong&gt; &lt;?= date('F j, Y g:i A', $file_info['modified_time']) ?&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Permissions:&lt;/strong&gt; &lt;?= out($file_info['readable_permissions']) ?&gt;&lt;/p&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Example #2</h2>
+<p>The example above shows how to use file information to implement a storage quota system.</p>
+[code=php]
+public function check_user_storage(): array {
+    $user_id = segment(3, 'int');
+    $user_directory = 'modules/files/storage/user_' . $user_id;
+    
+    $total_size = 0;
+    $file_count = 0;
+    
+    if ($this-&gt;file-&gt;exists($user_directory)) {
+        $contents = $this-&gt;file-&gt;list_directory($user_directory);
+        
+        foreach ($contents['files'] as $file) {
+            $file_path = $user_directory . '/' . $file['name'];
+            
+            if ($this-&gt;file-&gt;exists($file_path)) {
+                $info = $this-&gt;file-&gt;info($file_path);
+                $total_size += $info['size'];
+                $file_count++;
+            }
+        }
+    }
+    
+    // Calculate storage usage
+    $quota_bytes = 100 * 1024 * 1024; // 100 MB quota
+    $usage_percent = ($total_size / $quota_bytes) * 100;
+    
+    // Format for display
+    $sizes = ['B', 'KB', 'MB', 'GB'];
+    $factor = floor((strlen($total_size) - 1) / 3);
+    $human_readable = sprintf("%.2f", $total_size / pow(1024, $factor)) . ' ' . $sizes[$factor];
+    
+    return [
+        'file_count' =&gt; $file_count,
+        'total_size_bytes' =&gt; $total_size,
+        'total_size_formatted' =&gt; $human_readable,
+        'usage_percent' =&gt; round($usage_percent, 2),
+        'quota_exceeded' =&gt; $total_size &gt; $quota_bytes
+    ];
+}
+[/code]
+
+<h2>Example #3</h2>
+<p>The example above demonstrates how to filter and display files by type using MIME information.</p>
+[code=php]
+public function list_files_by_type(): void {
+    $directory = 'modules/uploads/documents';
+    $file_type = segment(3); // e.g., 'pdf', 'image', 'text'
+    
+    $filtered_files = [];
+    
+    if ($this-&gt;file-&gt;exists($directory)) {
+        $contents = $this-&gt;file-&gt;list_directory($directory);
+        
+        foreach ($contents['files'] as $file) {
+            $file_path = $directory . '/' . $file['name'];
+            
+            if ($this-&gt;file-&gt;exists($file_path)) {
+                $info = $this-&gt;file-&gt;info($file_path);
+                
+                // Filter by MIME type category
+                $mime_type = $info['mime_type'];
+                $matches = false;
+                
+                if ($file_type === 'pdf' &amp;&amp; $mime_type === 'application/pdf') {
+                    $matches = true;
+                } elseif ($file_type === 'image' &amp;&amp; strpos($mime_type, 'image/') === 0) {
+                    $matches = true;
+                } elseif ($file_type === 'text' &amp;&amp; strpos($mime_type, 'text/') === 0) {
+                    $matches = true;
+                }
+                
+                if ($matches) {
+                    $filtered_files[] = [
+                        'name' =&gt; $info['file_name'],
+                        'size' =&gt; $info['human_readable_size'],
+                        'mime_type' =&gt; $info['mime_type'],
+                        'modified' =&gt; date('Y-m-d H:i:s', $info['modified_time'])
+                    ];
+                }
+            }
+        }
+    }
+    
+    $data['files'] = $filtered_files;
+    $data['file_type'] = $file_type;
+    $this-&gt;view('files_by_type', $data);
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Working with Timestamps:</strong> The <code>modified_time</code> value is returned as a Unix timestamp (number of seconds since January 1, 1970). Use PHP's <code>date()</code> function to convert it to a human-readable format: <code>date('F j, Y g:i A', $file_info['modified_time'])</code> produces output like "December 26, 2024 3:45 PM".</p>
+</div>
+
+</div>

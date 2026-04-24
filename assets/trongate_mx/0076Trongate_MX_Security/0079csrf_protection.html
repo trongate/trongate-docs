@@ -1,0 +1,139 @@
+<h1>CSRF Protection</h1>
+
+<p>Cross-Site Request Forgery (CSRF) is a type of security vulnerability that allows malicious websites to execute unwanted actions on behalf of authenticated users. This attack occurs when a user visits a malicious website while being authenticated on another site, and the malicious site tricks the user's browser into making unwanted requests to the legitimate site.</p>
+
+<h2>How CSRF Attacks Work</h2>
+<p>Consider these common scenarios:</p>
+<ol>
+    <li><strong>Financial Attack:</strong>
+        <ul>
+            <li>You log into your bank account and stay logged in.</li>
+            <li>In another tab, you visit a malicious website.</li>
+            <li>The malicious site contains hidden code that sends a request to your bank to transfer money.</li>
+            <li>Since you're still authenticated with your bank, the request includes your valid session cookie.</li>
+            <li>The bank processes the request because it appears legitimate.</li>
+        </ul>
+    </li>
+    <li><strong>Form Submission Attack:</strong>
+        <ul>
+            <li>You're logged into your website's admin panel.</li>
+            <li>A malicious user sets up a fake form on their website that matches your site's form structure.</li>
+            <li>They trick you into submitting their form (maybe disguised as something else).</li>
+            <li>The form submits to your website, carrying your valid authentication.</li>
+            <li>Your website processes the unwanted form submission.</li>
+        </ul>
+    </li>
+</ol>
+
+<h2 class="mt-0">Built-in Protection in Trongate MX</h2>
+<p>Trongate provides robust CSRF protection out of the box through its Validation class and form helpers. The framework uses a token-based approach where:</p>
+<ul>
+    <li>A unique CSRF token is generated for each form.</li>
+    <li>The token is included in the form as a hidden field.</li>
+    <li>The Validation class verifies this token when processing form submissions.</li>
+    <li>If the token is missing or invalid, the request is blocked.</li>
+</ul>
+
+<h2>Implementing CSRF Protection</h2>
+<p>To implement CSRF protection in your Trongate MX applications, you need two key ingredients:</p>
+
+<h3>1. Use the Validation Class</h3>
+<p>The Validation class automatically includes CSRF protection for all form submissions. This ensures that form submissions are only accepted from your legitimate website.</p>
+
+<h3>2. Use form_close() Helper</h3>
+<p>The <span class="feature-ref" ref-path="helpers/Form_Helpers">form_close()</span> helper function is crucial for CSRF protection as it automatically generates and includes a CSRF token in your forms. Here's a complete example:</p>
+
+[code=php]
+&lt;?php 
+$form_attr = [
+    'mx-post' =&gt; 'users/create',
+    'mx-target' =&gt; '#response'
+];
+echo form_open('#', $form_attr);
+echo form_label('Username');
+echo form_input('username', '');
+echo form_label('Email');
+echo form_input('email', '');
+echo form_submit('submit', 'Create Account');
+echo form_close();
+?&gt;
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p>The above code generates HTML that includes a hidden CSRF token:</p>
+
+[code=html]
+&lt;form mx-post="users/create" mx-target="#response"&gt;
+    &lt;label&gt;Username&lt;/label&gt;
+    &lt;input type="text" name="username" value=""&gt;
+    &lt;label&gt;Email&lt;/label&gt;
+    &lt;input type="text" name="email" value=""&gt;
+    &lt;button type="submit" name="submit"&gt;Create Account&lt;/button&gt;
+    &lt;input type="hidden" name="csrf_token" value="generated_secure_token_here"&gt;
+&lt;/form&gt;
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+<p>For more information about form handling with Trongate MX, refer to the <a href="documentation/display/trongate_mx/form-handling/form-handling-overview">Form Handling Overview</a>.</p>
+</div>
+
+<h2>How It Works Behind the Scenes</h2>
+<p>When you use <span class="feature-ref" ref-path="helpers/Form_Helpers">form_close()</span>, Trongate:</p>
+<ol>
+    <li>Generates a secure random token using <code>random_bytes(32)</code>.</li>
+    <li>Stores the token in the user's session.</li>
+    <li>Adds the token to the form as a hidden field.</li>
+</ol>
+
+<p>When the form is submitted, the Validation class:</p>
+<ol>
+    <li>Checks for the presence of the CSRF token in the request data.</li>
+    <li>Compares it with the token stored in the session.</li>
+    <li>Blocks the request if the tokens don't match or if the token is missing.</li>
+    <li>Uses <code>hash_equals()</code> for secure string comparison to prevent timing attacks.</li>
+</ol>
+
+<div class="alert alert-info">
+    <p>Always use <span class="feature-ref" ref-path="helpers/Form_Helpers">form_close()</span> and Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> when working with forms in Trongate MX. These two elements provide automatic CSRF protection and helps prevent security vulnerabilities.</p>
+</div>
+
+<h2>Automatic Protection</h2>
+<p>CSRF protection in Trongate MX is automatic when you follow these best practices:</p>
+<ul>
+    <li>Use <span class="feature-ref" ref-path="helpers/Form_Helpers">form_close()</span> to properly close your forms and generate CSRF tokens.</li>
+    <li>Process form submissions through the Validation class.</li>
+    <li>Use POST method for state-changing operations.</li>
+</ul>
+
+<div class="alert alert-info">
+    <ul>
+        <li>CSRF tokens are automatically regenerated for each form.</li>
+        <li>Tokens are session-specific and can't be used across different sessions.</li>
+        <li>CSRF protection is mandatory for all POST requests processed by the Validation class.</li>
+    </ul>
+</div>
+
+<h2>Best Practices</h2>
+<p>While Trongate MX handles CSRF protection automatically, following these best practices will ensure maximum security:</p>
+<ul>
+    <li>Always use POST (not GET) for state-changing operations.</li>
+    <li>Keep forms within a single page (avoid storing form data across multiple pages).</li>
+    <li>Don't disable or bypass the built-in CSRF protection.</li>
+    <li>Use HTTPS to prevent token theft via man-in-the-middle attacks.</li>
+    <li>Keep your Trongate framework updated to get the latest security improvements.</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p>At the time of writing, Trongate MX is able to apply automatic CSRF protection to API endpoints where:</p>
+    <ol>
+        <li>A form has been submitted.</li>
+        <li>Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a> is being used to validate submitted form data.</li>
+    </ol>
+
+    <p>Of course, it's possible that you may wish to have CSRF protection applied to endpoints that neither handle form submissions nor make use of Trongate's <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a>. For those kinds of situations, you'll have to write your own custom CSRF protection solution.</p> 
+
+<p>Such a solution would involve generating a unique token for each session or request, storing it securely (e.g., in a session or a database), and ensuring that the token is sent along with requests that modify server-side data. You would then validate the token on the server before processing any sensitive actions to ensure that the request is legitimate and not forged.</p>
+<p>At the time of writing, this kind of functionality has not been built into Trongate MX. However, if it's something that you think would add value to Trongate MX, <a href="https://trongate.io/contactus">let us know</a>. If enough people ask for a feature, we'll build it!</p>
+
+</div>

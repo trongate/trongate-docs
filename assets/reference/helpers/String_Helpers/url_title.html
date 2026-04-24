@@ -1,0 +1,54 @@
+<div class="container">
+  <h1>url_title()</h1>
+  <p class="signature">function url_title(string $value, bool $transliteration = true): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Converts a string into a URL-friendly slug format. This function will transliterate the string to ASCII if the 'intl' extension is loaded and transliteration is set to true, converts any non-alphanumeric characters to dashes, trims them from the start and end, and converts everything to lowercase.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$value</td>
+        <td>string</td>
+        <td>The string to be converted into a slug.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$transliteration</td>
+        <td>bool</td>
+        <td>Optional. Whether to transliterate characters to ASCII, enhancing compatibility with the 'intl' extension.</td>
+        <td>true</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>Returns the slugified version of the string, or the original string in lowercase with non-alphanumeric characters replaced by dashes if transliteration is not applied.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div>
+    <pre>
+echo url_title("Hello World! This is a Test String.");
+// Output: hello-world-this-is-a-test-string</pre>
+  </div>
+</div>

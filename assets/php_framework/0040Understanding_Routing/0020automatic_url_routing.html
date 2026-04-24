@@ -1,0 +1,65 @@
+[meta-description]Trongate automatic routing: clean URLs like /members/profile/88 instantly call Members->profile(). Fetch URL data with segment(3, 'int') for type-safe, explicit parameter handling.[/meta-description]
+<h1>Automatic URL Routing</h1>
+<p>Trongate makes routing effortless. Just type the URL, and the framework figures out which code to run  -  no route registration, no caching, no extra fuss.</p>
+<h2>How URL Segments Work</h2>
+<p>Example URL:</p>
+[code]
+https://example.com/members/profile/88
+[/code]
+<p>Trongate breaks it into segments:</p>
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Segment</th>
+            <th>Example</th>
+            <th>Purpose</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>1st</td><td><code>members</code></td><td>Module folder + controller</td></tr>
+        <tr><td>2nd</td><td><code>profile</code></td><td>Method to run</td></tr>
+        <tr><td>3rd+</td><td><code>88</code></td><td>Available via <span class="feature-ref">segment()</span> function</td></tr>
+    </tbody>
+</table>
+<p>So this URL runs:</p>
+[code=php]
+<?php
+class Members extends Trongate {
+    function profile() {
+        $user_id = segment(3, 'int');  // Fetch segment 3 as integer
+        echo "User profile loaded. No config required. PHP is good.";
+    }
+}
+[/code]
+<div class="alert alert-info">
+    <p><strong>Changed in v2:</strong> URL segments are no longer auto-passed as method parameters.</p> 
+
+    <p>Use <span class="feature-ref">segment()</span> to fetch variables from the URL explicitly. This follows the same principle that guided PHP's removal of <code>register_globals</code>:</p>
+
+    <ul>
+        <li><strong>Explicit is safer than implicit</strong> - developers must deliberately read data from the URL, making trust boundaries clear and reducing accidental misuse.</li>
+        <li class="mt-1"><strong>Improved security posture</strong> - explicit fetching creates a natural checkpoint for validation and sanitization before data is used.</li>
+        <li class="mt-1"><strong>Greater code clarity</strong> - when reading a controller, it is immediately obvious where external input originates.</li>
+        <li class="mt-1"><strong>Less framework magic</strong> - removing automatic parameter injection aligns Trongate more closely with native PHP behavior.</li>
+        <li class="mt-1"><strong>Modern strictness</strong> - explicit data access reflects the broader trend in modern PHP and web development toward stricter, more predictable code.</li>
+    </ul>
+</div>
+
+<h2>The Rules</h2>
+<ol>
+    <li>Module folders: <code>lowercase</code> (or <code>snake_case</code>)</li>
+    <li>Controller files: <code>Firstlettercap</code> (e.g., <code>Members.php</code>)</li>
+    <li>Methods: <code>lowercase</code> (or <code>snake_case</code>)</li>
+    <li>No method? → automatically runs <code>index()</code></li>
+</ol>
+<div class="alert alert-info">
+    <p><strong>Note:</strong> Custom routes in <code>config/custom_routing.php</code> override automatic routing like a polite bouncer: "Sorry mate, VIP list wins."</p>
+</div>
+<h2>Quick Examples</h2>
+<div class="element-wrapper">
+<ul>
+<li><code>/products</code> → <code>Products->index()</code></li>
+<li class="mt-1"><code>/products/manage</code> → <code>Products->manage()</code></li>
+<li class="mt-1"><code>/products/display/42</code> → <code>Products->display()</code> + <code>segment(3, 'int')</code> returns <code>42</code></li>
+</ul>
+</div>

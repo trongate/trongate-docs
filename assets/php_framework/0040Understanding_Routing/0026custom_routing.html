@@ -1,0 +1,61 @@
+[meta-description]Trongate custom routing: one-line PHP rules with (:num), (:any), and (:all) wildcards. Pretty URLs, dynamic slugs, or secret admin paths - no config files, no hassle.[/meta-description]
+<h1>Custom Routing</h1>
+
+<p>Automatic routing is brilliant 99% of the time.  This page is for the 1% when you want to bend URLs to your will.</p>
+
+<p>Here's how it works. Open: <code>config/custom_routing.php</code></p>
+
+<p>Add one line. Refresh. Done.</p>
+<hr>
+<h2 class="mt-0">Basic Routes – “Pretend You’re Somewhere Else”</h2>
+
+<p>Want <code>/login</code> to secretly run <code>users/login</code>?</p>
+
+[code=php]
+&lt;?php
+$routes = [
+    'login' => 'users/login'
+];
+
+define('CUSTOM_ROUTES', $routes);
+[/code]
+
+<p><strong>Result:</strong> Address bar stays <code>/login</code>. User sees login form. You look clever.</p>
+<hr>
+<h2 class="mt-0">Dynamic Routes? It's Wildcards Ahoy!</h2>
+
+<p>Need to catch IDs, slugs, or entire paths? Three wildcards. No more. No less.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Wildcard</th>
+            <th>Matches</th>
+            <th>Use When</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><code>(:num)</code></td><td>123</td><td>Numeric IDs</td></tr>
+        <tr><td><code>(:any)</code></td><td>macbook-pro</td><td>Slugs, categories</td></tr>
+        <tr><td><code>(:all)</code></td><td>docs/api/v2/whatever</td><td>Capturing everything after<br><strong>MUST BE LAST</strong></td></tr>
+    </tbody>
+</table>
+
+<div class="alert alert-warning">
+    <p><strong>CRITICAL RULE:</strong></p>
+    <p>If using <code>(:all)</code> it <strong>must be the final segment</strong> in your pattern.</p>
+</div>
+
+<p>Below is an example of a <code>custom_routing.php</code> file that demonstrates <strong>using wildcards to map dynamic URLs to specific controllers and methods</strong>.</p>
+
+[code=php]
+&lt;?php
+$routes = [
+    'product/(:num)'      => 'store/item/$1',
+    'laptops/(:any)'      => 'store/item/$1',
+    'docs/(:all)'         => 'help/$all',     // Works
+    // 'blog/(:all)/edit' => 'broken forever' // Does NOT work
+];
+
+define('CUSTOM_ROUTES', $routes);
+[/code]

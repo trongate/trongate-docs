@@ -1,0 +1,76 @@
+<div class="container">
+  <h1>delete_directory()</h1>
+  <p class="signature">public function delete_directory(string $directory_path): bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Recursively deletes a directory and all its contents (files and subdirectories). Includes security validation to prevent deletion of restricted paths.</p>
+    <p><strong>Warning:</strong> This operation is irreversible. Use with extreme caution.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$directory_path</td>
+        <td>string</td>
+        <td>Absolute or relative path to the directory to delete.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td><code>true</code> if the directory was successfully deleted.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Delete a temporary directory
+$success = $this->file->delete_directory('uploads/temp/');
+if ($success) {
+    set_flashdata('Directory deleted successfully.');
+}
+
+// Delete with error handling
+try {
+    $this->file->delete_directory('cache/');
+} catch (Exception $e) {
+    set_flashdata('Error: ' . $e->getMessage());
+}
+
+// Clean up user‑generated content
+public function purge_user_data(int $user_id) {
+    $dir = 'uploads/users/' . $user_id . '/';
+    if (is_dir($dir)) {
+        $this->file->delete_directory($dir);
+    }
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Throws <code>Exception</code> if the path is restricted (validated by <code>is_path_valid()</code>).</li>
+    <li>Throws <code>Exception</code> if the path is not a directory.</li>
+    <li>Throws <code>Exception</code> if the directory cannot be deleted (e.g., permissions).</li>
+    <li>Uses recursion to delete nested subdirectories.</li>
+    <li>Security: Only allows deletion within permitted application paths (e.g., <code>uploads/</code>, <code>cache/</code>).</li>
+  </ul>
+</div>

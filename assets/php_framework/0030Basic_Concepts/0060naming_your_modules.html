@@ -1,0 +1,53 @@
+[meta-description]Trongate module naming rules: lowercase plural folders (users/), capitalized controller (Users.php), optional _model.php. snake_case views. Stop overthinking - just build.[/meta-description]
+<h1>Naming Your Modules</h1>
+
+<p>You already know what a module looks like.</p>
+<p>You’ve seen <code>users/</code>, <code>Users.php</code>, <code>views/</code>, etc.</p>
+<p>Now, <strong>stop overthinking it!</strong></p>
+
+<h2>The Rules (Yes, There’s Only Two)</h2>
+
+<ol>
+    <li><strong>Folder:</strong> lowercase. Usually plural.<br>
+        → <code>users</code>, <code>products</code>, <code>blog_posts</code></li>
+    <li class="mt-1"><strong>Controller:</strong> Capitalized first character. Singular or plural? Whatever.<br>
+        → <code>Users.php</code> or <code>Api.php</code>  -  we don’t care</li>
+</ol>
+
+<p>Here’s an example of a module with a poorly named controller file:</p>
+
+[code]
+modules/
+  users/           ← good
+  blog_posts/      ← good
+  api/             ← good (singular is fine)
+  User/            ← wrong (capitalized folder)
+  usersController.php ← wrong (don’t be this person)
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Trongate does not enforce naming.</strong> but if you name a folder <code>User</code> or a file <code>usersController.php</code>, 
+    the ghosts of PHP past <em>will</em> haunt your dreams.</p>
+</div>
+
+<h2>Model Files (Optional, Like Pants)</h2>
+
+<p>Model files handle data-related tasks. Name them by taking the controller name and adding <code>_model.php</code>.</p>
+
+<ul>
+    <li>Example → <code>Users_model.php</code></li>
+    <li>Alternatively → just write SQL in the controller like a true Native PHP warrior</li>
+</ul>
+
+<h2>Views & Assets</h2>
+
+<p>snake_case. Always.<br>
+<code>create_user.php</code>, <code>users_table.css</code>, <code>delete_confirmation.js</code></p>
+
+<div class="alert alert-info">
+    <p>In Trongate, view files are <strong>always</strong> PHP files (ending in <code>.php</code>).</p>
+</div>
+
+<div class="alert alert-success">
+    <p><strong>Pro tip:</strong> If you’re spending more than 3 seconds thinking about naming, you’re doing it wrong.</p>
+</div>

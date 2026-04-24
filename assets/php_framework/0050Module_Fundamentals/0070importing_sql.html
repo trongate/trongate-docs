@@ -1,0 +1,163 @@
+[meta-description]Trongate Control is a module that automatically handles SQL setup when importing modules. Copy any module into your app, visit its URL once in dev mode, and the module processes all .sql files instantly. No command line, no package managers - just pure PHP simplicity.[/meta-description]
+<h1>Importing SQL</h1>
+
+<p><b>Trongate Control</b> is a module that makes it easy to import SQL code. Copy a module, visit its URL, and SQL setup happens automatically  -  no command line or extra tools needed. Trongate Control also checks module versions and framework updates, prompting you when an update is available.</p>
+
+<hr>
+
+<h2>The Problem It Solves</h2>
+
+<p>Traditionally, managing features and updates between PHP applications involves:</p>
+
+<ul>
+    <li><strong>Manual SQL Execution:</strong> Setting up databases separately</li>
+    <li><strong>Custom Installers:</strong> Writing module-specific scripts</li>
+    <li><strong>Tooling Dependencies:</strong> Relying on external package managers</li>
+    <li><strong>Version and Update Management:</strong> Ensuring modules and framework are current</li>
+</ul>
+
+<p>Trongate Control automates these tasks while keeping full control in your hands.</p>
+
+<hr>
+
+<h2>How It Works</h2>
+
+<p>Manage modules and updates in three simple steps:</p>
+
+<ol>
+    <li><strong>Copy</strong> the module folder into <code>modules/</code></li>
+    <li><strong>Visit</strong> the module URL in development mode</li>
+    <li><strong>Done</strong> - SQL files execute automatically, the module is ready, and version checks are performed</li>
+</ol>
+
+<div class="alert alert-success">
+    <p><strong>Example:</strong> Copy a <code>comments/</code> module from one project to another. Visit <code>/comments</code> once. Tables are created, the module works immediately, and Trongate Control ensures both module and framework are up-to-date.</p>
+</div>
+
+<hr>
+
+<h2>Step-by-Step Process</h2>
+
+<h3>Step 1: Copy the Module</h3>
+
+[code]modules/
+    forums/
+        Forums.php
+        Forums_model.php
+        views/
+        tables.sql
+        data.sql[/code]
+
+<h3>Step 2: Visit the URL</h3>
+
+<p>Go to: <code>https://localhost/your-app/forums</code></p>
+
+<h3>Step 3: Trongate Control Intercepts</h3>
+
+<p>Trongate Control lists available SQL files with three options:</p>
+
+<ul>
+    <li><strong>VIEW SQL</strong> - Preview contents</li>
+    <li><strong>RUN SQL</strong> - Execute statements</li>
+    <li><strong>DELETE FILE</strong> - Remove without execution</li>
+</ul>
+
+<h3>Step 4: Execute SQL</h3>
+
+<ol>
+    <li>Click <strong>RUN SQL</strong></li>
+    <li>Review the SQL</li>
+    <li>Confirm execution</li>
+    <li>The file runs and is deleted automatically</li>
+</ol>
+
+<h3>Step 5: Version Check & Completion</h3>
+
+<p>After all SQL files are processed, Trongate Control checks the module version and the framework version. If updates are available, it prompts you to install them. Once complete, the module loads normally, and future access will not re-trigger setup.</p>
+
+<hr>
+
+<h2>Safety Features</h2>
+
+<h3>Development Only</h3>
+<p>Trongate Control runs <strong>only in <code>ENV='dev'</code></strong>. Production is protected automatically.</p>
+
+<h3>Suspicious SQL Detection</h3>
+<p>Files containing potentially dangerous commands trigger warnings:</p>
+
+<ul>
+    <li><code>DROP</code></li>
+    <li><code>UPDATE</code></li>
+    <li><code>TRUNCATE</code></li>
+    <li><code>DELETE FROM</code></li>
+</ul>
+
+<h3>File Size Limits</h3>
+<p>SQL files over <strong>1MB</strong> are blocked. Trongate Control is designed for schema and initial data, not bulk imports.</p>
+
+<h3>Mandatory Preview</h3>
+<p>All SQL files must be reviewed before execution. Nothing runs without confirmation.</p>
+
+<hr>
+
+<h2>Child Module Support</h2>
+
+<p>Trongate Control detects and processes SQL files in child modules:</p>
+
+[code]modules/
+    shop/
+        Shop.php
+        product_reviews/
+            Product_reviews.php
+            setup.sql[/code]
+
+<p>Visit: <code>https://yoursite.com/shop-product_reviews</code></p>
+<p>Trongate Control recognises child modules and presents their SQL files automatically.</p>
+
+<hr>
+
+<h2>Custom Routing Compatibility</h2>
+
+<p>Trongate Control works with custom routes:</p>
+
+[code]// config/custom_routing.php
+$routes = [
+    'admin' => 'trongate_administrators/login'
+];[/code]
+
+<p>Visiting <code>/admin</code> triggers Trongate Control for <code>trongate_administrators</code>. After SQL execution and version checks, you return to <code>/admin</code>.</p>
+
+<hr>
+
+<h2>Practical Tips</h2>
+
+<h3>Order SQL Files</h3>
+<p>Use numbered prefixes for sequential execution:</p>
+
+[code]modules/shop/
+    01_tables.sql
+    02_categories.sql
+    03_products.sql[/code]
+
+<h3>Keep Modules Self-Contained</h3>
+<p>Document dependencies in a <code>README.md</code> inside the module folder.</p>
+
+<h3>Test First</h3>
+<p>Run Trongate Control in development first. Confirm functionality and version updates before production deployment.</p>
+
+<hr>
+
+<h2>Core Benefits</h2>
+
+<ul>
+    <li><strong>Zero-Tooling Installation:</strong> Copy modules using standard file operations</li>
+    <li><strong>Automatic Database Setup:</strong> SQL executes on first access</li>
+    <li><strong>Version Awareness:</strong> Trongate Control checks and updates modules and framework automatically</li>
+    <li><strong>Complete Review:</strong> Preview all SQL before execution</li>
+    <li><strong>Built-In Safety:</strong> Dev-mode only with command detection</li>
+</ul>
+
+<div class="alert alert-info">
+    <p>We're currently building a module versioning system that will give Trongate developers an opportunity to easily share code.  
+        A great deal of the code for handling our versioning system will be contained within the 'Trongate Control' module.</p>
+</div>

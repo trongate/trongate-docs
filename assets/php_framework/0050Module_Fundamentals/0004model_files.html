@@ -1,0 +1,156 @@
+[meta-description]Model Files in Trongate are optional PHP classes used for data handling and separation of concerns. Learn the naming conventions (e.g., Users_model.php extends Model) and how models are used to query multiple databases (e.g., $this->analytics) that controllers cannot access.[/meta-description]
+<h1>Model Files</h1>
+<p>Model files are <b>optional</b> PHP files that can be used to handle data.</p>
+<p>Don't need one? Skip this page. Need data handling? Read on!</p>
+
+<div class="alert alert-success">
+    <p>You really <b>don't</b> need to use model files, if you insist.</p>
+    <p>However, using model files give you an opportunity to dramatically simplify your controller files.</p>
+    <p>Having small, easy to manage controller files can really help to make life easy - especially if you're returning to some application code that you haven't looked at for years.</p>
+    <p>It's all about <b>separation of concerns</b>, baby.  Oooh yeah!</p>
+</div>
+
+<h2>The Rules</h2>
+<ul>
+    <li>It's <b>one</b> model file per module.</li>
+    <li>Each model file exists at the same directory level as its corresponding controller file.</li>
+    <li>Model files are named as <code>&lt;Module&gt;_model.php</code></li>
+    <li>Model file names should be snake_case with an uppercase first character.</li>
+    <li>All model files should contain one PHP class that <code>extends Model</code>.</li>
+</ul>
+
+<h2>CRITICAL: Model Files Are Private to Their Module</h2>
+<p>Model files should <b>ONLY</b> be used by their corresponding controller file. Other modules must <b>NOT</b> directly access another module's model file.</p>
+
+<p>If another module needs data operations from your module, expose a public controller method that calls your model internally.</p>
+
+<table class="sm" style="margin: 0 auto; margin-bottom: 20px;">
+    <thead>
+        <tr>
+            <th>Pattern</th>
+            <th>Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr style="background-color: #ffe6e6;">
+            <td><b>✗ WRONG</b></td>
+            <td><code>$this->users->model->get_active()</code></td>
+        </tr>
+        <tr style="background-color: #e6ffe6;">
+            <td><b>✓ CORRECT</b></td>
+            <td><code>$this->users->get_active()</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<p>In the correct example above, <code>get_active()</code> is a public controller method in <code>Users.php</code> that internally calls the model. This maintains proper encapsulation and ensures each module's data layer remains private.</p>
+
+<h2>Where They Live</h2>
+
+[code]
+modules/
+  users/
+    Users.php          ← the boss
+    Users_model.php    ← optional model
+    views/
+[/code]
+<p>The text above demonstrates some file and directory locations for a hypothetical 'users' module.</p>
+
+<h2>Naming Rules</h2>
+
+<table class="sm" style="margin: 0 auto;">
+    <thead>
+        <tr>
+            <th>Thing</th>
+            <th>Rule</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Model File</td>
+            <td><code>&lt;Module&gt;_model.php</code></td>
+            <td><code>Users_model.php</code></td>
+        </tr>
+        <tr>
+            <td>Class Name</td>
+            <td><code>&lt;Module&gt;_model extends Model</code></td>
+            <td><code>class Users_model extends Model</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Primary Job: To Handle Data</h2>
+
+<p>Controllers stay skinny. Models do the heavy lifting.</p>
+
+[code=php]
+&lt;?php
+class Users_model extends Model {
+
+    function get_active() {
+        $sql = "SELECT * FROM users WHERE active = 1 ORDER BY id DESC";
+        return $this->db->query($sql);
+    }
+
+}
+[/code]
+
+<p>From controller:</p>
+[code=php]
+$active_users = $this->model->get_active();
+[/code]
+
+<h2>Secondary Job: Multiple Databases</h2>
+<p>Trongate v2 introduces the ability to interact with more than one database by setting groups of database configuration groups within <code>config/database.php</code>.</p>
+
+<p>Example config file: <code>config/database.php</code></p>
+
+[code=php]&lt;?php
+$databases = [
+    'default' => [
+        'host'     => '127.0.0.1',
+        'port'     => '3306',
+        'user'     => 'trongate_user',
+        'password' => 's3cureP@ssw0rd!',
+        'database' => 'trongate_production'
+    ],
+    'analytics' => [
+        'host'     => 'analytics-read-replica.trongate.io',
+        'port'     => '3306',
+        'user'     => 'analytics_reader',
+        'password' => 'R3ad0nly2025!',
+        'database' => 'trongate_analytics'
+    ]
+];
+[/code]
+
+<p>Usually, with Trongate, database queries are handled using <code>$this->db</code>. For example:</p>
+
+[code=php]
+$rows = $this->db->get('id', 'users');
+[/code]
+
+<p>If you happen to be running code from a model file, you can query other databases (not just your default database) by using <code>$this->&lt;other-database&gt;</code>.  For example:</p>
+
+[code=php]
+$stats = $this->analytics->get('visits');
+[/code]
+
+<div class="alert alert-warning">
+    <p><b>Controllers cannot query secondary databases.</b> If you run <code>$this->analytics</code> from a controller file, it will attempt to load an 'analytics' module.</p>
+    <p>Querying secondary databases is model territory. <b>Architecture matters.</b></p>
+</div>
+
+<h2>Module Interaction Pattern</h2>
+<p>When one module needs functionality from another module, follow this pattern:</p>
+
+<ol>
+    <li>Module A calls <b>public methods in Module B's CONTROLLER</b></li>
+    <li>Module B's controller uses its own MODEL internally</li>
+    <li>Module A <b>never</b> directly accesses Module B's model</li>
+</ol>
+
+<p>This ensures each module's data layer remains encapsulated and promotes clean, maintainable architecture.</p>
+
+<p class="text-center"><strong>Need data? One model. Done.</strong></p>

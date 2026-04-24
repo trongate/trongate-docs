@@ -1,0 +1,300 @@
+<h1>Animation Classes</h1>
+
+<p>Trongate CSS includes built-in animations for both loading indicators and attention-grabbing effects. These animations help provide visual feedback and draw user attention to important elements.</p>
+
+<h2>Loading Spinner</h2>
+
+<p>The loading spinner animation is created using the <code>.spinner</code> class. This creates a rotating circular indicator perfect for loading states.</p>
+
+<div class="trongate-css-demo">
+    <div class="mt-2 mb-2">
+        <div class="spinner"></div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="spinner"&gt;&lt;/div&gt;
+[/code]
+
+<h3>Spinner Variations</h3>
+<p>The spinner can be aligned differently using additional classes:</p>
+
+<h4>Left-Aligned Spinner</h4>
+<div class="trongate-css-demo">
+    <div class="mt-2 mb-2">
+        <div class="spinner spinner-lhs"></div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="spinner spinner-lhs"&gt;&lt;/div&gt;  &lt;!-- Left-aligned spinner --&gt;
+[/code]
+
+<h4>Center-Aligned Spinner</h4>
+<div class="trongate-css-demo">
+    <div class="mt-2 mb-2">
+        <div class="spinner"></div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="spinner"&gt;&lt;/div&gt;  &lt;!-- Center-aligned spinner (default) --&gt;
+[/code]
+
+<h4>Right-Aligned Spinner</h4>
+<div class="trongate-css-demo">
+    <div class="mt-2 mb-2">
+        <div class="spinner spinner-rhs"></div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="spinner spinner-rhs"&gt;&lt;/div&gt;  &lt;!-- Right-aligned spinner --&gt;
+[/code]
+
+<h3 class="mt-3">Common Use Cases for Spinners</h3>
+<p>Spinner elements often appear when content is being loaded via Ajax requests.  Often, they'll be used inside <a href="documentation/display/trongate_mx/ui-enhancements/building-dynamic-modals">dynamic modal elements</a> or <a href="documentation/display/trongate_css/cards-and-modals/working-with-cards">card elements</a>, like so:</p>
+<div class="trongate-css-demo">
+    <div>        
+        <div class="card mt-2">
+            <div class="card-heading">Loading Content</div>
+            <div class="card-body">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;Loading Content&lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="spinner"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Customizing Spinners</h2>
+
+<p>By default, the spinner uses your primary theme color. However, you can create custom spinners with different colors, sizes, and animation speeds using CSS.</p>
+
+<h3>Different Colors</h3>
+
+<p>To change a spinner's color, override the border color in your CSS:</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row align-center justify-between mt-1">
+        <div class="spinner danger-spinner"></div>
+        <div class="spinner success-spinner"></div>
+        <div class="spinner custom-spinner"></div>
+        
+        <style>
+            .danger-spinner::after {
+                border-color: var(--danger);
+                border-right-color: transparent;
+                border-top-color: transparent;
+            }
+            
+            .success-spinner::after {
+                border-color: var(--success);
+                border-right-color: transparent;
+                border-top-color: transparent;
+            }
+            
+            .custom-spinner::after {
+                border-color: #9932cc;
+                border-right-color: transparent;
+                border-top-color: transparent;
+            }
+        </style>
+    </div>
+</div>
+
+[code=css]
+.danger-spinner::after {
+    border-color: var(--danger);
+    border-right-color: transparent;
+    border-top-color: transparent;
+}
+
+.success-spinner::after {
+    border-color: var(--success);
+    border-right-color: transparent;
+    border-top-color: transparent;
+}
+
+.custom-spinner::after {
+    border-color: #9932cc;
+    border-right-color: transparent;
+    border-top-color: transparent;
+}
+[/code]
+
+<h3>Custom Sizes and Thicknesses</h3>
+
+<p>You can modify the size and border thickness of spinners:</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row align-center justify-between mt-2 mb-2">
+        <div class="spinner small-spinner"></div>
+        <div class="spinner large-spinner"></div>
+        <div class="spinner thick-spinner"></div>
+        
+        <style>
+            .small-spinner::after {
+                width: 16px;
+                height: 16px;
+                border-width: 2px;
+            }
+            
+            .large-spinner::after {
+                width: 48px;
+                height: 48px;
+                border-width: 4px;
+            }
+            
+            .thick-spinner::after {
+                border-width: 6px;
+            }
+        </style>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="spinner small-spinner"&gt;&lt;/div&gt;
+&lt;div class="spinner large-spinner"&gt;&lt;/div&gt;
+&lt;div class="spinner thick-spinner"&gt;&lt;/div&gt;
+
+&lt;style&gt;
+    .small-spinner::after {
+        width: 16px;
+        height: 16px;
+        border-width: 2px;
+    }
+    
+    .large-spinner::after {
+        width: 48px;
+        height: 48px;
+        border-width: 4px;
+    }
+    
+    .thick-spinner::after {
+        border-width: 6px;
+    }
+&lt;/style&gt;
+[/code]
+
+<h3>Animation Speed</h3>
+
+<p>Customize the animation speed by modifying the animation duration:</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row align-center justify-between mt-2 mb-2">
+        <div class="spinner slow-spinner"></div>
+        <div class="spinner fast-spinner"></div>
+        
+        <style>
+            .slow-spinner::after {
+                animation: spinning 2s infinite linear;
+            }
+            
+            .fast-spinner::after {
+                animation: spinning 0.3s infinite linear;
+            }
+        </style>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="spinner slow-spinner"&gt;&lt;/div&gt;
+&lt;div class="spinner fast-spinner"&gt;&lt;/div&gt;
+
+&lt;style&gt;
+    .slow-spinner::after {
+        animation: spinning 2s infinite linear;
+    }
+    
+    .fast-spinner::after {
+        animation: spinning 0.3s infinite linear;
+    }
+&lt;/style&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>When customizing spinners, remember to always keep the <code>border-right-color</code> and <code>border-top-color</code> as <code>transparent</code> to maintain the spinning effect. Also, ensure sufficient contrast against your background for visibility.</p>
+</div>
+
+<h2>Attention Effects</h2>
+
+<p>The <code>.blink</code> class provides a blinking animation effect to draw attention to important elements.</p>
+
+<div class="trongate-css-demo">
+    <div class="text-center">
+        <p class="blink">This text will blink to grab attention</p>
+        
+        <button class="danger blink mt-1">Critical Action Required</button>
+    </div>
+</div>
+
+[code=html]
+&lt;p class="blink"&gt;This text will blink to grab attention&lt;/p&gt;
+&lt;button class="danger blink"&gt;Critical Action Required&lt;/button&gt;
+[/code]
+
+<h2>Combining Effects</h2>
+
+<p>Loading and attention effects can be combined with other Trongate CSS classes to create more complex UI patterns:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card">
+            <div class="card-heading">System Status</div>
+            <div class="card-body">
+                <div class="flex-row justify-between align-center">
+                    <span class="blink">Processing Request</span>
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;System Status&lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="flex-row justify-between align-center"&gt;
+            &lt;span class="blink"&gt;Processing Request&lt;/span&gt;
+            &lt;div class="spinner"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-success">
+    <ul>
+        <li>Use spinners to indicate loading states or processing actions.</li>
+        <li>Apply the blink effect sparingly and only for truly important notifications.</li>
+        <li>Consider accessibility implications when using attention-grabbing animations.</li>
+        <li>Combine with appropriate text to provide context for the animation.</li>
+        <li>Test animations across different browsers to ensure consistent behavior.</li>
+    </ul>
+</div>
+
+<h2>Success &amp; Failure Animations</h2>
+<p>Trongate MX includes <a href="documentation/display/trongate_mx/ui-enhancements/success-animations">success animations</a> and <a href="documentation/display/trongate_mx/ui-enhancements/error-animations">error animations</a>, which are automatically rendered after HTTP requests are triggered by Trongate MX.  Click the button below to see a demonstration of how 'success' or 'error' animations respond to user feedback.</p>
+
+<div class="text-center">
+    <button class="inverse" mx-get="documentation-demo/get_test_close_modal" 
+            mx-build-modal='{
+                "id": "demo-modal",
+                "width": "460px",
+                "modalHeading": "Demonstration"
+            }'>
+        Test Feature
+    </button>
+</div>
+
+<p class="mt-3">Details about how this functionality works is beyond the scope of Trongate CSS documentation.  However, we recommend exploring the <a href="documentation/display/trongate_mx">Trongate MX Documentation</a> for comprehensive details on this feature. In particular, we suggest reviewing the section on <a href="documentation/display/trongate_mx/ui-enhancements">UI Enhancements</a>.</p>
+
+

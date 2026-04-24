@@ -1,0 +1,79 @@
+[meta-description]Manage Module Assets (CSS, JS, images, PDFs, fonts) in Trongate by placing them in any sub-directory within the module folder. Files are served instantly and securely using the module assets trigger _module in the URL (e.g., /users_module/images/avatar.png).[/meta-description]
+<h1>Module Assets</h1>
+
+<p>CSS. JS. Images. PDFs. Fonts.</p>
+<p>Drop them <strong>anywhere</strong> in your module.</p>
+<p>They’re served. Instantly. Securely.</p>
+
+<hr>
+
+<h2>How It Works</h2>
+
+<p>If a file URL contains <code>_module</code> → the file is served from the corresponding module.</p>
+
+<p>Example structure:</p>
+
+[code]
+modules/
+  users/
+    images/
+      avatar.png
+    js/
+      script.js
+    css/
+      style.css
+    files/
+      resume.pdf
+[/code]
+
+<p>All of the non-PHP files above can be served via the following URLs:</p>
+<div class="element-wrapper">
+  <ul>
+    <li><code>https://example.com/users_module/images/avatar.png</code></li>
+    <li><code>https://example.com/users_module/js/script.js</code></li>
+    <li><code>https://example.com/users_module/files/resume.pdf</code></li>
+  </ul>  
+</div>
+
+
+<p>It just works.</p>
+
+<hr>
+
+<h2>The Trigger</h2>
+
+<p>The key to having beautiful URLs that serve module assets is to use the <b>module assets trigger</b>. Here's how URLs, with a module assets trigger, get structured:</p>
+
+[code]&lt;module-name&gt;_module/&lt;sub-directory&gt;/filename[/code]
+
+<p>For example:</p>
+
+[code=html]
+&lt;img src="products_module/images/item.png"&gt;
+[/code]
+
+<h3>How To Change The Module Assets Trigger</h3>
+
+<p>The module assets trigger is defined in <code>config/config.php</code>:</p>
+
+[code=php]
+define('MODULE_ASSETS_TRIGGER', '_module');
+[/code]
+
+<p>Change it if you must. But don’t name modules with <code>_module</code>.</p>
+
+<div class="alert alert-warning">
+  <p><strong>Never</strong> name a module <code>users_module</code>.</p>
+  <p>Use <code>users</code>. Avoid 404s and confusion.</p>
+</div>
+
+<div class="alert alert-success">
+  <p>Don't try to serve PHP files using the module assets trigger. It won't work.</p>
+  <p>Don't give any of your directories or files stupid names. That won't work either.</p>
+  <p>Assets <strong>must</strong> be in a subdirectory. No root-level files.</p>
+</div>
+
+<div class="alert alert-info">
+  <p><strong>v2 Change:</strong> The old <code>assets/</code> folder is <strong>gone</strong>.</p>
+  <p>Store files directly in <code>css/</code>, <code>js/</code>, <code>images/</code>, <code>files/</code>  -  or any subfolder you like.</p>
+</div>

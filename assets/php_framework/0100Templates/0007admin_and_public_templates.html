@@ -1,0 +1,100 @@
+[meta-description]Learn how to use Trongate v2's two built-in templates: admin() for dashboard layouts (with sidebar/header) and public() for clean public-facing pages. Load them from any controller using one line, passing configuration for the page title and the injected view file (e.g., $this->templates->admin($data)).[/meta-description]
+<h1>Admin and Public Templates</h1>
+
+<p>Trongate v2 ships with two built-in templates:</p>
+<ol>
+    <li><span class="feature-ref">included-templates-admin()</span> – the full admin panel layout (with sidebar, header, footer, and mobile navigation)</li>
+    <li><span class="feature-ref">included-templates-public()</span> – the clean public-facing layout (simple header, content area, and footer)</li>
+</ol>
+<div class="alert alert-success">
+  <p class="mt-0">Use <code>admin()</code> for anything that needs a dashboard feel such as managing users, editing products, viewing reports, or handling orders.  
+  Use <code>public()</code> for everything else such as home pages, about pages, blog posts, contact forms, or landing pages.</p>
+</div>
+<h2 class="mt-2">How to Load Templates</h2>
+<p>From any controller:</p>
+[code=php]
+public function manage(): void {
+    $data['page_title']   = 'Manage Users';
+    $data['view_module']  = 'users';
+    $data['view_file']    = 'manage';
+    $this->templates->admin($data);
+}
+[/code]
+<p class="mt-1">Visit this URL →</p>
+[code]https://your-site.com/users/manage[/code]
+<p class="mt-1">Result: Full admin layout with your <code>manage.php</code> view injected inside.</p>
+
+<p class="mt-2">For a public page:</p>
+[code=php]
+public function about(): void {
+    $data['page_title'] = 'About Us';
+    $this->templates->public($data);
+}
+[/code]
+<p class="mt-1">Visit this URL →</p>
+[code]https://your-site.com/about[/code]
+<p class="mt-1">Result: Clean public layout with your <code>about.php</code> view injected.</p>
+<hr class="mt-3">
+<h3>Understanding The Code – Line by Line</h3>
+
+<p>You’ll be writing this pattern a hundred times, so let’s be crystal clear about every single line.</p>
+
+<h4>1. The Method Name</h4>
+<p><code>public function manage(): void { … }</code></p>
+<p>The method name (<code>manage</code>) becomes part of the URL.  
+If this method lives in a controller called <code>Users.php</code> inside the <code>users</code> module, the URL is:</p>
+[code]https://your-site.com/users/manage[/code]
+
+<h4>2. The $data Array</h4>
+<p><code>$data</code> is just a normal PHP associative array. Anything you put in here becomes available inside <i>both</i> the template <i>and</i> the injected view file.</p>
+
+<h4>3. Setting a Page Title (optional but common)</h4>
+[code=php]
+$data['page_title'] = 'Manage Users';
+[/code]
+<p>This line is only an example. You can pass anything you want - database rows, form errors, breadcrumbs, etc.</p>
+
+<h4>4. view_module (optional)</h4>
+[code=php]
+$data['view_module'] = 'users';
+[/code]
+<p>Tells the <span class="feature-ref">display()</span> helper: “go look for the view file inside the <code>users</code> module”. </p> 
+<p>If you leave this out, Trongate will assume the view lives in the current module (the one that contains the controller you’re in). Explicit is safer and clearer.</p>
+
+<h4>5. view_file</h4>
+[code=php]
+$data['view_file'] = 'manage';
+[/code]
+<p>Tells the helper: “load <code>manage.php</code> from the views folder”.
+
+<div class="alert alert-info">
+    <p class="mt-0">When declaring a <code>view_file</code> properties, the <code>.php</code> suffix is implied.</p>
+    <p>Therefore, the following would load <code>homepage_content.php</code>:</p>
+[code=php]
+$data['view_file'] = 'homepage_content';
+[/code]
+</div>
+
+<h4>6. Loading the Template</h4>
+[code=php]
+$this->templates->admin($data);
+[/code]
+<p class="mt-1">This single line:</p>
+<ul>
+    <li>Processes any extra CSS/JS you might have added (more on that, next page)</li>
+    <li>Loads the admin template →</li>
+</ul>
+[code]modules/templates/views/admin.php[/code]
+<ul>
+    <li>Inside that file, this injects your chosen view →</li>
+</ul>
+[code=php]
+&lt;?= display($data) ?&gt;
+[/code]
+<ul>
+    <li>Outputs the complete HTML page</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>You can call <code>$this->templates->public($data)</code> exactly the same way. The only difference is which template file gets loaded.</p>
+</div>

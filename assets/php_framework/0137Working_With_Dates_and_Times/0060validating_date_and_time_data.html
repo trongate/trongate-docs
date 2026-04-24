@@ -1,0 +1,686 @@
+ [meta-description]Master date and time validation in Trongate with built-in rules: valid_date, valid_time, valid_datetime_local, valid_month, valid_week. Custom callbacks for date ranges, business logic, and complex validation scenarios.[/meta-description]
+<h1>Validating Date and Time Data</h1>
+
+<p>Trongate provides built-in validation rules for all HTML5 date and time input formats. These rules ensure data is in the correct format and represents valid dates and times.</p>
+
+<h2>Built-In Validation Rules</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Format Validated</th>
+            <th>Example</th>
+            <th>Use With</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>valid_date</code></td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td><code>2025-12-27</code></td>
+            <td>form_date()</td>
+        </tr>
+        <tr>
+            <td><code>valid_time</code></td>
+            <td><code>HH:MM</code> or <code>HH:MM:SS</code></td>
+            <td><code>14:30</code> or <code>14:30:00</code></td>
+            <td>form_time()</td>
+        </tr>
+        <tr>
+            <td><code>valid_datetime_local</code></td>
+            <td><code>YYYY-MM-DDTHH:MM</code></td>
+            <td><code>2025-12-27T14:30</code></td>
+            <td>form_datetime_local()</td>
+        </tr>
+        <tr>
+            <td><code>valid_month</code></td>
+            <td><code>YYYY-MM</code></td>
+            <td><code>2025-12</code></td>
+            <td>form_month()</td>
+        </tr>
+        <tr>
+            <td><code>valid_week</code></td>
+            <td><code>YYYY-W##</code></td>
+            <td><code>2025-W52</code></td>
+            <td>form_week()</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Basic Usage</h2>
+
+<h3>Validating a Date</h3>
+
+[code=php]
+$this-&gt;validation-&gt;set_rules('due_date', 'due date', 'required|valid_date');
+[/code]
+
+<h3>Validating a Time</h3>
+
+[code=php]
+$this-&gt;validation-&gt;set_rules('start_time', 'start time', 'required|valid_time');
+[/code]
+
+<h3>Validating a DateTime</h3>
+
+[code=php]
+$this-&gt;validation-&gt;set_rules('appointment', 'appointment', 'required|valid_datetime_local');
+[/code]
+
+<h3>Validating a Month</h3>
+
+[code=php]
+$this-&gt;validation-&gt;set_rules('billing_month', 'billing month', 'required|valid_month');
+[/code]
+
+<h3>Validating a Week</h3>
+
+[code=php]
+$this-&gt;validation-&gt;set_rules('work_week', 'work week', 'required|valid_week');
+[/code]
+
+<h2>What Each Rule Validates</h2>
+
+<h3>valid_date</h3>
+
+<p>Validates that the value:</p>
+<ul>
+    <li>Matches the <code>YYYY-MM-DD</code> format exactly</li>
+    <li>Represents a valid calendar date</li>
+    <li>Properly handles leap years (Feb 29 only in leap years)</li>
+    <li>Rejects invalid dates like 2025-02-30 or 2025-13-01</li>
+</ul>
+
+[code=php]
+// Valid examples
+'2025-12-27'  // ✓ Valid
+'2024-02-29'  // ✓ Valid (2024 is a leap year)
+
+// Invalid examples
+'2025-13-01'  // ✗ Invalid (month 13 doesn't exist)
+'2025-02-29'  // ✗ Invalid (2025 is not a leap year)
+'12/27/2025'  // ✗ Invalid format
+'2025-12-32'  // ✗ Invalid (December only has 31 days)
+[/code]
+
+<h3>valid_time</h3>
+
+<p>Validates that the value:</p>
+<ul>
+    <li>Matches <code>HH:MM</code> or <code>HH:MM:SS</code> format</li>
+    <li>Hours are between 00-23</li>
+    <li>Minutes are between 00-59</li>
+    <li>Seconds (if provided) are between 00-59</li>
+</ul>
+
+[code=php]
+// Valid examples
+'14:30'       // ✓ Valid
+'09:00'       // ✓ Valid
+'23:59'       // ✓ Valid
+'00:00:00'    // ✓ Valid
+'14:30:45'    // ✓ Valid
+
+// Invalid examples
+'24:00'       // ✗ Invalid (hour 24 doesn't exist)
+'14:60'       // ✗ Invalid (minute 60 doesn't exist)
+'2:30 PM'     // ✗ Invalid format
+'14.30'       // ✗ Invalid format
+[/code]
+
+<h3>valid_datetime_local</h3>
+
+<p>Validates that the value:</p>
+<ul>
+    <li>Matches <code>YYYY-MM-DDTHH:MM</code> format exactly</li>
+    <li>Contains the literal "T" separator</li>
+    <li>Date portion is valid (same rules as valid_date)</li>
+    <li>Time portion is valid (same rules as valid_time)</li>
+</ul>
+
+[code=php]
+// Valid examples
+'2025-12-27T14:30'     // ✓ Valid
+'2024-02-29T00:00'     // ✓ Valid (leap year)
+
+// Invalid examples
+'2025-12-27 14:30'     // ✗ Invalid (space instead of T)
+'2025-12-27T24:00'     // ✗ Invalid (hour 24)
+'2025-13-01T14:30'     // ✗ Invalid (month 13)
+'2025-12-27T14:30:00'  // ✗ Invalid (includes seconds)
+[/code]
+
+<h3>valid_month</h3>
+
+<p>Validates that the value:</p>
+<ul>
+    <li>Matches <code>YYYY-MM</code> format exactly</li>
+    <li>Year is a 4-digit number</li>
+    <li>Month is between 01-12</li>
+</ul>
+
+[code=php]
+// Valid examples
+'2025-12'     // ✓ Valid
+'2025-01'     // ✓ Valid
+
+// Invalid examples
+'2025-13'     // ✗ Invalid (month 13)
+'2025-00'     // ✗ Invalid (month 00)
+'25-12'       // ✗ Invalid (2-digit year)
+'2025/12'     // ✗ Invalid format
+[/code]
+
+<h3>valid_week</h3>
+
+<p>Validates that the value:</p>
+<ul>
+    <li>Matches <code>YYYY-W##</code> format exactly</li>
+    <li>Contains the literal "W" prefix for week number</li>
+    <li>Year is a 4-digit number</li>
+    <li>Week number is between 01-53</li>
+</ul>
+
+[code=php]
+// Valid examples
+'2025-W52'    // ✓ Valid
+'2025-W01'    // ✓ Valid
+
+// Invalid examples
+'2025-W00'    // ✗ Invalid (week 00)
+'2025-W54'    // ✗ Invalid (week 54)
+'2025-52'     // ✗ Invalid (missing W)
+'2025W52'     // ✗ Invalid (missing hyphen)
+[/code]
+
+<h2>Combining with Other Rules</h2>
+
+<p>Date and time validation rules work seamlessly with other validation rules:</p>
+
+[code=php]
+// Required date
+$this-&gt;validation-&gt;set_rules('due_date', 'due date', 'required|valid_date');
+
+// Optional date (validates format only if provided)
+$this-&gt;validation-&gt;set_rules('completion_date', 'completion date', 'valid_date');
+
+// Required time with custom callback
+$this-&gt;validation-&gt;set_rules('meeting_time', 'meeting time', 'required|valid_time|callback_during_business_hours');
+
+// Optional month
+$this-&gt;validation-&gt;set_rules('report_month', 'report month', 'valid_month');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Optional Fields:</strong> If a date/time field is optional (not required), the validation rule will only check the format when a value is provided. An empty value will pass validation.</p>
+</div>
+
+<h2>Complete Form Example</h2>
+
+[code=php]
+public function submit(): void {
+    // Set validation rules
+    $this-&gt;validation-&gt;set_rules('event_title', 'event title', 'required|min_length[3]');
+    $this-&gt;validation-&gt;set_rules('event_date', 'event date', 'required|valid_date');
+    $this-&gt;validation-&gt;set_rules('start_time', 'start time', 'required|valid_time');
+    $this-&gt;validation-&gt;set_rules('end_time', 'end time', 'required|valid_time|callback_end_after_start');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        $data['event_title'] = post('event_title', true);
+        $data['event_date'] = post('event_date', true);
+        $data['start_time'] = post('start_time', true);
+        $data['end_time'] = post('end_time', true);
+        
+        $this-&gt;db-&gt;insert($data, 'events');
+        set_flashdata('Event created successfully');
+        redirect('events/manage');
+    } else {
+        $this-&gt;create();
+    }
+}
+[/code]
+
+<h2>Custom Validation with Callbacks</h2>
+
+<p>For business logic validation beyond format checking, use custom callback methods:</p>
+
+<h3>Date Range Validation</h3>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('start_date', 'start date', 'required|valid_date');
+    $this-&gt;validation-&gt;set_rules('end_date', 'end date', 'required|valid_date|callback_end_after_start');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process form
+    } else {
+        $this-&gt;create();
+    }
+}
+
+public function callback_end_after_start($end_date): string|bool {
+    $start_date = post('start_date', true);
+    
+    if ($start_date === '' || $end_date === '') {
+        return true; // Let required rule handle empty values
+    }
+    
+    if (strtotime($end_date) &lt;= strtotime($start_date)) {
+        return 'The {label} must be after the start date.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Time Range Validation</h3>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('opening_time', 'opening time', 'required|valid_time');
+    $this-&gt;validation-&gt;set_rules('closing_time', 'closing time', 'required|valid_time|callback_closing_after_opening');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process form
+    } else {
+        $this-&gt;create();
+    }
+}
+
+public function callback_closing_after_opening($closing_time): string|bool {
+    $opening_time = post('opening_time', true);
+    
+    if ($opening_time === '' || $closing_time === '') {
+        return true;
+    }
+    
+    if (strtotime($closing_time) &lt;= strtotime($opening_time)) {
+        return 'The {label} must be after the opening time.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Future Date Only</h3>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('event_date', 'event date', 'required|valid_date|callback_must_be_future');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process form
+    } else {
+        $this-&gt;create();
+    }
+}
+
+public function callback_must_be_future($date): string|bool {
+    if ($date === '') {
+        return true;
+    }
+    
+    $today = date('Y-m-d');
+    
+    if (strtotime($date) &lt; strtotime($today)) {
+        return 'The {label} must be today or in the future.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Past Date Only</h3>
+
+[code=php]
+public function callback_must_be_past($date): string|bool {
+    if ($date === '') {
+        return true;
+    }
+    
+    $today = date('Y-m-d');
+    
+    if (strtotime($date) &gt; strtotime($today)) {
+        return 'The {label} cannot be in the future.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Business Hours Validation</h3>
+
+[code=php]
+public function callback_during_business_hours($time): string|bool {
+    if ($time === '') {
+        return true;
+    }
+    
+    $hour = (int) substr($time, 0, 2);
+    
+    if ($hour &lt; 9 || $hour &gt;= 17) {
+        return 'The {label} must be between 9:00 AM and 5:00 PM.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Weekday Only Validation</h3>
+
+[code=php]
+public function callback_must_be_weekday($date): string|bool {
+    if ($date === '') {
+        return true;
+    }
+    
+    $day_of_week = (int) date('N', strtotime($date)); // 1=Monday, 7=Sunday
+    
+    if ($day_of_week &gt;= 6) {
+        return 'The {label} must be a weekday (Monday-Friday).';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Date Within Range</h3>
+
+[code=php]
+public function callback_within_90_days($date): string|bool {
+    if ($date === '') {
+        return true;
+    }
+    
+    $today = strtotime(date('Y-m-d'));
+    $selected = strtotime($date);
+    $max_date = strtotime('+90 days', $today);
+    
+    if ($selected &lt; $today || $selected &gt; $max_date) {
+        return 'The {label} must be within the next 90 days.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Minimum Age Validation</h3>
+
+[code=php]
+public function callback_minimum_age_18($birth_date): string|bool {
+    if ($birth_date === '') {
+        return true;
+    }
+    
+    $today = new DateTime();
+    $dob = new DateTime($birth_date);
+    $age = $today-&gt;diff($dob)-&gt;y;
+    
+    if ($age &lt; 18) {
+        return 'You must be at least 18 years old.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>DateTime Range Validation</h3>
+
+[code=php]
+public function callback_event_end_after_start($event_end): string|bool {
+    $event_start = post('event_start', true);
+    
+    if ($event_start === '' || $event_end === '') {
+        return true;
+    }
+    
+    // Convert to timestamps for comparison
+    $start = strtotime(str_replace('T', ' ', $event_start));
+    $end = strtotime(str_replace('T', ' ', $event_end));
+    
+    if ($end &lt;= $start) {
+        return 'The {label} must be after the event start time.';
+    }
+    
+    // Check if event is too long (e.g., max 8 hours)
+    $duration_hours = ($end - $start) / 3600;
+    if ($duration_hours &gt; 8) {
+        return 'Event duration cannot exceed 8 hours.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Appointment Slot Validation</h3>
+
+[code=php]
+public function callback_valid_appointment_time($datetime): string|bool {
+    if ($datetime === '') {
+        return true;
+    }
+    
+    // Convert to DateTime object
+    $dt = new DateTime(str_replace('T', ' ', $datetime));
+    
+    // Check if weekend
+    $day_of_week = (int) $dt-&gt;format('N');
+    if ($day_of_week &gt;= 6) {
+        return 'Appointments are only available Monday through Friday.';
+    }
+    
+    // Check if during business hours
+    $hour = (int) $dt-&gt;format('H');
+    if ($hour &lt; 9 || $hour &gt;= 17) {
+        return 'Appointments must be between 9:00 AM and 5:00 PM.';
+    }
+    
+    // Check if on the hour or half-hour
+    $minute = (int) $dt-&gt;format('i');
+    if ($minute !== 0 &amp;&amp; $minute !== 30) {
+        return 'Appointments must be scheduled on the hour or half-hour.';
+    }
+    
+    // Check if slot is available
+    $sql = "SELECT COUNT(*) as count FROM appointments 
+            WHERE scheduled_at = :datetime";
+    $result = $this-&gt;db-&gt;query_bind($sql, ['datetime' =&gt; $dt-&gt;format('Y-m-d H:i:s')], 'object');
+    
+    if ($result-&gt;count &gt; 0) {
+        return 'This appointment slot is already booked.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h2>Validation Error Messages</h2>
+
+<p>Default error messages for built-in rules:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Default Error Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>valid_date</code></td>
+            <td>"The [field label] must be a valid date in YYYY-MM-DD format."</td>
+        </tr>
+        <tr>
+            <td><code>valid_time</code></td>
+            <td>"The [field label] must be a valid time in HH:MM or HH:MM:SS format."</td>
+        </tr>
+        <tr>
+            <td><code>valid_datetime_local</code></td>
+            <td>"The [field label] must be a valid datetime in YYYY-MM-DDTHH:MM format."</td>
+        </tr>
+        <tr>
+            <td><code>valid_month</code></td>
+            <td>"The [field label] must be a valid month in YYYY-MM format."</td>
+        </tr>
+        <tr>
+            <td><code>valid_week</code></td>
+            <td>"The [field label] must be a valid week in YYYY-W## format."</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Real-World Validation Scenarios</h2>
+
+<h3>Booking System</h3>
+
+[code=php]
+public function submit_booking(): void {
+    $this-&gt;validation-&gt;set_rules('booking_date', 'booking date', 'required|valid_date|callback_valid_booking_date');
+    $this-&gt;validation-&gt;set_rules('time_slot', 'time slot', 'required|valid_time|callback_available_time_slot');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process booking
+    } else {
+        $this-&gt;booking_form();
+    }
+}
+
+public function callback_valid_booking_date($date): string|bool {
+    // Must be at least 24 hours in advance
+    $tomorrow = date('Y-m-d', strtotime('+1 day'));
+    if (strtotime($date) &lt; strtotime($tomorrow)) {
+        return 'Bookings must be made at least 24 hours in advance.';
+    }
+    
+    // Cannot be more than 90 days in advance
+    $max_date = date('Y-m-d', strtotime('+90 days'));
+    if (strtotime($date) &gt; strtotime($max_date)) {
+        return 'Bookings cannot be made more than 90 days in advance.';
+    }
+    
+    return true;
+}
+
+public function callback_available_time_slot($time): string|bool {
+    $date = post('booking_date', true);
+    
+    if ($date === '' || $time === '') {
+        return true;
+    }
+    
+    // Check if slot is available
+    $sql = "SELECT COUNT(*) as count FROM bookings 
+            WHERE booking_date = :date AND time_slot = :time";
+    $result = $this-&gt;db-&gt;query_bind($sql, [
+        'date' =&gt; $date,
+        'time' =&gt; $time
+    ], 'object');
+    
+    if ($result-&gt;count &gt; 0) {
+        return 'This time slot is no longer available.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Project Timeline</h3>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('project_start', 'project start date', 'required|valid_date|callback_reasonable_start_date');
+    $this-&gt;validation-&gt;set_rules('project_end', 'project end date', 'required|valid_date|callback_reasonable_timeline');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process project
+    } else {
+        $this-&gt;create();
+    }
+}
+
+public function callback_reasonable_start_date($start_date): string|bool {
+    $today = date('Y-m-d');
+    $max_future = date('Y-m-d', strtotime('+1 year'));
+    
+    if (strtotime($start_date) &lt; strtotime($today)) {
+        return 'The {label} cannot be in the past.';
+    }
+    
+    if (strtotime($start_date) &gt; strtotime($max_future)) {
+        return 'The {label} cannot be more than 1 year in the future.';
+    }
+    
+    return true;
+}
+
+public function callback_reasonable_timeline($end_date): string|bool {
+    $start_date = post('project_start', true);
+    
+    if ($start_date === '' || $end_date === '') {
+        return true;
+    }
+    
+    $start = strtotime($start_date);
+    $end = strtotime($end_date);
+    
+    // End must be after start
+    if ($end &lt;= $start) {
+        return 'The {label} must be after the project start date.';
+    }
+    
+    // Project must be at least 1 week long
+    $min_end = strtotime('+1 week', $start);
+    if ($end &lt; $min_end) {
+        return 'Project must be at least 1 week long.';
+    }
+    
+    // Project cannot exceed 2 years
+    $max_end = strtotime('+2 years', $start);
+    if ($end &gt; $max_end) {
+        return 'Project duration cannot exceed 2 years.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h2>Combining Multiple Validations</h2>
+
+[code=php]
+public function submit_event(): void {
+    // Event details
+    $this-&gt;validation-&gt;set_rules('event_title', 'event title', 'required|min_length[5]');
+    
+    // Date and time validations
+    $this-&gt;validation-&gt;set_rules('event_date', 'event date', 'required|valid_date|callback_must_be_future|callback_must_be_weekday');
+    $this-&gt;validation-&gt;set_rules('start_time', 'start time', 'required|valid_time|callback_during_business_hours');
+    $this-&gt;validation-&gt;set_rules('end_time', 'end time', 'required|valid_time|callback_end_after_start|callback_reasonable_duration');
+    
+    // Registration deadline
+    $this-&gt;validation-&gt;set_rules('registration_deadline', 'registration deadline', 'required|valid_datetime_local|callback_before_event');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process event
+    } else {
+        $this-&gt;create();
+    }
+}
+[/code]
+
+<h2>Important Notes</h2>
+
+<ul>
+    <li>Built-in validation rules check format AND validity (e.g., valid_date rejects Feb 30)</li>
+    <li>Use callbacks for business logic validation (ranges, availability, etc.)</li>
+    <li>Empty values pass validation unless <code>required</code> is specified</li>
+    <li>Always return <code>true</code> or an error string from callbacks</li>
+    <li>Use <code>{label}</code> in error messages for automatic label substitution</li>
+    <li>Callbacks should handle empty values gracefully (let <code>required</code> rule handle them)</li>
+    <li>Browser validation is a convenience, not security - always validate server-side</li>
+    <li>Consider timezone implications when validating datetime values</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Best Practice:</strong> Use built-in rules for format validation and custom callbacks for business logic. This separation keeps your code clean and maintainable.</p>
+</div>

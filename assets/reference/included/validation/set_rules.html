@@ -1,0 +1,522 @@
+<div class="container">
+  <h1>set_rules()</h1>
+  <p class="signature">public function set_rules(string $key, string $label, string $rules): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Defines validation rules for a specific form field or file upload. This method is the foundation of Trongate's validation system, allowing you to specify which fields are required, what format they should have, and what constraints they must meet. Each call to <code>set_rules()</code> validates one field according to the specified rules.</p>
+  </div>
+
+  <div class="alert alert-info">
+    <p><strong>Quick Start:</strong> Call <code>set_rules()</code> for each field you want to validate, then call <code>$this-&gt;validation-&gt;run()</code> to execute all validations at once.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$key</td>
+        <td>string</td>
+        <td>The name attribute of the form field (e.g., 'email', 'password', 'task_title').</td>
+      </tr>
+      <tr>
+        <td>$label</td>
+        <td>string</td>
+        <td>A human-readable label used in error messages (e.g., 'Email Address', 'Password', 'Task Title').</td>
+      </tr>
+      <tr>
+        <td>$rules</td>
+        <td>string</td>
+        <td>Validation rules separated by pipe characters (|). For rules requiring parameters, use square brackets (e.g., 'required|min_length[8]|max_length[255]').</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value. Errors are stored internally and retrieved via <code>validation_errors()</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Available Validation Rules</h2>
+  
+  <h3>Basic Rules</h3>
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>required</code></td>
+        <td>Field must not be empty</td>
+        <td><code>'required'</code></td>
+      </tr>
+      <tr>
+        <td><code>numeric</code></td>
+        <td>Field must contain only numbers</td>
+        <td><code>'numeric'</code></td>
+      </tr>
+      <tr>
+        <td><code>integer</code></td>
+        <td>Field must be a whole number (no decimals)</td>
+        <td><code>'integer'</code></td>
+      </tr>
+      <tr>
+        <td><code>decimal</code></td>
+        <td>Field must contain a decimal number</td>
+        <td><code>'decimal'</code></td>
+      </tr>
+      <tr>
+        <td><code>valid_email</code></td>
+        <td>Field must be a valid email address with DNS verification</td>
+        <td><code>'valid_email'</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Length Rules</h3>
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>min_length[n]</code></td>
+        <td>Field must be at least n characters long</td>
+        <td><code>'min_length[8]'</code></td>
+      </tr>
+      <tr>
+        <td><code>max_length[n]</code></td>
+        <td>Field must be no more than n characters long</td>
+        <td><code>'max_length[255]'</code></td>
+      </tr>
+      <tr>
+        <td><code>exact_length[n]</code></td>
+        <td>Field must be exactly n characters long</td>
+        <td><code>'exact_length[10]'</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Comparison Rules</h3>
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>matches[field]</code></td>
+        <td>Field must match another field (useful for password confirmation)</td>
+        <td><code>'matches[password]'</code></td>
+      </tr>
+      <tr>
+        <td><code>differs[field]</code></td>
+        <td>Field must not match another field</td>
+        <td><code>'differs[old_password]'</code></td>
+      </tr>
+      <tr>
+        <td><code>greater_than[n]</code></td>
+        <td>Numeric field must be greater than n</td>
+        <td><code>'greater_than[0]'</code></td>
+      </tr>
+      <tr>
+        <td><code>less_than[n]</code></td>
+        <td>Numeric field must be less than n</td>
+        <td><code>'less_than[100]'</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Date and Time Rules</h3>
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>valid_date</code></td>
+        <td>Field must be a valid date in YYYY-MM-DD format</td>
+        <td><code>'valid_date'</code></td>
+      </tr>
+      <tr>
+        <td><code>valid_time</code></td>
+        <td>Field must be a valid time in HH:MM or HH:MM:SS format</td>
+        <td><code>'valid_time'</code></td>
+      </tr>
+      <tr>
+        <td><code>valid_datetime_local</code></td>
+        <td>Field must be a valid datetime in YYYY-MM-DDTHH:MM format</td>
+        <td><code>'valid_datetime_local'</code></td>
+      </tr>
+      <tr>
+        <td><code>valid_month</code></td>
+        <td>Field must be a valid month in YYYY-MM format</td>
+        <td><code>'valid_month'</code></td>
+      </tr>
+      <tr>
+        <td><code>valid_week</code></td>
+        <td>Field must be a valid week in YYYY-W## format (e.g., 2025-W52)</td>
+        <td><code>'valid_week'</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>File Upload Rules</h3>
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>allowed_types[ext1,ext2]</code></td>
+        <td>File must have one of the specified extensions</td>
+        <td><code>'allowed_types[jpg,png,gif]'</code></td>
+      </tr>
+      <tr>
+        <td><code>max_size[kb]</code></td>
+        <td>File size must not exceed specified kilobytes</td>
+        <td><code>'max_size[2048]'</code></td>
+      </tr>
+      <tr>
+        <td><code>max_width[px]</code></td>
+        <td>Image width must not exceed specified pixels</td>
+        <td><code>'max_width[1920]'</code></td>
+      </tr>
+      <tr>
+        <td><code>max_height[px]</code></td>
+        <td>Image height must not exceed specified pixels</td>
+        <td><code>'max_height[1080]'</code></td>
+      </tr>
+      <tr>
+        <td><code>min_width[px]</code></td>
+        <td>Image width must be at least specified pixels</td>
+        <td><code>'min_width[800]'</code></td>
+      </tr>
+      <tr>
+        <td><code>min_height[px]</code></td>
+        <td>Image height must be at least specified pixels</td>
+        <td><code>'min_height[600]'</code></td>
+      </tr>
+      <tr>
+        <td><code>square</code></td>
+        <td>Image must be square (width equals height)</td>
+        <td><code>'square'</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Custom Validation Rules</h3>
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Description</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>callback_method_name</code></td>
+        <td>Calls a custom validation method in your controller</td>
+        <td><code>'callback_check_username'</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Basic Usage Pattern</h2>
+  
+  <h3>Simple Form Validation</h3>
+  <p>This is the most common pattern for validating form submissions:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+    
+    $submit = post('submit', true);
+    
+    if ($submit === 'Submit') {
+        // Define validation rules for each field
+        $this-&gt;validation-&gt;set_rules('task_title', 'Task Title', 'required|min_length[2]|max_length[255]');
+        $this-&gt;validation-&gt;set_rules('task_description', 'Task Description', 'required|min_length[2]');
+        
+        // Run all validations
+        if ($this-&gt;validation-&gt;run() === true) {
+            // Validation passed - process the form
+            $data = [
+                'task_title' =&gt; post('task_title', true),
+                'task_description' =&gt; post('task_description', true)
+            ];
+            
+            $this-&gt;db-&gt;insert($data, 'tasks');
+            redirect('tasks/manage');
+        } else {
+            // Validation failed - redisplay form with errors
+            $this-&gt;create();
+        }
+    }
+}
+[/code]
+
+  <h2>Advanced Examples</h2>
+
+  <h3>Example #1: User Registration Form</h3>
+[code=php]
+public function submit_registration(): void {
+    // Username validation
+    $this-&gt;validation-&gt;set_rules('username', 'Username', 'required|min_length[3]|max_length[50]|callback_check_username_available');
+    
+    // Email validation with DNS checking
+    $this-&gt;validation-&gt;set_rules('email', 'Email Address', 'required|valid_email');
+    
+    // Password validation with confirmation
+    $this-&gt;validation-&gt;set_rules('password', 'Password', 'required|min_length[8]|max_length[255]');
+    $this-&gt;validation-&gt;set_rules('password_confirm', 'Password Confirmation', 'required|matches[password]');
+    
+    // Age validation
+    $this-&gt;validation-&gt;set_rules('age', 'Age', 'required|integer|greater_than[17]|less_than[120]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process registration...
+    } else {
+        $this-&gt;register(); // Redisplay with errors
+    }
+}
+[/code]
+
+  <h3>Example #2: File Upload Validation</h3>
+[code=php]
+public function submit_profile_photo(): void {
+    // Validate uploaded image
+    $this-&gt;validation-&gt;set_rules('profile_photo', 'Profile Photo', 'required|allowed_types[jpg,jpeg,png]|max_size[2048]|square|max_width[1000]|max_height[1000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process file upload...
+        $file = $_FILES['profile_photo'];
+        // Handle file storage...
+    } else {
+        $this-&gt;upload_form();
+    }
+}
+[/code]
+
+  <h3>Example #3: Custom Callback Validation</h3>
+[code=php]
+public function submit(): void {
+    // Use custom validation callback
+    $this-&gt;validation-&gt;set_rules('username', 'Username', 'required|callback_check_username_unique');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Username is unique and valid...
+    }
+}
+
+/**
+ * Custom validation callback to check username uniqueness
+ * 
+ * @param string $submitted_username The username to validate
+ * @return string|bool Returns error message string if invalid, true if valid
+ */
+public function check_username_unique(string $submitted_username): string|bool {
+    $existing = $this-&gt;db-&gt;get_one_where('username', $submitted_username, 'users');
+    
+    if ($existing) {
+        return 'The {label} is already taken. Please choose another.';
+    }
+    
+    return true;
+}
+[/code]
+
+  <div class="alert alert-info">
+    <p><strong>Callback Return Values:</strong> Custom validation methods must return <code>true</code> for success or a <code>string</code> error message for failure. Use <code>{label}</code> as a placeholder in your error message, which will be replaced with the field label.</p>
+  </div>
+
+  <h3>Example #4: Date Range Validation</h3>
+[code=php]
+public function submit_booking(): void {
+    $this-&gt;validation-&gt;set_rules('start_date', 'Start Date', 'required|valid_date');
+    $this-&gt;validation-&gt;set_rules('end_date', 'End Date', 'required|valid_date|callback_check_date_range');
+    $this-&gt;validation-&gt;set_rules('check_in_time', 'Check-in Time', 'required|valid_time');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process booking...
+    }
+}
+
+public function check_date_range(string $end_date): string|bool {
+    $start = post('start_date', true);
+    $end = post('end_date', true);
+    
+    if (strtotime($end) &lt;= strtotime($start)) {
+        return 'The {label} must be after the Start Date.';
+    }
+    
+    return true;
+}
+[/code]
+
+  <h2>Combining Multiple Rules</h2>
+  <p>Rules are separated by pipe characters and evaluated in order from left to right:</p>
+
+[code=php]
+// All rules must pass for validation to succeed
+$this-&gt;validation-&gt;set_rules('email', 'Email Address', 'required|valid_email|max_length[254]');
+
+// If 'required' fails, other rules are still checked
+$this-&gt;validation-&gt;set_rules('phone', 'Phone Number', 'required|exact_length[10]|numeric');
+
+// Combining length and comparison rules
+$this-&gt;validation-&gt;set_rules('price', 'Price', 'required|numeric|greater_than[0]|less_than[10000]');
+[/code]
+
+  <h2>File Upload Validation Details</h2>
+
+  <div class="alert alert-info">
+    <p><strong>Automatic File Security:</strong> When validating file uploads, Trongate automatically scans the first 256 bytes of uploaded files for dangerous patterns like PHP code, shell commands, and malicious scripts. This security check happens before any custom validation rules are applied.</p>
+  </div>
+
+  <h3>Complete File Upload Example</h3>
+[code=vf]
+&lt;!-- In your view --&gt;
+&lt;?php
+echo form_open_upload('documents/submit');
+echo form_label('Document');
+echo form_file_select('document');
+echo form_submit('submit', 'Upload');
+echo form_close();
+?&gt;
+[/code]
+
+[code=php]
+// In your controller
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('document', 'Document', 'required|allowed_types[pdf,doc,docx]|max_size[5120]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // File passed validation - safe to process
+        $file = $_FILES['document'];
+        $destination = APPPATH . 'public/uploads/' . $file['name'];
+        move_uploaded_file($file['tmp_name'], $destination);
+        
+        set_flashdata('Document uploaded successfully');
+        redirect('documents/manage');
+    } else {
+        $this-&gt;upload_form();
+    }
+}
+[/code]
+
+  <h2>Important Notes</h2>
+
+  <div class="alert alert-success">
+    <ul>
+      <li><strong>Order matters:</strong> <code>set_rules()</code> calls are processed in the order they're written. Use <code>required</code> first for fields that must have a value.</li>
+      <li><strong>Empty fields skip rules:</strong> Most validation rules (except <code>required</code>) are automatically skipped if a field is empty. This allows optional fields to have format requirements.</li>
+      <li><strong>Automatic cleaning:</strong> Field values are automatically retrieved with <code>post($key, true)</code>, which trims whitespace and collapses multiple spaces.</li>
+      <li><strong>CSRF protection:</strong> CSRF validation happens automatically when <code>$this-&gt;validation-&gt;run()</code> is called.</li>
+      <li><strong>Error storage:</strong> Validation errors are stored in the session, allowing them to persist across redirects.</li>
+      <li><strong>Field labels in errors:</strong> The <code>$label</code> parameter is used in all error messages, making them more user-friendly.</li>
+    </ul>
+  </div>
+
+  <h2>Common Validation Patterns</h2>
+
+  <table class="sm">
+    <thead>
+      <tr>
+        <th>Field Type</th>
+        <th>Typical Rules</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Username</td>
+        <td><code>'required|min_length[3]|max_length[50]'</code></td>
+      </tr>
+      <tr>
+        <td>Email</td>
+        <td><code>'required|valid_email|max_length[254]'</code></td>
+      </tr>
+      <tr>
+        <td>Password</td>
+        <td><code>'required|min_length[8]|max_length[255]'</code></td>
+      </tr>
+      <tr>
+        <td>Phone (10 digits)</td>
+        <td><code>'required|exact_length[10]|numeric'</code></td>
+      </tr>
+      <tr>
+        <td>Age</td>
+        <td><code>'required|integer|greater_than[0]|less_than[150]'</code></td>
+      </tr>
+      <tr>
+        <td>Price</td>
+        <td><code>'required|numeric|greater_than[0]'</code></td>
+      </tr>
+      <tr>
+        <td>ZIP Code (5 digits)</td>
+        <td><code>'required|exact_length[5]|numeric'</code></td>
+      </tr>
+      <tr>
+        <td>Optional URL</td>
+        <td><code>'valid_url'</code> (no required)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Error Handling</h2>
+  <p>After calling <code>set_rules()</code>, use <code>$this-&gt;validation-&gt;run()</code> to execute all validations. Display errors using <code>validation_errors()</code>:</p>
+
+[code=vf]
+&lt;!-- Display all errors at top of form --&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;!-- Or display inline per-field errors --&gt;
+&lt;?php
+echo form_label('Email');
+echo validation_errors('email');
+echo form_input('email', post('email', true));
+?&gt;
+[/code]
+
+  <div class="alert alert-info">
+    <p>For more information on displaying validation errors, see the <code>validation_errors()</code> function documentation.</p>
+  </div>
+</div>

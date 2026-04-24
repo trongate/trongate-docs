@@ -1,0 +1,313 @@
+<div class="container">
+    <h1>load()</h1>
+    <p class="signature">public function load(string $filename): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Loads an existing image file into memory for processing. This method performs comprehensive security validation before loading, including MIME type verification, file signature checking, malicious content scanning, and memory requirement calculations. Once loaded, the image is ready for manipulation operations such as resizing, cropping, or scaling.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Security by Design:</strong> The <code>load()</code> method automatically validates images through four security layers: MIME type verification, file signature validation, script injection prevention, and memory limit enforcement. These checks cannot be bypassed and ensure only legitimate image files are processed.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$filename</td>
+                <td>string</td>
+                <td>The filesystem path to the image file. Use relative paths from application root (e.g., 'modules/products/images/laptop.jpg').</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Two Ways to Load Images</h2>
+    <p>The Image module provides two valid patterns for loading images into memory:</p>
+
+
+    <p><strong>Pattern 1: Via Trongate Module Loading (Recommended)</strong></p>
+    <p>Use <code>$this-&gt;image-&gt;load()</code> in your controllers - this follows standard Trongate conventions:</p>
+[code=php]
+$this-&gt;image-&gt;load('path/to/image.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('output.jpg');
+[/code]
+
+    <p><strong>Pattern 2: Via Constructor (Standalone)</strong></p>
+    <p>Create a new Image instance directly - useful for standalone scripts or when you need multiple independent image processors:</p>
+[code=php]
+$image = new Image('path/to/image.jpg');
+$image-&gt;resize_to_width(800);
+$image-&gt;save('output.jpg');
+[/code]
+
+    <p><strong>Both patterns work identically.</strong> The constructor simply calls <code>load()</code> internally as a convenience. Use Pattern 1 in Trongate controllers and Pattern 2 in standalone contexts.</p>
+
+    <h2>Supported Formats</h2>
+    <p>The <code>load()</code> method automatically detects and handles the following image formats:</p>
+    <ul>
+        <li><strong>JPEG</strong> (.jpg, .jpeg) - Most common web format</li>
+        <li><strong>PNG</strong> (.png) - Supports transparency</li>
+        <li><strong>GIF</strong> (.gif) - Supports animation and transparency</li>
+        <li><strong>WEBP</strong> (.webp) - Modern format with excellent compression</li>
+    </ul>
+
+    <div class="alert alert-info">
+        <p><strong>Path Type Matters:</strong> Use filesystem paths with <code>load()</code>, not URLs. Correct: <code>'modules/shop/products/widget.jpg'</code> or <code>'../modules/shop/products/widget.jpg'</code>. Incorrect: <code>'shop_module/products/widget.jpg'</code> (that's a URL pattern for browser display, not filesystem access).</p>
+    </div>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It loads the image into memory, making it available for subsequent processing operations.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of load().</p>
+[code=php]
+// Load an existing image
+$this-&gt;image-&gt;load('modules/gallery/photos/landscape.jpg');
+
+// Resize it
+$this-&gt;image-&gt;resize_to_width(800);
+
+// Save the result
+$this-&gt;image-&gt;save('modules/gallery/photos/landscape_800.jpg');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The Load-Process-Save Pattern:</strong> This three-step workflow is fundamental to the Image module: (1) <code>load()</code> brings an image into memory, (2) processing methods like <code>resize_to_width()</code> or <code>crop()</code> modify it, and (3) <code>save()</code> writes the result to disk. This stateful approach ensures you always know what image you're working with.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to load and process an image within a controller method.</p>
+[code=php]
+public function create_thumbnail(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product record
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    // Check if the image file exists
+    if (!$this-&gt;file-&gt;exists($product-&gt;image_path)) {
+        set_flashdata('Product image file not found');
+        redirect('products/manage/' . $product_id);
+    }
+    
+    // Load the product image from database path
+    $this-&gt;image-&gt;load($product-&gt;image_path);
+    
+    // Create thumbnail
+    $this-&gt;image-&gt;resize_and_crop(300, 300);
+    
+    // Save thumbnail
+    $thumbnail_path = 'modules/products/thumbnails/' . basename($product-&gt;image_path);
+    $this-&gt;image-&gt;save($thumbnail_path, 85);
+    $this-&gt;image-&gt;destroy();
+    
+    // Update product record with thumbnail path
+    $update_data = ['thumbnail_path' =&gt; $thumbnail_path];
+    $this-&gt;model-&gt;update($product_id, $update_data, 'products');
+    
+    set_flashdata('Thumbnail created successfully');
+    redirect('products/manage/' . $product_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Check Before You Load:</strong> Always verify files exist using <code>$this-&gt;file-&gt;exists()</code> before attempting to load them. This prevents exceptions and allows you to handle missing files gracefully with appropriate user feedback or fallback behaviour.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates generating multiple sizes from a single source image.</p>
+[code=php]
+public function generate_responsive_images(): void {
+    $article_id = segment(3, 'int');
+    
+    // Get article record
+    $article = $this-&gt;db-&gt;get_where($article_id, 'articles');
+    
+    if ($article === false) {
+        redirect('articles/not_found');
+    }
+    
+    $source_image = 'modules/articles/originals/' . $article-&gt;original_filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_image)) {
+        set_flashdata('Original image not found');
+        redirect('articles/edit/' . $article_id);
+    }
+    
+    // Define responsive breakpoints
+    $sizes = [
+        'mobile' =&gt; 480,
+        'tablet' =&gt; 768,
+        'desktop' =&gt; 1024,
+        'large' =&gt; 1440
+    ];
+    
+    // Ensure output directories exist
+    foreach (array_keys($sizes) as $size_name) {
+        $output_dir = 'modules/articles/images/' . $size_name;
+        if (!$this-&gt;file-&gt;exists($output_dir)) {
+            $this-&gt;file-&gt;create_directory($output_dir, 0755);
+        }
+    }
+    
+    $generated_paths = [];
+    
+    foreach ($sizes as $size_name =&gt; $width) {
+        // Load source fresh for each size
+        $this-&gt;image-&gt;load($source_image);
+        
+        // Only resize if source is larger than target
+        if ($this-&gt;image-&gt;get_width() &gt; $width) {
+            $this-&gt;image-&gt;resize_to_width($width);
+        }
+        
+        // Save this size variant
+        $output_path = 'modules/articles/images/' . $size_name . '/' . $article-&gt;original_filename;
+        $this-&gt;image-&gt;save($output_path, 85);
+        $this-&gt;image-&gt;destroy();
+        
+        $generated_paths[$size_name] = $output_path;
+    }
+    
+    // Update article with all generated paths
+    $update_data = [
+        'image_mobile' =&gt; $generated_paths['mobile'],
+        'image_tablet' =&gt; $generated_paths['tablet'],
+        'image_desktop' =&gt; $generated_paths['desktop'],
+        'image_large' =&gt; $generated_paths['large']
+    ];
+    $this-&gt;model-&gt;update($article_id, $update_data, 'articles');
+    
+    set_flashdata('Responsive images generated successfully');
+    redirect('articles/edit/' . $article_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Reload for Multiple Operations:</strong> When generating multiple versions of an image, call <code>load()</code> fresh for each variant. This ensures each version starts from the original source rather than being processed from an already-modified image, preventing cumulative quality loss or unwanted transformations.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows advanced conditional image processing based on dimensions and orientation.</p>
+[code=php]
+public function optimize_batch_uploads(): void {
+    $batch_id = segment(3, 'int');
+    
+    // Get all uploads in this batch
+    $uploads = $this-&gt;model-&gt;get_many_where('batch_id', $batch_id, 'user_uploads');
+    
+    if (count($uploads) === 0) {
+        set_flashdata('No uploads found in this batch');
+        redirect('uploads/batches');
+    }
+    
+    $processed_count = 0;
+    $max_dimension = 2000;
+    
+    // Ensure all required directories exist
+    $directories = ['images', 'thumbnails', 'portraits', 'landscapes'];
+    foreach ($directories as $dir) {
+        $path = 'modules/uploads/' . $dir;
+        if (!$this-&gt;file-&gt;exists($path)) {
+            $this-&gt;file-&gt;create_directory($path, 0755);
+        }
+    }
+    
+    foreach ($uploads as $upload) {
+        $temp_path = 'modules/uploads/temp/' . $upload-&gt;temp_filename;
+        
+        if (!$this-&gt;file-&gt;exists($temp_path)) {
+            continue;
+        }
+        
+        // Load the uploaded image
+        $this-&gt;image-&gt;load($temp_path);
+        
+        // Get dimensions and calculate aspect ratio
+        $width = $this-&gt;image-&gt;get_width();
+        $height = $this-&gt;image-&gt;get_height();
+        $aspect_ratio = $width / $height;
+        
+        // Determine orientation
+        $is_portrait = $aspect_ratio &lt; 1;
+        $is_landscape = $aspect_ratio &gt; 1;
+        $is_square = abs($aspect_ratio - 1) &lt; 0.01;
+        
+        // Resize if needed
+        if ($width &gt; $max_dimension || $height &gt; $max_dimension) {
+            if ($width &gt; $height) {
+                $this-&gt;image-&gt;resize_to_width($max_dimension);
+            } else {
+                $this-&gt;image-&gt;resize_to_height($max_dimension);
+            }
+        }
+        
+        // Save to orientation-specific directory
+        $subdir = $is_portrait ? 'portraits' : ($is_landscape ? 'landscapes' : 'images');
+        $final_path = 'modules/uploads/' . $subdir . '/' . $upload-&gt;temp_filename;
+        $this-&gt;image-&gt;save($final_path, 85);
+        
+        // Generate thumbnail (reload for fresh processing)
+        $this-&gt;image-&gt;load($temp_path);
+        $this-&gt;image-&gt;resize_and_crop(200, 200);
+        $thumb_path = 'modules/uploads/thumbnails/' . $upload-&gt;temp_filename;
+        $this-&gt;image-&gt;save($thumb_path, 80);
+        $this-&gt;image-&gt;destroy();
+        
+        // Update upload record
+        $update_data = [
+            'final_path' =&gt; $final_path,
+            'thumbnail_path' =&gt; $thumb_path,
+            'orientation' =&gt; $is_portrait ? 'portrait' : ($is_landscape ? 'landscape' : 'square'),
+            'aspect_ratio' =&gt; round($aspect_ratio, 2),
+            'was_resized' =&gt; ($width &gt; $max_dimension || $height &gt; $max_dimension) ? 1 : 0,
+            'processed_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;update($upload-&gt;id, $update_data, 'user_uploads');
+        
+        // Clean up temp file
+        $this-&gt;file-&gt;delete($temp_path);
+        
+        $processed_count++;
+    }
+    
+    set_flashdata("Processed {$processed_count} images successfully");
+    redirect('uploads/batch/' . $batch_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Dimension-Based Logic:</strong> After loading an image, use <code>get_width()</code> and <code>get_height()</code> to make intelligent decisions about processing. This allows you to apply different strategies based on image characteristics - organizing by orientation, resizing only when necessary, choosing portrait vs. landscape handling, or applying dimension-specific compression levels.</p>
+    </div>
+
+</div>

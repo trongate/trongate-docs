@@ -1,0 +1,116 @@
+<div class="container">
+    <h1>form_search()</h1>
+    <p class="signature">function form_search(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML search input field with <code>type="search"</code>. Modern browsers provide enhanced search features including a clear button, specialized mobile keyboards, and sometimes integrated history.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the search input element.</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>(optional) The initial search query value displayed in the field.</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes for the search input element. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>An HTML search input element with type="search".</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Usage Examples</h2>
+
+    <h3>Basic Search Field</h3>
+[code=php]
+echo form_search('search_query');
+// Output: &lt;input type="search" name="search_query"&gt;
+[/code]
+
+    <h3>Search with Placeholder and Constraints</h3>
+[code=php]
+$attrs = [
+    'placeholder' => 'Enter 2-100 characters',
+    'minlength' => '2',
+    'maxlength' => '100',
+    'aria-label' => 'Site search'
+];
+echo form_search('q', '', $attrs);
+// Output: &lt;input type="search" name="q" placeholder="Enter 2-100 characters" minlength="2" maxlength="100" aria-label="Site search"&gt;
+[/code]
+
+    <h3>Pre-populated Search Field</h3>
+    <p>When redisplaying a form after submission, you can retain the user's search term:</p>
+[code=php]
+$search_term = post('query', true);
+echo form_search('query', $search_term, ['placeholder' => 'Search...']);
+// If user searched for "widgets": &lt;input type="search" name="query" value="widgets" placeholder="Search..."&gt;
+// If no search yet: &lt;input type="search" name="query" placeholder="Search..."&gt;
+[/code]
+
+    <h3>Complete Search Form (GET Method)</h3>
+    <p>Search forms typically use GET method for bookmarkable URLs:</p>
+[code=php]
+echo form_open('products/search', ['method' => 'get']);
+echo form_search('keywords', post('keywords', true), [
+    'placeholder' => 'Product name, SKU, or description',
+    'required' => 'required'
+]);
+echo form_submit('search_btn', 'Find Products');
+echo form_close();
+[/code]
+    
+    <div class="alert alert-info">
+        <p><strong>Note about browser differences:</strong></p>
+        <ul>
+            <li>Most desktop browsers add a clear (×) button when text is entered</li>
+            <li>Mobile devices often show a "search" keyboard with a dedicated search button</li>
+            <li>Safari and Chrome may round the corners of search inputs by default</li>
+            <li>Some browsers maintain a search history for the field</li>
+        </ul>
+    </div>
+    
+    <div class="alert alert-success">
+        <ul>
+            <li>**Use GET for searches:** Allows users to bookmark results and share URLs</li>
+            <li>**Provide clear placeholders:** Guide users on what to search for</li>
+            <li>**Set reasonable limits:** Use <code>minlength</code> and <code>maxlength</code> attributes</li>
+            <li>**Consider accessibility:** Add <code>aria-label</code> if label isn't adjacent</li>
+            <li>**Retain search terms:** Use <code>post('field', true)</code> to repopulate after submission</li>
+            <li>**Handle empty searches:** Validate that searches aren't just whitespace</li>
+        </ul>
+    </div>
+
+</div>

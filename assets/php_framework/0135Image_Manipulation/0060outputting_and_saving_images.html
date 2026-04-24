@@ -1,0 +1,597 @@
+ [meta-description]Master image output in Trongate: save to disk with compression control, stream directly to browsers, handle multiple formats, and serve dynamic images without storage overhead.[/meta-description]
+
+<h1>Outputting and Saving Images</h1>
+
+<p>After bringing images into memory using <span class="feature-ref">included-image-upload()</span> (for new uploads) or <span class="feature-ref">included-image-load()</span> (for existing images) you need to do something with them. Trongate gives you two options:</p>
+
+<ol>
+    <li><strong>Save</strong> them to disk for permanent storage</li>
+    <li><strong>Output</strong> them directly to the browser for immediate display</li>
+</ol>
+
+<p>Understanding when to save versus when to output - and how to control compression, format, and permissions - separates amateur image handling from professional implementations.</p>
+
+<div class="alert alert-info">
+    <p><strong>Save vs Output:</strong></p>
+    <ul>
+        <li><span class="feature-ref">included-image-save()</span> - Writes image to disk as a file. Use for permanent storage, user uploads, generated thumbnails, or any image that needs to persist.</li>
+        <li class="mt-2"><span class="feature-ref">included-image-output()</span> - Streams image directly to browser without disk storage. Use for dynamic images, watermarks, on-the-fly transformations, or temporary displays.</li>
+    </ul>
+</div>
+
+<h2>Saving Images to Disk</h2>
+
+<p>The <span class="feature-ref">included-image-save()</span> method writes the currently loaded image to a file with optional compression and permission settings.</p>
+
+<h3>Basic Saving</h3>
+
+<p>After using <span class="feature-ref">included-image-load()</span> to bring an image into memory and performing any manipulations, use <span class="feature-ref">included-image-save()</span> to write it to disk:</p>
+
+[code=php]
+// Load, manipulate, and save
+$this-&gt;image-&gt;load('modules/gallery/photos/original.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('modules/gallery/photos/resized.jpg');
+[/code]
+
+<h3>Method Signature</h3>
+
+[code=php]
+public function save(
+    ?string $filename = null,      // Path where image will be saved
+    int $compression = 100,         // Quality: 0-100 (JPEG/WEBP only)
+    ?int $permissions = null        // File permissions (e.g., 0644)
+): void
+[/code]
+
+<h3>Overwriting vs Creating New Files</h3>
+
+[code=php]
+// Overwrite the original (destructive)
+$this-&gt;image-&gt;load('modules/products/images/photo.jpg');
+$this-&gt;image-&gt;resize_to_width(1200);
+$this-&gt;image-&gt;save('modules/products/images/photo.jpg'); // Same path - overwrites
+
+// Create a new file (non-destructive)
+$this-&gt;image-&gt;load('modules/products/images/photo.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('modules/products/images/photo_800w.jpg'); // New path - preserves original
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Destructive Operations:</strong> When saving to the same path you loaded from, you overwrite the original file permanently. For production systems, consider keeping originals and saving manipulated versions with different names.</p>
+</div>
+
+<h2>Controlling Image Quality</h2>
+
+<p>The compression parameter (0-100) controls the trade-off between file size and visual quality for JPEG and WEBP formats.</p>
+
+<h3>Quality Guidelines</h3>
+
+[code=php]
+// Maximum quality (default)
+$this-&gt;image-&gt;save('modules/blog/images/hero.jpg', 100);
+// Result: Pristine quality, ~500KB
+
+// Recommended for web
+$this-&gt;image-&gt;save('modules/blog/images/hero.jpg', 85);
+// Result: Excellent quality, ~200KB (60% smaller!)
+
+// Acceptable for thumbnails
+$this-&gt;image-&gt;save('modules/blog/images/thumb.jpg', 75);
+// Result: Good quality, ~100KB
+
+// Low quality (avoid for main content)
+$this-&gt;image-&gt;save('modules/blog/images/preview.jpg', 60);
+// Result: Visible artifacts, ~50KB
+[/code]
+
+<h3>Quality by Use Case</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Image Type</th>
+            <th>Recommended Quality</th>
+            <th>Reasoning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Hero images, banners</td>
+            <td>90-95</td>
+            <td>High visibility, worth the file size</td>
+        </tr>
+        <tr>
+            <td>Product photos</td>
+            <td>85-90</td>
+            <td>Balance of quality and performance</td>
+        </tr>
+        <tr>
+            <td>Content images</td>
+            <td>80-85</td>
+            <td>Good quality, faster page loads</td>
+        </tr>
+        <tr>
+            <td>Thumbnails</td>
+            <td>75-80</td>
+            <td>Small display size hides artifacts</td>
+        </tr>
+        <tr>
+            <td>Background images</td>
+            <td>70-75</td>
+            <td>Often blurred or overlaid</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Format-Specific Compression Behavior:</strong></p>
+    <ul>
+        <li><strong>JPEG and WEBP respond to quality settings:</strong><br>
+            The quality parameter (0-100) determines the trade-off between file size and visual fidelity.
+            <br>• Lower values = smaller files with more compression artifacts
+            <br>• Higher values = better quality with larger file sizes
+            <br>• 85-90 = recommended sweet spot for web images</li>
+        <li class="mt-3"><strong>PNG and GIF ignore quality settings:</strong><br>
+            These formats use lossless compression that preserves all image data.
+            <br>• The quality parameter has no effect
+            <br>• PNG preserves exact pixel values and alpha transparency
+            <br>• GIF preserves binary transparency with maximum 256 colors</li>
+    </ul>
+    <p class="mt-2"><em>Practical tip: Use JPEG/WEBP for photographs where file size matters, and PNG/GIF for logos, graphics, and images requiring transparency.</em></p>
+</div>
+
+<h2>Setting File Permissions</h2>
+
+<p>Control who can read, write, or execute saved images using the permissions parameter:</p>
+
+[code=php]
+// Readable by everyone, writable by owner (recommended)
+$this-&gt;image-&gt;save('modules/gallery/images/public.jpg', 85, 0644);
+
+// Readable and writable by owner only (private files)
+$this-&gt;image-&gt;save('modules/documents/private/scan.jpg', 90, 0600);
+
+// Default permissions (system default, typically 0644)
+$this-&gt;image-&gt;save('modules/products/images/widget.jpg', 85);
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Permission Recommendations:</strong></p>
+    <ul>
+        <li><strong>0644</strong> - Public images (web galleries, user avatars, product photos)</li>
+        <li><strong>0640</strong> - Semi-private (group-readable only)</li>
+        <li><strong>0600</strong> - Private images (documents, scanned files, sensitive photos)</li>
+    </ul>
+</div>
+
+<h2>Working with Different Formats</h2>
+
+<p>The Image module automatically detects and preserves the original format, but you can change formats by changing the file extension:</p>
+
+<h3>Format Conversion</h3>
+
+[code=php]
+// Load PNG, save as JPEG
+$this-&gt;image-&gt;load('modules/branding/logos/logo.png');
+$this-&gt;image-&gt;resize_to_width(400);
+$this-&gt;image-&gt;save('modules/branding/logos/logo.jpg', 90);
+// Note: Transparent areas become white
+
+// Load JPEG, save as PNG
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('modules/gallery/photos/photo.png');
+// Note: Lossless but larger file size
+
+// Save as WEBP for modern browsers
+$this-&gt;image-&gt;load('modules/products/images/widget.jpg');
+$this-&gt;image-&gt;save('modules/products/images/widget.webp', 85);
+// Note: Better compression than JPEG
+[/code]
+
+<h3>Format Selection Guide</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Format</th>
+            <th>Best For</th>
+            <th>Compression</th>
+            <th>Transparency</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>JPEG</strong></td>
+            <td>Photos, complex images</td>
+            <td>Lossy, adjustable</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td><strong>PNG</strong></td>
+            <td>Logos, graphics, screenshots</td>
+            <td>Lossless</td>
+            <td>Yes (alpha)</td>
+        </tr>
+        <tr>
+            <td><strong>GIF</strong></td>
+            <td>Simple graphics, animations</td>
+            <td>Lossless, limited colors</td>
+            <td>Yes (binary)</td>
+        </tr>
+        <tr>
+            <td><strong>WEBP</strong></td>
+            <td>Modern web, photos + graphics</td>
+            <td>Lossy or lossless</td>
+            <td>Yes (alpha)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Outputting Images to Browser</h2>
+
+<p>The <span class="feature-ref">included-image-output()</span> method streams an image directly to the browser without saving it to disk. Perfect for dynamic image generation or temporary displays.</p>
+
+<h3>Direct Browser Output</h3>
+
+[code=php]
+public function serve_thumbnail(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product record
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    // Check if original image exists
+    if (!$this-&gt;file-&gt;exists($product-&gt;original_image_path)) {
+        redirect('products/image_missing');
+    }
+    
+    // Load and manipulate
+    $this-&gt;image-&gt;load($product-&gt;original_image_path);
+    $this-&gt;image-&gt;resize_and_crop(300, 300);
+    
+    // Set proper headers
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    
+    // Stream directly to browser
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+
+// In your view:
+// &lt;img src="&lt;?= BASE_URL ?&gt;products/serve_thumbnail/123"&gt;
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Always Set Content-Type:</strong> When using <code>output()</code> to stream images to browsers, you must set the Content-Type header using <code>get_header()</code>. Without this header, browsers may fail to display the image or attempt to download it as a file.</p>
+</div>
+
+<h3>Capturing Image Data as String</h3>
+
+[code=php]
+// Get image binary data
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+$this-&gt;image-&gt;resize_to_width(400);
+$image_data = $this-&gt;image-&gt;output(true); // Pass true to capture
+
+// Embed in email as attachment
+$attachment = base64_encode($image_data);
+
+// Store in database (not recommended for large images)
+$data['thumbnail_binary'] = $image_data;
+$this-&gt;model-&gt;insert($data, 'cached_thumbnails');
+
+// Generate data URI for inline HTML
+$base64 = base64_encode($image_data);
+$mime = $this-&gt;image-&gt;get_header();
+$data_uri = "data:{$mime};base64,{$base64}";
+// Use in HTML: &lt;img src="&lt;?= $data_uri ?&gt;"&gt;
+[/code]
+
+<h2>Getting the Correct MIME Type</h2>
+
+<p>When outputting images to browsers, you must set the correct Content-Type header. Use <span class="feature-ref">included-image-get_header()</span> to get the appropriate MIME type:</p>
+
+[code=php]
+$this-&gt;image-&gt;load('modules/products/images/widget.jpg');
+
+// Get MIME type for the loaded image
+$mime_type = $this-&gt;image-&gt;get_header();
+// Returns: 'image/jpeg'
+
+// Use in header
+header('Content-Type: ' . $mime_type);
+$this-&gt;image-&gt;output();
+[/code]
+
+<h3>Supported MIME Types</h3>
+
+<ul>
+    <li><code>image/jpeg</code> - JPEG images</li>
+    <li><code>image/png</code> - PNG images</li>
+    <li><code>image/gif</code> - GIF images</li>
+    <li><code>image/webp</code> - WEBP images</li>
+</ul>
+
+<h2>Real-World Example: Dynamic Avatar System</h2>
+
+<p>Generate multiple avatar sizes from a single upload without storing every size:</p>
+
+[code=php]
+&lt;?php
+class Users extends Trongate {
+
+    /**
+     * Serve user avatar at requested size
+     */
+    public function avatar(): void {
+        $user_id = segment(3, 'int');
+        $size = segment(4, 'int') ?? 150; // Default 150px
+        
+        // Validate size (prevent abuse)
+        $allowed_sizes = [50, 100, 150, 300];
+        if (!in_array($size, $allowed_sizes)) {
+            $size = 150;
+        }
+        
+        // Get user's avatar path
+        $user = $this-&gt;db-&gt;get_where($user_id, 'users');
+        
+        if ($user === false || empty($user-&gt;avatar_path)) {
+            // Serve default avatar
+            $avatar_path = 'public/assets/default_avatar.png';
+        } else {
+            $avatar_path = $user-&gt;avatar_path;
+        }
+        
+        // Verify file exists
+        if (!$this-&gt;file-&gt;exists($avatar_path)) {
+            $avatar_path = 'public/assets/default_avatar.png';
+        }
+        
+        // Load and resize on-the-fly
+        $this-&gt;image-&gt;load($avatar_path);
+        $this-&gt;image-&gt;resize_and_crop($size, $size);
+        
+        // Cache for 1 hour
+        header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+        header('Cache-Control: public, max-age=3600');
+        
+        $this-&gt;image-&gt;output();
+        $this-&gt;image-&gt;destroy();
+    }
+}
+?&gt;
+
+&lt;!-- Usage in views: --&gt;
+&lt;!-- 50x50 icon --&gt;
+&lt;img src="&lt;?= BASE_URL ?&gt;users/avatar/42/50" alt="User avatar"&gt;
+
+&lt;!-- 150x150 profile --&gt;
+&lt;img src="&lt;?= BASE_URL ?&gt;users/avatar/42/150" alt="User avatar"&gt;
+
+&lt;!-- 300x300 full size --&gt;
+&lt;img src="&lt;?= BASE_URL ?&gt;users/avatar/42/300" alt="User avatar"&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Dynamic vs Pre-Generated:</strong> This avatar system generates sizes on-demand rather than pre-generating all sizes during upload. The browser cache (1 hour) ensures subsequent requests are fast without repeatedly processing the image.</p>
+</div>
+
+<h2>Save vs Output: Decision Guide</h2>
+
+<div class="alert alert-success">
+    <p><strong>Use save() when:</strong></p>
+    <ul>
+        <li>Images need to persist between requests</li>
+        <li>You're processing user uploads</li>
+        <li>Generating thumbnails or variants for later use</li>
+        <li>Creating static assets for deployment</li>
+        <li>Performance matters (serve static files via web server)</li>
+        <li>Building image galleries or catalogs</li>
+    </ul>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Use output() when:</strong></p>
+    <ul>
+        <li>Generating images dynamically per request</li>
+        <li>Adding watermarks or overlays on-the-fly</li>
+        <li>Creating temporary previews or proofs</li>
+        <li>Serving user-specific customized images</li>
+        <li>Avoiding disk storage for security or space reasons</li>
+        <li>Testing or debugging image operations</li>
+    </ul>
+</div>
+
+<h2>Performance Considerations</h2>
+
+<h3>Caching Headers for Dynamic Images</h3>
+
+[code=php]
+public function dynamic_thumbnail(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    // Calculate etag based on file and size
+    $etag = md5($product-&gt;image_path . '_300x300_' . filemtime($product-&gt;image_path));
+    
+    // Check if client has cached version
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &amp;&amp; 
+        $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) {
+        http_response_code(304); // Not Modified
+        die();
+    }
+    
+    // Verify file exists
+    if (!$this-&gt;file-&gt;exists($product-&gt;image_path)) {
+        redirect('products/image_missing');
+    }
+    
+    // Generate and serve
+    $this-&gt;image-&gt;load($product-&gt;image_path);
+    $this-&gt;image-&gt;resize_and_crop(300, 300);
+    
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    header('Cache-Control: public, max-age=86400'); // 24 hours
+    header('ETag: ' . $etag);
+    
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>ETags and Browser Caching:</strong> Using ETags (entity tags) with cache headers prevents unnecessary image regeneration. When the browser sends the ETag back, return a 304 Not Modified response instead of regenerating the image. This dramatically reduces server load for frequently accessed dynamic images.</p>
+</div>
+
+<h3>When to Pre-Generate vs On-Demand</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Scenario</th>
+            <th>Strategy</th>
+            <th>Reasoning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>User uploads (avatars, photos)</td>
+            <td>Pre-generate common sizes</td>
+            <td>Predictable sizes, frequent access</td>
+        </tr>
+        <tr>
+            <td>Product images</td>
+            <td>Pre-generate</td>
+            <td>High traffic, consistent sizing</td>
+        </tr>
+        <tr>
+            <td>Admin previews</td>
+            <td>On-demand</td>
+            <td>Infrequent access, varied sizes</td>
+        </tr>
+        <tr>
+            <td>Watermarked images</td>
+            <td>On-demand</td>
+            <td>Prevents unauthorized distribution</td>
+        </tr>
+        <tr>
+            <td>User-specific customizations</td>
+            <td>On-demand</td>
+            <td>Unique per user, storage waste</td>
+        </tr>
+        <tr>
+            <td>Blog post images</td>
+            <td>Pre-generate</td>
+            <td>Consistent layouts, public access</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Complete Example: Professional Upload Handler</h2>
+
+[code=php]
+public function process_product_image(): void {
+    $product_id = segment(3, 'int');
+    
+    // Validate upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Product Image', 'required|allowed_types[jpg,png,webp]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'products/originals',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'shop',
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure directories exist
+        $dirs = ['products/originals', 'products/large', 'products/medium', 'products/thumbnails'];
+        foreach ($dirs as $dir) {
+            $path = 'modules/shop/' . $dir;
+            if (!$this-&gt;file-&gt;exists($path)) {
+                $this-&gt;file-&gt;create_directory($path, 0755);
+            }
+        }
+        
+        // Upload original
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Generate sizes
+        $sizes = [
+            'large' =&gt; ['width' =&gt; 1200, 'quality' =&gt; 90],
+            'medium' =&gt; ['width' =&gt; 600, 'quality' =&gt; 85],
+            'thumbnail' =&gt; ['width' =&gt; 300, 'quality' =&gt; 80]
+        ];
+        
+        $generated_paths = [];
+        
+        foreach ($sizes as $size_name =&gt; $settings) {
+            // Load original fresh for each size
+            $this-&gt;image-&gt;load($file_info['file_path']);
+            
+            // Resize
+            $this-&gt;image-&gt;resize_to_width($settings['width']);
+            
+            // Save with appropriate quality
+            $output_path = 'modules/shop/products/' . $size_name . '/' . $file_info['file_name'];
+            $this-&gt;image-&gt;save($output_path, $settings['quality'], 0644);
+            $this-&gt;image-&gt;destroy();
+            
+            $generated_paths[$size_name] = $output_path;
+        }
+        
+        // Update product record
+        $update_data = [
+            'image_original' =&gt; $file_info['file_path'],
+            'image_large' =&gt; $generated_paths['large'],
+            'image_medium' =&gt; $generated_paths['medium'],
+            'image_thumbnail' =&gt; $generated_paths['thumbnail'],
+            'image_updated_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        
+        $this-&gt;model-&gt;update($product_id, $update_data, 'products');
+        
+        set_flashdata('Product image uploaded and processed successfully');
+        redirect('shop/products/edit/' . $product_id);
+    } else {
+        $this-&gt;image_upload_form($product_id);
+    }
+}
+[/code]
+
+<h2>Best Practices</h2>
+
+<div class="alert alert-success">
+    <p><strong>Output and Saving Guidelines:</strong></p>
+    <ul>
+        <li>✅ Use quality 85-90 for production web images</li>
+        <li>✅ Set appropriate file permissions (0644 for public, 0600 for private)</li>
+        <li>✅ Always set Content-Type header when using output()</li>
+        <li>✅ Add caching headers (Cache-Control, ETag) for dynamically served images</li>
+        <li>✅ Pre-generate common sizes during upload</li>
+        <li>✅ Use output() for watermarks and user-specific content</li>
+        <li>✅ Store originals and generate variants as needed</li>
+        <li>✅ Validate size parameters when serving on-demand</li>
+        <li>✅ Call destroy() after output() to free memory</li>
+        <li>✅ Check file existence before load() operations</li>
+        <li>✅ Consider WEBP for modern browsers (better compression)</li>
+        <li>❌ Never output images without setting Content-Type header</li>
+        <li>❌ Avoid storing binary image data in databases (use filesystem)</li>
+        <li>❌ Don't generate unlimited sizes (validate against allowed list)</li>
+    </ul>
+</div>

@@ -1,0 +1,115 @@
+<h1>Size Classes</h1>
+
+<p>Trongate CSS provides utility classes for adjusting sizes. These classes scale elements relative to their base size using em units.</p>
+
+<h2>Available Size Classes</h2>
+
+<p>There are four size modifier classes available:</p>
+<ol>
+    <li><code>.xl</code></li>
+    <li><code>.lg</code></li>
+    <li><code>.sm</code></li>
+    <li><code>.xs</code></li>
+</ol>
+<p>The code below shows the effect that these classes have upon text.</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p class="xl">Extra Large Text (.xl)</p>
+        <p class="lg">Large Text (.lg)</p>
+        <p>Default Text Size (no class)</p>
+        <p class="sm">Small Text (.sm)</p>
+        <p class="xs">Extra Small Text (.xs)</p>
+    </div>
+</div>
+
+[code=html]
+&lt;p class="xl"&gt;Extra Large Text (.xl)&lt;/p&gt;
+&lt;p class="lg"&gt;Large Text (.lg)&lt;/p&gt;
+&lt;p&gt;Default Text Size (no class)&lt;/p&gt;
+&lt;p class="sm"&gt;Small Text (.sm)&lt;/p&gt;
+&lt;p class="xs"&gt;Extra Small Text (.xs)&lt;/p&gt;
+[/code]
+
+<h2>Using Size Classes with Buttons</h2>
+
+<p>Size classes can be applied to buttons to create clear visual hierarchies in your interfaces:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="xl">Extra Large Button</button>
+        <button class="lg mt-1">Large Button</button>
+        <button class="mt-1">Normal Button</button>
+        <button class="sm mt-1">Small Button</button>
+        <button class="xs mt-1">Extra Small Button</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="xl"&gt;Extra Large Button&lt;/button&gt;
+&lt;button class="lg"&gt;Large Button&lt;/button&gt;
+&lt;button&gt;Normal Button&lt;/button&gt;
+&lt;button class="sm"&gt;Small Button&lt;/button&gt;
+&lt;button class="xs"&gt;Extra Small Button&lt;/button&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p>For more on this, check out our documentation on <a href="documentation/display/trongate_css/forms/form-buttons">Form Buttons</a>.</p>
+</div>
+
+<h2>Practical Applications</h2>
+
+<p>Size classes can effectively establish content hierarchy. Here's an example showing different size classes working together in <a href="documentation/display/trongate_css/cards-and-modals/working-with-cards">card element</a>:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <div class="card">
+            <div class="card-heading">
+                Product Features
+            </div>
+            <div class="card-body">
+                <h3 class="lg">Premium Package</h3>
+                <p>Main description of the product goes here.</p>
+                <ul>
+                    <li>Feature One</li>
+                    <li>Feature Two</li>
+                </ul>
+                <p class="sm">Terms and conditions apply. See details below.</p>
+                <p class="xs">*Prices may vary by region</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;
+        Product Features
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h3 class="lg"&gt;Premium Package&lt;/h3&gt;
+        &lt;p&gt;Main description of the product goes here.&lt;/p&gt;
+        &lt;ul&gt;
+            &lt;li&gt;Feature One&lt;/li&gt;
+            &lt;li&gt;Feature Two&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;p class="sm"&gt;Terms and conditions apply. See details below.&lt;/p&gt;
+        &lt;p class="xs"&gt;*Prices may vary by region&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Size Class Specifications</h2>
+
+<p>The size classes use the following scale:</p>
+
+<ul>
+    <li><code>.xl</code> - Sets size to 1.5em (150% of base size)</li>
+    <li><code>.lg</code> - Sets size to 1.3em (130% of base size)</li>
+    <li><code>.sm</code> - Sets size to 0.85em (85% of base size)</li>
+    <li><code>.xs</code> - Sets size to 0.7em (70% of base size)</li>
+</ul>
+
+<div class="alert alert-info">
+    <p>Size classes can be combined with other utility classes like margin utilities (<code>mt-1</code>, <code>mb-1</code>, etc.) for more precise control over element presentation.</p>
+</div>

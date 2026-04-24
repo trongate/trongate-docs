@@ -1,0 +1,502 @@
+[meta-description]Master constructors in Trongate v2. Learn what module_name represents, when to call parent::__construct(), how automatic loading works, and why some modules don't need constructors at all. Essential knowledge for framework developers.[/meta-description]
+
+<h1>Mastering Constructors</h1>
+
+<p>Trongate v2 handles constructors differently than most frameworks. This page explains the rules, the reasons, and the patterns you need to know to build reliable, high-performance modules.</p>
+
+<h2>The Golden Rule</h2>
+
+<div class="alert alert-success">
+    <p><strong>If your class extends Trongate AND has a constructor, you MUST call <code>parent::__construct($module_name)</code> as the first line.</strong>   For example:</p>
+[code=php]&lt;?php
+class Items extends Trongate {
+    
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);  // First line!
+        // Your custom code here
+    }
+
+}
+[/code]
+    <p>Forgetting this will cause errors when using framework features like <code>$this-&gt;db</code>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p>In PHP, the <code>__construct()</code> method is not allowed to declare a return type - not even <code>void</code>.</p>
+</div>
+
+<h2>Understanding $module_name</h2>
+
+<p>Before we dive into constructors, let's clarify what <code>$module_name</code> actually is and where it comes from. This is fundamental to understanding why constructors work the way they do.</p>
+
+<h3>What is $module_name?</h3>
+
+<p>The <code>$module_name</code> is a <strong>lowercase string</strong> that identifies your module. It matches:</p>
+
+<ul>
+    <li>The folder name in the <code>modules</code> directory</li>
+    <li>The first part of your URL (i.e., the first URL segment)</li>
+</ul>
+
+<h3>A Concrete Example</h3>
+
+<p>Let's say you create a module for managing products. Here's how it all connects:</p>
+
+[code]
+Your project structure:
+modules/
+  └─ products/              ← This folder name
+       └─ Products.php      ← Controller class inside
+
+User visits this URL:
+https://yoursite.com/products/index
+                     ^^^^^^^^
+                     This is the $module_name
+[/code]
+
+<p>When someone visits <code>https://yoursite.com/products/index</code>:</p>
+
+<ol>
+    <li>Trongate looks at the URL and extracts <code>'products'</code></li>
+    <li>It sets <code>$module_name = 'products'</code></li>
+    <li>It looks for the folder <code>modules/products/</code></li>
+    <li>It loads the file <code>modules/products/Products.php</code></li>
+    <li>It instantiates the class: <code>new Products('products')</code></li>
+</ol>
+
+<p>So <code>$module_name</code> is simply the string <code>'products'</code> - the identifier for your module.</p>
+
+<div class="alert alert-info">
+    <p><strong>Simple Rule:</strong> The module_name is always the lowercase version of your folder name and the first URL segment.</p>
+    <p>Examples:</p>
+    <ul>
+        <li>URL: <code>yoursite.com/users</code> → <code>$module_name</code>: <code>'users'</code></li>
+        <li>URL: <code>yoursite.com/admin_panel</code> → <code>$module_name</code>: <code>'admin_panel'</code></li>
+        <li>URL: <code>yoursite.com/api</code> → <code>$module_name</code>: <code>'api'</code></li>
+    </ul>
+</div>
+
+<h3>Where Does It Come From?</h3>
+
+<p>The framework extracts <code>$module_name</code> from the URL automatically. So, let's assume you're building a Trongate module and you write code like this:</p>
+
+[code=php]
+parent::__construct($module_name);
+[/code]
+
+<p>At first glance, it may look as though you've plucked some random variable out of thin air. That may be a bit worrying. However, there's no need to worry!</p>
+
+<p>The <code>$module_name</code> variable is created automatically by the framework and passed to your constructor. You don't create it - you simply receive it and pass it along to the parent class.</p>
+
+<h3>How It Gets To You</h3>
+
+<p>Here's what happens behind the scenes. Inside the framework's Core.php file, there's code that looks like this:</p>
+
+[code=php]
+// Extract module name from URL
+$module_name = 'products';  // Simplified for clarity
+
+// Instantiate your controller
+$controller_instance = new Products($module_name);
+[/code]
+
+<p>Notice how the framework passes <code>$module_name</code> when creating your controller? That's where it comes from!</p>
+
+<p>Your job is simply to accept it in your constructor and pass it to the parent:</p>
+
+[code=php]
+public function __construct(?string $module_name = null) {
+    parent::__construct($module_name);
+}
+[/code]
+
+<p>Think of it like a relay race - the framework hands you the baton (<code>$module_name</code>), and you pass it to the next runner (the parent class).</p>
+
+<div class="alert alert-info">
+    <p>When the framework automatically loads modules like <a href="documentation-ref/list_refs/included/db" target="_blank">DB</a>, you might notice it passes <code>$this->module_name</code> as an argument:</p>
+    [code=php]
+// Inside Trongate.php when you access $this-&gt;db:
+$module_instance = new Db($this-&gt;module_name);
+    [/code]
+    <p>Why pass the module name? Why not just <code>new Db()</code> with no arguments?</p>
+    <p>The reason is simple: these framework modules need to know <strong>which module is using them</strong>.</p>
+    <p>For example, the Db class stores the current module name in its <code>$current_module</code> property. This helps the Db class to figure out the name of the target database table.</p>
+    <p>Without passing the module name, the framework wouldn't have this contextual information!</p>
+</div>
+
+<h2>Parameter vs Property: Two Different Things</h2>
+
+<p>Here's something that trips up a lot of developers: there are actually <strong>two separate variables</strong> called <code>module_name</code> in play.</p>
+
+<h3>The Parameter (Local Variable)</h3>
+
+<p>This is what you receive in your constructor:</p>
+
+[code=php]
+public function __construct(?string $module_name = null) {
+    //                                 ^^^^^^^^^^^^
+    //                                 This is a parameter
+    //                                 A local variable
+}
+[/code]
+
+<p>It only exists inside the constructor function. Once the constructor finishes, it disappears.</p>
+
+<h3>The Property (Class Variable)</h3>
+
+<p>This is what gets stored on your object:</p>
+
+[code=php]
+$this->module_name  // This is a property
+                    // Available throughout your class
+[/code]
+
+<p>This exists for the entire lifetime of your object and can be accessed from any method.</p>
+
+<h3>Why Not Just Use $this->module_name?</h3>
+
+<p>You might be thinking: "Why don't we just pass <code>$this->module_name</code> to the parent constructor?"</p>
+
+[code=php]
+// Why not this?
+public function __construct() {
+    parent::__construct($this->module_name);  // Surely this?
+}
+[/code]
+
+<p>Great question! The problem is timing. At the point where you're calling <code>parent::__construct()</code>, the property <code>$this->module_name</code> <strong>doesn't exist yet</strong>. The parent constructor is the thing that <em>creates</em> it!</p>
+
+<p>It's like asking someone to hand you a cup of tea that they're about to make - they can't give you something that doesn't exist yet.</p>
+
+<h3>The Correct Sequence</h3>
+
+<p>Here's what actually happens, step by step:</p>
+
+[code=php]
+public function __construct(?string $module_name = null) {
+    // 1. Framework passes 'products' to your parameter
+    //    Local variable $module_name = 'products'
+    
+    // 2. You pass it to parent
+    parent::__construct($module_name);
+    
+    // 3. Parent creates the property
+    //    Inside Trongate.php:
+    //    $this->module_name = $module_name;
+    
+    // 4. NOW you can use the property
+    echo $this->module_name;  // Prints 'products'
+}
+[/code]
+
+<p>So you receive it as a <strong>parameter</strong>, pass it to parent, and then parent converts it into a <strong>property</strong>.</p>
+
+<h2>Breaking Down the Constructor Signature</h2>
+
+<p>Let's look at the recommended constructor signature piece by piece:</p>
+
+[code=php]
+public function __construct(?string $module_name = null)
+[/code]
+
+<h3>Why ?string (Nullable String)?</h3>
+
+<p>The question mark means "this can be a string OR null". This gives you flexibility:</p>
+
+[code=php]
+// Framework usage (normal):
+new Products('products');  // Passes a string
+
+// Direct instantiation (testing):
+new Products();            // No parameter - uses null
+new Products(null);        // Explicitly passes null
+[/code]
+
+<p>Without the <code>?</code>, you'd be forced to always pass a string, which would make testing awkward.</p>
+
+<h3>Why = null (Default Value)?</h3>
+
+<p>The <code>= null</code> makes the parameter optional. This means all of these work:</p>
+
+[code=php]
+new Products('products');  // Framework does this
+new Products(null);        // You could do this
+new Products();            // Or this
+[/code]
+
+<p>Without <code>= null</code>, that last one would throw an error about a missing argument.</p>
+
+<h3>Can't We Just Omit the Parameter Entirely?</h3>
+
+<p>You might wonder: "If the framework knows what module this is, why not just have an empty constructor?"</p>
+
+[code=php]
+// Can't we do this?
+public function __construct() {
+    parent::__construct($module_name);  // Where does this come from?
+}
+[/code]
+
+<p>This doesn't work for two reasons:</p>
+
+<ol>
+    <li>The variable <code>$module_name</code> wouldn't exist - you'd get an "undefined variable" error</li>
+    <li>Your constructor wouldn't accept the parameter the framework is trying to pass</li>
+</ol>
+
+<p>You <strong>must</strong> accept the parameter in order to receive it and pass it along.</p>
+
+<section id="constructor-faq">
+    <h2>Why the "Awkward" Syntax?</h2>
+    
+    <p>When you start writing constructors in Trongate v2, you might find yourself asking: <i>"Why can't I just write a simple constructor? Is this extra code actually necessary?"</i></p>
+
+    <div class="alert alert-info">
+        <p><strong>First, a Reminder:</strong> You might not need a constructor at all! If you don't have custom initialization logic to run, simply omit the constructor entirely. PHP will automatically handle the parent call for you, keeping your code clean and minimal.</p>
+    </div>
+
+    <h3>Common Developer Questions</h3>
+
+    <h4>1. Why the "awkward" constructor signature?</h4>
+    <p>Trongate v2 is built for <strong>Context Awareness</strong>. By using the standard <code>?string $module_name = null</code> signature, you are accepting a "context baton" from the framework. This baton allows utility modules (like the Database or Validation classes) to automatically know which module is calling them without you having to configure them manually.</p>
+
+    <h4>2. What are the benefits of this approach?</h4>
+    <ul>
+        <li><strong>Zero-Config Database:</strong> <code>$this->db</code> automatically knows your table names.</li>
+        <li><strong>Smart Validation:</strong> <code>$this->validation</code> instantly finds your specific language files.</li>
+        <li><strong>Traceability:</strong> It makes your code easier to debug because the "flow of information" is explicit and linear.</li>
+        <li><strong>Performance:</strong> It enables "Lazy Loading," ensuring you only load exactly what you need.</li>
+    </ul>
+
+    <h4>3. Am I allowed to write constructors like this?</h4>
+    [code=php]
+public function __construct() {
+    parent::__construct();
+}
+    [/code]
+    <p><strong>Technically, yes - but it is fragile.</strong> If you use this empty version, the framework has to "guess" your module name using PHP class reflection. This works for basic, standalone controllers, but <strong>it will break</strong> if you ever load that module as a service or try to use internal security features like <span class="feature-ref">block_url()</span>.</p>
+
+    <h4>4. Is this a "MUST" or a "SHOULD"?</h4>
+    <p>Think of it as a <strong>Professional Standard</strong>. While the framework tries to be helpful if you use the simple version, using the recommended signature is a "MUST" if you want your module to be robust, secure, and fully compatible with advanced features like internal callbacks and cross-module service loading.</p>
+
+    <h4>5. Is there any scenario where the simple version is acceptable?</h4>
+    <p>The simple <code>parent::__construct()</code> is only acceptable for very basic controllers that will <strong>never</strong> interact with other modules. However, since the "correct" way only takes an extra few seconds to type, we recommend the full pattern to future-proof your application against "Ghost" 403 errors and context-loss bugs.</p>
+
+    <div class="alert alert-success">
+        <p><strong>The Golden Rule:</strong> 5 seconds of "awkward" code now saves hours of manual configuration and troubleshooting later. Stick to the standard, and the framework handles the heavy lifting for you.</p>
+    </div>
+</section>
+<hr>
+
+<h2>When You Don't Need a Constructor</h2>
+
+<p>Here's the good news: most of the time, you don't need to write a constructor at all!</p>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    // No constructor needed!
+    
+    public function index() {
+        $data = $this-&gt;db-&gt;query('SELECT * FROM products');
+        $this-&gt;view('list', $data);
+    }
+}
+[/code]
+
+<p>When you don't define a constructor, PHP automatically calls the parent constructor for you. It's like saying "just do whatever the parent class does" - which is usually exactly what you want.</p>
+
+<div class="alert alert-success">
+    <p>Don't add a constructor unless you have a specific reason. Let PHP handle it automatically.</p>
+</div>
+
+<h2>When You DO Need a Constructor</h2>
+
+<p>Only add a constructor if you need to run some code before your methods execute. Common reasons include:</p>
+
+<ul>
+    <li>Setting up properties that all methods will use</li>
+    <li>Performing initialization checks</li>
+    <li>Configuring settings</li>
+</ul>
+
+<h3>Example: Setting a Property</h3>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    protected $items_per_page = 20;
+    
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);  // ALWAYS first!
+        
+        // Set items per page based on configuration
+        $this-&gt;items_per_page = 50;
+    }
+    
+    public function index() {
+        // items_per_page is already set
+        echo "Displaying " . $this-&gt;items_per_page . " items per page";
+    }
+}
+[/code]
+
+<h2>What Happens If You Forget parent::__construct()?</h2>
+
+<p>If you add a constructor but forget to call the parent, things will break when you try to use framework features:</p>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function __construct(?string $module_name = null) {
+        // Oops! Forgot parent::__construct($module_name);
+        $this-&gt;some_property = 'value';
+    }
+    
+    public function index() {
+        $data = $this-&gt;db-&gt;query('SELECT * FROM products');  // ERROR!
+    }
+}
+[/code]
+
+<p>You'll see an error like:</p>
+
+[code]
+Fatal error: Uncaught Exception: Undefined property: Products::db
+[/code]
+
+<p>This happens because the parent constructor is responsible for setting up the <code>$this->module_name</code> property, which the framework needs for automatic loading of modules.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Remember:</strong> If you write a constructor, <code>parent::__construct($module_name)</code> must be the first line.</p>
+</div>
+
+<h2>How Automatic Loading Works</h2>
+
+<p>Understanding what happens behind the scenes helps clarify why constructors matter.</p>
+
+<p>When you write this:</p>
+
+[code=php]
+$results = $this-&gt;db-&gt;query('SELECT * FROM products');
+[/code]
+
+<p>Here's what the framework does:</p>
+
+<ol>
+    <li>Looks for a property called <code>$db</code> on your class</li>
+    <li>Doesn't find one, so calls the <code>__get('db')</code> magic method</li>
+    <li>The magic method checks if the Db module exists</li>
+    <li>Loads the file <code>modules/db/Db.php</code></li>
+    <li>Instantiates it: <code>new Db($this-&gt;module_name)</code></li>
+    <li>Returns the Db instance to you</li>
+</ol>
+
+<p>Notice step 5? The framework needs <code>$this->module_name</code> to be set. That's what the parent constructor does!</p>
+
+<p>The same process works for any module you access via <code>$this->modulename</code>. The framework automatically loads it and passes your module name during instantiation.</p>
+
+<h2>Testing Your Constructor</h2>
+
+<p>If you're not sure whether your constructor is set up correctly, try this test method:</p>
+
+[code=php]
+public function test() {
+    // Check module_name is set
+    echo "Module name: " . $this-&gt;module_name . "&lt;br&gt;";
+    
+    // Try accessing the db module (loads automatically)
+    echo "Db class: " . get_class($this-&gt;db) . "&lt;br&gt;";
+    
+    // Try a database query
+    $result = $this-&gt;db-&gt;query('SELECT 1 as test');
+    echo "Database connected successfully!&lt;br&gt;";
+}
+[/code]
+
+<p>Visit <code>yoursite.com/products/test</code> and if you see output instead of errors, your constructor is working properly.</p>
+
+<h2>Performance</h2>
+
+<p>You might wonder: "Does all this constructor stuff slow things down?"</p>
+
+<p>Not at all! The parent constructor does exactly one thing:</p>
+
+[code=php]
+$this-&gt;module_name = $module_name ?? strtolower(get_class($this));
+[/code]
+
+<p>This is a simple variable assignment - one of the fastest operations in PHP. The overhead is negligible.</p>
+
+<div class="alert alert-success">
+    <p><strong>Speed Matters:</strong> Trongate v2 is designed to be the fastest PHP framework. The constructor pattern is optimized for both speed and clarity.</p>
+</div>
+
+<h2>Common Questions</h2>
+
+<h3>"What if I rename my class?"</h3>
+
+<p>The <code>$module_name</code> comes from the URL and folder structure, not your class name. So even if you rename your class to <code>ProductsController</code>, it would still receive <code>'products'</code> as the module name.</p>
+
+<p>That said, stick to Trongate conventions: your class name should match your folder name (capitalized).</p>
+
+<h3>"Can I use a different parameter name?"</h3>
+
+<p>Yes! PHP doesn't care what you call it:</p>
+
+[code=php]
+public function __construct(?string $name = null) {
+    parent::__construct($name);  // Works fine
+}
+[/code]
+
+<p>But using <code>$module_name</code> makes your code clearer for other developers.</p>
+
+<h3>"What about child modules?"</h3>
+
+<p>The same rules apply. If you have a module at <code>modules/products/categories/Categories.php</code>, the framework handles it automatically. You still just write the same constructor pattern.</p>
+
+<h2>Quick Reference</h2>
+
+<h3>No Constructor Needed (Most Common)</h3>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function index() {
+        // Just write your methods
+    }
+}
+[/code]
+
+<h3>With Custom Initialization</h3>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);  // First line!
+        // Your custom code here
+    }
+}
+[/code]
+
+<h2>Summary</h2>
+
+<p>Let's recap the key points:</p>
+
+<ul>
+    <li><code>$module_name</code> is a lowercase string from the URL (e.g., 'products')</li>
+    <li>The framework passes it to your constructor automatically</li>
+    <li>Most controllers don't need a custom constructor</li>
+    <li>If you add a constructor, call <code>parent::__construct($module_name)</code> first</li>
+    <li>Use the signature: <code>?string $module_name = null</code></li>
+    <li>Don't confuse the parameter with the property (<code>$this->module_name</code>)</li>
+</ul>
+
+<p>Follow these guidelines and your constructors will work perfectly every time.</p>

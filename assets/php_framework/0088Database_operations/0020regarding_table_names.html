@@ -1,0 +1,55 @@
+[meta-description]Understand Trongate's table name conventions and the importance of explicitly passing table names in the db module to ensure future - proof, reliable code beyond URL - segment guessing.[/meta-description]
+<h1>Regarding Table Names</h1>
+
+<p>Every method in the <code>db</code> module expects the table name as a plain old PHP string.</p>
+
+<p>No guessing. No magic. No URL-segment autodetection. You pass it.</p>
+
+<div class="alert alert-success">
+    <p>If you're coming from v1: table names were optional there. In v2 they're mandatory. Every time. This isn't a bug  -  it's clarity.</p>
+</div>
+
+<hr>
+
+<h2>Example</h2>
+
+<p>Here's a controller method that fetches records and renders a page:</p>
+
+[code=php]
+public function manage() {
+    $rows = $this->db->get('id', 'members');
+
+    $data = [
+        'members'   => $rows,
+        'view_file' => 'manage_members'
+    ];
+
+    $this->templates->public($data);
+}
+[/code]
+
+<p>The table name is right there, second argument to <span class="feature-ref">get()</span>. No guessing, no surprises.</p>
+
+<h3>SQL executed</h3>
+
+[code=sql]
+SELECT * FROM members ORDER BY id;
+[/code]
+
+<h3>Same deal with every method</h3>
+
+[code=php]
+$user  = $this->db->get_where(42, 'users');
+$this->db->insert($record, 'orders');
+$this->db->update(7, $data, 'products');
+$this->db->delete(99, 'sessions');
+$count = $this->db->count('page_views');
+[/code]
+
+<p>The table is always explicit. Always the last parameter (or second-last, if there's an options array). Always required.</p>
+
+<div class="alert alert-info">
+    <p>This means you can call the same method from any controller and target any table. No URL manipulation tricks. No routes to break. Just rock-solid, explicit code.</p>
+</div>
+
+<p>Write the table name. Every single time.</p>

@@ -1,0 +1,69 @@
+[meta-description]Use the Trongate Language module inside your modules. Load and apply language files with a clean, decoupled approach.[/meta-description]
+
+<h1>Using the Language Module</h1>
+
+<p>The Language module is designed to be used <strong>via direct object access</strong>.</p>
+
+<p>No need to load services or initialize objects.</p>
+
+<p>Just call the method.</p>
+
+<hr>
+
+<h2 class="mt-0">Example: Validation Module</h2>
+
+<p>Load language data like this:</p>
+
+[code=php]
+$path = 'modules/validation/language/{lang}/validation_errors.php';
+$validation_errors = $this->language->load($path);
+[/code]
+
+<p>That's it.</p>
+
+<hr>
+
+<h2 class="mt-0">Using the Data</h2>
+
+<p>Once loaded, use the array as needed:</p>
+
+[code=php]
+$message = $validation_errors['required_error'] ?? 'Fallback message';
+[/code]
+
+<p>Simple array access. No wrappers.</p>
+
+<hr>
+
+<h2 class="mt-0">Fallback Behaviour</h2>
+
+<p>If the file does not exist:</p>
+
+<ul>
+    <li>An empty array is returned</li>
+    <li>Your code continues without interruption</li>
+</ul>
+
+<p>This allows you to implement your own fallback logic if required.</p>
+
+<hr>
+
+<h2 class="mt-0">Getting the Current Language</h2>
+
+<p>You can retrieve the current language at any time:</p>
+
+[code=php]
+$lang = $this->language->get_language();
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Decoupled by Design</h2>
+
+<ul>
+    <li>Module methods provide access</li>
+    <li>Modules contain logic</li>
+    <li>Your code remains clean and independent</li>
+</ul>
+
+<p>No tight coupling. No enforced structure.</p>

@@ -1,0 +1,236 @@
+ <div class="container">
+    <h1>resize_to_width()</h1>
+    <p class="signature">public function resize_to_width(int $width): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Resizes a loaded image to the specified width whilst automatically calculating and maintaining the correct height to preserve the original aspect ratio. This method ensures proportional scaling with no distortion.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Load First, Then Resize:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>resize_to_width()</code> without a loaded image will throw an Exception with the message "No image is loaded to resize."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$width</td>
+                <td>int</td>
+                <td>The target width in pixels. Must be greater than zero.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It modifies the loaded image resource in place.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of resize_to_width().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Resize to 800 pixels wide (height calculated automatically)
+$this-&gt;image-&gt;resize_to_width(800);
+
+// Save the resized image
+$this-&gt;image-&gt;save('modules/gallery/photos/photo_resized.jpg');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Aspect Ratio Preservation:</strong> The <code>resize_to_width()</code> method automatically calculates the proportional height needed to maintain the original aspect ratio. You only specify the width - the height adjusts accordingly, ensuring no distortion or stretching of the image.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to standardise product images to a consistent width.</p>
+[code=php]
+public function standardise_product_images(): void {
+    // Get all products with images
+    $products = $this-&gt;model-&gt;get_many_where('image_filename IS NOT NULL', 'products');
+    
+    if ($products === false) {
+        redirect('products/manage');
+    }
+    
+    $target_width = 600;
+    $processed = 0;
+    
+    foreach ($products as $product) {
+        $source_path = 'modules/products/images/' . $product-&gt;image_filename;
+        
+        if ($this-&gt;file-&gt;exists($source_path)) {
+            // Load the product image
+            $this-&gt;image-&gt;load($source_path);
+            
+            // Only resize if wider than target
+            if ($this-&gt;image-&gt;get_width() &gt; $target_width) {
+                $this-&gt;image-&gt;resize_to_width($target_width);
+                
+                // Ensure standardised directory exists
+                if (!$this-&gt;file-&gt;exists('modules/products/images/standard')) {
+                    $this-&gt;file-&gt;create_directory('modules/products/images/standard', 0755);
+                }
+                
+                // Save the standardised version
+                $output_path = 'modules/products/images/standard/' . $product-&gt;image_filename;
+                $this-&gt;image-&gt;save($output_path, 85);
+                $processed++;
+            }
+            
+            $this-&gt;image-&gt;destroy();
+        }
+    }
+    
+    set_flashdata("Standardised {$processed} product images to {$target_width}px width");
+    redirect('products/manage');
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Batch Processing Pattern:</strong> When standardising multiple images to a consistent width, always call <code>destroy()</code> at the end of each iteration to free memory. Check the current width before resizing to avoid unnecessary processing of images that are already smaller than the target width.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates creating responsive image sizes for different screen widths.</p>
+[code=php]
+public function generate_responsive_images(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Define responsive breakpoints
+    $breakpoints = [
+        'mobile' =&gt; 480,
+        'tablet' =&gt; 768,
+        'desktop' =&gt; 1200,
+        'large' =&gt; 1920
+    ];
+    
+    // Check source width
+    $this-&gt;image-&gt;load($source_path);
+    $source_width = $this-&gt;image-&gt;get_width();
+    $this-&gt;image-&gt;destroy();
+    
+    foreach ($breakpoints as $device =&gt; $target_width) {
+        // Only create this size if source is wider
+        if ($source_width &gt; $target_width) {
+            // Load source fresh for each size
+            $this-&gt;image-&gt;load($source_path);
+            
+            // Resize to target width
+            $this-&gt;image-&gt;resize_to_width($target_width);
+            
+            // Ensure device directory exists
+            $output_dir = 'modules/gallery/responsive/' . $device;
+            if (!$this-&gt;file-&gt;exists($output_dir)) {
+                $this-&gt;file-&gt;create_directory($output_dir, 0755);
+            }
+            
+            // Save the responsive version
+            $output_path = $output_dir . '/' . $photo-&gt;filename;
+            $this-&gt;image-&gt;save($output_path, 85);
+            $this-&gt;image-&gt;destroy();
+        }
+    }
+    
+    set_flashdata('Responsive image sizes generated successfully');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Responsive Images Pattern:</strong> Generate multiple width variations from a single high-resolution source. Only create smaller versions when the source is actually wider than the target, preventing unnecessary upscaling. This approach enables modern responsive image techniques using <code>&lt;picture&gt;</code> elements or <code>srcset</code> attributes.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows dynamically serving images resized to user-specified widths.</p>
+[code=php]
+public function serve_dynamic_width(): void {
+    $photo_id = segment(3, 'int');
+    $requested_width = segment(4, 'int');
+    
+    // Validate width parameter
+    if ($requested_width &lt; 100 || $requested_width &gt; 2000) {
+        redirect('photos/invalid_width');
+    }
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load the source image
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Get source width
+    $source_width = $this-&gt;image-&gt;get_width();
+    
+    // Only resize if requested width is smaller
+    if ($requested_width &lt; $source_width) {
+        $this-&gt;image-&gt;resize_to_width($requested_width);
+    }
+    
+    // Set appropriate headers
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    header('Cache-Control: public, max-age=86400');
+    header('Content-Disposition: inline; filename="' . $photo-&gt;filename . '"');
+    
+    // Output the image
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Dynamic Width Serving:</strong> Create a controller method that accepts width as a URL parameter, enabling on-the-fly image resizing. This is useful for content delivery networks (CDNs), responsive image serving, or allowing users to download images in specific sizes. Always validate the requested width and add cache headers for performance.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Performance Consideration:</strong> When using <code>resize_to_width()</code> in loops or for dynamic serving, consider caching the resized versions to disk rather than processing on every request. For high-traffic applications, pre-generate common sizes during upload rather than resizing dynamically.</p>
+    </div>
+
+</div>

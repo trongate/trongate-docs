@@ -1,0 +1,122 @@
+<div class="container">
+  <h1>delete()</h1>
+  <p class="signature">public function delete(int $id, string $table): bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Deletes a specific record from a database table based on its ID. This method validates table existence, constructs a parameterized DELETE query, and uses prepared statements to prevent SQL injection. Returns true if the delete operation executes successfully.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>id</td>
+        <td>int</td>
+        <td>The ID of the record to delete.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table to delete from.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns true if the delete query executes successfully, false otherwise.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+    <li><strong>PDOException</strong> - If there's a database error during query execution.</li>
+  </ul>
+  
+  <h2>Example #1: Deleting a User Record</h2>
+  <p>The code sample below demonstrates how to delete a user record with ID 15 from the 'users' table.</p>
+[code=php]
+$user_id = 15;
+$success = $this-&gt;db-&gt;delete($user_id, 'users');
+
+if ($success) {
+    echo "User with ID " . $user_id . " has been deleted.";
+} else {
+    echo "Failed to delete user.";
+}
+[/code]
+
+  <h2>Example #2: Deleting a Product Record</h2>
+  <p>The code sample below demonstrates how to delete a product from the 'products' table and handle the result.</p>
+[code=php]
+$product_id = 42;
+$table = 'products';
+
+$deleted = $this-&gt;db-&gt;delete($product_id, $table);
+
+if ($deleted) {
+    echo "Product #" . $product_id . " has been removed from the " . $table . " table.";
+} else {
+    echo "Could not delete product #" . $product_id . ".";
+}
+[/code]
+
+  <h2>Example #3: Deleting a Record with Error Handling</h2>
+  <p>The code sample below demonstrates how to use try-catch when deleting a record to handle potential exceptions.</p>
+[code=php]
+try {
+    $order_id = 1001;
+    $result = $this-&gt;db-&gt;delete($order_id, 'orders');
+    
+    if ($result) {
+        echo "Order #" . $order_id . " deleted successfully.";
+    } else {
+        echo "Delete operation completed but may not have affected any rows.";
+    }
+} catch (RuntimeException $e) {
+    echo "Error: " . $e-&gt;getMessage();
+} catch (PDOException $e) {
+    echo "Database error: " . $e-&gt;getMessage();
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>Both parameters (<code>$id</code> and <code>$table</code>) are <strong>required</strong>.</li>
+    <li>The method validates that the table exists before executing the DELETE query.</li>
+    <li>Uses prepared statements with parameter binding (:id) for security against SQL injection.</li>
+    <li>Returns true if the query executes successfully, even if no rows were actually deleted (e.g., if ID doesn't exist).</li>
+    <li>The table name in the SQL query is enclosed in backticks for safety.</li>
+    <li>Only deletes records where the primary key column is named 'id'.</li>
+    <li>If debug mode is enabled, the generated SQL query will be displayed before execution.</li>
+    <li>This operation is permanent - deleted records cannot be recovered through this method.</li>
+    <li>Consider implementing soft deletes (using a 'deleted' flag) instead of physical deletion for important data.</li>
+  </ul>
+</div>

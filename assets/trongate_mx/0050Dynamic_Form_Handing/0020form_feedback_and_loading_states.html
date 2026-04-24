@@ -1,0 +1,290 @@
+<h1>Form Feedback & Loading States</h1>
+
+<p>While the basic form submission we covered in the previous section works well, professional applications require visual feedback to keep users informed during form processing. This page explores how to add loading indicators, manage form states, and provide clear feedback during submission.</p>
+
+<h2>The Need for Visual Feedback</h2>
+
+<p>When forms submit without page reloads, users need clear visual cues that something is happening. Without proper feedback, users might:</p>
+
+<ul>
+   <li>Wonder if their click registered</li>
+   <li>Click the submit button multiple times</li>
+   <li>Navigate away thinking nothing happened</li>
+   <li>Lose confidence in your application</li>
+</ul>
+
+<p>Trongate MX provides several built-in solutions to address these concerns.</p>
+
+<h2>Automatic Form State Management</h2>
+
+<p>Even without additional configuration, Trongate MX automatically manages form states during submission:</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<p>When this form is submitted, Trongate MX automatically:</p>
+
+<ul>
+   <li><strong>Disables all form elements</strong> during submission to prevent double-submissions</li>
+   <li><strong>Re-enables elements</strong> once the response is received</li>
+   <li><strong>Clears validation errors</strong> from previous submissions before processing</li>
+   <li><strong>Resets the form</strong> after successful submissions</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>The list above does get slightly ahead of where we are, as this chapter hasn’t yet covered areas such as handling form validation errors. Not to worry - we'll be addressing everything very shortly.</p>
+</div>
+
+<h2>Adding Loading Indicators</h2>
+
+<p>Loading indicators provide immediate visual feedback that a request is in progress. Here's how to make a simple spinner appear at the moment when a form has been submitted:</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit',
+   'mx-indicator' =&gt; '#task-spinner'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+
+&lt;div id="task-spinner" class="spinner mx-indicator"&gt;&lt;/div&gt;
+[/code]
+
+<p>The <code>mx-indicator</code> attribute tells Trongate MX which element to show during the request. The spinner automatically appears when the form is submitted and disappears when the response arrives.</p>
+
+<div class="alert alert-info">
+   <p><strong>About the Spinner Class:</strong> The <code>spinner</code> class is part of <a href="https://trongate.io/documentation/display/trongate_css">Trongate's CSS</a> and creates an animated loading indicator. The <code>mx-indicator</code> class ensures the spinner is properly initialized and hidden by default. No third-party libraries are required - everything works out of the box with <code>trongate.css</code>.</p>
+</div>
+
+<h2>Custom Loading Messages</h2>
+
+<p>Instead of a spinner, you can display custom loading messages when forms are submitted:</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit',
+   'mx-indicator' =&gt; '#loading-message'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Create Task');
+echo form_close();
+?&gt;
+
+&lt;div id="loading-message" class="mx-indicator"&gt;
+   &lt;div class="blink"&gt;Creating your task...&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+   <p><strong>About the Blink Class:</strong> The <code>blink</code> class is part of <a href="https://trongate.io/documentation/display/trongate_css">Trongate's CSS</a> and provides a subtle animation that draws attention to the loading message. Like all Trongate CSS features, no third-party libraries are required.</p>
+</div>
+
+<h2>Form Content During Submission</h2>
+
+<p>When you submit a form, using Trongate MX, all of the form fields are automatically disabled at the point of form submission. This means that, by default, form fields may appear greyed out while the submission is being processed.</p>
+
+<p>You can, however, customise the visual feedback during submission using <code>mx-target-loading</code>:</p>
+
+<h3 class="mt-3">Option 1: Cloaking the Form</h3>
+
+<p>With <code>mx-target-loading="cloak"</code>, the form is hidden during submission, making further user interaction impossible and providing a clear visual indication that the submission is in progress.</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit',
+   'mx-target-loading' =&gt; 'cloak'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<h3 class="mt-3">Option 2: Replacing Form Content</h3>
+
+<p>With this approach, the form content is temporarily replaced by a custom element (in this case, a loading message). The value assigned to <code>mx-target-loading</code> should be a valid CSS selector, which allows you to show any element you like while the form is being submitted.</p>
+
+
+[code=vf]
+&lt;div id="processing-message" style="display: none;"&gt;
+   &lt;div class="text-center"&gt;
+       &lt;div class="spinner"&gt;&lt;/div&gt;
+       &lt;p&gt;Processing your request...&lt;/p&gt;
+   &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;?php
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit',
+   'mx-target-loading' =&gt; '#processing-message'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+   <p>It's possible and acceptable to combine different feedback mechanisms.  The example below replaces the form with a custom element and also renders a spinner element, at the moment of form submission.</p>
+
+[code=vf]
+&lt;div id="form-processing" style="display: none;"&gt;
+   &lt;div class="text-center"&gt;
+       &lt;h3&gt;Creating Task&lt;/h3&gt;
+       &lt;div class="spinner"&gt;&lt;/div&gt;
+       &lt;p class="blink"&gt;Please wait while we process your request...&lt;/p&gt;
+   &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;?php
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit',
+   'mx-target' =&gt; '#response',
+   'mx-target-loading' =&gt; '#form-processing',
+   'mx-indicator' =&gt; '#submit-indicator'
+];
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Create Task');
+echo form_close();
+?&gt;
+
+&lt;div id="submit-indicator" class="spinner mx-indicator"&gt;&lt;/div&gt;
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+</div>
+
+<h2>Invoking Custom JavaScript Functions</h2>
+
+<p>Trongate MX also allows you to invoke custom JavaScript functions the instant a request is triggered. This can be achieved by using the <code>mx-on-trigger</code> attribute. The value of this attribute should be the name of the JavaScript function you'd to invoke.</p>
+
+<p>The code sample below demonstrates how you could use <code>mx-on-trigger</code> to hide an entire section of a webpage, the moment that a button is pressed.</p>
+
+[code=vf]
+&lt;div id="hero"&gt;
+   &lt;p class="text-center"&gt;
+      &lt;?php
+      $mx_vals = [
+        'prompt_ref' =&gt; 'ABC123'
+      ];
+
+      $btn_attr = [
+        'class' =&gt; 'prompt-submit',
+        'mx-post' =&gt; 'news_reporter/submit_generate_news_article',
+        'mx-on-trigger' =&gt; 'hidePromptArea',
+        'mx-vals' =&gt; json_encode($mx_vals)
+      ];
+      echo form_button('submit_prompt', 'Generate Article', $btn_attr);
+      ?&gt;
+   &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function hidePromptArea() {
+   const promptPara = document.querySelector('#hero p');
+   const promptParaContainer = promptPara.parentNode;
+   promptPara.style.display = 'none';
+
+   const tempSpinner = document.createElement('div');
+   tempSpinner.setAttribute('class', 'spinner');
+   promptParaContainer.appendChild(tempSpinner);
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-info">
+   <p>When the button is pressed, the following things would happen:</p>
+   <ol>
+      <li>An HTTP POST request would be sent to 'news_reporter/submit_generate_news_article'</li>
+      <li>The POST request would contain a payload of <code>prompt_ref</code> with a value of <b>ABC123</b></li>
+      <li>The entire paragraph that contains the button would be removed</li>
+      <li>Thereafter, a spinner element would be dynamically rendered and added onto the page</li>
+   </ol>
+   <p>In a real-use situation, you may wish to add additional custom JavaScript or use additional attributes, such as <code>mx-after-swap</code> to control what happens <i>after</i> a response, from the server, has been received.</p>
+</div>
+
+<h2>Testing Loading States</h2>
+
+<p>During development, it's a good idea to test how loading states appear from the user's perspective. One simple way to do this is by adding a short, artificial delay to your controller methods.  This can be easily achieved by using PHP's <code>sleep()</code> function.  The code below demonstrates how to add a two second time delay before the server responds to a request:</p>
+
+[code=php]
+public function submit() {
+
+   // Temporary delay for testing loading states
+   sleep(2);
+
+   $this-&gt;validation-&gt;set_rules('task_title', 'Task Title', 'required|min_length[2]');
+   $result = $this-&gt;validation-&gt;run();
+   
+   if ($result === false) {
+       // Handle validation errors
+   } else {
+       // Process successful submission
+   }
+}
+[/code]
+
+<div class="alert alert-warning">
+   <p><strong>Don’t Forget to Remove Testing Delays:</strong> The <code>sleep()</code> function is intended solely for development and testing. Be sure to remove it before going live to avoid frustrating delays for your users.</p>
+</div>
+
+
+<h2>Best Practices for Form Feedback</h2>
+
+<div class="alert alert-success">
+   <p><strong>Loading State Guidelines:</strong></p>
+   <ul>
+       <li>Always provide some form of visual feedback for operations that take longer than 200ms</li>
+       <li>Use descriptive loading messages that match the action being performed</li>
+       <li>Place loading indicators close to the action that triggered them</li>
+       <li>Ensure loading states are accessible with proper ARIA labels if needed</li>
+       <li>Test loading states with artificial delays during development</li>
+   </ul>
+</div>
+
+<div class="alert alert-info">
+   <p><strong>Placement Tip:</strong> When using <code>mx-indicator</code>, place the loading element outside the form to ensure it remains visible even when form elements are disabled or hidden.</p>
+</div>
+
+<h2>Summary</h2>
+
+<p>Trongate MX provides simple yet powerful tools for managing form state during submission. By using these features thoughtfully, you can create forms that feel responsive and keep users informed throughout the submission process.</p>
+
+<p>Now, let's explore how to handle form validation and how to display errors gracefully within your dynamic forms. This documentation will cover:</p>
+
+<ol>
+   <li>How to use HTML5's built-in form validation attributes</li>
+   <li>How to use Trongate's Validation class with Trongate MX</li>
+</ol>
+
+<p>Are you ready for some serious form validation action?  Let's do it!</p>

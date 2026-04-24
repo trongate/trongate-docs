@@ -1,0 +1,81 @@
+<div class="container">
+  <h1>delete_old_tokens()</h1>
+  <p class="signature">public function delete_old_tokens(?int $user_id = null): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Deletes expired tokens from the database. Optionally deletes tokens for a specific user (both expired and non‑expired).</p>
+    <p>This method is useful for:</p>
+    <ul>
+      <li>Routine cleanup of expired tokens (cron job)</li>
+      <li>Forcing logout of all sessions for a specific user</li>
+      <li>Reducing database bloat from stale tokens</li>
+    </ul>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$user_id</td>
+        <td>int|null</td>
+        <td>If provided, deletes all tokens for this user (regardless of expiration). If null, deletes only expired tokens for all users.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Delete all expired tokens (routine cleanup)
+$this->trongate_tokens->delete_old_tokens();
+
+// Delete all tokens for a specific user (force logout)
+$this->trongate_tokens->delete_old_tokens(123);
+
+// Cron job script
+public function cleanup_tokens() {
+    $this->trongate_tokens->delete_old_tokens();
+    echo "Expired tokens cleaned up.";
+}
+
+// Admin action: invalidate all user sessions
+public function revoke_user_sessions(int $user_id) {
+    $this->trongate_tokens->delete_old_tokens($user_id);
+    set_flashdata('All sessions for user #' . $user_id . ' have been revoked.');
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Calls <code>$this->model->delete_old_tokens($user_id)</code>.</li>
+    <li>When <code>$user_id</code> is null, only tokens with <code>expiry_date &lt; NOW()</code> are deleted.</li>
+    <li>When <code>$user_id</code> is provided, all tokens for that user are deleted (expired or not).</li>
+    <li>Consider running this method periodically (e.g., via cron) to keep the tokens table small.</li>
+  </ul>
+</div>

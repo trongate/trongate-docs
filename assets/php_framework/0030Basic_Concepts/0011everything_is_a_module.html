@@ -1,0 +1,97 @@
+[meta-description]Trongate's 'everything is a module' architecture: database handling, templates, validation, file uploads, even helper functions - all modules. Less bloat. More speed. Pure Native PHP.[/meta-description]
+
+<h1>Everything Is A Module</h1>
+
+<p>In Trongate v2, <strong>everything is a module</strong>. Every piece of built-in functionality  -  database handling, form rendering, file uploads, image manipulation, template rendering, validation, even helper functions  -  lives inside a dedicated module.</p>
+
+<p>This isn't just philosophy. It's the architecture of the framework.</p>
+
+<h2>What Is a Module?</h2>
+
+<p>A module is a folder. That's it.</p>
+
+<p>Each module lives inside <code>modules/</code> and contains a controller file with the same name as the folder. Some modules add a model file (<code>Some_module_model.php</code>) and a <code>views/</code> directory. But the bare minimum is a folder and a controller.</p>
+
+<p>Here's the <code>db</code> module  -  the one that powers all database interactions:</p>
+
+[code]
+modules/
+  db/
+    Db.php                        ← the controller
+[/code]
+
+<p>That's it. One folder. One file. Yet it handles every query, every transaction, every table operation you'll ever need.</p>
+
+<h2>What "Everything" Actually Means</h2>
+
+<p>Open the <code>modules/</code> directory in any Trongate v2 installation and you'll see:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Module</th>
+            <th>What It Does</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><code>db</code></td><td>Database connections, queries, CRUD operations</td></tr>
+        <tr><td><code>form</code></td><td>All form helper functions</td></tr>
+        <tr><td><code>validation</code></td><td>Form validation, error display, CSRF protection</td></tr>
+        <tr><td><code>templates</code></td><td>Admin and public page rendering with layout support</td></tr>
+        <tr><td><code>file</code></td><td>File upload, move, copy, delete, directory management</td></tr>
+        <tr><td><code>image</code></td><td>Image resize, crop, rotate, upload configuration</td></tr>
+        <tr><td><code>language</code></td><td>Multilingual support, language file loading</td></tr>
+        <tr><td><code>string_service</code></td><td>String manipulation helpers (truncate, split, filter)</td></tr>
+        <tr><td><code>url</code></td><td>URL generation, redirects, anchor tags</td></tr>
+        <tr><td><code>utilities</code></td><td>Block URL access, CORS handling, segment helper</td></tr>
+        <tr><td><code>flashdata</code></td><td>One-time session messages</td></tr>
+        <tr><td><code>trongate_tokens</code></td><td>API token generation, validation, lifecycle</td></tr>
+        <tr><td><code>trongate_administrators</code></td><td>Admin authentication and access control</td></tr>
+        <tr><td><code>trongate_security</code></td><td>Permission checking, method-level access control</td></tr>
+        <tr><td><code>endpoint_listener</code></td><td>REST-style request handling</td></tr>
+        <tr><td><code>pagination</code></td><td>Page navigation for result sets</td></tr>
+        <tr><td><code>tasks</code></td><td>Background task management</td></tr>
+    </tbody>
+</table>
+
+<p>Every one of these is a module. Every one follows the same pattern: folder → controller → done.</p>
+
+<h2>How Helpers Became Modules</h2>
+
+<p>In earlier versions of Trongate, helper functions lived inside <code>engine/tg_helpers/</code> as full function definitions that were loaded on every request. That worked, but it meant PHP had to parse hundreds of lines of helper code even when you only needed <code>truncate_str()</code> once.</p>
+
+<p>Today, those helper files are <strong>thin routing wrappers</strong>. Each function simply forwards the call to its corresponding module via <code>Modules::run()</code>:</p>
+
+[code=php]
+&lt;?php
+// string_helper.php  -  barely 30 lines total
+function truncate_str(string $value, int $max_length): string {
+    $data = ['value' => $value, 'max_length' => $max_length];
+    return Modules::run('string_service/truncate_str', $data);
+}
+
+function get_last_part(string $str, string $delimiter = '-'): string {
+    $data = ['str' => $str, 'delimiter' => $delimiter];
+    return Modules::run('string_service/get_last_part', $data);
+}
+[/code]
+
+<p>The real logic lives in the <code>string_service</code> module. The helper file is just a map. The result?</p>
+
+<ul>
+    <li><strong>Engine size:</strong> ~ approximately 1,200 lines of core PHP across the entire framework</li>
+    <li><strong>Bootstrap overhead:</strong> Near zero  -  helpers parse as lightweight function stubs</li>
+    <li><strong>Module logic:</strong> Loaded only when called, not on every request</li>
+</ul>
+
+<h2>What This Means for You</h2>
+
+<p>As a developer, nothing changes. You still call <code>truncate_str()</code>, <code>current_url()</code>, <code>$this-&gt;db-&gt;get()</code>  -  exactly as before.</p>
+
+<p>But under the hood, the framework is leaner than ever. The <code>engine/</code> directory  -  the beating heart of Trongate  -  now contains only four PHP files totalling roughly 1,200 lines. Everything else is a module, loaded lazily, invoked only when needed.</p>
+
+<p>Your application code doesn't feel any of this. It just runs faster.</p>
+
+<div class="alert alert-success">
+    <p><strong>Takeaway:</strong> A module is a folder. A folder is a module. Database? Module. Templates? Module. Helper functions? Modules. The entire framework is just folders and controllers, glued together with Native PHP. That's the whole trick.</p>
+</div>

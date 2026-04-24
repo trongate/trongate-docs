@@ -1,0 +1,89 @@
+[meta-description]Learn how to configure and use multiple database connections in Trongate v2 models for read replicas, analytics pipelines, and multi-tenant architectures.[/meta-description]
+<h1>Working With Multiple Databases</h1>
+
+<p>Trongate v2 lets you define multiple database groups in <code>config/database.php</code> and access them all from any model file. No extra config. No connection juggling.</p>
+
+<h2>How It Works</h2>
+
+<p>Add groups to your config:</p>
+
+[code=php]
+&lt;?php
+$databases = [
+    'default'   =&gt; [
+        'host'     =&gt; '127.0.0.1',
+        'user'     =&gt; 'app',
+        'password' =&gt; 's3cure',
+        'database' =&gt; 'production'
+    ],
+    'analytics' =&gt; [
+        'host'     =&gt; 'analytics.example.com',
+        'user'     =&gt; 'reader',
+        'password' =&gt; 'R3ad0nly',
+        'database' =&gt; 'stats'
+    ],
+    'warehouse' =&gt; [
+        'host'     =&gt; '10.0.1.50',
+        'user'     =&gt; 'etl',
+        'password' =&gt; 'bulk1ns3rt',
+        'database' =&gt; 'dw'
+    ]
+];
+[/code]
+
+<p>Each group key becomes a <code>$this-&gt;key</code> property in your models. The <code>__get()</code> method in the Model base class detects database group names and returns the right connection automatically.</p>
+
+<hr>
+
+<h2>Using Them</h2>
+
+[code=php]
+// In any model file:
+$users = $this-&gt;db-&gt;get('id', 'users');                     // default group
+$stats = $this-&gt;analytics-&gt;get('id', 'page_views');         // analytics group
+$stock = $this-&gt;warehouse-&gt;get_where(42, 'items');          // warehouse group
+[/code]
+
+<p>Each connection is lazy-loaded &mdash; no overhead for groups you don't use in a given request.</p>
+
+<hr>
+
+<h2>Model-Only Access</h2>
+
+<div class="alert alert-info">
+    <p><strong>Controllers can only use the <code>default</code> database.</strong></p>
+    <p>Secondary databases are model-only. This keeps the architecture clean: the controller picks the data, the model fetches it from wherever it needs to go.</p>
+</div>
+
+<p>Accessing a secondary database from a controller gives you the default connection instead. If you need data from multiple databases, make a model method that handles it:</p>
+
+[code=php]
+// Controller &mdash; only uses default:
+$report = $this-&gt;reports_model-&gt;get_sales_report($month);
+
+// Models/reports_model.php &mdash; uses both:
+public function get_sales_report(string $month): array {
+    $sql = "SELECT * FROM orders WHERE month = :month";
+    $orders = $this-&gt;db-&gt;query_bind($sql, ['month' =&gt; $month], 'object');
+
+    $sql = "SELECT * FROM events WHERE period = :period";
+    $events = $this-&gt;analytics-&gt;query_bind($sql, ['period' =&gt; $month], 'object');
+
+    return array_merge($orders, $events);
+}
+[/code]
+
+<hr>
+
+<h2>Common Patterns</h2>
+
+<ul>
+    <li><strong>Read replicas:</strong> point a group to your read-only replica and use it for reporting queries</li>
+    <li><strong>Analytics pipeline:</strong> keep transactional data and analytics in separate databases</li>
+    <li><strong>Multi-tenant:</strong> use different database groups for different tenants</li>
+    <li><strong>Legacy data:</strong> connect to an existing database without migrating everything at once</li>
+</ul>
+
+<div class="alert alert-success">
+    <p>Need to call non-database modules from a model? See <a href="documentation/trongate_php_framework/database-operations/loading-modules-from-models">Loading Modules From Models</a>.</p>
+</div>

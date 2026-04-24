@@ -1,0 +1,97 @@
+<div class="container">
+    <h1>form_number()</h1>
+    <p class="signature">function form_number(string $name, string|int|float|null $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+    <p>Generates an HTML number input field with <code>type="number"</code>. Provides built-in browser number validation and step controls.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$name</td><td>string</td><td>The name attribute for the input element.</td></tr>
+            <tr><td>$value</td><td>string|int|float|null</td><td>(optional) The numeric value for the input.</td></tr>
+            <tr><td>$attributes</td><td>array</td><td>(optional) HTML attributes for the input element. Defaults to an empty array ([]).</td></tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>An HTML number input element.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Number Input</h2>
+[code=php]
+echo form_number('quantity', 5);
+
+// Output:
+// &lt;input type="number" name="quantity" value="5"&gt;
+[/code]
+
+    <h2>Example #2: Number Input with Range and Step</h2>
+[code=php]
+$attributes = [
+    'min' =&gt; '0',
+    'max' =&gt; '100',
+    'step' =&gt; '5'
+];
+echo form_number('percentage', 50, $attributes);
+
+// Output:
+// &lt;input type="number" name="percentage" value="50" min="0" max="100" step="5"&gt;
+[/code]
+
+    <h2>Example #3: Decimal Number Input</h2>
+[code=php]
+$attributes = [
+    'min' =&gt; '0.00',
+    'max' =&gt; '1000.00',
+    'step' =&gt; '0.01',
+    'placeholder' =&gt; '0.00'
+];
+echo form_number('price', '', $attributes);
+
+// Output:
+// &lt;input type="number" name="price" min="0.00" max="1000.00" step="0.01" placeholder="0.00"&gt;
+[/code]
+
+    <h2>Number Input Attributes Explained</h2>
+    <p>Number inputs support specialized attributes that control validation and user interaction:</p>
+    
+    <h3>min and max</h3>
+    <p>The min and max attributes define the allowable numeric range. Browsers prevent values outside this range:</p>
+[code=html]
+&lt;input type="number" min="1" max="10"&gt;  &lt;!-- Only 1 through 10 allowed --&gt;
+[/code]
+
+    <h3>step</h3>
+    <p>The step attribute controls the increment/decrement values when using arrow keys or spinner buttons:</p>
+[code=html]
+&lt;input type="number" step="1"&gt;        &lt;!-- Whole numbers only: 1, 2, 3 --&gt;
+&lt;input type="number" step="0.5"&gt;      &lt;!-- 0.5 increments: 1, 1.5, 2 --&gt;
+&lt;input type="number" step="0.01"&gt;    &lt;!-- Two decimal places --&gt;
+&lt;input type="number" step="any"&gt;      &lt;!-- Any decimal value allowed --&gt;
+[/code]
+    <p>The default <code>step</code> value is 1, which restricts input to whole numbers.</p>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Use <code>min</code> and <code>max</code> attributes to restrict number ranges for better user experience.</li>
+        <li>For currency values, use <code>step="0.01"</code> to enforce two decimal places.</li>
+        <li>Use <code>post('field_name', true, true)</code> to automatically cast submitted values to integers or floats.</li>
+        <li>Always validate numbers server-side with PHP's <code>filter_var($value, FILTER_VALIDATE_FLOAT)</code> or <code>is_numeric()</code>.</li>
+        <li>Remember that browser validation varies - some users may submit values outside allowed ranges.</li>
+        <li>Number inputs trigger numeric keyboards on mobile devices, improving data entry.</li>
+    </ul> 
+</div>
+
+</div>

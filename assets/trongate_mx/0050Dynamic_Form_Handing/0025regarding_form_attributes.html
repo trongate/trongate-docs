@@ -1,0 +1,87 @@
+<h1>HTML's Built-In Validation Attributes</h1>
+
+<p>While Trongate MX enhances form handling with dynamic features, it’s important to understand and utilise HTML5’s built-in form validation attributes and related properties. These attributes provide users with immediate, intuitive feedback before form submission, improving overall user experience and reducing unnecessary server requests.</p>
+
+<h3 class="mt-3">Common Validation Attributes</h3>
+
+<p>Below are some of the most commonly used attributes that harness the power of HTML5 validation - helping you catch input errors early and enhance the overall form experience.</p>
+
+<ul>
+  <li><code>required</code>: Field must be filled out before submission
+    [code=html]&lt;input type="text" name="username" required&gt;[/code]
+  </li>
+  <li><code>minlength</code>: Minimum number of characters for text input
+    [code=html]&lt;input type="text" name="username" minlength="3"&gt;[/code]
+  </li>
+  <li><code>maxlength</code>: Maximum number of characters for text input
+    [code=html]&lt;input type="text" name="username" maxlength="30"&gt;[/code]
+  </li>
+  <li><code>min</code>: Minimum value for numeric inputs
+    [code=html]&lt;input type="number" name="quantity" min="1"&gt;[/code]
+  </li>
+  <li><code>max</code>: Maximum value for numeric inputs
+    [code=html]&lt;input type="number" name="quantity" max="100"&gt;[/code]
+  </li>
+  <li><code>pattern</code>: Regular expression pattern for validation
+    [code=html]&lt;input type="text" name="zipcode" pattern="\d{5}"&gt;[/code]
+  </li>
+  <li><code>email</code>: Indicates this field expects an email address
+    [code=html]&lt;input type="email" name="email" autocomplete="email"&gt;[/code]
+  </li>
+  <li><code>tel</code>: Indicates this field expects a telephone number
+    [code=html]&lt;input type="tel" name="phone" autocomplete="tel"&gt;[/code]
+  </li>
+</ul>
+
+<h3 class="mt-3">Autocomplete Values</h3>
+<ul>
+  <li><code>off</code>: Suggests that browsers should not automatically enter or select a value for this field
+    [code=html]&lt;input type="text" name="email" autocomplete="off"&gt;[/code]
+  </li>
+  <li><code>new-password</code>: Indicates this field is for a new password, helping password managers suggest strong passwords
+    [code=html]&lt;input type="password" name="password" autocomplete="new-password"&gt;[/code]
+  </li>
+</ul>
+
+<div class="alert alert-success mt-4">
+  <p>For a comprehensive guide to all HTML5 form validation attributes and best practices, please refer to the authoritative resource at 
+    <a href="https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation" target="_blank" rel="noopener noreferrer">
+      MDN Web Docs  -  Form Validation
+    </a>. This is an excellent source to deepen your understanding beyond the scope of this documentation.</p>
+</div>
+
+<h2>Using Trongate's Form Helper Functions</h2>
+
+<p>So far, we have demonstrated how to add HTML5 validation attributes using raw HTML. However, within any view file of a Trongate application, you have access to a powerful set of form helper functions – available globally and with no need to load anything.</p>
+
+<p>These helper functions provide a clean and structured way to generate form elements, all while maintaining full compatibility with HTML5 attributes such as <code>required</code>, <code>pattern</code>, <code>min</code>, and more.</p>
+
+<h3 class="mt-3">Example - Required Email Field Using Helper Function</h3>
+
+<p>Below is an example of how to use Trongate's <span class="feature-ref">form_email()</span> function to make a form field 'required'.</p>
+
+<pre><code class="language-php">&lt;?php
+echo form_open('contact/submit');
+
+echo form_email('email_address', '', [
+  'required' =&gt; 'required',
+  'placeholder' =&gt; 'Enter your email'
+]);
+
+echo form_close();
+?&gt;</code></pre>
+
+<h3>Flexible and Consistent</h3>
+
+<p>These helper functions not only support the essential HTML5 attributes, but they also promote consistency and clarity in your views. Whether you’re generating a simple login form or a multi-step wizard, these helpers ensure that your code remains maintainable and elegant.</p>
+
+<div class="alert alert-info">
+<p>Full documentation, for Trongate’s form helper functions, is available in the <a href="https://trongate.io/documentation-ref/list_refs/helpers/form-helpers">Trongate Reference Guide</a>.  Additional guidance is available from the <a href="documentation/display/php_framework/helpers-explained">Trongate PHP Framework Documentation</a>.</p>
+</div>
+
+
+<h2>Summary</h2>
+
+<p>Using HTML5 validation attributes provides an essential, user-friendly first layer of feedback. However, always remember to complement client-side validation with robust server-side checks to ensure security and data integrity.</p>
+
+<p>Next, we'll explore how to implement server-side validation for a truly comprehensive validation experience.</p>

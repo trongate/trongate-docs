@@ -1,0 +1,68 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct(?string $filename = null)</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Constructor for the Image module. Blocks direct URL access and checks for the GD extension. If a filename is provided, loads the image for immediate processing.
+   </p>
+    <p>
+      <strong>Note:</strong> The framework automatically instantiates Image via <code>$this->image</code>. You rarely need to call this constructor manually.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>filename</td>
+        <td>string|null</td>
+        <td>Path to an image file to load immediately. If null, no image is loaded.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Constructor does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic instantiation by framework (inside a controller)
+class Products extends Trongate {
+    public function edit() {
+        // $this->image is automatically an Image instance
+        $this->image->resize(800, 600);
+    }
+}
+
+// Manual instantiation with pre-loading
+$image = new Image('uploads/product.jpg');
+$image->resize(300, 300);
+[/code]
+</div>

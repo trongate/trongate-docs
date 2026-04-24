@@ -1,0 +1,512 @@
+ [meta-description]Master image manipulation in Trongate: load, resize, crop, and scale images with precision. Learn the stateful workflow pattern and generate multiple sizes from a single source image.[/meta-description]
+
+<h1>Image Operations</h1>
+
+<p>Once images are on your server, you can <strong>manipulate</strong> them using the <a href="documentation-ref/list_refs/included/image" target="_blank">Image module</a>.  For example, you can resize product photos for consistency, crop user avatars to perfect squares, generate multiple sizes for responsive layouts, or scale screenshots for documentation.</p>
+
+<p>Trongate's Image module provides direct access to PHP's GD library. Every operation follows the same stateful pattern: load an image, manipulate it, then either save it back to disk or output it directly to the browser.</p>
+
+<h2>The Stateful Workflow Pattern</h2>
+
+<p>Unlike functional APIs where you pass images between methods, Trongate's Image module maintains <strong>state</strong>. You load an image once, perform multiple operations on it, then decide what to do with the result.</p>
+
+[code=php]
+// 1. LOAD - Bring an image into memory
+$this-&gt;image-&gt;load('uploads/product.jpg');
+
+// 2. MANIPULATE - Perform any operations
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;crop(800, 600);
+
+// 3. SAVE or OUTPUT - Persist or display the result
+$this-&gt;image-&gt;save('uploads/product_processed.jpg');
+[/code]
+
+<p>This pattern ensures you always know what image you're working with and prevents accidental operations on the wrong image.</p>
+
+<div class="alert alert-info">
+    <p><strong>State Management:</strong> The Image module holds one image in memory at a time. Each call to <code>load()</code> replaces the current image. Operations like <code>resize()</code> and <code>crop()</code> modify the loaded image directly.</p>
+</div>
+
+<h2>Loading Images</h2>
+
+<p>Before you can manipulate an image, you need to load it into memory using <span class="feature-ref">included-image-load()</span>:</p>
+
+[code=php]
+// Load from relative path
+$this-&gt;image-&gt;load('uploads/photo.jpg');
+
+// Load from module storage
+$this-&gt;image-&gt;load('../modules/products/images/widget.jpg');
+
+// Load from database reference
+$product = $this-&gt;db-&gt;get_where($id, 'products');
+$this-&gt;image-&gt;load($product-&gt;image_path);
+[/code]
+
+<p>The <code>load()</code> method automatically detects the image format (JPEG, PNG, GIF, WEBP) and prepares it for manipulation.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Loading a new image replaces any previously loaded image. If you need to process multiple images, complete all operations on one before loading the next, or use separate Image module instances.</p>
+</div>
+
+<h2>Resizing Images</h2>
+
+<p>Resizing is the most common image operation. Trongate provides three methods for different resizing needs, all of which preserve aspect ratios automatically.</p>
+
+<div class="alert alert-info">
+    <p><strong>Aspect Ratio Preservation:</strong> All resizing methods preserve aspect ratios automatically. Unlike some image libraries that require manual calculations or risk image stretching, Trongate handles proportions for you - a 4:3 image remains 4:3, just larger or smaller. You never need to calculate dimensions yourself.</p>
+</div>
+
+<h3>Resize to Width</h3>
+
+<p>Use <span class="feature-ref">included-image-resize_to_width()</span> when you know the target width but want the height to adjust proportionally:</p>
+
+[code=php]
+// Resize a product image to 800px wide
+$this-&gt;image-&gt;load('../modules/products/images/laptop.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('../modules/products/images/laptop.jpg');
+
+// Original: 2000 x 1500 (4:3 ratio)
+// Result: 800 x 600 (aspect ratio preserved)
+[/code]
+
+<p><strong>Use case:</strong> Blog post images, product photos, content images where width matters more than height.</p>
+
+<h3>Resize to Height</h3>
+
+<p>Use <span class="feature-ref">included-image-resize_to_height()</span> when you need a specific height with proportional width:</p>
+
+[code=php]
+// Create consistent 400px tall sidebar images
+$this-&gt;image-&gt;load('uploads/banner.jpg');
+$this-&gt;image-&gt;resize_to_height(400);
+$this-&gt;image-&gt;save('uploads/banner_sidebar.jpg');
+
+// Original: 1920 x 1080 (16:9 ratio)
+// Result: 711 x 400 (aspect ratio preserved)
+[/code]
+
+<p><strong>Use case:</strong> Vertical layouts, sidebar images, thumbnail strips with consistent heights.</p>
+
+<h3>Scale by Percentage</h3>
+
+<p>Use <span class="feature-ref">included-image-scale()</span> when you want to resize proportionally by a percentage:</p>
+
+[code=php]
+// Reduce image to 50% of original size
+$this-&gt;image-&gt;load('screenshots/desktop.png');
+$this-&gt;image-&gt;scale(50);
+$this-&gt;image-&gt;save('screenshots/desktop_small.png');
+
+// Original: 1920 x 1080
+// Result: 960 x 540
+
+// Increase by 150%
+$this-&gt;image-&gt;scale(150);
+// Result: 2880 x 1620
+[/code]
+
+<p><strong>Use case:</strong> Creating retina/standard versions, generating preview images, bulk resizing operations.</p>
+
+<div class="alert alert-success">
+    <p><strong>Performance Tip:</strong> Resizing operations are fast but not instant. For user-facing uploads, resize during the upload process using the <code>max_width</code> and <code>max_height</code> configuration options rather than as a separate step.</p>
+</div>
+
+<h2>Cropping Images</h2>
+
+<p>Cropping removes portions of an image to focus on specific areas or achieve exact dimensions.</p>
+
+<h3>Basic Cropping</h3>
+
+<p>Use <span class="feature-ref">included-image-crop()</span> to extract a specific region:</p>
+
+[code=php]
+// Crop to exact dimensions (centered by default)
+$this-&gt;image-&gt;load('uploads/landscape.jpg');
+$this-&gt;image-&gt;crop(800, 600);
+$this-&gt;image-&gt;save('uploads/landscape_cropped.jpg');
+[/code]
+
+<h3>Crop Positioning</h3>
+
+<p>Control which part of the image is retained using the optional third parameter:</p>
+
+[code=php]
+// Crop from the left (preserve left side)
+$this-&gt;image-&gt;crop(800, 600, 'left');
+
+// Crop from the center (default - preserve middle)
+$this-&gt;image-&gt;crop(800, 600, 'center');
+
+// Crop from the right (preserve right side)
+$this-&gt;image-&gt;crop(800, 600, 'right');
+[/code]
+
+<h3>Creating Square Avatars</h3>
+
+[code=php]
+public function create_avatar($user_id) {
+    $user = $this-&gt;db-&gt;get_where($user_id, 'users');
+    
+    // Load the uploaded profile photo
+    $this-&gt;image-&gt;load($user-&gt;photo_path);
+    
+    // Create 200x200 square avatar (centered crop)
+    $this-&gt;image-&gt;resize_to_width(200);
+    $this-&gt;image-&gt;crop(200, 200, 'center');
+    
+    // Save as avatar
+    $avatar_path = '../modules/users/avatars/' . $user_id . '.jpg';
+    $this-&gt;image-&gt;save($avatar_path);
+    
+    // Update user record
+    $data['avatar_path'] = $avatar_path;
+    $this-&gt;db-&gt;update($user_id, $data, 'users');
+}
+[/code]
+
+<h2>Resize and Crop (Perfect Fitting)</h2>
+
+<div class="alert alert-info">
+    <p><strong>Transparency Support:</strong> The Image module preserves transparency for PNG and GIF images automatically through all operations:</p>
+    <ul>
+        <li>PNG alpha channels remain intact during resizing, cropping, and scaling</li>
+        <li>GIF transparency colors are preserved</li>
+        <li>When saving to JPEG (which doesn't support transparency), transparent areas become white backgrounds</li>
+    </ul>
+    <p class="mt-2">This happens automatically - no configuration needed. PNGs stay crisp with transparent backgrounds, perfect for logos and overlays.</p>
+</div>
+
+<p>The <span class="feature-ref">included-image-resize_and_crop()</span> method combines resizing and cropping to fill exact dimensions while preserving as much of the original image as possible.</p>
+
+[code=php]
+// Fill a 400x300 box perfectly
+$this-&gt;image-&gt;load('uploads/photo.jpg');
+$this-&gt;image-&gt;resize_and_crop(400, 300);
+$this-&gt;image-&gt;save('uploads/photo_thumbnail.jpg');
+[/code]
+
+<h3>How It Works</h3>
+
+<p>The method intelligently determines whether to resize by width or height first:</p>
+
+[code=php]
+// Example 1: Wide image (1200 x 600) into 400 x 300
+// 1. Image ratio: 2:1, Target ratio: 4:3
+// 2. Resizes to height (400 x 300) first
+// 3. Crops excess width
+// Result: 400 x 300 (no stretching)
+
+// Example 2: Tall image (600 x 1200) into 400 x 300  
+// 1. Image ratio: 1:2, Target ratio: 4:3
+// 2. Resizes to width (400 x 800) first
+// 3. Crops excess height
+// Result: 400 x 300 (no stretching)
+[/code]
+
+<p><strong>Use case:</strong> Product thumbnails, card layouts, grid galleries where every image must be identical dimensions.</p>
+
+<div class="alert alert-info">
+    <p><strong>Why Use This?</strong> Regular <code>crop()</code> only removes excess pixels. <code>resize_and_crop()</code> first scales the image to ensure the target dimensions are filled, then crops. This prevents blank spaces while maintaining aspect ratios.</p>
+</div>
+
+<h2>Generating Multiple Sizes from One Source</h2>
+
+<p>A common pattern is creating several versions of an image for different contexts - hero images, thumbnails, mobile versions. Here's how to do it efficiently:</p>
+
+[code=php]
+public function process_product_image($product_id) {
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    $source_path = $product-&gt;original_image_path;
+    
+    // Define target sizes
+    $sizes = [
+        'large' =&gt; ['width' =&gt; 1200, 'height' =&gt; 900],
+        'medium' =&gt; ['width' =&gt; 800, 'height' =&gt; 600],
+        'thumbnail' =&gt; ['width' =&gt; 300, 'height' =&gt; 225],
+        'icon' =&gt; ['width' =&gt; 64, 'height' =&gt; 64]
+    ];
+    
+    $image_paths = [];
+    
+    foreach ($sizes as $size_name =&gt; $dimensions) {
+        // Reload original for each size
+        $this-&gt;image-&gt;load($source_path);
+        
+        // Apply appropriate transformation
+        if ($size_name === 'icon') {
+            // Icons need perfect squares
+            $this-&gt;image-&gt;resize_and_crop(
+                $dimensions['width'], 
+                $dimensions['height']
+            );
+        } else {
+            // Others just need max width
+            $this-&gt;image-&gt;resize_to_width($dimensions['width']);
+        }
+        
+        // Save with size suffix
+        $output_path = str_replace(
+            '.jpg', 
+            "_{$size_name}.jpg", 
+            $source_path
+        );
+        
+        $this-&gt;image-&gt;save($output_path, 85); // 85% quality
+        $image_paths[$size_name] = $output_path;
+    }
+    
+    // Store all paths in database
+    $update_data = [
+        'image_large' =&gt; $image_paths['large'],
+        'image_medium' =&gt; $image_paths['medium'],
+        'image_thumbnail' =&gt; $image_paths['thumbnail'],
+        'image_icon' =&gt; $image_paths['icon']
+    ];
+    
+    $this-&gt;db-&gt;update($product_id, $update_data, 'products');
+    
+    return $image_paths;
+}
+[/code]
+
+<h3>Practical Example: Blog Post Image Processor</h3>
+
+[code=php]
+public function prepare_blog_images($post_id) {
+    $post = $this-&gt;db-&gt;get_where($post_id, 'blog_posts');
+    
+    // Hero image: 1200px wide
+    $this-&gt;image-&gt;load($post-&gt;uploaded_image);
+    $this-&gt;image-&gt;resize_to_width(1200);
+    $hero_path = '../modules/blog/images/hero_' . $post_id . '.jpg';
+    $this-&gt;image-&gt;save($hero_path, 90);
+    
+    // Thumbnail: 400x300 perfect fit
+    $this-&gt;image-&gt;load($post-&gt;uploaded_image);
+    $this-&gt;image-&gt;resize_and_crop(400, 300);
+    $thumb_path = '../modules/blog/images/thumb_' . $post_id . '.jpg';
+    $this-&gt;image-&gt;save($thumb_path, 85);
+    
+    // Mobile: 600px wide
+    $this-&gt;image-&gt;load($post-&gt;uploaded_image);
+    $this-&gt;image-&gt;resize_to_width(600);
+    $mobile_path = '../modules/blog/images/mobile_' . $post_id . '.jpg';
+    $this-&gt;image-&gt;save($mobile_path, 80);
+    
+    // Update post record
+    $data = [
+        'hero_image' =&gt; $hero_path,
+        'thumbnail_image' =&gt; $thumb_path,
+        'mobile_image' =&gt; $mobile_path
+    ];
+    
+    $this-&gt;db-&gt;update($post_id, $data, 'blog_posts');
+}
+[/code]
+
+<h2>Getting Image Dimensions</h2>
+
+<p>Sometimes you need to know an image's size before deciding how to process it:</p>
+
+[code=php]
+$this-&gt;image-&gt;load('uploads/photo.jpg');
+
+$width = $this-&gt;image-&gt;get_width();   // e.g., 1920
+$height = $this-&gt;image-&gt;get_height(); // e.g., 1080
+
+// Calculate aspect ratio
+$ratio = $width / $height; // e.g., 1.78 (16:9)
+
+// Conditional processing
+if ($width &gt; 1920) {
+    $this-&gt;image-&gt;resize_to_width(1920);
+}
+
+if ($ratio &lt; 1) {
+    // Portrait orientation
+    $this-&gt;image-&gt;resize_to_height(800);
+} else {
+    // Landscape orientation  
+    $this-&gt;image-&gt;resize_to_width(800);
+}
+[/code]
+
+<h2>Real-World Pattern: Responsive Image Generator</h2>
+
+<p>Here's a complete example that generates all the sizes needed for modern responsive web design:</p>
+
+[code=php]&lt;?php
+class Image_processor extends Trongate {
+
+    public function generate_responsive_set($source_path, $base_name) {
+        // Responsive breakpoints
+        $breakpoints = [
+            'xs' =&gt; 480,   // Mobile
+            'sm' =&gt; 768,   // Tablet
+            'md' =&gt; 1024,  // Desktop
+            'lg' =&gt; 1440,  // Large desktop
+            'xl' =&gt; 1920   // Full HD
+        ];
+        
+        $output_dir = dirname($source_path);
+        $generated = [];
+        
+        foreach ($breakpoints as $size =&gt; $width) {
+            $this-&gt;image-&gt;load($source_path);
+            
+            // Only resize if image is larger than breakpoint
+            if ($this-&gt;image-&gt;get_width() &gt; $width) {
+                $this-&gt;image-&gt;resize_to_width($width);
+            }
+            
+            $output_path = "{$output_dir}/{$base_name}_{$size}.jpg";
+            $this-&gt;image-&gt;save($output_path, 85);
+            
+            $generated[$size] = [
+                'path' =&gt; $output_path,
+                'width' =&gt; $this-&gt;image-&gt;get_width(),
+                'height' =&gt; $this-&gt;image-&gt;get_height()
+            ];
+        }
+        
+        return $generated;
+    }
+    
+    public function create_srcset($image_paths) {
+        $srcset_parts = [];
+        
+        foreach ($image_paths as $size =&gt; $info) {
+            $url = $this-&gt;convert_to_url($info['path']);
+            $srcset_parts[] = "{$url} {$info['width']}w";
+        }
+        
+        return implode(', ', $srcset_parts);
+    }
+    
+    private function convert_to_url($path) {
+        if (strpos($path, '../modules/') === 0) {
+            $parts = explode('/', $path);
+            if (count($parts) &gt;= 3) {
+                $module = $parts[2];
+                return str_replace(
+                    "../modules/{$module}/", 
+                    "{$module}_module/", 
+                    $path
+                );
+            }
+        }
+        return $path;
+    }
+}
+[/code]
+
+<h3>Using the Responsive Generator</h3>
+
+[code=php]
+// Generate all sizes
+$processor = new Image_processor();
+$sizes = $processor-&gt;generate_responsive_set(
+    '../modules/blog/images/article_original.jpg',
+    'article_123'
+);
+
+// Create srcset attribute
+$srcset = $processor-&gt;create_srcset($sizes);
+
+// In your view:
+// &lt;img src="{$sizes['md']['path']}" 
+//      srcset="{$srcset}" 
+//      sizes="(max-width: 768px) 100vw, 50vw"&gt;
+[/code]
+
+<h2>Operation Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Purpose</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-load()</span></td>
+            <td><code>string $path</code></td>
+            <td>Load image into memory for manipulation</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_to_width()</span></td>
+            <td><code>int $width</code></td>
+            <td>Resize to specific width, height adjusts proportionally</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_to_height()</span></td>
+            <td><code>int $height</code></td>
+            <td>Resize to specific height, width adjusts proportionally</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-scale()</span></td>
+            <td><code>float $scale</code></td>
+            <td>Scale by percentage (50 = half size, 150 = 1.5x size)</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-crop()</span></td>
+            <td><code>int $width, int $height, string $trim</code></td>
+            <td>Crop to exact dimensions ('left', 'center', 'right')</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_and_crop()</span></td>
+            <td><code>int $width, int $height</code></td>
+            <td>Fill exact dimensions by resizing then cropping</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-get_width()</span></td>
+            <td>none</td>
+            <td>Get current image width in pixels</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-get_height()</span></td>
+            <td>none</td>
+            <td>Get current image height in pixels</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-save()</span></td>
+            <td><code>string $path, int $quality, int $permissions</code></td>
+            <td>Save to disk (covered in next page)</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-output()</span></td>
+            <td><code>bool $return</code></td>
+            <td>Output to browser (covered in next page)</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Image Compression Quality:</strong> JPEG and WEBP images accept a quality parameter from 0-100:</p>
+    <ul>
+        <li><strong>100</strong> = maximum quality, largest files (default)</li>
+        <li><strong>85-90</strong> = recommended for web images (excellent quality, good compression)</li>
+        <li><strong>70-80</strong> = noticeable quality loss, smaller files (use for thumbnails)</li>
+        <li><strong>Below 70</strong> = significant degradation (avoid for main content)</li>
+    </ul>
+    <p class="mt-2"><strong>Note:</strong> PNG and GIF use lossless compression, so they don't accept a quality parameter. The quality setting only affects JPEG and WEBP formats.</p>
+</div>
+
+<div class="alert alert-success">
+    <p><strong>Image Operation Guidelines:</strong></p>
+    <ul>
+        <li>✅ Always <code>load()</code> before manipulating</li>
+        <li>✅ Reload source image when generating multiple sizes</li>
+        <li>✅ Use <code>resize_to_width()</code> for most layouts</li>
+        <li>✅ Use <code>resize_and_crop()</code> for thumbnails and grids</li>
+        <li>✅ Check dimensions with <code>get_width()</code>/<code>get_height()</code> for conditional logic</li>
+        <li>✅ Generate thumbnails during upload, not on-demand</li>
+        <li>✅ Store all generated paths in your database</li>
+        <li>✅ Use quality 85-90 for web images (good balance)</li>
+    </ul>
+</div>

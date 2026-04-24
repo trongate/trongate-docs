@@ -1,0 +1,224 @@
+[meta-description]Master the configuration options for Trongate's upload method. Learn how to manage destinations, module-specific uploads, and filename randomization.[/meta-description]
+
+<h1>File Uploading Deep Dive</h1>
+
+<p>Building on the <a href="documentation/trongate_php_framework/working-with-files/basic-file-uploading" target="_blank">basic upload pattern</a>, the <span class="feature-ref">included-file-upload()</span> method offers several configuration options that allow you to customize how and where your files are stored.</p>
+
+<p>All customization happens within the <code>$config</code> array that is passed to the method.</p>
+
+<h2>The Configuration Array</h2>
+
+<p>The following four keys allow you to control the behavior of your uploads:</p>
+
+<table class="table sm config-tbl">
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>destination</code></td>
+<td>string</td>
+<td>yes</td>
+<td>N/A</td>
+<td>The path to the target directory.</td>
+</tr>
+<tr>
+<td><code>upload_to_module</code></td>
+<td>bool</td>
+<td>no</td>
+<td>false</td>
+<td>If true, the destination is relative to the module folder.</td>
+</tr>
+<tr>
+<td><code>target_module</code></td>
+<td>string</td>
+<td>no</td>
+<td>current</td>
+<td>The module directory to be used for the upload.</td>
+</tr>
+<tr>
+<td><code>make_rand_name</code></td>
+<td>bool</td>
+<td>no</td>
+<td>false</td>
+<td>If true, generates a random 10-character filename.</td>
+</tr>
+</tbody>
+</table>
+
+<style>
+.config-tbl {
+    tr > td:nth-child(2),
+    tr > td:nth-child(3),
+    tr > td:nth-child(4) {
+        text-align: center;
+    }
+}
+
+.config-tbl {
+    tr:nth-child(1) > td:nth-child(4) {
+        color: silver;
+    }
+}
+</style>
+
+<h2>1. Choosing a Destination</h2>
+
+<p>The <code>destination</code> key determines where your uploaded files are stored. The behavior depends on whether you're uploading to the public directory or to a module directory.</p>
+
+<h3>Public Directory Uploads</h3>
+
+<p>By default (when <code>upload_to_module</code> is <code>false</code> or not set), files are uploaded to a directory within your <code>public</code> folder. This is ideal for publicly accessible files that don't require access control.</p>
+
+[code=php]
+$config['destination'] = 'downloads';
+
+// Result: public/downloads/filename.pdf
+$file_info = $this-&gt;file-&gt;upload($config);
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Before uploading to the public directory, ensure the target directory exists and has the correct permissions (typically 755).</p>
+</div>
+
+<h3>Module-Based Uploads</h3>
+
+<p>Setting <code>upload_to_module</code> to <code>true</code> keeps your files contained within your module directory.</p>
+
+[code=php]
+$config['destination'] = 'cvs';
+$config['upload_to_module'] = true;
+
+// Result: modules/your_module/cvs/filename.pdf
+$file_info = $this-&gt;file-&gt;upload($config);
+[/code]
+
+<h3>External Module Uploads</h3>
+
+<p>If you are in one module (e.g., 'admin') but want to save files into another module (e.g., 'products'), you can use the <code>target_module</code> key. This is useful for centralized admin interfaces that manage content across multiple modules.  The <code>target_module</code> key is also useful for scenarios were <a href="documentation/trongate_php_framework/understanding-routing/custom-routing" target="_blank">custom routing</a> is being applied.</p>
+
+[code=php]
+$config['destination'] = 'documents';
+$config['upload_to_module'] = true;
+$config['target_module'] = 'products';
+
+// Result: modules/products/documents/filename.pdf
+$file_info = $this-&gt;file-&gt;upload($config);
+[/code]
+
+<h2>2. Handling Filenames</h2>
+
+<p>Trongate gives you two ways to handle the naming of uploaded files.</p>
+
+<h3>Original Filenames</h3>
+
+<p>By default, the original filename is preserved. If a file with the same name already exists in the destination folder, Trongate will automatically append a numeric suffix (e.g., <em>filename_2.pdf</em>) to prevent overwriting.</p>
+
+[code=php]
+$config['destination'] = 'uploads';
+$config['upload_to_module'] = true;
+$config['make_rand_name'] = false;  // Default behavior
+
+$file_info = $this-&gt;file-&gt;upload($config);
+[/code]
+
+<h3>Random Filenames</h3>
+
+<p>For improved security and to prevent users from guessing file URLs, you can generate a random filename. The original file extension will always be preserved.</p>
+
+[code=php]
+$config['destination'] = 'cvs';
+$config['upload_to_module'] = true;
+$config['make_rand_name'] = true;
+
+// Result: a1b2c3d4e5.pdf
+$file_info = $this-&gt;file-&gt;upload($config);
+[/code]
+
+<div class="alert alert-info">
+    <p>The File module uses Trongate's built-in <span class="feature-ref">sanitize_filename()</span> function to ensure all uploaded files have safe, URL-friendly names. This function automatically handles international characters, removes special characters, replaces spaces with hyphens, and prevents security issues like null byte attacks - all without any configuration required.</p>
+</div>
+
+<h2>3. Processing the Return Data</h2>
+
+<p>Once <span class="feature-ref">included-file-upload()</span> has executed successfully, it returns an array containing metadata about the file. This is useful for displaying information to the user or preparing data for a database entry.</p>
+
+[code=php]
+$file_info = $this-&gt;file-&gt;upload($config);
+
+/*
+$file_info contains:
+[
+    'file_name' =&gt; 'resume_2.pdf',
+    'file_path' =&gt; 'modules/users/cvs/resume_2.pdf',
+    'file_type' =&gt; 'application/pdf',
+    'file_size' =&gt; 245760
+]
+*/
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The <code>file_size</code> is returned in bytes.</p>
+</div>
+
+<h2>Real-World Example: CV Upload with Database Integration</h2>
+
+<p>Let's combine what we've learned with a practical scenario: allowing users to upload their CV/resume. This example demonstrates how to store file references in your database for later retrieval.</p>
+
+<h3>Why Database Integration Matters</h3>
+
+<p>When you use random filenames for security, you need a way to retrieve those files later. Storing file metadata in your database allows you to:</p>
+
+<ul>
+    <li><strong>Associate files with users:</strong> Track who uploaded what and when</li>
+    <li><strong>Retrieve files reliably:</strong> Find files using database queries instead of guessing filenames</li>
+    <li><strong>Display file information:</strong> Show upload dates, file sizes, and original names to users</li>
+    <li><strong>Manage files programmatically:</strong> Build download, delete, and update features</li>
+</ul>
+
+<h3>The Complete Implementation</h3>
+
+[code=php]
+public function submit_cv(): void {
+    $this-&gt;validation-&gt;set_rules('cv', 'CV', 'required|allowed_types[pdf,doc,docx]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        $config = [
+            'destination' =&gt; 'cvs',
+            'upload_to_module' =&gt; true,
+            'make_rand_name' =&gt; true
+        ];
+        
+        $file_info = $this-&gt;file-&gt;upload($config);
+        
+        // Store file reference in database
+        $user_id = segment(3);
+        $data['cv_filename'] = $file_info['file_name'];
+        $data['cv_upload_date'] = date('Y-m-d H:i:s');
+        $this-&gt;model-&gt;update($user_id, $data, 'users');
+        
+        set_flashdata('CV uploaded successfully!');
+        redirect('users/profile/' . $user_id);
+    } else {
+        redirect('users/cv_upload/' . $user_id);
+    }
+}
+[/code]
+
+<h3>Understanding the Pattern</h3>
+
+<p>This example follows the same clean pattern from the <a href="https://github.com/trongate/Trongate-v2---Simple-Uploader" target="_blank">basic uploader</a>:</p>
+
+<ol>
+    <li><strong>Validate first:</strong> Check file type and size before uploading</li>
+    <li><strong>Configure the upload:</strong> Use random names and module storage for security</li>
+    <li><strong>Upload the file:</strong> The File module handles the heavy lifting</li>
+    <li><strong>Store the reference:</strong> Save the filename and upload date to your database</li>
+    <li><strong>Redirect on success:</strong> Use the POST-Redirect-GET pattern</li>
+</ol>

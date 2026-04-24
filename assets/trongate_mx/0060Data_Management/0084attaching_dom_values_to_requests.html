@@ -1,0 +1,196 @@
+<h1>Attaching DOM Values To Requests</h1>
+<p>The <code>mx-dom-vals</code> attribute in Trongate MX enables you to dynamically attach values from DOM elements to your HTTP requests. This powerful feature allows you to capture and transmit information from specific elements on your page, such as text content or input values.</p>
+
+<h2>Syntax</h2>
+<p>The <code>mx-dom-vals</code> attribute requires a JSON object where each key represents a parameter name and the value is an object containing two properties:</p>
+<ul>
+    <li><code>selector</code>: A CSS selector that identifies the target element.</li>
+    <li><code>property</code>: The element property to capture (e.g., <code>innerText</code>, <code>value</code>, <code>innerHTML</code>).</li>
+</ul>
+
+<h2>Basic Example</h2>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-post' =&gt; 'api/submit',
+    'mx-dom-vals' =&gt; '{
+        "headline": {
+            "selector": "h1",
+            "property": "outerHTML"
+        }
+    }'
+];
+echo form_button('submit_btn', 'Submit Headline', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;button mx-post="api/submit"
+        mx-dom-vals='{
+            "headline": {
+                "selector": "h1",
+                "property": "outerHTML"
+            }
+        }'&gt;Submit Headline&lt;/button&gt;[/code]
+
+<p>When clicked, this button will:</p>
+<ul>
+    <li>Find the first <code>&lt;h1&gt;</code> element on the page.</li>
+    <li>Capture its outer HTML (including the h1 tags).</li>
+    <li>Send this value to the server as a parameter named "headline".</li>
+</ul>
+
+<h2>Real-World Examples</h2>
+
+<h3>Example 1: Capturing Paragraph Text</h3>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-post' =&gt; 'api/submit',
+    'mx-dom-vals' =&gt; '{
+        "paragraph_text": {
+            "selector": "p.intro",
+            "property": "innerText"
+        }
+    }'
+];
+echo form_button('submit_btn', 'Submit Text', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;button mx-post="api/submit"
+        mx-dom-vals='{
+            "paragraph_text": {
+                "selector": "p.intro",
+                "property": "innerText"
+            }
+        }'&gt;Submit Text&lt;/button&gt;[/code]
+
+<h3>Example 2: Using json_encode with PHP Arrays</h3>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$dom_vals = [
+    'user_input' =&gt; [
+        'selector' =&gt; 'input[name="username"]',
+        'property' =&gt; 'value'
+    ]
+];
+
+$btn_attr = [
+    'mx-post' =&gt; 'api/submit',
+    'mx-dom-vals' =&gt; json_encode($dom_vals)
+];
+echo form_button('submit_btn', 'Submit Input', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;button mx-post="api/submit"
+        mx-dom-vals='{
+            "user_input": {
+                "selector": "input[name=\"username\"]",
+                "property": "value"
+            }
+        }'&gt;Submit Input&lt;/button&gt;[/code]
+
+<h3>Example 3: Capturing Multiple Elements</h3>
+<p>Using Trongate's form helper functions:</p>
+[code=vf]&lt;?php
+$dom_vals = [
+    'headline' =&gt; [
+        'selector' =&gt; 'h1',
+        'property' =&gt; 'innerText'
+    ],
+    'summary' =&gt; [
+        'selector' =&gt; 'p.intro',
+        'property' =&gt; 'innerText'
+    ],
+    'selected_value' =&gt; [
+        'selector' =&gt; '#options',
+        'property' =&gt; 'value'
+    ]
+];
+
+$form_attr = [
+    'mx-post' =&gt; 'articles/submit',
+    'mx-dom-vals' =&gt; json_encode($dom_vals)
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit_btn', 'Submit Article');
+echo form_close();
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+[code=html]&lt;form mx-post="articles/submit"
+      mx-dom-vals='{
+          "headline": {
+              "selector": "h1",
+              "property": "innerText"
+          },
+          "summary": {
+              "selector": "p.intro",
+              "property": "innerText"
+          },
+          "selected_value": {
+              "selector": "#options",
+              "property": "value"
+          }
+      }'&gt;
+    &lt;button type="submit"&gt;Submit Article&lt;/button&gt;
+&lt;/form&gt;[/code]
+
+<h2>Available Properties</h2>
+<p>You can use any of these properties in your mx-dom-vals:</p>
+<ul>
+    <li><code>value</code>: Gets the current value (best for form inputs).</li>
+    <li><code>innerText</code>: Gets the text content only.</li>
+    <li><code>innerHTML</code>: Gets the HTML content inside the element.</li>
+    <li><code>outerHTML</code>: Gets the entire element including its HTML tags.</li>
+</ul>
+
+<h2>Server-Side Handling</h2>
+<p>The captured values are accessible in your controller using the post() function:</p>
+
+[code=vf]&lt;?php
+public function submit() {
+    $headline = post('headline');         // From mx-dom-vals
+    $paragraph_text = post('paragraph_text');   // From mx-dom-vals
+    $selected_value = post('selected_value');   // From mx-dom-vals
+    
+    // Process the values...
+}
+?&gt;[/code]
+
+<div class="alert alert-success">
+<ol>
+    <li><strong>Use Specific Selectors</strong>
+        <ul>
+            <li>Prefer IDs and unique class names.</li>
+            <li>Avoid relying on element position or order.</li>
+        </ul>
+    </li>
+    <li><strong>Choose Appropriate Properties</strong>
+        <ul>
+            <li>Use <code>value</code> for form inputs.</li>
+            <li>Use <code>innerText</code> for capturing text content.</li>
+            <li>Use <code>innerHTML</code> when HTML markup is needed.</li>
+        </ul>
+    </li>
+    <li><strong>Validation</strong>
+        <ul>
+            <li>Always validate captured values server-side.</li>
+            <li>Don't trust DOM values for critical operations.</li>
+            <li>Apply appropriate sanitization for HTML content.</li>
+        </ul>
+    </li>
+</ol>
+</div>
+
+<h2>Common Pitfalls</h2>
+<ul>
+    <li>Invalid selectors will cause the value to be omitted.</li>
+    <li>Missing elements will be silently ignored.</li>
+    <li>Malformed JSON will prevent all values from being captured.</li>
+    <li>GET requests do not support mx-dom-vals.</li>
+</ul>
+
+<h2>Summary</h2>
+<p>The <code>mx-dom-vals</code> attribute provides a powerful way to capture and transmit DOM values with your HTTP requests. By using specific selectors and appropriate properties, you can easily include dynamic page content in your form submissions. Remember to use <code>json_encode()</code> when working with complex values and always validate the captured data server-side.</p>

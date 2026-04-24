@@ -1,0 +1,261 @@
+ <div class="container">
+    <h1>scale()</h1>
+    <p class="signature">public function scale(float $scale): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Scales a loaded image by a percentage, adjusting both width and height proportionally to maintain the aspect ratio. This method provides an intuitive way to resize images relative to their current size rather than specifying absolute dimensions.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Load First, Then Scale:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>scale()</code> without a loaded image will throw an Exception with the message "No image is loaded to scale."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$scale</td>
+                <td>float</td>
+                <td>The percentage to scale the image. 100 = original size, &lt;100 = reduce, &gt;100 = enlarge.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding Scale Values</h2>
+    <p>The <code>$scale</code> parameter works as a percentage of the original dimensions:</p>
+
+    <ul>
+        <li><strong>100:</strong> Keeps the original size (no change)</li>
+        <li><strong>50:</strong> Reduces to half size (50% of original)</li>
+        <li><strong>25:</strong> Reduces to quarter size (25% of original)</li>
+        <li><strong>200:</strong> Doubles the size (200% of original)</li>
+        <li><strong>150:</strong> Increases by 50% (150% of original)</li>
+    </ul>
+
+    <div class="alert alert-info">
+        <p><strong>Relative vs. Absolute Sizing:</strong> Use <code>scale()</code> when you want to resize relative to the current size (e.g., "make it 50% smaller"). Use <code>resize_to_width()</code> or <code>resize_to_height()</code> when you need specific pixel dimensions. The <code>scale()</code> method is particularly useful when processing images of varying sizes with a consistent reduction or enlargement factor.</p>
+    </div>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It modifies the loaded image resource in place.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of scale().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Scale to 50% of original size
+$this-&gt;image-&gt;scale(50);
+
+// Save the scaled image
+$this-&gt;image-&gt;save('modules/gallery/photos/photo_half.jpg');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Proportional Scaling:</strong> The <code>scale()</code> method maintains aspect ratio automatically by applying the same percentage to both width and height. A scale value of 50 reduces a 2000x1000 image to 1000x500, maintaining the original 2:1 ratio perfectly.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to create quick preview images at a fixed percentage of original size.</p>
+[code=php]
+public function generate_preview(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load the original
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Create preview at 30% of original size
+    $this-&gt;image-&gt;scale(30);
+    
+    // Ensure preview directory exists
+    $preview_dir = 'modules/gallery/previews';
+    if (!$this-&gt;file-&gt;exists($preview_dir)) {
+        $this-&gt;file-&gt;create_directory($preview_dir, 0755);
+    }
+    
+    // Save the preview
+    $output_path = $preview_dir . '/' . $photo-&gt;filename;
+    $this-&gt;image-&gt;save($output_path, 85);
+    $this-&gt;image-&gt;destroy();
+    
+    // Update photo record
+    $update_data = [
+        'preview_path' =&gt; $output_path,
+        'preview_created_at' =&gt; date('Y-m-d H:i:s')
+    ];
+    $this-&gt;model-&gt;update($photo_id, $update_data, 'photos');
+    
+    set_flashdata('Preview generated at 30% of original size');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Percentage-Based Workflow:</strong> Using <code>scale()</code> is ideal when you want consistent relative sizing across images of different dimensions. A 30% preview works equally well for a 4000x3000 original (creating 1200x900) and a 2000x1500 original (creating 600x450), maintaining proportions in both cases.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates creating multiple scaled versions from a single source.</p>
+[code=php]
+public function generate_scaled_variants(): void {
+    $image_id = segment(3, 'int');
+    
+    // Get image record
+    $image = $this-&gt;db-&gt;get_where($image_id, 'images');
+    
+    if ($image === false) {
+        redirect('images/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $image-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('images/file_missing');
+    }
+    
+    // Define scale percentages for different use cases
+    $scale_variants = [
+        'large' =&gt; 75,      // 75% of original
+        'medium' =&gt; 50,     // Half size
+        'small' =&gt; 30,      // 30% of original
+        'thumbnail' =&gt; 15   // 15% of original
+    ];
+    
+    foreach ($scale_variants as $variant_name =&gt; $scale_percentage) {
+        // Load source fresh for each variant
+        $this-&gt;image-&gt;load($source_path);
+        
+        // Scale by percentage
+        $this-&gt;image-&gt;scale($scale_percentage);
+        
+        // Ensure variant directory exists
+        $output_dir = 'modules/gallery/scaled/' . $variant_name;
+        if (!$this-&gt;file-&gt;exists($output_dir)) {
+            $this-&gt;file-&gt;create_directory($output_dir, 0755);
+        }
+        
+        // Save the scaled variant
+        $output_path = $output_dir . '/' . $image-&gt;filename;
+        $this-&gt;image-&gt;save($output_path, 85);
+        $this-&gt;image-&gt;destroy();
+    }
+    
+    set_flashdata('Scaled variants generated successfully');
+    redirect('gallery/view/' . $image_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Multi-Scale Generation:</strong> Creating multiple percentage-based versions is straightforward with <code>scale()</code>. This approach works regardless of the source image dimensions, making it ideal for user-generated content where you can't predict original sizes but want consistent relative scaling across all images.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows using scale() for progressive quality reduction in image optimisation.</p>
+[code=php]
+public function optimise_for_web(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product record
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    $source_path = 'modules/products/originals/' . $product-&gt;image_filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('products/image_missing');
+    }
+    
+    // Load and check original dimensions
+    $this-&gt;image-&gt;load($source_path);
+    $original_width = $this-&gt;image-&gt;get_width();
+    $original_height = $this-&gt;image-&gt;get_height();
+    $this-&gt;image-&gt;destroy();
+    
+    // Only optimise if image is large enough
+    if ($original_width &lt; 1000 &amp;&amp; $original_height &lt; 1000) {
+        set_flashdata('Image is already optimised for web');
+        redirect('products/view/' . $product_id);
+    }
+    
+    // Create web-optimised versions
+    $web_configs = [
+        'hero' =&gt; ['scale' =&gt; 60, 'compression' =&gt; 85],
+        'gallery' =&gt; ['scale' =&gt; 40, 'compression' =&gt; 80],
+        'thumbnail' =&gt; ['scale' =&gt; 20, 'compression' =&gt; 75]
+    ];
+    
+    foreach ($web_configs as $type =&gt; $config) {
+        // Load source
+        $this-&gt;image-&gt;load($source_path);
+        
+        // Scale down
+        $this-&gt;image-&gt;scale($config['scale']);
+        
+        // Ensure directory exists
+        $output_dir = 'modules/products/web/' . $type;
+        if (!$this-&gt;file-&gt;exists($output_dir)) {
+            $this-&gt;file-&gt;create_directory($output_dir, 0755);
+        }
+        
+        // Save with appropriate compression
+        $output_path = $output_dir . '/' . $product-&gt;image_filename;
+        $this-&gt;image-&gt;save($output_path, $config['compression']);
+        $this-&gt;image-&gt;destroy();
+    }
+    
+    set_flashdata('Product images optimised for web delivery');
+    redirect('products/view/' . $product_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Web Optimisation Strategy:</strong> Combining <code>scale()</code> with varying compression levels provides excellent file size reduction whilst maintaining acceptable quality. For example, a 60% scale with 85% compression can reduce file size by 80% or more, dramatically improving page load times without noticeable quality loss for web display.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Avoiding Upscaling:</strong> Be cautious when using scale values greater than 100, as enlarging images reduces quality through interpolation. If you need larger images, start with higher-resolution sources. The <code>scale()</code> method does not prevent upscaling, so validate dimensions before scaling if quality is critical.</p>
+    </div>
+
+</div>

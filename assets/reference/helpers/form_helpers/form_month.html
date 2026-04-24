@@ -1,0 +1,338 @@
+<div class="container">
+    <h1>form_month()</h1>
+    <p class="signature">function form_month(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML month input field with a native browser month picker. The input allows users to select a month and year, submitting data in YYYY-MM format.</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>Browser Display vs Submitted Format:</strong> Browsers display months according to user locale, but always submit in consistent YYYY-MM format that your PHP code can rely on.</p>
+    </div>
+
+    <h2>Demonstration</h2>
+    <p>Below is the native HTML5 month input rendered by <code>form_month()</code>:</p>
+    <div class="code-demo text-center">
+        <p style="text-align: center;"><input type="month" name="billing_month"></p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the input element</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>The month value in YYYY-MM format (zero-padded)</td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>Additional HTML attributes as key-value pairs</td>
+                <td>[]</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The generated HTML month input element</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the Attributes Array</h2>
+    <p>The <code>$attributes</code> array accepts standard HTML input attributes. For month inputs, these are particularly useful:</p>
+    <table>
+        <thead>
+            <tr><th>Attribute</th><th>Description</th><th>Example Value</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>min</code></td>
+                <td>Earliest selectable month (YYYY-MM)</td>
+                <td><code>'2025-01'</code></td>
+            </tr>
+            <tr>
+                <td><code>max</code></td>
+                <td>Latest selectable month (YYYY-MM)</td>
+                <td><code>'2025-12'</code></td>
+            </tr>
+            <tr>
+                <td><code>required</code></td>
+                <td>Field must have a value</td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td><code>readonly</code></td>
+                <td>Prevent user editing</td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td><code>disabled</code></td>
+                <td>Disable the input</td>
+                <td><code>true</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-success">
+        <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Month Format:</strong> Months must be zero-padded: <code>01</code> for January, <code>12</code> for December. The format is always <code>YYYY-MM</code>.</p>
+    </div>
+
+    <h2>Example #1: Basic Month Input</h2>
+[code=php]
+public function create(): void {
+    $data['form_location'] = BASE_URL . 'reports/create';
+    $this->view('report_form', $data);
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Report Month');
+echo form_month('report_month');
+echo form_submit('submit', 'Continue');
+echo form_close();
+?&gt;
+[/code]
+
+    <p><strong>Output:</strong></p>
+[code=html]
+&lt;input type="month" name="report_month"&gt;
+[/code]
+
+    <h2>Example #2: Month Input with Default Current Month</h2>
+[code=php]
+public function create(): void {
+    $data['billing_month'] = post('billing_month', true);
+    
+    // Default to current month if not submitted
+    if ($data['billing_month'] === '') {
+        $data['billing_month'] = date('Y-m');
+    }
+    
+    $data['form_location'] = BASE_URL . 'invoices/create';
+    $this->view('invoice_form', $data);
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Billing Month');
+echo form_month('billing_month', $billing_month);
+echo form_submit('submit', 'Create Invoice');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above shows setting the current month as a default value using <code>date('Y-m')</code> which automatically zero-pads the month.</p>
+
+    <div class="alert alert-info">
+        <p><strong>Form Repopulation:</strong> After validation errors, use <code>post('field_name', true)</code> in the controller to fetch the submitted value. This returns an empty string if no value was submitted.</p>
+    </div>
+
+    <h2>Example #3: Financial Reporting System</h2>
+[code=php]
+public function generate_report(): void {
+    $data['report_month'] = post('report_month', true);
+    
+    // Set constraints: can only generate reports for past 12 months
+    $current_date = new DateTime();
+    $data['max_month'] = $current_date->format('Y-m');
+    
+    $min_date = clone $current_date;
+    $min_date->modify('-12 months');
+    $data['min_month'] = $min_date->format('Y-m');
+    
+    $data['form_location'] = BASE_URL . 'reports/submit';
+    $this->view('report_form', $data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('report_month', 'report month', 'required|valid_month');
+    
+    if ($this->validation->run() === true) {
+        $report_month = post('report_month', true);
+        
+        // Generate report for selected month
+        $report_data = $this->generate_monthly_data($report_month);
+        
+        set_flashdata('Report generated for ' . $report_month);
+        redirect('reports/view/' . $report_month);
+    } else {
+        $this->generate_report();
+    }
+}
+
+private function generate_monthly_data(string $month): array {
+    // Parse month: 2025-12 becomes year=2025, month=12
+    list($year, $month_num) = explode('-', $month);
+    
+    $sql = "SELECT * FROM sales 
+            WHERE YEAR(sale_date) = :year 
+            AND MONTH(sale_date) = :month";
+    
+    return $this->db->query_bind($sql, [
+        'year' => $year,
+        'month' => $month_num
+    ], 'array');
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Report Month');
+$attrs = [
+    'min' => $min_month,
+    'max' => $max_month,
+    'required' => true
+];
+echo form_month('report_month', $report_month, $attrs);
+
+echo form_submit('submit', 'Generate Report');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates a financial reporting system where users can only generate reports for the past 12 months. The DateTime object makes month calculations clean and reliable.</p>
+
+    <h2>Example #4: Create/Update Pattern for Subscriptions</h2>
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing record
+        $record = $this->db->get_where($update_id, 'subscriptions');
+        $data['customer_name'] = $record->customer_name;
+        $data['billing_month'] = $record->billing_month; // Already in YYYY-MM format
+    } else {
+        // New record or validation error
+        $data['customer_name'] = post('customer_name', true);
+        $data['billing_month'] = post('billing_month', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'subscriptions/submit/' . $update_id;
+    $this->view('subscription_form', $data);
+}
+
+public function submit(): void {
+    $update_id = segment(3, 'int');
+    
+    $this->validation->set_rules('customer_name', 'customer name', 'required');
+    $this->validation->set_rules('billing_month', 'billing month', 'required|valid_month');
+    
+    if ($this->validation->run() === true) {
+        $data['customer_name'] = post('customer_name', true);
+        $data['billing_month'] = post('billing_month', true);
+        
+        if ($update_id > 0) {
+            $this->db->update($update_id, $data, 'subscriptions');
+            set_flashdata('Subscription updated successfully');
+        } else {
+            $this->db->insert($data, 'subscriptions');
+            set_flashdata('Subscription created successfully');
+        }
+        
+        redirect('subscriptions/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Customer Name');
+echo form_input('customer_name', $customer_name, ['required' => true]);
+
+echo form_label('Billing Month');
+echo form_month('billing_month', $billing_month, ['required' => true]);
+
+echo form_submit('submit', 'Save Subscription');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates the standard create/update pattern with a month field. No conversion is needed between the form and database because the YYYY-MM format can be stored directly in a VARCHAR column.</p>
+
+    <div class="alert alert-success">
+        <p><strong>Type-Casting Segments:</strong> Always use <code>segment(3, 'int')</code> when expecting numeric IDs. This prevents type-related bugs and improves code clarity.</p>
+    </div>
+
+    <h2>Example #5: Budget Planning with Future Months</h2>
+[code=php]
+public function plan_budget(): void {
+    $data['budget_month'] = post('budget_month', true);
+    
+    // Allow planning for next 12 months
+    $current_date = new DateTime();
+    $data['min_month'] = $current_date->format('Y-m');
+    
+    $max_date = clone $current_date;
+    $max_date->modify('+12 months');
+    $data['max_month'] = $max_date->format('Y-m');
+    
+    $data['form_location'] = BASE_URL . 'budgets/submit';
+    $this->view('budget_form', $data);
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Budget Month');
+$attrs = [
+    'min' => $min_month,
+    'max' => $max_month,
+    'required' => true
+];
+echo form_month('budget_month', $budget_month, $attrs);
+
+echo form_label('Budget Amount');
+echo form_number('budget_amount', $budget_amount, ['required' => true, 'min' => 0, 'step' => 0.01]);
+
+echo form_submit('submit', 'Save Budget');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates budget planning where users can create budgets for the next 12 months. The DateTime object makes month calculations straightforward.</p>
+
+    <div class="alert alert-success">
+        <p><strong>Database Storage:</strong> Store month values in a <code>VARCHAR(7)</code> column in YYYY-MM format. This keeps the data human-readable and makes it easy to query by year or month using string functions or database date functions.</p>
+    </div>
+</div>

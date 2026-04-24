@@ -1,0 +1,316 @@
+[meta-description]Learn Trongate v2 form validation: set rules with set_rules(), run validation with run(), and display errors three ways - general, inline, or JSON for APIs.[/meta-description]
+
+<h1>Form Validation Introduction</h1>
+
+<p>In Trongate v2, form validation is handled by the <strong>validation module</strong> located at <code>modules/validation/</code>.  The Trongate v2 <a href="documentation-ref/list_refs/included/validation" target="_blank">validation</a> module delivers enterprise-grade validation with zero configuration - handling everything from simple required fields to complex custom validation rules, complete with automatic CSRF protection and effortless multilingual support.</p>
+
+<h2>How It Works: The Three-Step Pattern</h2>
+
+<p>Every validation instance follows the same simple pattern:</p>
+
+<ol>
+    <li><strong>Set rules</strong>  -  Define what each field must satisfy</li>
+    <li><strong>Run validation tests</strong>  -  Check submitted data against your rules</li>
+    <li><strong>Handle the result</strong>  -  Display errors or process valid data</li>
+</ol>
+
+[code=php]
+// 1. SET RULES
+$this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[3]|max_length[30]');
+$this-&gt;validation-&gt;set_rules('email_address', 'email address', 'required|valid_email');
+
+// 2. RUN VALIDATION
+$result = $this-&gt;validation-&gt;run();
+
+// 3. HANDLE RESULT
+if ($result === true) {
+    // Validation passed - fetch posted data, save and redirect
+    $data = [
+        'username' =&gt; post('username', true),
+        'email_address' =&gt; post('email_address', true)
+    ];
+    
+    $this-&gt;db-&gt;insert($data, 'members');
+    redirect('members/manage');
+} else {
+    // Validation failed - redisplay form with errors
+    $this-&gt;create();
+}
+[/code]
+
+<h2>Displaying Errors: Three Scenarios</h2>
+
+<p>Trongate provides three distinct ways to display validation errors. The <span class="feature-ref">validation_errors()</span> helper function plays a pivotal role by automatically selecting the appropriate output format based on its first argument.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Scenario</th>
+            <th>How to Invoke</th>
+            <th>Best For</th>
+            <th>Clears Session?</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>General Errors</strong></td>
+            <td><code>validation_errors()</code></td>
+            <td>Simple forms, login pages, admin panels</td>
+            <td>Yes  -  all errors</td>
+        </tr>
+        <tr>
+            <td><strong>Inline Errors</strong></td>
+            <td><code>validation_errors('field_name')</code></td>
+            <td>Long forms, multi-step forms, better UX</td>
+            <td>No  -  allows multiple field calls</td>
+        </tr>
+        <tr>
+            <td><strong>JSON Response</strong></td>
+            <td><code>validation_errors(422)</code></td>
+            <td>API endpoints, AJAX forms, mobile apps</td>
+            <td>Yes + exits script</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>How the helper decides:</strong> Pass nothing for general errors, a field name string for inline errors, or an HTTP status code (400-499) for JSON. The helper handles the rest automatically.</p>
+</div>
+
+<h3>Scenario 1: General Errors</h3>
+
+<p>Display all errors at once, typically at the top of your form:</p>
+
+[code=vf]
+&lt;h1&gt;Create Account&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open('users/submit');
+echo form_label('Email');
+echo form_input('email', $email);
+echo form_label('Password');
+echo form_password('password');
+echo form_submit('submit', 'Register');
+echo form_close();
+?&gt;
+[/code]
+
+<h3>Scenario 2: Inline Errors</h3>
+
+<p>Display errors next to specific fields for better user experience:</p>
+
+[code=vf]
+&lt;?php
+echo form_open('users/submit');
+
+echo form_label('Full Name');
+echo validation_errors('full_name');
+echo form_input('full_name', $full_name);
+
+echo form_label('Email');
+echo validation_errors('email');
+echo form_email('email', $email);
+
+echo form_submit('submit', 'Register');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Pro tip:</strong> Inline errors don't clear the entire session. You can call <code>validation_errors('field')</code> for multiple different fields throughout your form.</p>
+</div>
+
+<h3>Scenario 3: JSON Response (APIs)</h3>
+
+<p>Return structured JSON for API endpoints or AJAX requests:</p>
+
+[code=php]
+public function api_create(): void {
+    $this-&gt;validation-&gt;set_rules('email', 'email', 'required|valid_email');
+    $this-&gt;validation-&gt;set_rules('name', 'name', 'required|min_length[2]');
+    
+    if ($this-&gt;validation-&gt;run() === false) {
+        validation_errors(422); // Sets HTTP 422, returns JSON, exits
+    }
+    
+    // Only executes if validation passed
+    echo json_encode(['success' =&gt; true, 'user_id' =&gt; $new_id]);
+}
+[/code]
+
+<p>JSON output:</p>
+
+[code=json]
+[
+  {
+    "field": "email",
+    "messages": ["The email field must contain a valid email address."]
+  },
+  {
+    "field": "name",
+    "messages": ["The name field must be at least 2 characters long."]
+  }
+]
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> JSON responses terminate script execution with <code>exit()</code>. No code after <code>validation_errors(422)</code> will run.</p>
+</div>
+
+<h2>Setting Validation Rules</h2>
+
+<p>Trongate supports two syntax styles for defining rules. Choose the one that fits your needs.</p>
+
+<h3>Option 1: Pipe Syntax (Concise)</h3>
+
+<p>Ideal for simple forms and quick prototyping:</p>
+
+[code=php]
+$this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[3]|max_length[20]');
+$this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+$this-&gt;validation-&gt;set_rules('age', 'age', 'required|integer|greater_than[0]');
+[/code]
+
+<h3>Option 2: Array Syntax (Organized)</h3>
+
+<p>Ideal for complex forms and programmatic rule building:</p>
+
+[code=php]
+$rules = [
+    'username' =&gt; [
+        'label' =&gt; 'username',
+        'required' =&gt; true,
+        'min_length' =&gt; 3,
+        'max_length' =&gt; 20
+    ],
+    'email' =&gt; [
+        'label' =&gt; 'email address',
+        'required' =&gt; true,
+        'valid_email' =&gt; true
+    ],
+    'age' =&gt; [
+        'label' =&gt; 'age',
+        'required' =&gt; true,
+        'integer' =&gt; true,
+        'greater_than' =&gt; 0
+    ]
+];
+
+$result = $this-&gt;validation-&gt;run($rules);
+[/code]
+
+<h2>Common Built-In Rules</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><code>required</code></td><td>Field cannot be empty</td></tr>
+        <tr><td><code>min_length[n]</code></td><td>Minimum character length</td></tr>
+        <tr><td><code>max_length[n]</code></td><td>Maximum character length</td></tr>
+        <tr><td><code>valid_email</code></td><td>Valid email format</td></tr>
+        <tr><td><code>numeric</code></td><td>Must be a number</td></tr>
+        <tr><td><code>integer</code></td><td>Must be an integer</td></tr>
+        <tr><td><code>matches[field]</code></td><td>Must match another field (e.g., password confirmation)</td></tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p>See <a href="documentation/trongate_php_framework/form-validation/validation-rules-reference">Validation Rules Reference</a> for the complete list including date/time and file upload rules.</p>
+</div>
+
+<h2>Special Case: Checkbox Validation</h2>
+
+<p>Checkboxes behave differently because unchecked boxes submit nothing. An unchecked checkbox returns <code>''</code> (empty string) from <code>post()</code>.</p>
+
+[code=php]
+// REQUIRED checkbox  -  user MUST check it
+$this-&gt;validation-&gt;set_rules('terms', 'terms and conditions', 'required');
+
+// OPTIONAL checkbox  -  no validation rule needed
+// Simply convert the value for database storage
+$data['newsletter'] = (int) (bool) post('newsletter', true); // 0 or 1
+[/code]
+
+<h2>Complete Working Example</h2>
+
+<p>Here's a full implementation using the create/update pattern:</p>
+
+[code=php]
+class Users extends Trongate {
+
+    public function create(): void {
+        $update_id = segment(3, 'int');
+        $submit = post('submit');
+
+        // Load data from POST (new record or validation error) or DB (editing)
+        if (($update_id === 0) || ($submit === 'Submit')) {
+            $data = $this-&gt;model-&gt;get_data_from_post();
+        } else {
+            $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+        }
+
+        $data['headline'] = ($update_id === 0) ? 'Create User' : 'Update User';
+        $data['form_location'] = str_replace('/create', '/submit', current_url());
+        
+        $this-&gt;view('create', $data);
+    }
+
+    public function submit(): void {
+        // Set validation rules
+        $this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[3]|max_length[20]');
+        $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+        $this-&gt;validation-&gt;set_rules('password', 'password', 'required|min_length[8]');
+
+        if ($this-&gt;validation-&gt;run() === true) {
+            // Success: save and redirect
+            $data = $this-&gt;model-&gt;get_data_from_post();
+            $update_id = segment(3, 'int');
+
+            if ($update_id === 0) {
+                $this-&gt;db-&gt;insert($data, 'users');
+                set_flashdata('User created successfully');
+            } else {
+                $this-&gt;db-&gt;update($update_id, $data, 'users');
+                set_flashdata('User updated successfully');
+            }
+
+            redirect('users/manage');
+        } else {
+            // Failure: redisplay form with errors
+            $this-&gt;create();
+        }
+    }
+}
+[/code]
+
+<h2>Key Points</h2>
+
+<ul>
+    <li>Validation rules are set with <span class="feature-ref">set_rules()</span> and executed with <span class="feature-ref">included-validation-run()</span></li>
+    <li>Use lowercase field labels for natural error messages: "The email address field is required"</li>
+    <li>Always use <code>post('field', true)</code> to get cleaned, trimmed values</li>
+    <li>CSRF protection is automatic  -  every POST form is protected</li>
+    <li>Errors survive redirects via session storage</li>
+    <li>Optional fields skip validation when empty  -  only validate what matters</li>
+</ul>
+
+<div class="alert alert-info">
+    <p><strong>Validation lifecycle:</strong> Validation fails → errors stored in session → form redisplays with errors. Validation passes → data saves → flashdata set → redirect to success page.</p>
+</div>
+
+<h2>What's Next</h2>
+
+<p>The following pages cover everything you need to master form validation:</p>
+
+<ul>
+    <li><a href="documentation/trongate_php_framework/form-validation/validation-rules-reference">Validation Rules Reference</a>  -  Complete list of built-in rules</li>
+    <li><a href="documentation/trongate_php_framework/form-validation/custom-validation-rules">Custom Validation Rules</a>  -  Write your own validation logic with callbacks</li>
+    <li><a href="documentation/trongate_php_framework/form-validation/multilingual-validation">Multilingual Validation</a>  -  Display errors in multiple languages</li>
+    <li><a href="documentation/trongate_php_framework/form-validation/styling-validation-errors">Styling Validation Errors</a>  -  CSS, automatic field highlighting, and UX best practices</li>
+</ul>

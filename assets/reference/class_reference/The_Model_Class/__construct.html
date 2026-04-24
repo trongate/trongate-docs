@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct(?string $module_name = null)</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Constructor for the Model base class. Sets the module name that this model serves, which is used for automatic loading of module‑specific model files (<code>{Module}_model.php</code>) and for database connection context.
+   </p>
+    <p>
+      <strong>Note:</strong> The framework automatically passes the module name when instantiating models via <code>$this->model</code>. You only need to call the constructor manually when creating Model instances programmatically.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>module_name</td>
+        <td>string|null</td>
+        <td>The module name that this model belongs to. If null, derived from the calling context.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Constructor does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic instantiation by framework (inside a controller)
+class Products extends Trongate {
+    public function index() {
+        // $this->model is automatically a Model instance with module_name = 'products'
+        $records = $this->model->get('products');
+    }
+}
+
+// Manual instantiation (rare)
+$model = new Model('products');
+$records = $model->get('products');[/code]
+</div>

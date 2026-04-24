@@ -1,0 +1,294 @@
+<div class="container">
+    <h1>form_time()</h1>
+    <p class="signature">function form_time(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML time input field with a native browser time picker. The input always submits time in 24-hour format (HH:MM or HH:MM:SS), regardless of how the browser displays the time to the user.</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>Browser Display vs Submitted Format:</strong> Browsers display times according to user locale (12-hour with AM/PM in US, 24-hour in Europe), but always submit in consistent 24-hour format that your PHP code can rely on.</p>
+    </div>
+
+    <h2>Demonstration</h2>
+    <p>Below is the native HTML5 time input rendered by <code>form_time()</code>:</p>
+    <div class="code-demo text-center">
+        <p style="text-align: center;"><input type="time" name="start_time"></p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the input element</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>The time value in HH:MM or HH:MM:SS format</td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>Additional HTML attributes as key-value pairs</td>
+                <td>[]</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The generated HTML time input element</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the Attributes Array</h2>
+    <p>The <code>$attributes</code> array accepts standard HTML input attributes. For time inputs, these are particularly useful:</p>
+    <table>
+        <thead>
+            <tr><th>Attribute</th><th>Description</th><th>Example Value</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>min</code></td>
+                <td>Earliest selectable time (HH:MM)</td>
+                <td><code>'09:00'</code></td>
+            </tr>
+            <tr>
+                <td><code>max</code></td>
+                <td>Latest selectable time (HH:MM)</td>
+                <td><code>'17:00'</code></td>
+            </tr>
+            <tr>
+                <td><code>step</code></td>
+                <td>Time interval in seconds</td>
+                <td><code>900</code> (15 minutes)</td>
+            </tr>
+            <tr>
+                <td><code>required</code></td>
+                <td>Field must have a value</td>
+                <td><code>['required' => true]</code></td>
+            </tr>
+            <tr>
+                <td><code>readonly</code></td>
+                <td>Prevent user editing</td>
+                <td><code>['readonly' => true]</code></td>
+            </tr>
+            <tr>
+                <td><code>disabled</code></td>
+                <td>Disable the input</td>
+                <td><code>['disabled' => true]</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <p><strong>Common Step Values:</strong></p>
+        <ul>
+            <li><code>60</code> - 1 minute (browser default)</li>
+            <li><code>300</code> - 5 minutes</li>
+            <li><code>900</code> - 15 minutes</li>
+            <li><code>1800</code> - 30 minutes</li>
+            <li><code>3600</code> - 1 hour</li>
+            <li><code>1</code> - 1 second (for precise timing)</li>
+        </ul>
+    </div>
+
+
+
+    <h2>Example #1: Basic Time Input</h2>
+[code=php]
+echo form_time('start_time');
+[/code]
+
+[code=html]
+Output: &lt;input type="time" name="start_time"&gt;
+[/code]
+
+    <p>The example above shows the simplest usage. This generates a time input where users can select any time using their browser's native time picker.</p>
+
+    <h2>Example #2: Time Input with Default Value</h2>
+[code=php]
+public function create(): void {
+    // Set default to 9:00 AM for new bookings
+    $data['booking_time'] = '09:00';
+    $data['form_location'] = BASE_URL . 'bookings/submit';
+    $this->view('booking_form', $data);
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Booking Time');
+echo form_time('booking_time', $booking_time);
+echo form_submit('submit', 'Book Appointment');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates setting a default value. Common business hours like 9:00 AM make good defaults for time inputs.</p>
+
+    <div class="alert alert-info">
+        <p><strong>Form Repopulation:</strong> After validation errors, use <code>post('field_name', true)</code> in the controller to fetch the submitted value. This returns an empty string if no value was submitted, which works perfectly with form helpers.</p>
+    </div>
+
+    <h2>Example #3: Appointment System with Constraints</h2>
+[code=php]
+public function create(): void {
+    $data['appointment_time'] = post('appointment_time', true);
+    
+    // Business hours: 9 AM to 5 PM, 30-minute intervals
+    $data['min_time'] = '09:00';
+    $data['max_time'] = '17:00';
+    
+    $data['form_location'] = BASE_URL . 'appointments/submit';
+    $this->view('appointment_form', $data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('appointment_time', 'appointment time', 'required|valid_time');
+    
+    if ($this->validation->run() === true) {
+        $data['customer_name'] = post('customer_name', true);
+        $data['appointment_time'] = post('appointment_time', true);
+        
+        $this->db->insert($data, 'appointments');
+        set_flashdata('Appointment booked successfully');
+        redirect('appointments/confirm');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Appointment Time');
+$attributes = [
+    'min' => $min_time,
+    'max' => $max_time,
+    'step' => 1800, // 30-minute intervals
+    'required' => true
+];
+echo form_time('appointment_time', $appointment_time, $attributes);
+echo form_submit('submit', 'Book Appointment');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above shows how to restrict time selection to business hours with specific intervals. Users can only select times like 9:00, 9:30, 10:00, etc.</p>
+
+    <div class="alert alert-warning">
+        <p><strong>Server-side Validation Required:</strong> Always validate time inputs server-side with the <code>valid_time</code> rule. Browser validation can be bypassed by malicious users.</p>
+    </div>
+
+    <h2>Example #4: Complete Store Hours Management</h2>
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing store hours
+        $record = $this->db->get_where($update_id, 'store_hours');
+        $data['day_name'] = $record->day_name;
+        $data['opening_time'] = $record->opening_time;
+        $data['closing_time'] = $record->closing_time;
+    } else {
+        // New entry or validation error
+        $data['day_name'] = post('day_name', true);
+        $data['opening_time'] = post('opening_time', true);
+        $data['closing_time'] = post('closing_time', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'hours/submit/' . $update_id;
+    $this->view('hours_form', $data);
+}
+
+public function submit(): void {
+    $update_id = segment(3, 'int');
+    
+    $this->validation->set_rules('day_name', 'day name', 'required');
+    $this->validation->set_rules('opening_time', 'opening time', 'required|valid_time');
+    $this->validation->set_rules('closing_time', 'closing time', 'required|valid_time|callback_closing_after_opening');
+    
+    if ($this->validation->run() === true) {
+        $data['day_name'] = post('day_name', true);
+        $data['opening_time'] = post('opening_time', true);
+        $data['closing_time'] = post('closing_time', true);
+        
+        if ($update_id > 0) {
+            $this->db->update($update_id, $data, 'store_hours');
+            set_flashdata('Store hours updated successfully');
+        } else {
+            $this->db->insert($data, 'store_hours');
+            set_flashdata('Store hours added successfully');
+        }
+        
+        redirect('hours/manage');
+    } else {
+        $this->create();
+    }
+}
+
+public function callback_closing_after_opening($closing_time): string|bool {
+    $opening_time = post('opening_time', true);
+    
+    if ($opening_time === '' || $closing_time === '') {
+        return true; // Let required rule handle empty values
+    }
+    
+    if (strtotime($closing_time) <= strtotime($opening_time)) {
+        return 'The {label} must be after the opening time.';
+    }
+    
+    return true;
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Day');
+echo form_input('day_name', $day_name);
+
+echo form_label('Opening Time');
+$open_attrs = [
+    'step' => 900, // 15-minute intervals
+    'required' => true
+];
+echo form_time('opening_time', $opening_time, $open_attrs);
+
+echo form_label('Closing Time');
+echo form_time('closing_time', $closing_time, $open_attrs);
+
+echo form_submit('submit', 'Save Hours');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates a complete store hours management system. Notice the callback validation ensures closing time is after opening time, and <code>segment(3, 'int')</code> is properly type-cast for the update ID.</p>
+
+    <div class="alert alert-success">
+        <p><strong>Database Compatibility:</strong> Use MySQL's <code>TIME</code> type for time fields. HTML5 time inputs submit values like "09:00" or "14:30:15" which MySQL accepts directly. If seconds are omitted, MySQL automatically stores them as :00.</p>
+    </div>
+</div>

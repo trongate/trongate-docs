@@ -1,0 +1,264 @@
+ <div class="container">
+    <h1>resize_and_crop()</h1>
+    <p class="signature">public function resize_and_crop(int $width, int $height): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Resizes and crops a loaded image to exact dimensions in a single operation. This method intelligently determines the optimal resize strategy based on aspect ratios, then crops to achieve the target dimensions precisely. The result is an image that exactly matches the specified width and height with no distortion.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Load First, Then Process:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>resize_and_crop()</code> without a loaded image will throw an Exception with the message "No image is loaded to resize and crop."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$width</td>
+                <td>int</td>
+                <td>The target width in pixels.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$height</td>
+                <td>int</td>
+                <td>The target height in pixels.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>How It Works</h2>
+    <p>The <code>resize_and_crop()</code> method automatically calculates the optimal strategy based on aspect ratios:</p>
+
+    <ul>
+        <li><strong>If aspect ratios match:</strong> Simply resizes to target dimensions</li>
+        <li><strong>If target is wider:</strong> Resizes to target width, then crops height from centre</li>
+        <li><strong>If target is taller:</strong> Resizes to target height, then crops width from centre</li>
+    </ul>
+
+    <p>This intelligent approach ensures the image fills the target dimensions completely with minimal cropping, preserving as much of the original image as possible whilst maintaining the exact size requirements.</p>
+
+    <div class="alert alert-info">
+        <p><strong>Single Operation Convenience:</strong> The <code>resize_and_crop()</code> method combines what would otherwise require separate <code>resize_to_width()</code>/<code>resize_to_height()</code> and <code>crop()</code> calls. It's particularly useful when you need images to be exactly a certain size, such as thumbnails, profile pictures, or grid layouts.</p>
+    </div>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It modifies the loaded image resource in place.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of resize_and_crop().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Resize and crop to exact 400x400 square
+$this-&gt;image-&gt;resize_and_crop(400, 400);
+
+// Save the result
+$this-&gt;image-&gt;save('modules/gallery/photos/photo_thumb.jpg');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Perfect Thumbnails Pattern:</strong> The <code>resize_and_crop()</code> method is ideal for creating thumbnails that must be exact dimensions. Unlike simple resizing (which may produce varied sizes) or manual resize-then-crop sequences, this single method guarantees precise dimensions with optimal cropping.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to create uniform profile avatars from uploaded images.</p>
+[code=php]
+public function process_avatar(): void {
+    $user_id = segment(3, 'int');
+    
+    // Validate image upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Profile Picture', 'required|allowed_types[jpg,png,gif]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'avatars',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'users',
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure destination exists
+        $avatar_dir = 'modules/users/avatars';
+        if (!$this-&gt;file-&gt;exists($avatar_dir)) {
+            $this-&gt;file-&gt;create_directory($avatar_dir, 0755);
+        }
+        
+        // Upload the image
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load the uploaded image
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        
+        // Create perfect 200x200 avatar (works with any source aspect ratio)
+        $this-&gt;image-&gt;resize_and_crop(200, 200);
+        
+        // Save the processed avatar
+        $this-&gt;image-&gt;save($file_info['file_path'], 85);
+        $this-&gt;image-&gt;destroy();
+        
+        // Update user record
+        $data = [
+            'avatar_filename' =&gt; $file_info['file_name'],
+            'avatar_updated_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;update($user_id, $data, 'users');
+        
+        set_flashdata('Profile picture updated successfully');
+        redirect('users/profile/' . $user_id);
+    } else {
+        $this-&gt;avatar_upload_form($user_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Consistent Display Sizes:</strong> Using <code>resize_and_crop()</code> ensures all avatars, thumbnails, or grid images have identical dimensions regardless of the original image's aspect ratio. This creates clean, uniform layouts without the need for CSS tricks or complex frontend code.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates creating multiple standard sizes for a product gallery.</p>
+[code=php]
+public function generate_product_images(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product record
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    $source_image = 'modules/products/originals/' . $product-&gt;original_filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_image)) {
+        redirect('products/image_missing');
+    }
+    
+    // Define standard product image sizes
+    $sizes = [
+        'thumbnail' =&gt; ['width' =&gt; 150, 'height' =&gt; 150],
+        'grid' =&gt; ['width' =&gt; 300, 'height' =&gt; 300],
+        'detail' =&gt; ['width' =&gt; 600, 'height' =&gt; 600],
+        'hero' =&gt; ['width' =&gt; 1200, 'height' =&gt; 800]
+    ];
+    
+    foreach ($sizes as $size_name =&gt; $dimensions) {
+        // Load source fresh for each size
+        $this-&gt;image-&gt;load($source_image);
+        
+        // Resize and crop to exact dimensions
+        $this-&gt;image-&gt;resize_and_crop($dimensions['width'], $dimensions['height']);
+        
+        // Ensure directory exists
+        $output_dir = 'modules/products/images/' . $size_name;
+        if (!$this-&gt;file-&gt;exists($output_dir)) {
+            $this-&gt;file-&gt;create_directory($output_dir, 0755);
+        }
+        
+        // Save the sized version
+        $output_path = $output_dir . '/' . $product-&gt;original_filename;
+        $this-&gt;image-&gt;save($output_path, 85);
+        $this-&gt;image-&gt;destroy();
+    }
+    
+    set_flashdata('Product images generated successfully');
+    redirect('products/manage/' . $product_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Multi-Size Generation Pattern:</strong> When creating multiple size variations, <code>resize_and_crop()</code> simplifies the process significantly. Each size is guaranteed to match specifications exactly, making responsive image delivery predictable and layouts consistent across all devices.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows creating social media sharing images with platform-specific dimensions.</p>
+[code=php]
+public function generate_social_images(): void {
+    $article_id = segment(3, 'int');
+    
+    // Get article record
+    $article = $this-&gt;db-&gt;get_where($article_id, 'articles');
+    
+    if ($article === false) {
+        redirect('articles/not_found');
+    }
+    
+    $featured_image = 'modules/articles/images/' . $article-&gt;featured_image;
+    
+    if (!$this-&gt;file-&gt;exists($featured_image)) {
+        redirect('articles/image_missing');
+    }
+    
+    // Define social media platform requirements
+    $social_specs = [
+        'facebook' =&gt; ['width' =&gt; 1200, 'height' =&gt; 630],
+        'twitter' =&gt; ['width' =&gt; 1200, 'height' =&gt; 675],
+        'instagram' =&gt; ['width' =&gt; 1080, 'height' =&gt; 1080],
+        'linkedin' =&gt; ['width' =&gt; 1200, 'height' =&gt; 627],
+        'pinterest' =&gt; ['width' =&gt; 1000, 'height' =&gt; 1500]
+    ];
+    
+    $social_dir = 'modules/articles/social';
+    if (!$this-&gt;file-&gt;exists($social_dir)) {
+        $this-&gt;file-&gt;create_directory($social_dir, 0755);
+    }
+    
+    foreach ($social_specs as $platform =&gt; $dimensions) {
+        // Load source image
+        $this-&gt;image-&gt;load($featured_image);
+        
+        // Create platform-specific version
+        $this-&gt;image-&gt;resize_and_crop($dimensions['width'], $dimensions['height']);
+        
+        // Save with platform name
+        $filename_parts = pathinfo($article-&gt;featured_image);
+        $social_filename = $filename_parts['filename'] . '_' . $platform . '.' . $filename_parts['extension'];
+        $output_path = $social_dir . '/' . $social_filename;
+        
+        $this-&gt;image-&gt;save($output_path, 85);
+        $this-&gt;image-&gt;destroy();
+    }
+    
+    // Update article record with social image flag
+    $update_data = ['social_images_generated' =&gt; 1];
+    $this-&gt;model-&gt;update($article_id, $update_data, 'articles');
+    
+    set_flashdata('Social media images generated for all platforms');
+    redirect('articles/edit/' . $article_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Platform-Specific Images:</strong> Different social media platforms require different image dimensions for optimal display. The <code>resize_and_crop()</code> method makes it straightforward to generate properly sized images for Facebook, Twitter, Instagram, LinkedIn, Pinterest, and other platforms from a single source image.</p>
+    </div>
+
+</div>

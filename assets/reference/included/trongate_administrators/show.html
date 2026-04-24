@@ -1,0 +1,33 @@
+<div class="container">
+  <h1>show()</h1>
+  <p class="signature">public function show(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Displays a single record's details. Requires a valid update ID in the URL (segment 3). If the record doesn't exist, renders a "not found" page instead.</p>
+    <p>Also determines whether the record belongs to the currently logged‑in user and displays "Your Account Details" for own records or "Record Details" for others.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters (uses URL segment 3 for the record ID).</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Output rendered directly via the admin template.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// URL: /trongate_administrators/show/42
+// Displays record #42 with admin template
+
+// Direct call from another controller
+public function view_admin_profile(int $user_id) {
+    redirect('trongate_administrators/show/' . $user_id);
+}
+
+// Manual redirect after update
+set_flashdata('Record updated successfully');
+redirect('trongate_administrators/show/' . $update_id);
+[/code]
+</div>

@@ -1,0 +1,427 @@
+[meta-description]Learn how to use form_date() in Trongate for calendar date inputs. Native HTML5 date picker with YYYY-MM-DD format, min/max attributes, validation, and database storage examples.[/meta-description]
+<h1>Date Input Fields</h1>
+
+<p>The date input field is the most commonly used date/time input type. It provides users with a calendar picker and always submits data in the standard <code>YYYY-MM-DD</code> format.</p>
+
+<h2>Basic Usage</h2>
+
+<p>Use <span class="feature-ref">form_date()</span> to create a date input field:</p>
+
+[code=php]
+echo form_date('due_date');
+// Output: &lt;input type="date" name="due_date"&gt;
+[/code]
+
+<h2>Demonstration</h2>
+<p>Below is the native HTML5 date input rendered by <code>form_date()</code>:</p>
+<div class="code-demo text-center">
+    <p><input type="date" name="due_date"></p>
+</div>
+
+<h2>Function Signature</h2>
+
+[code=php]
+function form_date(string $name, ?string $value = null, array $attributes = []): string
+[/code]
+
+<h3>Parameters</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$name</code></td>
+            <td>string</td>
+            <td>The name attribute for the input (required)</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td><code>$value</code></td>
+            <td>string|null</td>
+            <td>The value in YYYY-MM-DD format</td>
+            <td>null</td>
+        </tr>
+        <tr>
+            <td><code>$attributes</code></td>
+            <td>array</td>
+            <td>Additional HTML attributes</td>
+            <td>[]</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>With a Default Value</h2>
+
+[code=php]
+echo form_date('due_date', '2025-12-31');
+// Output: &lt;input type="date" name="due_date" value="2025-12-31"&gt;
+[/code]
+
+<h2>With Attributes</h2>
+
+[code=php]
+$attributes = [
+    'min' => '2025-01-01',
+    'max' => '2025-12-31',
+    'required' => true
+];
+echo form_date('due_date', null, $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;input type="date" name="due_date" min="2025-01-01" max="2025-12-31" required&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Downloadable Demo:</strong> Want to see the <span class="feature-ref">form_date()</span> function in action?  We've got you covered! Check out the complete <strong>Friends</strong> module example on GitHub:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2-Friends-Module" target="_blank">https://github.com/trongate/Trongate-v2-Friends-Module</a></p>
+    <p>This GitHub repository demonstrates a full-featured CRUD (Create, Read, Update, Delete) application for tracking friends' birthdays. Check it out and learn by exploring a full working example.</p>
+</div>
+
+<h2>Common Attributes</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>min</code></td>
+            <td>Earliest selectable date (YYYY-MM-DD)</td>
+            <td><code>['min' => '2025-01-01']</code></td>
+        </tr>
+        <tr>
+            <td><code>max</code></td>
+            <td>Latest selectable date (YYYY-MM-DD)</td>
+            <td><code>['max' => '2025-12-31']</code></td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>Field must have a value</td>
+            <td><code>['required' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>readonly</code></td>
+            <td>Prevent user editing</td>
+            <td><code>['readonly' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>disabled</code></td>
+            <td>Disable the input</td>
+            <td><code>['disabled' => true]</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Setting Today as Default</h2>
+
+[code=php]
+$today = date('Y-m-d');
+echo form_date('event_date', $today);
+[/code]
+
+<h2>How to Repopulate Forms After Validation Errors</h2>
+
+<p>When a form fails validation, you need to redisplay it with the user's entered value. In Trongate, this follows the MVC pattern:</p>
+
+<h3>Controller Example</h3>
+
+[code=php]
+public function create(): void {
+    // Fetch posted value (returns empty string if form hasn't been submitted)
+    $data['due_date'] = post('due_date', true);
+    $data['start_date'] = post('start_date', true);
+    
+    // Pass data to view
+    $this->view('task_form', $data);
+}
+[/code]
+
+<h3>View Example</h3>
+
+[code=php]
+&lt;?php
+echo form_open('tasks/submit');
+echo form_label('Due Date');
+echo form_date('due_date', $due_date);
+echo form_label('Start Date');
+echo form_date('start_date', $start_date);
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<p>The controller fetches the posted data using <span class="feature-ref">post()</span>, then passes it to the view. The view receives these values as variables.</p>
+
+<div class="alert alert-info">
+    <p><strong>Form Repopulation Pattern:</strong> Always use <code>post('field_name', true)</code> in the controller to fetch submitted values. The <code>true</code> parameter trims whitespace, ensuring clean data.</p>
+</div>
+
+<h2>Real-World Example: Task Due Date</h2>
+
+<p>Controller:</p>
+
+[code=php]
+public function create(): void {
+    $data['headline'] = 'Create Task';
+    $data['due_date'] = post('due_date', true);
+    $data['form_location'] = BASE_URL . 'tasks/submit';
+    $this->templates->admin($data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('task_title', 'task title', 'required');
+    $this->validation->set_rules('due_date', 'due date', 'required|valid_date');
+
+    if ($this->validation->run() === true) {
+        $data['task_title'] = post('task_title', true);
+        $data['due_date'] = post('due_date', true);
+
+        $new_id = $this->db->insert($data, 'tasks');
+
+        set_flashdata('Task successfully created');
+        redirect('tasks/show/' . $new_id);
+    } else {
+        $this->create(); // Redisplay form with errors
+    }
+}
+[/code]
+
+<p>View:</p>
+
+[code=php]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Task Title');
+echo form_input('task_title', $task_title);
+
+echo form_label('Due Date');
+echo form_date('due_date', $due_date);
+
+echo form_submit('submit', 'Create Task');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Setting Min and Max Dates Dynamically</h2>
+
+<p>Often you'll want to restrict the date range based on business logic:</p>
+
+[code=php]
+// Controller
+public function create(): void {
+    $data['booking_date'] = post('booking_date', true);
+    
+    // Can't book in the past or more than 90 days ahead
+    $data['min_date'] = date('Y-m-d'); // Today
+    $data['max_date'] = date('Y-m-d', strtotime('+90 days'));
+    
+    $this->view('booking_form', $data);
+}
+[/code]
+
+[code=php]
+// View
+$attributes = [
+    'min' => $min_date,
+    'max' => $max_date,
+    'required' => true
+];
+echo form_date('booking_date', $booking_date, $attributes);
+[/code]
+
+<h2>Working with the Create/Update Pattern</h2>
+
+<p>Here's the standard pattern for date fields that work for both creating and updating records:</p>
+
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing record - load from database
+        $record = $this->db->get_where($update_id, 'events');
+        $data['event_date'] = $record->event_date; // Already in YYYY-MM-DD format
+    } else {
+        // New record OR validation error - use POST data
+        $data['event_date'] = post('event_date', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'events/submit/' . $update_id;
+    $this->view('event_form', $data);
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Type-Casting Segments:</strong> Always use <code>segment(3, 'int')</code> when expecting numeric IDs. This prevents type-related bugs and improves code clarity.</p>
+</div>
+
+<h2>Database Storage</h2>
+
+<p>Date inputs submit in <code>YYYY-MM-DD</code> format, which maps directly to the MySQL <code>DATE</code> type:</p>
+
+<h3>Table Schema</h3>
+
+[code=sql]
+CREATE TABLE tasks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    task_title VARCHAR(255),
+    due_date DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+[/code]
+
+<h3>Inserting Data</h3>
+
+[code=php]
+public function submit(): void {
+    $this->validation->set_rules('due_date', 'due date', 'required|valid_date');
+    
+    if ($this->validation->run() === true) {
+        $data['task_title'] = post('task_title', true);
+        $data['due_date'] = post('due_date', true); // Already in YYYY-MM-DD
+        
+        $this->db->insert($data, 'tasks');
+        redirect('tasks/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>No Conversion Needed:</strong> The <code>YYYY-MM-DD</code> format from HTML5 date inputs matches MySQL's <code>DATE</code> type exactly. You can insert the value directly without any conversion.</p>
+</div>
+
+<h2>Formatting Dates for Display</h2>
+
+<p>When displaying dates to users, you'll often want to format them in a more readable way:</p>
+
+[code=php]
+// From database: 2025-12-27
+
+// Simple PHP approach
+$date = new DateTime('2025-12-27');
+echo $date->format('F j, Y'); // December 27, 2025
+echo $date->format('M d, Y'); // Dec 27, 2025
+echo $date->format('d/m/Y');  // 27/12/2025
+
+// Locale-aware formatting (requires intl extension)
+$date = new DateTime('2025-12-27');
+$formatter = new IntlDateFormatter(
+    'en_US',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::NONE
+);
+echo $formatter->format($date); // December 27, 2025
+
+// For French users
+$formatter = new IntlDateFormatter(
+    'fr_FR',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::NONE
+);
+echo $formatter->format($date); // 27 décembre 2025
+[/code]
+
+<h2>Validation</h2>
+
+<p>Use the <code>valid_date</code> validation rule to ensure the submitted value is in the correct format:</p>
+
+[code=php]
+$this->validation->set_rules('due_date', 'due date', 'required|valid_date');
+[/code]
+
+<p>This validates that the value:</p>
+<ul>
+    <li>Matches the <code>YYYY-MM-DD</code> format</li>
+    <li>Represents a valid calendar date</li>
+    <li>Properly handles leap years</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p><strong>Client vs Server Validation:</strong> While browsers validate date formats client-side, <strong>always</strong> use server-side validation with <code>valid_date</code>. Client validation can be bypassed and doesn't protect your database.</p>
+</div>
+
+<h2>Setting a Date Range Example</h2>
+
+<p>Here's a complete example of a form that requires a start date and end date, where the end date must be after the start date:</p>
+
+[code=php]
+// Controller
+public function create(): void {
+    $data['start_date'] = post('start_date', true);
+    $data['end_date'] = post('end_date', true);
+    $data['today'] = date('Y-m-d');
+    $this->view('project_form', $data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('start_date', 'start date', 'required|valid_date');
+    $this->validation->set_rules('end_date', 'end date', 'required|valid_date|callback_end_after_start');
+
+    if ($this->validation->run() === true) {
+        // Save data
+        $data['start_date'] = post('start_date', true);
+        $data['end_date'] = post('end_date', true);
+        $this->db->insert($data, 'projects');
+        set_flashdata('Project created successfully');
+        redirect('projects/manage');
+    } else {
+        $this->create();
+    }
+}
+
+public function callback_end_after_start($end_date): string|bool {
+    $start_date = post('start_date', true);
+    
+    if ($start_date === '' || $end_date === '') {
+        return true; // Let required rule handle empty values
+    }
+    
+    if (strtotime($end_date) <= strtotime($start_date)) {
+        return 'The {label} must be after the start date.';
+    }
+    
+    return true;
+}
+[/code]
+
+[code=php]
+// View
+&lt;?php
+echo form_open('projects/submit');
+
+echo form_label('Start Date');
+$start_attrs = ['min' => $today, 'required' => true];
+echo form_date('start_date', $start_date, $start_attrs);
+
+echo form_label('End Date');
+$end_attrs = ['min' => $today, 'required' => true];
+echo form_date('end_date', $end_date, $end_attrs);
+
+echo form_submit('submit', 'Create Project');
+echo form_close();
+?&gt;
+[/code]

@@ -1,0 +1,139 @@
+<div class="container">
+  <h1>admin()</h1>
+  <p class="signature">public function admin(array $data): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Displays the admin theme template with provided data. This method loads the full admin panel layout, complete with header, sidebar, footer, and mobile navigation. It processes optional theme settings and additional CSS/JavaScript includes before rendering the template. The method automatically injects your view content into the admin layout using the <code>display()</code> helper.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>An associative array containing the data to pass to the template view. Common keys include 'page_title', 'view_module', 'view_file', 'theme', 'additional_includes_top', and 'additional_includes_btm'.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value. It outputs the complete HTML page directly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Additional Includes</h2>
+  <div class="description">
+    <p>
+      The <code>admin()</code> method automatically processes two special array keys in the <code>$data</code> array: <code>additional_includes_top</code> and <code>additional_includes_btm</code>. These allow you to inject additional CSS files, JavaScript files, or raw HTML into specific locations within the template.
+   </p>
+    <h3>How It Works</h3>
+    <ul>
+      <li><strong>additional_includes_top</strong> - Files or HTML added to this array are inserted inside the <code>&lt;head&gt;</code> section of the page</li>
+      <li><strong>additional_includes_btm</strong> - Files or HTML added to this array are inserted just before the closing <code>&lt;/body&gt;</code> tag</li>
+    </ul>
+    <p>
+      The method automatically detects file types and generates the appropriate HTML:
+   </p>
+    <ul>
+      <li>Files ending in <code>.css</code> are wrapped in <code>&lt;link rel="stylesheet" href="..."&gt;</code> tags</li>
+      <li>Files ending in <code>.js</code> are wrapped in <code>&lt;script src="..."&gt;&lt;/script&gt;</code> tags</li>
+      <li>Full URLs and raw HTML strings are inserted exactly as provided</li>
+    </ul>
+  </div>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates the simplest usage - loading the admin template with just a page title. The table name is inferred from the first URL segment, and the view file would be automatically determined by the method name.</p>
+[code=php]public function manage(): void {
+    $data['page_title'] = 'Manage Users';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <h2>Example #2</h2>
+  <p>This example explicitly specifies which view file to load and which module it belongs to. This approach is recommended for clarity and maintainability.</p>
+[code=php]public function dashboard(): void {
+    $data['page_title'] = 'Sales Dashboard';
+    $data['view_module'] = 'sales';
+    $data['view_file'] = 'dashboard';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <h2>Example #3</h2>
+  <p>This example demonstrates how to change the colour scheme by setting the 'theme' key. Available built-in themes include 'default', 'blue', 'red', and 'green'.</p>
+[code=php]public function settings(): void {
+    $data['page_title'] = 'Account Settings';
+    $data['theme'] = 'blue';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <h2>Example #4</h2>
+  <p>This example shows how to add additional CSS and JavaScript files that are specific to a particular page. Files are added to the 'additional_includes_top' array for assets that should load in the head section.</p>
+[code=php]public function reports(): void {
+    $data['page_title'] = 'Monthly Reports';
+    $data['additional_includes_top'][] = 'css/charts.css';
+    $data['additional_includes_top'][] = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <h2>Example #5</h2>
+  <p>This example demonstrates adding JavaScript files at the bottom of the page using 'additional_includes_btm'. This is the recommended approach for scripts that don't need to be available immediately on page load.</p>
+[code=php]public function dashboard(): void {
+    $data['page_title'] = 'Dashboard';
+    $data['additional_includes_btm'][] = 'js/dashboard-charts.js';
+    $data['additional_includes_btm'][] = 'js/realtime-updates.js';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <h2>Example #6</h2>
+  <p>This example shows how to load assets from a specific module using the module assets trigger, and also demonstrates adding raw HTML for special meta tags.</p>
+[code=php]public function gallery(): void {
+    $data['page_title'] = 'Photo Gallery';
+    $data['additional_includes_top'][] = 'gallery_module/css/lightbox.css';
+    $data['additional_includes_top'][] = '&lt;meta name="robots" content="noindex"&gt;';
+    $data['additional_includes_btm'][] = 'gallery_module/js/lightbox-init.js';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <h2>Example #7</h2>
+  <p>This comprehensive example combines multiple features - custom theme, conditional asset loading, and passing data to the view.</p>
+[code=php]public function edit(): void {
+    $product_id = (int) segment(3);
+    $data['product'] = $this-&gt;db-&gt;get_where($product_id, 'products');
+    $data['page_title'] = 'Edit Product';
+    $data['theme'] = 'green';
+    
+    // Conditionally load image cropper if product has images
+    if ($data['product']-&gt;has_images) {
+        $data['additional_includes_top'][] = 'css/image-cropper.css';
+        $data['additional_includes_btm'][] = 'js/image-cropper.js';
+    }
+    
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+</div>

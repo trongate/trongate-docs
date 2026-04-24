@@ -1,0 +1,627 @@
+[meta-description]Complete reference of all Trongate form validation rules: standard, format, length, comparison, date/time, file, and image validation with examples, parameters, and error messages.[/meta-description]
+
+<h1>Validation Rules Reference</h1>
+
+<p>This page provides a complete reference of all built-in validation rules available in Trongate v2. Each rule validates a specific aspect of form data, and most rules are optional  -  fields only validate when they contain data (except <code>required</code>).</p>
+
+<div class="alert alert-info">
+    <p><strong>Optional Fields:</strong> All validation rules except <code>required</code> skip validation if the field is empty. To validate an empty field, use the <code>required</code> rule first.</p>
+</div>
+
+<h2>Quick Reference Table</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Parameter</th>
+            <th>Purpose</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><code>required</code></td><td> - </td><td>Field cannot be empty</td></tr>
+        <tr><td><code>numeric</code></td><td> - </td><td>Must be a number</td></tr>
+        <tr><td><code>integer</code></td><td> - </td><td>Must be a whole number</td></tr>
+        <tr><td><code>decimal</code></td><td> - </td><td>Must be a decimal number</td></tr>
+        <tr><td><code>valid_email</code></td><td> - </td><td>Must be valid email address</td></tr>
+        <tr><td><code>valid_url</code></td><td> - </td><td>Must be valid URL</td></tr>
+        <tr><td><code>valid_ip</code></td><td> - </td><td>Must be valid IP address</td></tr>
+        <tr><td><code>valid_date</code></td><td> - </td><td>Must be valid date (YYYY-MM-DD)</td></tr>
+        <tr><td><code>valid_time</code></td><td> - </td><td>Must be valid time (HH:MM or HH:MM:SS)</td></tr>
+        <tr><td><code>valid_datetime_local</code></td><td> - </td><td>Must be valid datetime (YYYY-MM-DDTHH:MM)</td></tr>
+        <tr><td><code>valid_month</code></td><td> - </td><td>Must be valid month (YYYY-MM)</td></tr>
+        <tr><td><code>valid_week</code></td><td> - </td><td>Must be valid week (YYYY-W##)</td></tr>
+        <tr><td><code>min_length</code></td><td>number</td><td>Minimum character length</td></tr>
+        <tr><td><code>max_length</code></td><td>number</td><td>Maximum character length</td></tr>
+        <tr><td><code>exact_length</code></td><td>number</td><td>Exact character length</td></tr>
+        <tr><td><code>greater_than</code></td><td>number</td><td>Must be greater than value</td></tr>
+        <tr><td><code>less_than</code></td><td>number</td><td>Must be less than value</td></tr>
+        <tr><td><code>matches</code></td><td>field</td><td>Must match another field</td></tr>
+        <tr><td><code>allowed_types</code></td><td>extensions</td><td>Allowed file types</td></tr>
+        <tr><td><code>max_size</code></td><td>kilobytes</td><td>Maximum file size</td></tr>
+        <tr><td><code>min_size</code></td><td>kilobytes</td><td>Minimum file size</td></tr>
+        <tr><td><code>is_image</code></td><td> - </td><td>Must be valid image</td></tr>
+        <tr><td><code>max_width</code></td><td>pixels</td><td>Maximum image width</td></tr>
+        <tr><td><code>min_width</code></td><td>pixels</td><td>Minimum image width</td></tr>
+        <tr><td><code>max_height</code></td><td>pixels</td><td>Maximum image height</td></tr>
+        <tr><td><code>min_height</code></td><td>pixels</td><td>Minimum image height</td></tr>
+        <tr><td><code>exact_width</code></td><td>pixels</td><td>Exact image width</td></tr>
+        <tr><td><code>exact_height</code></td><td>pixels</td><td>Exact image height</td></tr>
+        <tr><td><code>square</code></td><td> - </td><td>Image must be square</td></tr>
+    </tbody>
+</table>
+
+<h2>Standard Rules</h2>
+
+<h3>required</h3>
+
+<p>The field cannot be empty. This is the only rule that validates empty fields  -  all other rules skip validation if the field is empty.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('email', 'email address', 'required');
+[/code]
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field is required.
+[/code]
+
+<h3>numeric</h3>
+
+<p>The field must contain a numeric value (integer or decimal, positive or negative).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('age', 'age', 'numeric');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>42</code>, <code>-15</code>, <code>3.14</code>, <code>-2.5</code></p>
+
+<p><strong>Invalid Values:</strong> <code>abc</code>, <code>12x</code>, <code>1,000</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be numeric.
+[/code]
+
+<h3>integer</h3>
+
+<p>The field must contain a whole number (no decimal places, positive or negative).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('quantity', 'quantity', 'integer');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>42</code>, <code>-15</code>, <code>0</code></p>
+
+<p><strong>Invalid Values:</strong> <code>3.14</code>, <code>abc</code>, <code>42.0</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be an integer.
+[/code]
+
+<h3>decimal</h3>
+
+<p>The field must contain a decimal number (with or without decimal places).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('price', 'price', 'decimal');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>19.99</code>, <code>10</code>, <code>-3.5</code></p>
+
+<p><strong>Invalid Values:</strong> <code>$19.99</code>, <code>abc</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be a decimal number.
+[/code]
+
+<h2>Format Rules</h2>
+
+<h3>valid_email</h3>
+
+<p>The field must contain a valid email address.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('email', 'email address', 'valid_email');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>user@example.com</code>, <code>john.doe+tag@company.co.uk</code></p>
+
+<p><strong>Invalid Values:</strong> <code>user@</code>, <code>@example.com</code>, <code>user name@example.com</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must contain a valid email address.
+[/code]
+
+<h3>valid_url</h3>
+
+<p>The field must contain a valid URL (with protocol).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('website', 'website', 'valid_url');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>https://example.com</code>, <code>http://example.com/path</code></p>
+
+<p><strong>Invalid Values:</strong> <code>example.com</code>, <code>not a url</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must contain a valid URL.
+[/code]
+
+<h3>valid_ip</h3>
+
+<p>The field must contain a valid IP address (IPv4 or IPv6).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('ip_address', 'IP address', 'valid_ip');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>192.168.1.1</code>, <code>2001:0db8:85a3::8a2e:0370:7334</code></p>
+
+<p><strong>Invalid Values:</strong> <code>256.256.256.256</code>, <code>not an ip</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must contain a valid IP address.
+[/code]
+
+<h2>Date and Time Rules</h2>
+
+<h3>valid_date</h3>
+
+<p>The field must be a valid date in <code>YYYY-MM-DD</code> format.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('birth_date', 'birth date', 'valid_date');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>2024-03-18</code>, <code>1999-12-25</code></p>
+
+<p><strong>Invalid Values:</strong> <code>03/18/2024</code>, <code>2024-13-01</code>, <code>2024-02-30</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be a valid date in YYYY-MM-DD format.
+[/code]
+
+<h3>valid_time</h3>
+
+<p>The field must be a valid time in <code>HH:MM</code> or <code>HH:MM:SS</code> format (24-hour).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('meeting_time', 'meeting time', 'valid_time');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>14:30</code>, <code>09:15:45</code>, <code>23:59:59</code></p>
+
+<p><strong>Invalid Values:</strong> <code>2:30 PM</code>, <code>25:00</code>, <code>14:60:00</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be a valid time in HH:MM or HH:MM:SS format.
+[/code]
+
+<h3>valid_datetime_local</h3>
+
+<p>The field must be a valid datetime in <code>YYYY-MM-DDTHH:MM</code> format (ISO 8601 local datetime).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('appointment', 'appointment', 'valid_datetime_local');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>2024-03-18T14:30</code>, <code>2024-12-25T23:59</code></p>
+
+<p><strong>Invalid Values:</strong> <code>2024-03-18 14:30</code>, <code>03/18/2024T14:30</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be a valid datetime in YYYY-MM-DDTHH:MM format.
+[/code]
+
+<h3>valid_month</h3>
+
+<p>The field must be a valid month in <code>YYYY-MM</code> format.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('billing_month', 'billing month', 'valid_month');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>2024-03</code>, <code>2024-12</code></p>
+
+<p><strong>Invalid Values:</strong> <code>2024-13</code>, <code>03-2024</code>, <code>March 2024</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be a valid month in YYYY-MM format.
+[/code]
+
+<h3>valid_week</h3>
+
+<p>The field must be a valid week in <code>YYYY-W##</code> format (ISO 8601 week date).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('work_week', 'work week', 'valid_week');
+[/code]
+
+<p><strong>Valid Values:</strong> <code>2024-W12</code>, <code>2024-W52</code></p>
+
+<p><strong>Invalid Values:</strong> <code>2024-W53</code> (if year doesn't have 53 weeks), <code>W12-2024</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be a valid week in YYYY-W## format.
+[/code]
+
+<h2>Length Rules</h2>
+
+<h3>min_length</h3>
+
+<p>The field must be at least the specified number of characters long.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('password', 'password', 'min_length[8]');
+$this->validation->set_rules('username', 'username', 'min_length[3]');
+[/code]
+
+<p><strong>Valid for min_length[3]:</strong> <code>abc</code>, <code>john</code>, <code>user123</code></p>
+
+<p><strong>Invalid for min_length[3]:</strong> <code>ab</code>, <code>x</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be at least [param] characters long.
+[/code]
+
+<h3>max_length</h3>
+
+<p>The field cannot exceed the specified number of characters.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('bio', 'biography', 'max_length[500]');
+$this->validation->set_rules('city', 'city', 'max_length[50]');
+[/code]
+
+<p><strong>Valid for max_length[50]:</strong> <code>New York</code>, <code>Los Angeles</code></p>
+
+<p><strong>Invalid for max_length[50]:</strong> Any string longer than 50 characters</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field cannot exceed [param] characters.
+[/code]
+
+<h3>exact_length</h3>
+
+<p>The field must be exactly the specified number of characters long.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('postal_code', 'postal code', 'exact_length[5]');
+$this->validation->set_rules('zip', 'ZIP code', 'exact_length[5]');
+[/code]
+
+<p><strong>Valid for exact_length[5]:</strong> <code>12345</code>, <code>abcde</code></p>
+
+<p><strong>Invalid for exact_length[5]:</strong> <code>1234</code>, <code>123456</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be exactly [param] characters long.
+[/code]
+
+<h2>Comparison Rules</h2>
+
+<h3>greater_than</h3>
+
+<p>The field must contain a value greater than the specified number.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('age', 'age', 'greater_than[18]');
+$this->validation->set_rules('quantity', 'quantity', 'greater_than[0]');
+[/code]
+
+<p><strong>Valid for greater_than[18]:</strong> <code>19</code>, <code>25</code>, <code>100</code></p>
+
+<p><strong>Invalid for greater_than[18]:</strong> <code>18</code>, <code>17</code>, <code>0</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be greater than [param].
+[/code]
+
+<h3>less_than</h3>
+
+<p>The field must contain a value less than the specified number.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('discount', 'discount', 'less_than[100]');
+$this->validation->set_rules('rating', 'rating', 'less_than[5]');
+[/code]
+
+<p><strong>Valid for less_than[100]:</strong> <code>99</code>, <code>50</code>, <code>0</code></p>
+
+<p><strong>Invalid for less_than[100]:</strong> <code>100</code>, <code>101</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must be less than [param].
+[/code]
+
+<h3>matches</h3>
+
+<p>The field must match the value of another field. Commonly used for password confirmation.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('password', 'password', 'required|min_length[8]');
+$this->validation->set_rules('confirm_password', 'password confirmation', 'required|matches[password]');
+[/code]
+
+<p><strong>Valid:</strong> Both fields contain the same value</p>
+
+<p><strong>Invalid:</strong> Fields contain different values</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] field must match the [param] field.
+[/code]
+
+<p><strong>Note:</strong> The parameter is the name of the field to compare against, not a label.</p>
+
+<h2>File Validation Rules</h2>
+
+<h3>allowed_types</h3>
+
+<p>The uploaded file must be one of the specified file types (by extension).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('document', 'document', 'allowed_types[pdf,doc,docx]');
+$this->validation->set_rules('resume', 'resume', 'allowed_types[pdf,txt]');
+[/code]
+
+<p><strong>Parameters:</strong> Comma-separated list of allowed file extensions (without dots)</p>
+
+<p><strong>Valid for allowed_types[pdf,doc,docx]:</strong> <code>resume.pdf</code>, <code>letter.doc</code>, <code>report.docx</code></p>
+
+<p><strong>Invalid for allowed_types[pdf,doc,docx]:</strong> <code>image.jpg</code>, <code>video.mp4</code></p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] must be one of the following file types: [param].
+[/code]
+
+<h3>max_size</h3>
+
+<p>The uploaded file size cannot exceed the specified limit in kilobytes.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('photo', 'photo', 'max_size[5000]');  // 5MB
+$this->validation->set_rules('document', 'document', 'max_size[10000]');  // 10MB
+[/code]
+
+<p><strong>Parameters:</strong> Maximum file size in kilobytes</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] file size must not exceed [param] KB.
+[/code]
+
+<h3>min_size</h3>
+
+<p>The uploaded file size must be at least the specified limit in kilobytes.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('video', 'video', 'min_size[100]');  // At least 100KB
+[/code]
+
+<p><strong>Parameters:</strong> Minimum file size in kilobytes</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] file size must be at least [param] KB.
+[/code]
+
+<h2>Image Validation Rules</h2>
+
+<h3>is_image</h3>
+
+<p>The uploaded file must be a valid image file (JPG, PNG, GIF, or WEBP).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('avatar', 'avatar', 'is_image');
+[/code]
+
+<p><strong>Valid File Types:</strong> JPG, PNG, GIF, WEBP</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] must be a valid image file.
+[/code]
+
+<h3>max_width</h3>
+
+<p>The image width cannot exceed the specified number of pixels.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('banner', 'banner', 'is_image|max_width[1920]');
+[/code]
+
+<p><strong>Parameters:</strong> Maximum width in pixels</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image width cannot exceed [param] pixels.
+[/code]
+
+<h3>min_width</h3>
+
+<p>The image width must be at least the specified number of pixels.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('thumbnail', 'thumbnail', 'is_image|min_width[200]');
+[/code]
+
+<p><strong>Parameters:</strong> Minimum width in pixels</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image width must be at least [param] pixels.
+[/code]
+
+<h3>max_height</h3>
+
+<p>The image height cannot exceed the specified number of pixels.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('banner', 'banner', 'is_image|max_height[600]');
+[/code]
+
+<p><strong>Parameters:</strong> Maximum height in pixels</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image height cannot exceed [param] pixels.
+[/code]
+
+<h3>min_height</h3>
+
+<p>The image height must be at least the specified number of pixels.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('thumbnail', 'thumbnail', 'is_image|min_height[150]');
+[/code]
+
+<p><strong>Parameters:</strong> Minimum height in pixels</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image height must be at least [param] pixels.
+[/code]
+
+<h3>exact_width</h3>
+
+<p>The image width must be exactly the specified number of pixels.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('logo', 'logo', 'is_image|exact_width[200]');
+[/code]
+
+<p><strong>Parameters:</strong> Exact width in pixels</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image width must be exactly [param] pixels.
+[/code]
+
+<h3>exact_height</h3>
+
+<p>The image height must be exactly the specified number of pixels.</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('logo', 'logo', 'is_image|exact_height[200]');
+[/code]
+
+<p><strong>Parameters:</strong> Exact height in pixels</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image height must be exactly [param] pixels.
+[/code]
+
+<h3>square</h3>
+
+<p>The image must be square (equal width and height).</p>
+
+<p><strong>Syntax:</strong></p>
+[code=php]
+$this->validation->set_rules('profile_pic', 'profile picture', 'is_image|square');
+[/code]
+
+<p><strong>Valid:</strong> Image with width = height (e.g., 200x200, 500x500)</p>
+
+<p><strong>Invalid:</strong> Any rectangular image (e.g., 400x300, 1920x1080)</p>
+
+<p><strong>Error Message:</strong></p>
+[code=text]
+The [label] image must be square (equal width and height).
+[/code]
+
+<h2>Combining Rules</h2>
+
+<p>Multiple rules can be combined using the pipe character (<code>|</code>):</p>
+
+[code=php]
+// Email must be required, valid email format
+$this->validation->set_rules('email', 'email address', 'required|valid_email');
+
+// Username must be required, 3-20 characters
+$this->validation->set_rules('username', 'username', 'required|min_length[3]|max_length[20]');
+
+// Image must be valid image, square, max 2MB
+$this->validation->set_rules('avatar', 'avatar', 'is_image|square|max_size[2000]');
+
+// Password must match confirmation
+$this->validation->set_rules('password', 'password', 'required|min_length[8]');
+$this->validation->set_rules('confirm_password', 'password confirmation', 'required|matches[password]');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Early Exit:</strong> Validation stops at the first error for each field. If <code>required</code> fails, other rules for that field are not checked.</p>
+</div>
+
+<h2>Complete Example</h2>
+
+[code=php]
+public function submit(): void {
+    // Set validation rules
+    $this->validation->set_rules('first_name', 'first name', 'required|min_length[2]|max_length[50]');
+    $this->validation->set_rules('email', 'email address', 'required|valid_email');
+    $this->validation->set_rules('birth_date', 'birth date', 'required|valid_date');
+    $this->validation->set_rules('password', 'password', 'required|min_length[8]');
+    $this->validation->set_rules('confirm_password', 'password confirmation', 'required|matches[password]');
+    $this->validation->set_rules('avatar', 'profile photo', 'is_image|square|max_size[5000]');
+    
+    // Run validation
+    if ($this->validation->run() === true) {
+        // All validation passed - process form
+        $data = $this->model->get_data_from_post();
+        $this->db->insert($data, 'users');
+        set_flashdata('Account created successfully');
+        redirect('login');
+    } else {
+        // Validation failed - redisplay form with errors
+        $this->create();
+    }
+}
+[/code]

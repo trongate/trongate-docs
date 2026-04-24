@@ -1,0 +1,886 @@
+ [meta-description]Complete quick reference for Trongate's Image module: all methods, parameters, return values, and practical examples. Your go-to guide for image manipulation in Trongate.[/meta-description]
+
+<h1>Image Manipulation Quick Reference</h1>
+
+<p>This reference lists all methods available in Trongate's Image module when calling <code>$this-&gt;image-&gt;method_name()</code>. Use this page as your quick lookup guide when working with images.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> All image operations include automatic security validation during upload to prevent malicious file uploads. The Image module automatically preserves transparency for PNG and GIF images through all operations.</p>
+</div>
+
+<h2>Getting Images Into Memory</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-upload()</span></td>
+            <td><code>array $config</code></td>
+            <td><code>array</code></td>
+            <td>Upload a NEW image with automatic security validation, resizing, and thumbnail generation.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-load()</span></td>
+            <td><code>string $filename</code></td>
+            <td><code>void</code></td>
+            <td>Load an EXISTING image from disk into memory for manipulation.</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-success">
+    <p><strong>When to Use Which:</strong></p>
+    <ul>
+        <li><strong>upload()</strong> - For NEW images from user file uploads. Handles validation, security, and optional automatic resizing/thumbnails.</li>
+        <li><strong>load()</strong> - For EXISTING images already on disk. Perfect for batch processing, generating new sizes, or creating variations.</li>
+    </ul>
+</div>
+
+<h2>Upload Configuration</h2>
+
+<h3>Configuration Array Keys</h3>
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Default</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>destination</code></td>
+            <td>string</td>
+            <td>yes</td>
+            <td>-</td>
+            <td>Target directory path</td>
+        </tr>
+        <tr>
+            <td><code>upload_to_module</code></td>
+            <td>bool</td>
+            <td>no</td>
+            <td>false</td>
+            <td>Upload to module directory</td>
+        </tr>
+        <tr>
+            <td><code>target_module</code></td>
+            <td>string</td>
+            <td>no</td>
+            <td>current</td>
+            <td>Target module name</td>
+        </tr>
+        <tr>
+            <td><code>make_rand_name</code></td>
+            <td>bool</td>
+            <td>no</td>
+            <td>false</td>
+            <td>Generate random filename</td>
+        </tr>
+        <tr>
+            <td><code>max_width</code></td>
+            <td>int</td>
+            <td>no</td>
+            <td>450</td>
+            <td>Maximum width (0 = no limit)</td>
+        </tr>
+        <tr>
+            <td><code>max_height</code></td>
+            <td>int</td>
+            <td>no</td>
+            <td>450</td>
+            <td>Maximum height (0 = no limit)</td>
+        </tr>
+        <tr>
+            <td><code>thumbnail_dir</code></td>
+            <td>string</td>
+            <td>no</td>
+            <td>''</td>
+            <td>Thumbnail directory</td>
+        </tr>
+        <tr>
+            <td><code>thumbnail_max_width</code></td>
+            <td>int</td>
+            <td>no</td>
+            <td>0</td>
+            <td>Thumbnail width</td>
+        </tr>
+        <tr>
+            <td><code>thumbnail_max_height</code></td>
+            <td>int</td>
+            <td>no</td>
+            <td>0</td>
+            <td>Thumbnail height</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Upload Example</h3>
+[code=php]
+$config = [
+    'destination' =&gt; 'product_images',
+    'upload_to_module' =&gt; true,
+    'make_rand_name' =&gt; true,
+    'max_width' =&gt; 1200,
+    'max_height' =&gt; 1200,
+    'thumbnail_dir' =&gt; 'product_images/thumbs',
+    'thumbnail_max_width' =&gt; 300,
+    'thumbnail_max_height' =&gt; 300
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+/* Returns:
+[
+    'file_name' =&gt; 'img_6756d8e9a2b4f3.21.jpg',
+    'file_path' =&gt; '../modules/products/product_images/img_6756d8e9a2b4f3.21.jpg',
+    'file_type' =&gt; 'image/jpeg',
+    'file_size' =&gt; 245760,
+    'thumbnail_path' =&gt; '../modules/products/product_images/thumbs/img_6756d8e9a2b4f3.21.jpg'
+]
+*/
+[/code]
+
+<h3>Load Example</h3>
+[code=php]
+// Load existing image from disk
+$this-&gt;image-&gt;load('modules/products/images/widget.jpg');
+
+// Now you can manipulate it
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('modules/products/images/widget_800.jpg');
+[/code]
+
+<h2>Image Information</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-get_width()</span></td>
+            <td>none</td>
+            <td><code>int</code></td>
+            <td>Get width in pixels of currently loaded image.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-get_height()</span></td>
+            <td>none</td>
+            <td><code>int</code></td>
+            <td>Get height in pixels of currently loaded image.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-get_header()</span></td>
+            <td>none</td>
+            <td><code>string</code></td>
+            <td>Get MIME type for currently loaded image (e.g., 'image/jpeg').</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Example Usage</h3>
+[code=php]
+// Load and inspect image
+$this-&gt;image-&gt;load('modules/gallery/photos/landscape.jpg');
+
+$width = $this-&gt;image-&gt;get_width();   // e.g., 1920
+$height = $this-&gt;image-&gt;get_height(); // e.g., 1080
+$mime = $this-&gt;image-&gt;get_header();   // 'image/jpeg'
+
+// Calculate aspect ratio
+$ratio = $width / $height; // 1.78 (16:9)
+
+// Conditional processing
+if ($ratio &gt; 1.5) {
+    // Wide image - resize to width
+    $this-&gt;image-&gt;resize_to_width(800);
+} else {
+    // Portrait or square - resize to height
+    $this-&gt;image-&gt;resize_to_height(600);
+}
+[/code]
+
+<h2>Image Resizing</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_to_width()</span></td>
+            <td><code>int $width</code></td>
+            <td><code>void</code></td>
+            <td>Resize to specific width, height adjusts proportionally.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_to_height()</span></td>
+            <td><code>int $height</code></td>
+            <td><code>void</code></td>
+            <td>Resize to specific height, width adjusts proportionally.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-scale()</span></td>
+            <td><code>float $scale</code></td>
+            <td><code>void</code></td>
+            <td>Scale by percentage (50 = half size, 150 = 1.5× size).</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Resize Examples</h3>
+[code=php]
+// Resize to 800px wide (height adjusts)
+$this-&gt;image-&gt;load('modules/gallery/photos/landscape.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+// Original: 2000×1500 → Result: 800×600
+
+// Resize to 600px tall (width adjusts)
+$this-&gt;image-&gt;load('modules/gallery/photos/portrait.jpg');
+$this-&gt;image-&gt;resize_to_height(600);
+// Original: 1200×1600 → Result: 450×600
+
+// Scale to 50% of original
+$this-&gt;image-&gt;load('modules/products/images/photo.jpg');
+$this-&gt;image-&gt;scale(50);
+// Original: 1920×1080 → Result: 960×540
+
+// Scale to 150% (enlarge)
+$this-&gt;image-&gt;scale(150);
+// Original: 800×600 → Result: 1200×900
+[/code]
+
+<h2>Image Cropping</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-crop()</span></td>
+            <td><code>int $width</code><br><code>int $height</code><br><code>string $trim = 'center'</code></td>
+            <td><code>void</code></td>
+            <td>Crop to exact dimensions. Trim: 'left', 'center', 'right'.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-resize_and_crop()</span></td>
+            <td><code>int $width</code><br><code>int $height</code></td>
+            <td><code>void</code></td>
+            <td>Resize then crop to fill exact dimensions perfectly.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Crop Examples</h3>
+[code=php]
+// Simple crop (centered)
+$this-&gt;image-&gt;load('modules/blog/images/wide.jpg');
+$this-&gt;image-&gt;crop(800, 600);
+// Crops from center
+
+// Crop from left (preserve left side)
+$this-&gt;image-&gt;crop(800, 600, 'left');
+
+// Crop from right (preserve right side)
+$this-&gt;image-&gt;crop(800, 600, 'right');
+
+// Perfect fit (resize + crop)
+$this-&gt;image-&gt;load('modules/products/images/any-size.jpg');
+$this-&gt;image-&gt;resize_and_crop(400, 300);
+// Always produces exactly 400×300, no stretching
+[/code]
+
+<h2>Image Saving and Output</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">included-image-save()</span></td>
+            <td><code>string $filename = null</code><br><code>int $compression = 100</code><br><code>int $permissions = null</code></td>
+            <td><code>void</code></td>
+            <td>Save image to disk with optional compression and permissions.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-output()</span></td>
+            <td><code>bool $return = false</code></td>
+            <td><code>string|null</code></td>
+            <td>Output image to browser or return as string.</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">included-image-destroy()</span></td>
+            <td>none</td>
+            <td><code>void</code></td>
+            <td>Free memory allocated to the image resource.</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Save and Output Examples</h3>
+[code=php]
+// Save with default quality (100)
+$this-&gt;image-&gt;load('modules/gallery/photos/original.jpg');
+$this-&gt;image-&gt;resize_to_width(800);
+$this-&gt;image-&gt;save('modules/gallery/photos/resized.jpg');
+
+// Save with compression (85% quality)
+$this-&gt;image-&gt;save('modules/gallery/photos/compressed.jpg', 85);
+
+// Save with custom permissions
+$this-&gt;image-&gt;save('modules/documents/private/secure.jpg', 90, 0600);
+
+// Output directly to browser
+$this-&gt;image-&gt;load('modules/products/images/photo.jpg');
+$this-&gt;image-&gt;resize_to_width(400);
+header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+$this-&gt;image-&gt;output();
+
+// Capture as binary string
+$image_data = $this-&gt;image-&gt;output(true);
+$base64 = base64_encode($image_data);
+
+// Free memory when done
+$this-&gt;image-&gt;destroy();
+[/code]
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: User Avatar Upload with Multiple Sizes</h3>
+[code=php]
+public function upload_avatar(): void {
+    $user_id = segment(3, 'int');
+    
+    $this-&gt;validation-&gt;set_rules(
+        'avatar',
+        'Avatar',
+        'required|max_size[2000]|max_width[2000]|max_height[2000]'
+    );
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        $config = [
+            'destination' =&gt; 'avatars',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'users',
+            'make_rand_name' =&gt; true,
+            'max_width' =&gt; 800,
+            'max_height' =&gt; 800,
+            'thumbnail_dir' =&gt; 'avatars/thumbs',
+            'thumbnail_max_width' =&gt; 150,
+            'thumbnail_max_height' =&gt; 150
+        ];
+        
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Store paths in database
+        $data = [
+            'avatar_full' =&gt; $file_info['file_path'],
+            'avatar_thumb' =&gt; $file_info['thumbnail_path']
+        ];
+        
+        $this-&gt;model-&gt;update($user_id, $data, 'users');
+        
+        set_flashdata('Avatar updated successfully!');
+        redirect('users/profile/' . $user_id);
+    } else {
+        $this-&gt;avatar_form($user_id);
+    }
+}
+[/code]
+
+<h3>Pattern 2: Generate Multiple Product Image Sizes</h3>
+[code=php]
+public function process_product_image(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    $source_path = $product-&gt;original_image_path;
+    
+    $sizes = [
+        'large' =&gt; 1200,
+        'medium' =&gt; 800,
+        'small' =&gt; 400,
+        'thumbnail' =&gt; 200
+    ];
+    
+    $paths = [];
+    
+    foreach ($sizes as $name =&gt; $width) {
+        // Load original fresh for each size
+        $this-&gt;image-&gt;load($source_path);
+        $this-&gt;image-&gt;resize_to_width($width);
+        
+        $output_path = str_replace('.jpg', "_{$name}.jpg", $source_path);
+        $this-&gt;image-&gt;save($output_path, 85);
+        $this-&gt;image-&gt;destroy();
+        
+        $paths[$name] = $output_path;
+    }
+    
+    // Store all paths
+    $data = [
+        'image_large' =&gt; $paths['large'],
+        'image_medium' =&gt; $paths['medium'],
+        'image_small' =&gt; $paths['small'],
+        'image_thumbnail' =&gt; $paths['thumbnail']
+    ];
+    
+    $this-&gt;model-&gt;update($product_id, $data, 'products');
+    
+    set_flashdata('Product images generated successfully');
+    redirect('products/edit/' . $product_id);
+}
+[/code]
+
+<h3>Pattern 3: Dynamic Image Serving</h3>
+[code=php]
+public function serve(): void {
+    $product_id = segment(3, 'int');
+    $size = segment(4) ?? 'medium';
+    
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    // Check if original image exists
+    if (!$this-&gt;file-&gt;exists($product-&gt;original_image_path)) {
+        redirect('products/image_missing');
+    }
+    
+    // Load original
+    $this-&gt;image-&gt;load($product-&gt;original_image_path);
+    
+    // Resize based on size parameter
+    switch ($size) {
+        case 'large':
+            $this-&gt;image-&gt;resize_to_width(1200);
+            break;
+        case 'small':
+            $this-&gt;image-&gt;resize_to_width(400);
+            break;
+        case 'thumbnail':
+            $this-&gt;image-&gt;resize_and_crop(200, 200);
+            break;
+        case 'medium':
+        default:
+            $this-&gt;image-&gt;resize_to_width(800);
+            break;
+    }
+    
+    // Cache for 1 week
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    header('Cache-Control: public, max-age=604800');
+    
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+
+// Usage: yoursite.com/products/serve/123/large
+[/code]
+
+<h3>Pattern 4: Format Conversion</h3>
+[code=php]
+public function convert_to_webp(): void {
+    $product_id = segment(3, 'int');
+    
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    $source_path = $product-&gt;image_path;
+    
+    // Check source exists
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        set_flashdata('Source image not found');
+        redirect('products/edit/' . $product_id);
+    }
+    
+    // Load and convert
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Create WebP version
+    $webp_path = str_replace(
+        ['.jpg', '.jpeg', '.png'],
+        '.webp',
+        $source_path
+    );
+    
+    $this-&gt;image-&gt;save($webp_path, 85);
+    $this-&gt;image-&gt;destroy();
+    
+    // Update database
+    $data = ['image_webp' =&gt; $webp_path];
+    $this-&gt;model-&gt;update($product_id, $data, 'products');
+    
+    set_flashdata('Image converted to WebP format');
+    redirect('products/edit/' . $product_id);
+}
+[/code]
+
+<h3>Pattern 5: Conditional Processing Based on Dimensions</h3>
+[code=php]
+public function smart_resize(): void {
+    $photo_id = segment(3, 'int');
+    
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $image_path = $photo-&gt;original_path;
+    
+    if (!$this-&gt;file-&gt;exists($image_path)) {
+        set_flashdata('Image file not found');
+        redirect('photos/manage');
+    }
+    
+    $this-&gt;image-&gt;load($image_path);
+    
+    $width = $this-&gt;image-&gt;get_width();
+    $height = $this-&gt;image-&gt;get_height();
+    $ratio = $width / $height;
+    
+    if ($ratio &gt; 1.5) {
+        // Wide landscape
+        $this-&gt;image-&gt;resize_to_width(1200);
+    } elseif ($ratio &lt; 0.7) {
+        // Tall portrait
+        $this-&gt;image-&gt;resize_to_height(1200);
+    } else {
+        // Square-ish
+        $this-&gt;image-&gt;resize_and_crop(1000, 1000);
+    }
+    
+    $this-&gt;image-&gt;save($image_path, 85);
+    $this-&gt;image-&gt;destroy();
+    
+    set_flashdata('Photo optimized successfully');
+    redirect('photos/view/' . $photo_id);
+}
+[/code]
+
+<h2>Validation Rules for Image Uploads</h2>
+
+<p>Use these validation rules with <code>$this-&gt;validation-&gt;set_rules()</code>:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Rule</th>
+            <th>Parameter</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>required</code></td>
+            <td>none</td>
+            <td>Image upload is mandatory</td>
+        </tr>
+        <tr>
+            <td><code>max_size</code></td>
+            <td>KB</td>
+            <td>Maximum file size (e.g., <code>max_size[5000]</code> = 5MB)</td>
+        </tr>
+        <tr>
+            <td><code>max_width</code></td>
+            <td>pixels</td>
+            <td>Maximum image width</td>
+        </tr>
+        <tr>
+            <td><code>max_height</code></td>
+            <td>pixels</td>
+            <td>Maximum image height</td>
+        </tr>
+        <tr>
+            <td><code>min_width</code></td>
+            <td>pixels</td>
+            <td>Minimum image width</td>
+        </tr>
+        <tr>
+            <td><code>min_height</code></td>
+            <td>pixels</td>
+            <td>Minimum image height</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Validation Example</h3>
+[code=php]
+// Avatar requirements: square, 100-2000px, max 2MB
+$this-&gt;validation-&gt;set_rules(
+    'avatar',
+    'Profile Picture',
+    'required|max_size[2000]|min_width[100]|min_height[100]|max_width[2000]|max_height[2000]'
+);
+
+// Product image: flexible size, max 5MB
+$this-&gt;validation-&gt;set_rules(
+    'product_image',
+    'Product Image',
+    'required|max_size[5000]|max_width[4000]|max_height[4000]'
+);
+[/code]
+
+<h2>Quality Settings Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Quality</th>
+            <th>File Size</th>
+            <th>Visual Quality</th>
+            <th>Best For</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>100</td>
+            <td>Largest</td>
+            <td>Maximum</td>
+            <td>Archival, printing, source files</td>
+        </tr>
+        <tr>
+            <td>90-95</td>
+            <td>Large</td>
+            <td>Excellent</td>
+            <td>Hero images, featured content</td>
+        </tr>
+        <tr>
+            <td>85-90</td>
+            <td>Medium</td>
+            <td>Very good</td>
+            <td>Standard web images (recommended)</td>
+        </tr>
+        <tr>
+            <td>75-85</td>
+            <td>Small</td>
+            <td>Good</td>
+            <td>Thumbnails, list views</td>
+        </tr>
+        <tr>
+            <td>60-75</td>
+            <td>Very small</td>
+            <td>Acceptable</td>
+            <td>Previews, backgrounds</td>
+        </tr>
+        <tr>
+            <td>&lt;60</td>
+            <td>Tiny</td>
+            <td>Poor</td>
+            <td>Avoid for web use</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Supported Image Formats</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Format</th>
+            <th>Extension</th>
+            <th>MIME Type</th>
+            <th>Transparency</th>
+            <th>Compression</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>JPEG</td>
+            <td>.jpg, .jpeg</td>
+            <td>image/jpeg</td>
+            <td>No</td>
+            <td>Lossy (adjustable 0-100)</td>
+        </tr>
+        <tr>
+            <td>PNG</td>
+            <td>.png</td>
+            <td>image/png</td>
+            <td>Yes (alpha channel)</td>
+            <td>Lossless</td>
+        </tr>
+        <tr>
+            <td>GIF</td>
+            <td>.gif</td>
+            <td>image/gif</td>
+            <td>Yes (binary)</td>
+            <td>Lossless (256 colors)</td>
+        </tr>
+        <tr>
+            <td>WEBP</td>
+            <td>.webp</td>
+            <td>image/webp</td>
+            <td>Yes (alpha channel)</td>
+            <td>Lossy or lossless</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>File Permission Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Permission</th>
+            <th>Octal</th>
+            <th>Description</th>
+            <th>Use Case</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>rw-r--r--</td>
+            <td>0644</td>
+            <td>Owner writes, all read</td>
+            <td>Public web images (recommended)</td>
+        </tr>
+        <tr>
+            <td>rw-r-----</td>
+            <td>0640</td>
+            <td>Owner writes, group reads</td>
+            <td>Semi-private images</td>
+        </tr>
+        <tr>
+            <td>rw-------</td>
+            <td>0600</td>
+            <td>Owner only</td>
+            <td>Private images, documents</td>
+        </tr>
+        <tr>
+            <td>rw-rw-r--</td>
+            <td>0664</td>
+            <td>Owner/group write, all read</td>
+            <td>Shared editing environments</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Best Practices Summary</h2>
+
+<div class="alert alert-success">
+    <p><strong>Image Manipulation Essentials:</strong></p>
+    <ul>
+        <li>✅ Use <span class="feature-ref">included-image-upload()</span> for NEW images from users</li>
+        <li>✅ Use <span class="feature-ref">included-image-load()</span> for EXISTING images on disk</li>
+        <li>✅ Always validate images before uploading (type, size, dimensions)</li>
+        <li>✅ Use <code>make_rand_name</code> for user-uploaded images (security)</li>
+        <li>✅ Store complete paths from <code>upload()</code> in your database</li>
+        <li>✅ Generate common sizes during upload, not on-demand</li>
+        <li>✅ Reload source with <code>load()</code> when generating multiple sizes</li>
+        <li>✅ Use quality 85-90 for web images (balance of quality/size)</li>
+        <li>✅ Set appropriate permissions (0644 public, 0600 private)</li>
+        <li>✅ Check file existence before <code>load()</code> operations</li>
+        <li>✅ Preserve originals and generate variants as needed</li>
+        <li>✅ Use <code>resize_to_width()</code> for most layouts</li>
+        <li>✅ Use <code>resize_and_crop()</code> for thumbnails and grids</li>
+        <li>✅ Add caching headers when serving dynamic images</li>
+        <li>✅ Call <code>destroy()</code> when processing many images in a loop</li>
+        <li>✅ Use <code>output()</code> for watermarks and on-the-fly generation</li>
+    </ul>
+</div>
+
+<h2>Quick Decision Matrix</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Task</th>
+            <th>Method(s)</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Upload new image</td>
+            <td><code>upload()</code></td>
+            <td>Handles validation, security, optional resize/thumbnails</td>
+        </tr>
+        <tr>
+            <td>Load existing image</td>
+            <td><code>load()</code></td>
+            <td>For batch processing or generating new sizes</td>
+        </tr>
+        <tr>
+            <td>Create square thumbnail</td>
+            <td><code>resize_and_crop()</code></td>
+            <td>Perfect for avatars and icons</td>
+        </tr>
+        <tr>
+            <td>Resize for web display</td>
+            <td><code>resize_to_width()</code></td>
+            <td>Most common for responsive layouts</td>
+        </tr>
+        <tr>
+            <td>Reduce file size</td>
+            <td><code>save()</code> with quality 80-85</td>
+            <td>Good balance for web</td>
+        </tr>
+        <tr>
+            <td>Dynamic watermark</td>
+            <td><code>output()</code></td>
+            <td>Don't store watermarked versions</td>
+        </tr>
+        <tr>
+            <td>Convert format</td>
+            <td><code>save()</code> with new extension</td>
+            <td>Change .jpg to .webp, etc.</td>
+        </tr>
+        <tr>
+            <td>Multiple sizes</td>
+            <td>Loop with <code>load()</code> + resize + <code>save()</code></td>
+            <td>Reload source each time</td>
+        </tr>
+        <tr>
+            <td>Check dimensions first</td>
+            <td><code>get_width()</code>/<code>get_height()</code></td>
+            <td>For conditional processing</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Need More Details?</strong> Each method is fully documented in the <a href="documentation-ref/list_refs/included/image" target="_blank">Image Module Reference</a> with complete parameter descriptions, return values, and exception handling.</p>
+</div>

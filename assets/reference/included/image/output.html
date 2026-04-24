@@ -1,0 +1,264 @@
+ <div class="container">
+    <h1>output()</h1>
+    <p class="signature">public function output(bool $return = false): ?string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Outputs the currently loaded image directly to the browser or returns the image data as a string. This method provides two modes of operation: streaming the image directly to the browser for immediate display, or capturing the image data as a binary string for further processing or storage.</p>
+    </div>
+
+    <h4 class="mt-3">When to Use output() vs. Standard &lt;img&gt; Tags</h4>
+    
+    <p><strong>Use standard &lt;img&gt; tags in view files for:</strong></p>
+    <ul>
+        <li>Displaying images that are already saved as files on disk</li>
+        <li>Standard image galleries, product photos, user avatars</li>
+        <li>Any scenario where you have a static image file to display</li>
+    </ul>
+    
+    <p><strong>Use output() in controller methods for:</strong></p>
+    <ul>
+        <li>Serving images that require on-the-fly processing (resize, crop, watermark)</li>
+        <li>Protecting images behind authentication/authorisation checks</li>
+        <li>Dynamic image serving based on URL parameters</li>
+        <li>Capturing image data for APIs, PDFs, or database storage</li>
+    </ul>
+    
+    <p>The <code>output()</code> method is designed for use in <strong>controller methods only</strong>, not in view files. Your view files still use standard <code>&lt;img&gt;</code> tags that point to either static image files or controller URLs that use <code>output()</code>.</p>
+
+    <div class="alert alert-info">
+        <p><strong>Alternative: Interceptors for Blanket Protection:</strong> Trongate v2's Interceptors feature can protect entire directories or URL patterns before routing occurs. However, controller-based serving with <code>output()</code> provides more granular control, allowing per-image authorisation decisions and custom processing logic.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Set Headers First:</strong> When outputting directly to the browser (default behaviour), always set the Content-Type header using <code>get_header()</code> before calling <code>output()</code>. Without the proper header, browsers may fail to display the image correctly.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$return</td>
+                <td>bool</td>
+                <td>If true, returns image data as a string. If false, outputs directly to browser.</td>
+                <td>false</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string|null</td>
+                <td>Returns binary image data as a string when $return is true. Returns null when $return is false (outputs directly to browser).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates outputting an image directly to the browser.</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Set the Content-Type header
+header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+
+// Output directly to browser
+$this-&gt;image-&gt;output();
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Direct Output Pattern:</strong> When calling <code>output()</code> without parameters (or with <code>false</code>), the image is streamed directly to the browser. This is the most common use case for serving images dynamically. Always set the Content-Type header first, and avoid any other output before or after the <code>output()</code> call.</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>How This Works with View Files:</strong> In your view files, you still use standard HTML <code>&lt;img&gt;</code> tags. The <code>src</code> attribute points to a controller method that uses <code>output()</code> to serve the image:</p>
+        <p><strong>In your view file:</strong></p>
+        <p><code>&lt;img src="&lt;?= BASE_URL ?&gt;gallery/serve_photo/&lt;?= $photo_id ?&gt;" alt="Photo"&gt;</code></p>
+        <p><strong>In your controller:</strong></p>
+        <p><code>public function serve_photo() { /* load image, set headers, output() */ }</code></p>
+        <p>The browser makes a request to your controller URL, which processes and outputs the image. This pattern is only needed when you require on-the-fly processing or access control. For static images already on disk, point <code>src</code> directly to the file path.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to serve a dynamically resized image to the browser.</p>
+[code=php]
+public function serve_resized_image(): void {
+    $photo_id = segment(3, 'int');
+    $width = segment(4, 'int');
+    
+    // Validate width parameter
+    if ($width &lt; 100 || $width &gt; 2000) {
+        redirect('photos/invalid_size');
+    }
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $image_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($image_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load and resize the image
+    $this-&gt;image-&gt;load($image_path);
+    $this-&gt;image-&gt;resize_to_width($width);
+    
+    // Set caching headers for performance
+    header('Cache-Control: public, max-age=86400');
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    
+    // Output the image directly
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Dynamic Image Serving:</strong> This pattern is ideal for on-the-fly image processing. Instead of pre-generating multiple sizes, you can create a controller method that accepts dimensions as URL parameters and serves appropriately sized images. Add cache headers to improve performance for repeated requests.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates using the return parameter to capture image data as a string.</p>
+[code=php]
+public function generate_pdf_with_images(): void {
+    $report_id = segment(3, 'int');
+    
+    // Get report record
+    $report = $this-&gt;db-&gt;get_where($report_id, 'reports');
+    
+    if ($report === false) {
+        redirect('reports/not_found');
+    }
+    
+    // Get associated images
+    $images = $this-&gt;model-&gt;get_many_where("report_id = {$report_id}", 'report_images');
+    
+    $image_data_array = [];
+    
+    foreach ($images as $image) {
+        $image_path = 'modules/reports/images/' . $image-&gt;filename;
+        
+        if ($this-&gt;file-&gt;exists($image_path)) {
+            // Load and process the image
+            $this-&gt;image-&gt;load($image_path);
+            $this-&gt;image-&gt;resize_to_width(400);
+            
+            // Capture image data as string
+            $image_binary = $this-&gt;image-&gt;output(true);
+            
+            // Store for PDF generation
+            $image_data_array[] = [
+                'binary' =&gt; $image_binary,
+                'caption' =&gt; $image-&gt;caption,
+                'mime_type' =&gt; $this-&gt;image-&gt;get_header()
+            ];
+            
+            // Free memory before next iteration
+            $this-&gt;image-&gt;destroy();
+        }
+    }
+    
+    // Use image data to generate PDF
+    $pdf_path = $this-&gt;generate_pdf_report($report, $image_data_array);
+    
+    set_flashdata('PDF report generated successfully');
+    redirect('reports/download/' . basename($pdf_path));
+}
+
+private function generate_pdf_report(object $report, array $images): string {
+    // PDF generation logic using $images array
+    // Each image is already in binary format ready for embedding
+    // Implementation details omitted for brevity
+    return 'path/to/generated.pdf';
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Capturing Image Data:</strong> When <code>output(true)</code> is called, the method returns the binary image data as a string instead of outputting to the browser. This is useful for embedding images in PDFs, storing in databases as BLOBs, or sending via APIs. The returned data is the complete binary image file.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows how to create an API endpoint that returns image data in a JSON response.</p>
+[code=php]
+public function api_get_processed_image(): void {
+    // Set JSON response header
+    header('Content-Type: application/json');
+    
+    $product_id = segment(4, 'int');
+    
+    // Get product record
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        echo json_encode(['error' =&gt; 'Product not found']);
+        return;
+    }
+    
+    $image_path = 'modules/products/images/' . $product-&gt;image_filename;
+    
+    if (!$this-&gt;file-&gt;exists($image_path)) {
+        echo json_encode(['error' =&gt; 'Image file not found']);
+        return;
+    }
+    
+    // Load and process the image
+    $this-&gt;image-&gt;load($image_path);
+    $this-&gt;image-&gt;resize_to_width(300);
+    $this-&gt;image-&gt;crop(300, 300, 'center');
+    
+    // Get image data as string
+    $image_binary = $this-&gt;image-&gt;output(true);
+    $mime_type = $this-&gt;image-&gt;get_header();
+    
+    // Clean up
+    $this-&gt;image-&gt;destroy();
+    
+    // Encode as base64 for JSON transport
+    $base64_image = base64_encode($image_binary);
+    
+    // Return JSON response with embedded image
+    $response = [
+        'product_id' =&gt; $product_id,
+        'product_name' =&gt; $product-&gt;product_name,
+        'image_data' =&gt; $base64_image,
+        'mime_type' =&gt; $mime_type,
+        'data_uri' =&gt; 'data:' . $mime_type . ';base64,' . $base64_image
+    ];
+    
+    echo json_encode($response);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>API Image Delivery:</strong> When building APIs that need to include image data, use <code>output(true)</code> to capture the binary data, then encode it as base64 for JSON transport. The <code>data_uri</code> format shown above can be used directly in HTML <code>&lt;img&gt;</code> tags on the frontend.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>No Additional Output:</strong> When using <code>output()</code> without the return parameter, ensure no other content is sent to the browser before or after the call. Any extra output (whitespace, error messages, HTML) will corrupt the image data. This includes making sure there's no output buffering elsewhere in your application that might interfere.</p>
+    </div>
+
+</div>

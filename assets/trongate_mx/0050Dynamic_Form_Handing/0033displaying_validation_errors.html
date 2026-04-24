@@ -1,0 +1,107 @@
+<h1>Displaying Validation Errors</h1>
+
+<p>In the previous pages of this chapter, we've deliberately avoided going into detail about what to do when there are server-side form validation errors. On more than one occasion, we've offered code samples that look like this:</p>
+
+[code=php]
+$result = $this->validation->run(); // Returns true or false.
+
+if ($result === false) {
+  // Validation failed
+} else {
+  // Continue with your business logic
+}
+[/code]
+
+<p>Now, let's explore how to handle server-side form validation errors in a professional and graceful manner.</p>
+
+<h2>The Importance of HTTP Response Status Codes</h2>
+
+<p>With traditional, PHP-based form handling, HTTP response status codes are not considered important. Indeed, it's possible to enjoy an entire career as a PHP developer without ever using or even knowing about HTTP response status codes!</p>
+
+<p>When you're working with Trongate MX, however, HTTP response status codes become very important.</p>
+
+<p>The HTTP response status code returned by your server - after a form submission - can be used to indicate whether the form passed the validation tests or whether validation errors occurred.</p>
+
+<div class="alert alert-info">
+  <p>For more information about HTTP response status codes, visit <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status" target="_blank" rel="noopener">MDN Web Docs: HTTP Response Status Codes</a>.</p>
+</div>
+
+<h3 class="mt-3">Sending Appropriate HTTP Response Status Codes</h3>
+
+<p>When form validation errors occur, it's widely considered a best practice for the server to return an HTTP response status code of either <b>400</b> (Bad Request) or <b>422</b> (Unprocessable Entity). These codes clearly signal to the client that the request was received, but that there was a problem with the submitted data.</p>
+
+<p>Conversely, if the form submission passes validation and is processed successfully, it's customary to return a <b>200</b> (OK) response status code.</p>
+
+<p>In PHP, sending an appropriate HTTP response status code is remarkably straightforward and can be achieved with one line of code. For example:</p>
+
+[code=php]http_response_code(200); // Indicates the form submission was successful.[/code]
+
+<p>Incorporating proper status codes not only improves the clarity of communication between the server and client but also lays the groundwork for building more robust, API-friendly applications.</p>
+
+<h2>How To Render Server-side Validation Errors</h2>
+
+<p>Trongate MX builds on the principle of returning meaningful HTTP response status codes by allowing your endpoint to return a response body that contains an array of validation errors. These errors can then be automatically extracted and displayed by Trongate MX on the front end. This is made possible using the <span class="feature-ref">validation_errors()</span> form helper function.</p>
+
+<div class="alert alert-info">
+  <p>If that last paragraph seems a bit overwhelming - don’t worry!</p>
+  <p>When it comes to handling server-side validation errors, Trongate MX takes care of all the complex logic behind the scenes. You don’t need to understand how the response body is parsed or how the errors are rendered - it just works!</p>
+</div>
+
+
+
+<p>If you're already familiar with Trongate’s traditional form handling, you might know that <code>validation_errors()</code> is typically used within view files to display validation error messages. However, when working with Trongate MX, we use <code>validation_errors()</code> differently  -  by calling it from your controller and passing in the desired HTTP response status code. For example:</p>
+
+[code=php]validation_errors(400);[/code]
+
+<p>Using <code>validation_errors()</code> this way eliminates the need to separately call <code>http_response_code()</code>. It handles both setting the HTTP response code and returning the validation errors in one clean, elegant statement. This makes your controller logic more concise and efficient.</p>
+
+<p>Here’s what this looks like in practice:</p>
+
+[code=php]$result = $this->validation->run(); // Returns true or false.
+
+if ($result === false) {
+  // Validation failed
+  validation_errors(400);
+} else {
+  // Continue with your business logic
+  http_response_code(200);
+}
+[/code]
+
+<hr>
+<h2>What About the Front End?</h2>
+
+<p>Now that we’ve covered how server-side form validation works, let’s turn our attention to the front end. Our next goal is to display form validation errors when they occur  -  clearly and elegantly.</p>
+
+<p>To automatically render server-side validation errors on a submitted form, simply add a CSS class of <code>highlight-errors</code> to your opening form tag. Here’s an example:</p>
+
+[code=vf]
+&lt;?php
+// This form automatically renders server-side validation errors!
+$form_attr = [
+  'mx-post' => 'tasks/submit',
+  'class' => 'highlight-errors'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>In Conclusion</h2>
+
+<p>The ability to dynamically render inline form validation errors  -  with just two lines of code  -  is arguably one of Trongate MX’s most impressive features.</p>
+
+<p>Ask yourself:</p>
+<p><b>"How long would it take to build this kind of functionality <i>without</i> Trongate MX?"</b></p>
+
+<p>Even for an experienced developer, building this from scratch could take hours or require dependence on third-party libraries.</p>
+
+<p>What truly sets Trongate MX apart is that it lets you harness the power of Trongate’s <a href="documentation-ref/list_refs/class_reference/the-validation-class" target="_blank">Validation class</a>, built-in security, and form helpers  -  right out of the box. You can create beautiful, highly interactive single-page applications <i>without</i> writing any JavaScript, and without relying on any third-party libraries.</p>
+
+<h2>And There’s More!</h2>
+
+<p>With Trongate MX, you can also invoke your own custom JavaScript functions after validation errors have occurred. Full details on how to use this advanced functionality are offered on the next page.</p>

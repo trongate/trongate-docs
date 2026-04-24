@@ -1,0 +1,100 @@
+<div class="container">
+  <h1>display_errors()</h1>
+  <p class="signature">public function display_errors(array $data = []): ?string</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Displays validation errors in one of three formats: general HTML list, inline field‑specific errors, or JSON API response. This method is the object‑oriented counterpart to the <code>validation_errors()</code> helper function.</p>
+    <p>The format is determined by the <code>first_arg</code> value in the <code>$data</code> array:</p>
+    <ul>
+      <li><strong>null or omitted</strong> – General errors for all fields (wrapped in <code>&lt;ul class="validation-errors"&gt;</code>)</li>
+      <li><strong>string (field name)</strong> – Inline errors for a specific field</li>
+      <li><strong>integer (400‑499)</strong> – JSON response with HTTP error code</li>
+    </ul>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$data</td>
+        <td>array</td>
+        <td>Associative array with optional keys:
+          <ul>
+            <li><code>first_arg</code> – string|int|null (field name, HTTP code, or null)</li>
+            <li><code>closing_html</code> – ?string (closing HTML tag for general errors)</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|null</td>
+        <td>
+          <ul>
+            <li><strong>HTML string</strong> – For general or inline errors</li>
+            <li><strong>null</strong> – If no errors exist (general mode)</li>
+            <li><strong>JSON response</strong> – Script terminates with <code>exit</code> (API mode)</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// General errors (all fields)
+$errors = $this->validation->display_errors();
+// Returns: &lt;ul class="validation-errors"&gt;...&lt;/ul&gt; or null
+
+// Inline errors for specific field
+$email_errors = $this->validation->display_errors(['first_arg' => 'email']);
+// Returns: &lt;ul class="validation-errors validation-errors--inline"&gt;...&lt;/ul&gt; or empty string
+
+// JSON API response (terminates script)
+$this->validation->display_errors(['first_arg' => 422]);
+// Sends HTTP 422 with JSON error array, then exits
+
+// Custom HTML wrapper
+$errors = $this->validation->display_errors([
+    'first_arg' => '&lt;div class="alert alert-danger"&gt;',
+    'closing_html' => '&lt;/div&gt;'
+]);
+
+// Typical form controller pattern
+public function submit() {
+    $this->validation->set_rules('email', 'Email', 'required|valid_email');
+    if (!$this->validation->run()) {
+        $data['errors'] = $this->validation->display_errors();
+        $this->view('form', $data);
+        return;
+    }
+    // Process valid data...
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Errors are retrieved from <code>$_SESSION['form_submission_errors']</code>.</li>
+    <li>In JSON mode (HTTP code), the script terminates after output – no return value.</li>
+    <li>For inline errors, an empty string is returned if the field has no errors.</li>
+    <li>After errors are displayed, they are cleared from session (to prevent duplicate display).</li>
+    <li>Use the helper <code>validation_errors()</code> for simpler, function‑based access.</li>
+  </ul>
+</div>

@@ -1,0 +1,186 @@
+[meta-description]String helpers: truncate_str(), out(), make_rand_str(), url_title(), filter_str() and more. Pure PHP text utilities - no dependencies, no config, no fuss.[/meta-description]
+<h1>String Helpers</h1>
+
+<p>Trongate ships with a compact suite of pure PHP functions for everyday text-work. No configuration, no classes, no overhead - just reliable helpers you can call from any controller, model or view.</p>
+
+<hr>
+
+<h2>Available Functions</h2>
+
+<ul class="feature-ref-list">
+  <li><span class="feature-ref">extract_content()</span> - pull text between two markers</li>
+  <li><span class="feature-ref">filter_name()</span> - sanitize names and usernames</li>
+  <li><span class="feature-ref">filter_str()</span> - clean general text input</li>
+  <li><span class="feature-ref">get_last_part()</span> - return the final segment</li>
+  <li><span class="feature-ref">make_rand_str()</span> - generate cryptographically secure random strings</li>
+  <li><span class="feature-ref">nice_price()</span> - format numbers as prices</li>
+  <li><span class="feature-ref">out()</span> - escape output for HTML, JSON, JavaScript and XML</li>
+  <li><span class="feature-ref">remove_html_code()</span> - strip blocks of HTML by pattern</li>
+  <li><span class="feature-ref">remove_substr_between()</span> - remove text between markers</li>
+  <li><span class="feature-ref">replace_html_tags()</span> - convert HTML blocks based on rules</li>
+  <li><span class="feature-ref">sanitize_filename()</span> - clean filenames safely</li>
+  <li><span class="feature-ref">truncate_str()</span> - limit by characters</li>
+  <li><span class="feature-ref">truncate_words()</span> - limit by words</li>
+  <li><span class="feature-ref">url_title()</span> - generate URL - friendly slugs</li>
+</ul>
+
+<hr>
+
+<h2>Truncate Text</h2>
+
+<p>The <span class="feature-ref">truncate_str()</span> function cuts by characters. The <span class="feature-ref">truncate_words()</span> function cuts by words.</p>
+
+[code=php]&lt;?php
+$txt = 'The quick brown fox jumps over the lazy dog';
+
+echo truncate_str($txt, 20);     // The quick brown fox...
+echo truncate_words($txt, 4);    // The quick brown fox...
+?&gt;
+[/code]
+
+<hr>
+
+<h2>Get the Final Segment</h2>
+
+<p>The <span class="feature-ref">get_last_part()</span> function returns the final portion of a string using a chosen delimiter.</p>
+
+[code=php]&lt;?php
+echo get_last_part('user-profile-photo');         // photo
+echo get_last_part('path/to/something', '/');     // something
+?&gt;
+[/code]
+
+<hr>
+
+<h2>Extract or Remove Text Between Markers</h2>
+
+<p>The <span class="feature-ref">extract_content()</span> function finds the first matching pair of delimiters and returns what is inside.</p>
+
+[code=php]&lt;?php
+$html = '&lt;div&gt;Keep&lt;/div&gt;&lt;script&gt;bad()&lt;/script&gt;';
+
+echo extract_content($html, '&lt;div&gt;', '&lt;/div&gt;');  
+// Keep
+?&gt;
+[/code]
+
+<p>The <span class="feature-ref">remove_substr_between()</span> removes text between markers. You may remove a single match or all matches.</p>
+
+[code=php]&lt;?php
+$str = 'Hello [hide]secret[/hide] world';
+
+echo remove_substr_between('[hide]', '[/hide]', $str);
+// Hello  world
+
+echo remove_substr_between('[hide]', '[/hide]', $str, true);
+// Removes every instance if there are multiple
+?&gt;
+[/code]
+
+<hr>
+
+<h2>Prices</h2>
+
+<p>The <span class="feature-ref">nice_price()</span> function formats numbers using commas, removes unnecessary decimals and optionally prepends a currency symbol.</p>
+
+[code=php]&lt;?php
+echo nice_price(1234.56);        // 1,234.56
+echo nice_price(1000.00);        // 1,000
+echo nice_price(999.00, '$');    // $999
+?&gt;
+[/code]
+
+<hr>
+
+<h2>Slugs and Safe Filenames</h2>
+
+<p>The <span class="feature-ref">url_title()</span> function creates a URL - friendly slug. If the <code>intl</code> extension is loaded, it transliterates non-Latin characters.</p>
+
+[code=php]&lt;?php
+echo url_title('Café Résumé 2025');
+// cafe-resume-2025
+?&gt;
+[/code]
+
+<p>The <span class="feature-ref">sanitize_filename()</span> function cleans filenames, preserves extensions and handles international characters safely.</p>
+
+[code=php]&lt;?php
+echo sanitize_filename('Москва Фото.jpg');
+// moskva-foto.jpg   (when intl is enabled)
+?&gt;
+[/code]
+
+<hr>
+
+<h2>Safe Output</h2>
+
+<p>The <span class="feature-ref">out()</span> function escapes strings for HTML, JSON, JavaScript, XML or attribute contexts. Always wrap untrusted content before sending it to the browser.</p>
+
+[code=php]&lt;?php
+echo out($user_bio);                         // HTML
+echo out($json_string, 'json');              // inside JSON
+echo out($js_value, 'javascript');           // inside &lt;script&gt;
+?&gt;
+[/code]
+
+<div class="alert alert-success">
+  <p><strong>Security tip:</strong> If it came from a user, run it through <span class="feature-ref">out()</span> before outputting it.</p>
+</div>
+
+<hr>
+
+<h2>Random Strings</h2>
+
+<p>The <span class="feature-ref">make_rand_str()</span> produces cryptographically secure random strings, avoiding confusing characters such as 0, O, 1 and l.</p>
+
+[code=php]&lt;?php
+echo make_rand_str();          // 32 chars
+echo make_rand_str(12, true);  // 12 uppercase chars
+?&gt;
+[/code]
+
+<hr>
+
+<h2>HTML Conversion Helpers</h2>
+
+<p>The <span class="feature-ref">replace_html_tags()</span> function swaps one block of HTML tags for another, preserving the enclosed content.</p>
+
+[code=php]&lt;?php
+$specs = [
+  'opening_string_before' =&gt; '&lt;span&gt;',
+  'close_string_before'   =&gt; '&lt;/span&gt;',
+  'opening_string_after'  =&gt; '&lt;div&gt;',
+  'close_string_after'    =&gt; '&lt;/div&gt;'
+];
+
+echo replace_html_tags('&lt;span&gt;Hello&lt;/span&gt;', $specs);
+// &lt;div&gt;Hello&lt;/div&gt;
+?&gt;
+[/code]
+
+<p>The <span class="feature-ref">remove_html_code()</span> function removes blocks of HTML entirely.</p>
+
+[code=php]&lt;?php
+$html = '&lt;div&gt;Hi&lt;/div&gt;&lt;script&gt;bad()&lt;/script&gt;';
+echo remove_html_code($html, '&lt;script&gt;', '&lt;/script&gt;');
+// &lt;div&gt;Hi&lt;/div&gt;
+?&gt;
+[/code]
+
+<hr>
+<h2>Filtering Input (Content Normalizing)</h2>
+<p>Trongate offers helper functions that help you normalize text or enforce formatting rules before storing data. These functions are not security filters and should not be used as a substitute for output escaping. Instead, they are useful when you want predictable, well-formed text in your database.</p>
+
+<p>The <span class="feature-ref">filter_str()</span> function removes disallowed HTML tags while preserving the ones you specify. This is useful for bios, descriptions and other user text where you want to allow some formatting but prevent unwanted code.</p> 
+[code=php]&lt;?php
+$input = '&lt;script&gt;alert("Hello");&lt;/script&gt;'; 
+$allowed = ['&lt;p&gt;', '&lt;a&gt;']; 
+echo filter_str($input, $allowed); // Output: alert("Hello"); 
+?&gt;[/code]
+
+<p>The <span class="feature-ref">filter_name()</span> function is designed for usernames, screen names and full names. It strips tags and limits characters to a safe, readable subset, optionally allowing custom additional characters.</p> 
+[code=php]&lt;?php 
+$input = '&lt;script&gt;alert("Hello");&lt;/script&gt;'; 
+$allowed = ['-', '_']; 
+echo filter_name($input, $allowed); // Output: alert("Hello"); 
+?&gt;[/code]

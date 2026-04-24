@@ -1,0 +1,346 @@
+ [meta-description]Trongate date and time handling: Native HTML5 inputs, ISO 8601 formats, zero JavaScript, language-agnostic design. Clean validation, database-ready formats, and universal browser support.[/meta-description]
+<h1>Date and Time Fundamentals</h1>
+
+<p>Working with dates and times is a common requirement in web applications. Booking systems, event calendars, task managers, scheduling tools - they all need reliable date and time input.</p>
+
+<p>Trongate gives you everything you need with <strong>native HTML5 inputs and zero JavaScript</strong>.</p>
+
+<h2>The Trongate Approach</h2>
+
+<p>No custom date pickers. No JavaScript libraries. No complicated configuration.</p>
+
+<p>Just <strong>native HTML5 date and time inputs</strong> that work everywhere - and framework helpers that make them easy to use.</p>
+
+<h2>Why Native HTML5 Inputs?</h2>
+
+<p>HTML5 introduced native date and time input types that browsers render with built-in, accessible UI components. Here's why they're the best choice:</p>
+
+<ul>
+    <li><strong>Zero JavaScript required</strong> - the browser handles everything</li>
+    <li><strong>Universal browser support</strong> - all modern browsers (Chrome, Firefox, Safari, Edge) fully support these inputs</li>
+    <li><strong>Mobile-optimized</strong> - native mobile keyboards and pickers appear automatically</li>
+    <li><strong>Accessible by default</strong> - screen readers and keyboard navigation work out of the box</li>
+    <li><strong>Respects user preferences</strong> - dates display in the user's locale format automatically</li>
+    <li><strong>Lightweight</strong> - no external libraries or CSS frameworks needed</li>
+    <li><strong>Consistent data format</strong> - always submits in ISO 8601 format regardless of display</li>
+</ul>
+
+<h2>The ISO 8601 Standard</h2>
+
+<p>All HTML5 date and time inputs use the <strong>ISO 8601</strong> international standard for data interchange. This is crucial for building language-agnostic applications.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Input Type</th>
+            <th>Format</th>
+            <th>Sample Input Value</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>date</td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td><code>2025-12-27</code></td>
+            <td>Calendar date</td>
+        </tr>
+        <tr>
+            <td>time</td>
+            <td><code>HH:MM</code> or <code>HH:MM:SS</code></td>
+            <td><code>14:30</code> or <code>14:30:00</code></td>
+            <td>Time of day</td>
+        </tr>
+        <tr>
+            <td>datetime-local</td>
+            <td><code>YYYY-MM-DDTHH:MM</code></td>
+            <td><code>2025-12-27T14:30</code></td>
+            <td>Date and time (local)</td>
+        </tr>
+        <tr>
+            <td>month</td>
+            <td><code>YYYY-MM</code></td>
+            <td><code>2025-12</code></td>
+            <td>Year and month</td>
+        </tr>
+        <tr>
+            <td>week</td>
+            <td><code>YYYY-W##</code></td>
+            <td><code>2025-W52</code></td>
+            <td>Year and week number</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-success">
+    <p><strong>Key Insight:</strong> While the browser may <em>display</em> dates in the user's local format (like "27/12/2025" for UK users or "12/27/2025" for US users), the form always <em>submits</em> in ISO 8601 format. This means your PHP code always receives predictable, consistent data regardless of the user's location.</p>
+</div>
+
+<h2>What Trongate Provides</h2>
+
+<p>Trongate gives you simple helpers for every HTML5 date and time input type:</p>
+
+<ul>
+    <li><span class="feature-ref">form_date()</span> - calendar date picker</li>
+    <li><span class="feature-ref">form_time()</span> - time selector</li>
+    <li><span class="feature-ref">form_datetime_local()</span> - combined date and time picker</li>
+    <li><span class="feature-ref">form_month()</span> - month and year selector</li>
+    <li><span class="feature-ref">form_week()</span> - week selector</li>
+</ul>
+
+<p>Plus validation rules that work seamlessly with ISO 8601 formats:</p>
+
+<ul>
+    <li><code>valid_date</code> - validates YYYY-MM-DD format</li>
+    <li><code>valid_time</code> - validates HH:MM or HH:MM:SS format</li>
+    <li><code>valid_datetime_local</code> - validates YYYY-MM-DDTHH:MM format</li>
+    <li><code>valid_month</code> - validates YYYY-MM format</li>
+    <li><code>valid_week</code> - validates YYYY-W## format</li>
+</ul>
+
+<h2>A Simple Example</h2>
+
+<p>Here's a complete working form with date and time inputs:</p>
+
+[code=php]
+// Controller method
+public function create(): void {
+    $data['headline'] = 'Schedule Event';
+    $data['event_date'] = post('event_date', true);
+    $data['event_time'] = post('event_time', true);
+    $data['form_location'] = BASE_URL.'events/submit';
+    $this-&gt;templates-&gt;admin($data);
+}
+
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('event_date', 'event date', 'required|valid_date');
+    $this-&gt;validation-&gt;set_rules('event_time', 'event time', 'required|valid_time');
+
+    $result = $this-&gt;validation-&gt;run();
+
+    if ($result === true) {
+        $data['event_date'] = post('event_date', true);
+        $data['event_time'] = post('event_time', true);
+
+        $new_id = $this-&gt;db-&gt;insert($data, 'events');
+
+        set_flashdata('Event successfully scheduled');
+        redirect('events/show/'.$new_id);
+    } else {
+        $this-&gt;create(); // Redisplay form with errors
+    }
+}
+[/code]
+
+<p>And the view file:</p>
+
+[code=php]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+echo form_label('Event Date');
+echo form_date('event_date', $event_date);
+echo form_label('Event Time');
+echo form_time('event_time', $event_time);
+echo form_submit('submit', 'Schedule Event');
+echo form_close();
+?&gt;
+[/code]
+
+<p>That's it. Clean, simple, and it works everywhere.</p>
+
+<h2>Database Storage Strategy</h2>
+
+<p>ISO 8601 formats map perfectly to standard SQL date and time types:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>HTML5 Input</th>
+            <th>ISO Format</th>
+            <th>MySQL Type</th>
+            <th>Storage Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>date</td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td><code>DATE</code></td>
+            <td><code>2025-12-27</code></td>
+        </tr>
+        <tr>
+            <td>time</td>
+            <td><code>HH:MM:SS</code></td>
+            <td><code>TIME</code></td>
+            <td><code>14:30:00</code></td>
+        </tr>
+        <tr>
+            <td>datetime-local</td>
+            <td><code>YYYY-MM-DDTHH:MM</code></td>
+            <td><code>DATETIME</code></td>
+            <td><code>2025-12-27 14:30:00</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Important:</strong> When storing <code>datetime-local</code> values in MySQL, you'll need to convert the ISO format (<code>2025-12-27T14:30</code>) to MySQL format (<code>2025-12-27 14:30:00</code>) by replacing the "T" with a space and optionally adding seconds. See the Database Storage Best Practices chapter for details.</p>
+</div>
+
+<h2>Language-Agnostic Design</h2>
+
+<p>Trongate's approach to dates and times is intentionally language-agnostic:</p>
+
+<ul>
+    <li><strong>Store in ISO 8601</strong> - universal standard understood everywhere</li>
+    <li><strong>Database uses standard SQL types</strong> - DATE, TIME, DATETIME work in any database</li>
+    <li><strong>Display format is separate</strong> - use PHP's DateTime and IntlDateFormatter for locale-specific display</li>
+    <li><strong>Validation checks format</strong> - not locale-specific date rules</li>
+</ul>
+
+<h3>Example: Multi-Language Date Display</h3>
+
+[code=php]
+// Stored in database: 2025-12-27
+
+// Display for French users
+$date = new DateTime('2025-12-27');
+$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
+echo $formatter-&gt;format($date); // "27 décembre 2025"
+
+// Display for US users
+$formatter = new IntlDateFormatter('en_US', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
+echo $formatter-&gt;format($date); // "December 27, 2025"
+
+// Display for Japanese users
+$formatter = new IntlDateFormatter('ja_JP', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
+echo $formatter-&gt;format($date); // "2025年12月27日"
+[/code]
+
+<p>The key principle: <strong>store universally, display locally</strong>.</p>
+
+<h2>Browser Support</h2>
+
+<p>All modern browsers fully support HTML5 date and time inputs:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Browser</th>
+            <th>Date Support</th>
+            <th>Time Support</th>
+            <th>DateTime-Local Support</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Chrome</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+        </tr>
+        <tr>
+            <td>Firefox</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+        </tr>
+        <tr>
+            <td>Safari</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+        </tr>
+        <tr>
+            <td>Edge</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+        </tr>
+        <tr>
+            <td>Mobile (iOS/Android)</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+            <td>✓ Full</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-success">
+    <p><strong>Legacy Browser Note:</strong> Very old browsers (IE 11 and earlier, Safari &lt; 14.1) may render date/time inputs as plain text fields. In these cases, users can still type dates manually in the ISO format, and Trongate's validation will ensure the format is correct.</p>
+</div>
+
+<h2>Timezone Considerations</h2>
+
+<p>The <code>datetime-local</code> input type intentionally does <strong>not</strong> include timezone information. This is by design:</p>
+
+<ul>
+    <li>It represents a date and time "as displayed on a calendar and wall clock" in the user's local timezone</li>
+    <li>Perfect for scheduling appointments, setting deadlines, booking reservations</li>
+    <li>The server receives the time exactly as the user entered it</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> If your application requires true timezone-aware timestamps (like "8:00 AM Pacific Time" vs "8:00 AM Eastern Time"), you'll need to capture timezone information separately - either by detecting it with JavaScript, asking the user to select it, or storing it in the user's profile. For most applications, however, <code>datetime-local</code> is exactly what you need.</p>
+</div>
+
+<h2>What's Next</h2>
+
+<p>The following pages will show you:</p>
+
+<ul>
+    <li>How to use each date and time input helper function</li>
+    <li>How to validate date and time data with built-in rules</li>
+    <li>How to handle date ranges and custom validation</li>
+    <li>How to store dates and times in your database</li>
+    <li>How to format dates and times for display in any language</li>
+    <li>How to work with the create/update pattern for date fields</li>
+</ul>
+
+<h2>Why This Beats Custom Date Pickers</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Custom JavaScript pickers</th>
+            <th>Trongate (Native HTML5)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Require JavaScript libraries (often 50KB+)</td>
+            <td>Zero JavaScript - browser does it all</td>
+        </tr>
+        <tr>
+            <td>Break without JavaScript enabled</td>
+            <td>Work everywhere, always</td>
+        </tr>
+        <tr>
+            <td>Inconsistent mobile experience</td>
+            <td>Native mobile keyboards and pickers</td>
+        </tr>
+        <tr>
+            <td>Accessibility often an afterthought</td>
+            <td>Accessible by default</td>
+        </tr>
+        <tr>
+            <td>Return data in various formats</td>
+            <td>Always ISO 8601 - predictable and standard</td>
+        </tr>
+        <tr>
+            <td>Require configuration for localization</td>
+            <td>Browser handles display format automatically</td>
+        </tr>
+        <tr>
+            <td>Add maintenance burden</td>
+            <td>Maintained by browser vendors</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-success">
+    <p><strong>Bottom Line:</strong> Native HTML5 date and time inputs are faster, lighter, more accessible, more reliable, and easier to maintain than any JavaScript-based solution. Trongate's helpers make them trivial to use.</p>
+</div>

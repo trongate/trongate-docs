@@ -1,0 +1,134 @@
+<div class="container">
+  <h1>insert_batch()</h1>
+  <p class="signature">public function insert_batch(array $records, string $table): int</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Inserts multiple records into a specified database table using a single batch INSERT statement for improved performance. This method is optimized for inserting large datasets efficiently. It validates table existence, constructs a parameterized batch query, and returns the number of successfully inserted records.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>records</td>
+        <td>array</td>
+        <td>An array containing associative arrays, where each inner array represents a record to be inserted. All records must have identical column structures.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table to insert records into.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int</td>
+        <td>The number of records successfully inserted. Returns 0 if the records array is empty.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+    <li><strong>Exception</strong> - If an error occurs during the database operation.</li>
+    <li><strong>PDOException</strong> - If there's a database constraint violation or connection error.</li>
+  </ul>
+
+  <div class="alert alert-warning">
+    <p><strong>Security Warning:</strong> This method should only be used in controlled environments and not exposed to untrusted users or website visitors to prevent potential security vulnerabilities.</p>
+  </div>
+
+  <h2>Example #1</h2>
+  <p>The code sample below demonstrates how to insert multiple user records into the 'users' table in a single batch operation.</p>
+[code=php]
+$users = [
+    [
+        'name' =&gt; 'John Doe',
+        'email' =&gt; 'john@example.com',
+        'status' =&gt; 'active'
+    ],
+    [
+        'name' =&gt; 'Jane Smith',
+        'email' =&gt; 'jane@example.com',
+        'status' =&gt; 'active'
+    ],
+    [
+        'name' =&gt; 'Mike Johnson',
+        'email' =&gt; 'mike@example.com',
+        'status' =&gt; 'pending'
+    ]
+];
+
+$inserted_count = $this-&gt;db-&gt;insert_batch($users, 'users');
+echo "Successfully inserted " . $inserted_count . " user records.";
+[/code]
+
+  <h2>Example #2</h2>
+  <p>The code sample below demonstrates how to insert product inventory records into the 'inventory_log' table.</p>
+[code=php]
+$inventory_updates = [
+    ['product_id' =&gt; 101, 'quantity' =&gt; 50, 'action' =&gt; 'restock', 'date' =&gt; '2024-01-15'],
+    ['product_id' =&gt; 102, 'quantity' =&gt; 25, 'action' =&gt; 'restock', 'date' =&gt; '2024-01-15'],
+    ['product_id' =&gt; 103, 'quantity' =&gt; -10, 'action' =&gt; 'sale', 'date' =&gt; '2024-01-15'],
+    ['product_id' =&gt; 104, 'quantity' =&gt; 30, 'action' =&gt; 'restock', 'date' =&gt; '2024-01-15']
+];
+
+$count = $this-&gt;db-&gt;insert_batch($inventory_updates, 'inventory_log');
+echo "Logged " . $count . " inventory transactions.";
+[/code]
+
+  <h2>Example #3</h2>
+  <p>The code sample below demonstrates handling an empty records array and the importance of consistent record structure.</p>
+[code=php]
+// Empty array returns 0 immediately
+$empty_result = $this-&gt;db-&gt;insert_batch([], 'logs');
+echo "Inserted: " . $empty_result . " records"; // Output: Inserted: 0 records
+
+// All records MUST have the same column structure
+$valid_records = [
+    ['title' =&gt; 'Post 1', 'content' =&gt; 'Content 1', 'author_id' =&gt; 1],
+    ['title' =&gt; 'Post 2', 'content' =&gt; 'Content 2', 'author_id' =&gt; 1]
+    // Missing or extra columns in any record will cause an error
+];
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>Parameter order is <code>insert_batch(array $records, string $table)</code> - records first, then table.</li>
+    <li>Returns 0 immediately if the <code>$records</code> array is empty.</li>
+    <li>All records in the array must have identical column structures (same keys in each associative array).</li>
+    <li>Column names are extracted from the first record in the array.</li>
+    <li>Uses positional parameters (?) instead of named parameters for batch efficiency.</li>
+    <li>Constructs a single SQL statement with multiple VALUE clauses for optimal performance.</li>
+    <li>The method validates that the table exists before executing the query.</li>
+    <li>Not suitable for user-generated input - use only with validated, controlled data.</li>
+    <li>If debug mode is enabled, the generated batch SQL query will be displayed.</li>
+  </ul>
+</div>

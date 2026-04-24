@@ -1,0 +1,78 @@
+[meta-description]Helpful constants: APPPATH for file paths, BASE_URL for URLs, REQUEST_TYPE for HTTP methods. The useful ones - available everywhere.[/meta-description]
+
+<h1>Helpful Constants</h1>
+
+<p>Trongate defines a few constants that are genuinely useful in day-to-day development. These constants are available everywhere - controllers, models, views and helpers.</p>
+
+<p>No configuration needed. Just use them:</p>
+
+<ul id="feature-ref-list" class="mt-2">
+    <li><code>APPPATH</code> <span class="sm">absolute path to app directory</span></li>
+    <li><code>BASE_URL</code> <span class="sm">your site's root URL</span></li>
+    <li><code>REQUEST_TYPE</code> <span class="sm">HTTP method (GET, POST, etc.)</span></li>
+</ul>
+
+<hr>
+
+<h2>File Paths</h2>
+
+<p>The <code>APPPATH</code> constant returns the absolute file system path to your application directory.</p>
+
+[code=php]
+echo APPPATH;
+// /var/www/html/myapp/
+[/code]
+
+<p>Use it for building file paths:</p>
+
+[code=php]
+$upload_dir = APPPATH . 'public/uploads/';
+$config_file = APPPATH . 'config/custom_settings.php';
+[/code]
+
+<p>In view files, use PHP short tags:</p>
+
+[code=vf]
+&lt;?= APPPATH ?&gt;
+[/code]
+
+<hr>
+
+<h2>Base URL</h2>
+
+<p>The <code>BASE_URL</code> constant returns your site's root URL as defined in <code>config/config.php</code>.</p>
+
+[code=php]
+echo BASE_URL;
+// https://example.com/
+[/code]
+
+<p>Use it when you need to build URLs manually:</p>
+
+[code=php]
+$api_endpoint = BASE_URL . 'api/users/' . $user_id;
+[/code]
+
+<div class="alert alert-success">
+    <p>When using <span class="feature-ref">redirect()</span> or <span class="feature-ref">anchor()</span>, pass relative URLs without BASE_URL. Both functions prepend it automatically.</p>
+</div>
+
+<hr>
+
+<h2>Request Type</h2>
+
+<p>The <code>REQUEST_TYPE</code> constant contains the HTTP method for the current request.</p>
+
+[code=php]
+if (REQUEST_TYPE === 'POST') {
+    $this->process_form();
+} else {
+    $this->show_form();
+}
+[/code]
+
+<p>Common values: <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, <code>PATCH</code></p>
+
+<div class="alert alert-info">
+    <p>Trongate defines additional constants for routing and internal configuration, but those described above are the ones you're likely to actually <i>use</i> in your day-to-day development work.</p>
+</div>

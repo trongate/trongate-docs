@@ -1,0 +1,380 @@
+<div class="container">
+    <h1>out()</h1>
+    <p class="signature">function out(?string $input, string $output_format = 'html', string $encoding = 'UTF-8'): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Provides a single, explicit, and security-focused way to safely output strings across multiple contexts. This function eliminates ambiguity, reduces developer error, and prevents cross-site scripting (XSS) vulnerabilities caused by incorrect escaping. Rather than remembering which escaping function to use in each scenario, you call <code>out()</code> and explicitly declare how the output will be used.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$input</td>
+                <td>string|null</td>
+                <td>The raw, untrusted input value to be safely escaped for output. If <code>null</code> is provided, it is internally converted to an empty string.</td>
+            </tr>
+            <tr>
+                <td>$output_format</td>
+                <td>string</td>
+                <td>(optional) The desired output format. Possible values are <code>'html'</code> (default), <code>'attribute'</code>, <code>'xml'</code>, <code>'json'</code>, or <code>'javascript'</code>. This defines the output context and determines which escaping strategy is used. Defaults to <code>'html'</code>.</td>
+            </tr>
+            <tr>
+                <td>$encoding</td>
+                <td>string</td>
+                <td>(optional) The character encoding to use for escaping. Defaults to <code>'UTF-8'</code>. Unless working with a legacy system that requires a different encoding, this parameter should not be changed.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The escaped and formatted string, ready for safe inclusion in the specified context.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Output Formats</h2>
+    <table>
+        <thead>
+            <tr><th>Format</th><th>Context</th><th>Use Case</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>html</code></td>
+                <td>HTML content between tags</td>
+                <td>Default. For displaying user content in paragraphs, divs, spans, etc.</td>
+            </tr>
+            <tr>
+                <td><code>attribute</code></td>
+                <td>HTML attribute values</td>
+                <td>For inserting data into HTML attributes like <code>title</code>, <code>alt</code>, <code>data-*</code></td>
+            </tr>
+            <tr>
+                <td><code>xml</code></td>
+                <td>XML character data</td>
+                <td>For XML content (not tags). Uses XML 1.0 escaping rules.</td>
+            </tr>
+            <tr>
+                <td><code>json</code></td>
+                <td>JSON output</td>
+                <td>For API responses, AJAX data, or embedding JSON in <code>&lt;script&gt;</code> tags</td>
+            </tr>
+            <tr>
+                <td><code>javascript</code></td>
+                <td>JavaScript string content</td>
+                <td>For embedding string values inside JavaScript string literals</td>
+            </tr>
+        </tbody>
+    </table>
+
+<h2>Example #1: Basic HTML Output</h2>
+<p>This example demonstrates how the <code>out()</code> function escapes user-generated content to prevent XSS attacks when displaying it in HTML:</p>
+[code=php]
+$comment = '&lt;script&gt;alert("XSS")&lt;/script&gt;';
+echo '&lt;p&gt;'.out($comment).'&lt;/p&gt;';
+[/code]
+
+<p><strong>Result in the browser (what the user sees):</strong></p>
+<p>The dangerous tags are displayed as plain text rather than being interpreted as HTML or JavaScript. Importantly, <strong>no alert box appears</strong> - the JavaScript is not executed.</p>
+
+[code]&lt;script&gt;alert("XSS")&lt;/script&gt;[/code]
+<p>The key point to notice, here, is that the JavaScript code does not get executed.</p>
+
+<p><strong>Generated HTML source (viewable via "View Page Source"):</strong></p>
+<div class="text-center" style="display: flex; flex-align: center; justify-content: center;"><img src="documentation_module/images/out_example1.png" alt=""></div>
+
+<p class="mt-3">The <code>out()</code> function converts characters like <code>&lt;</code>, <code>&gt;</code>, and <code>&amp;</code> into their corresponding HTML entities, ensuring the content is rendered safely as text.</p>
+
+<hr>
+<h2>Example #2: HTML Attribute Output</h2>
+<p>This example demonstrates how the <code>out()</code> function safely escapes user data when inserting it into HTML attributes, preventing attribute injection attacks:</p>
+[code=vf]&lt;?php
+$user_title = 'CEO &amp; "Founder"';
+echo '&lt;div title="'.out($user_title, 'attribute').'"&gt;Profile&lt;/div&gt;';
+?&gt;
+[/code]
+<p><strong>Result in the browser (what the user sees):</strong></p>
+<p>The browser displays the visible content of the div element:</p>
+[code]Profile[/code]
+
+<div class="alert alert-info">
+    <p>Developers often use the 'title' attribute for generating tooltips.</p>
+    <p>A tooltip is a small pop-up message that appears when a user hovers over (or focuses on/taps) a UI element, providing brief contextual information or help.</p>
+</div>
+
+<p>If the 'title' attribute was being used for generating tooltips, hovering over the element would display:</p>
+[code]CEO & "Founder"[/code]
+<p><strong>Generated HTML source (viewable via "View Page Source"):</strong></p>
+<div class="text-center" style="display: flex; flex-align: center; justify-content: center;"><img src="documentation_module/images/out_example2.png" alt=""></div>
+
+
+<p class="mt-3">The <code>out()</code> function with the <code>'attribute'</code> parameter converts special characters like <code>&amp;</code> and <code>"</code> into their HTML entity equivalents (<code>&amp;amp;</code> and <code>&amp;quot;</code>), preventing attackers from breaking out of the attribute context or injecting malicious attributes.</p>
+<hr>
+<h2>Example #3: XML Output</h2>
+<p>This example demonstrates how the <code>out()</code> function safely escapes content when generating XML documents, ensuring well-formed and valid XML output:</p>
+[code=vf]&lt;?php
+$book_title = 'Escape &amp; Conquer: A Developer\'s Guide';
+echo '&lt;title&gt;'.out($book_title, 'xml').'&lt;/title&gt;';
+?&gt;
+[/code]
+<div class="alert alert-info">
+    <p><strong>What is XML?</strong></p>
+    <p>XML (eXtensible Markup Language) is a markup language used for storing and transporting structured data. Unlike HTML, which is designed for displaying content in web browsers, XML is designed for data exchange between systems.</p>
+    <p><strong>Common use cases include:</strong></p>
+    <ul>
+        <li>API responses (RESTful web services, SOAP)</li>
+        <li>Configuration files</li>
+        <li>Data feeds (RSS, Atom)</li>
+        <li>Document formats (SVG, DOCX internals)</li>
+        <li>Sitemaps for search engines</li>
+    </ul>
+</div>
+<p><strong>Result in the browser (what the user sees):</strong></p>
+<p>When viewed in a browser that renders XML, the content displays as:</p>
+[code]Escape & Conquer: A Developer's Guide[/code]
+<p><strong>Generated XML source (viewable via "View Page Source"):</strong></p>
+<div class="text-center" style="display: flex; flex-align: center; justify-content: center;"><img src="documentation_module/images/out_example3.png" alt=""></div>
+<p class="mt-3">The <code>out()</code> function with the <code>'xml'</code> parameter converts special characters that have meaning in XML into their corresponding entity references. In this example, <code>&amp;</code> becomes <code>&amp;amp;</code> and the apostrophe becomes <code>&amp;apos;</code>. This ensures the XML remains well-formed and parseable by XML processors, preventing syntax errors or data corruption when the XML is consumed by other systems.</p>
+<hr>
+
+<h2>Example #4: JSON API Response</h2>
+<p>This example demonstrates how the <code>out()</code> function safely encodes content when generating JSON responses, preventing XSS attacks in JavaScript contexts and ensuring valid JSON syntax:</p>
+[code=php]
+header('Content-Type: application/json');
+$user_input = '&lt;script&gt;alert("test")&lt;/script&gt;';
+echo '{"message": '.out($user_input, 'json').'}';
+[/code]
+<div class="alert alert-info">
+    <p><strong>What is JSON?</strong></p>
+    <p>JSON (JavaScript Object Notation) is a lightweight, text-based data format used for exchanging information between a server and a client. It's the standard format for modern web APIs.</p>
+    <p><strong>Common use cases include:</strong></p>
+    <ul>
+        <li>RESTful API responses</li>
+        <li>AJAX requests and responses</li>
+        <li>Configuration files</li>
+        <li>Data storage (NoSQL databases like MongoDB)</li>
+        <li>Inter-service communication in microservices architectures</li>
+    </ul>
+</div>
+<p><strong>Result in the browser (what the user sees):</strong></p>
+<p>When this JSON response is received by a client application and parsed, the message value would be:</p>
+[code]&lt;script&gt;alert("test")&lt;/script&gt;[/code]
+<p>Importantly, <strong>the dangerous script tags are treated as plain text data</strong>, not executable code.</p>
+<p><strong>Generated JSON source (viewable via "View Page Source" or network inspector):</strong></p>
+<div class="text-center" style="display: flex; flex-align: center; justify-content: center;"><img src="documentation_module/images/out_example4.png" alt=""></div>
+<p class="mt-3">The <code>out()</code> function with the <code>'json'</code> parameter uses <code>JSON_HEX_TAG</code>, <code>JSON_HEX_AMP</code>, <code>JSON_HEX_APOS</code>, and <code>JSON_HEX_QUOT</code> flags to convert potentially dangerous characters into their Unicode escape sequences. In this example, <code>&lt;</code> becomes <code>\u003C</code>, <code>&gt;</code> becomes <code>\u003E</code>, and quotes are properly escaped. This prevents XSS attacks when the JSON is embedded in HTML or processed by JavaScript, while maintaining valid JSON syntax that can be safely parsed by any JSON decoder.</p>
+<hr>
+
+<h2>Example #5: Embedding JSON in HTML</h2>
+<p>This example demonstrates how the <code>out()</code> function safely embeds JSON data within HTML <code>&lt;script&gt;</code> tags, allowing JavaScript to consume server-side data without creating security vulnerabilities:</p>
+[code=vf]&lt;?php
+$user_data = ['name' => 'Alice', 'role' => 'Administrator'];
+echo '&lt;script&gt;';
+echo 'const userData = '.out(json_encode($user_data), 'json').';';
+echo 'console.log(userData.name);';
+echo '&lt;/script&gt;';
+?&gt;
+[/code]
+<div class="alert alert-info">
+    <p><strong>Why embed JSON in HTML?</strong></p>
+    <p>A common web development pattern involves passing server-side data (from PHP) to client-side JavaScript. Rather than making separate AJAX requests, developers often embed data directly in the HTML during initial page load for better performance and immediate availability.</p>
+    <p><strong>Common use cases include:</strong></p>
+    <ul>
+        <li>Passing user profile data to JavaScript applications</li>
+        <li>Initializing front-end frameworks (React, Vue, Angular) with server data</li>
+        <li>Providing configuration settings to client-side code</li>
+        <li>Hydrating single-page applications (SPAs) with initial state</li>
+        <li>Passing authentication tokens or session data</li>
+    </ul>
+</div>
+<p><strong>Result in the browser (what the user sees):</strong></p>
+<p>The JavaScript executes successfully and the console displays:</p>
+[code]Alice[/code]
+<p>The <code>userData</code> object is properly initialized and accessible to JavaScript code throughout the page.</p>
+<p><strong>Generated HTML source (viewable via "View Page Source"):</strong></p>
+<div class="text-center" style="display: flex; flex-align: center; justify-content: center;"><img src="documentation_module/images/out_example5.png" alt=""></div>
+<p class="mt-3">The <code>out()</code> function with the <code>'json'</code> parameter ensures that the JSON data is properly escaped for embedding within <code>&lt;script&gt;</code> tags. This prevents XSS attacks that could occur if user-controlled data contained malicious payloads like <code>&lt;/script&gt;&lt;script&gt;alert('XSS')&lt;/script&gt;</code>. By converting characters like <code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>, and quotes into their Unicode escape sequences, the function ensures the data remains safely contained within the JavaScript context while being fully parseable as valid JSON.</p>
+<hr>
+
+<h2>Example #6: JavaScript String Literal</h2>
+<p>This example demonstrates how the <code>out()</code> function safely escapes string values when embedding them directly inside JavaScript string literals, preventing syntax errors and code injection attacks:</p>
+[code=vf]&lt;?php
+$greeting = 'Hello "World"';
+echo '&lt;script&gt;';
+echo 'let message = "'.out($greeting, 'javascript').'";';
+echo 'alert(message);';
+echo '&lt;/script&gt;';
+?&gt;
+[/code]
+<div class="alert alert-info">
+    <p><strong>JavaScript String Literals vs JSON Objects</strong></p>
+    <p>While Example #5 showed how to embed complete JSON objects in JavaScript, this example focuses on embedding a simple string value directly within JavaScript code as a string literal.</p>
+    <p>The key difference is that the <code>'javascript'</code> format parameter removes the surrounding quotes that JSON encoding adds, making the output suitable for insertion between quote marks in JavaScript code.</p>
+    <p><strong>Common use cases include:</strong></p>
+    <ul>
+        <li>Dynamically setting JavaScript variable values from PHP</li>
+        <li>Generating inline event handlers with dynamic content</li>
+        <li>Creating JavaScript alert or confirmation messages with server data</li>
+        <li>Building JavaScript code snippets dynamically</li>
+        <li>Passing single string values rather than complex objects</li>
+    </ul>
+</div>
+<p><strong>Result in the browser (what the user sees):</strong></p>
+<p>An alert box appears displaying:</p>
+[code]Hello "World"[/code]
+<p>The JavaScript correctly interprets the string literal with the embedded quotes.</p>
+<p><strong>Generated HTML source (viewable via "View Page Source"):</strong></p>
+<div class="text-center" style="display: flex; flex-align: center; justify-content: center;"><img src="documentation_module/images/out_example6.png" alt=""></div>
+<p class="mt-3">The <code>out()</code> function with the <code>'javascript'</code> parameter properly escapes special characters that would break JavaScript string syntax. In this example, the double quotes within the string are escaped as <code>\"</code>, preventing them from prematurely terminating the string literal. The function also handles other dangerous characters like single quotes, backslashes, and line breaks, ensuring the resulting JavaScript code is syntactically valid and immune to injection attacks where malicious users might try to break out of the string context to execute arbitrary code.</p>
+<hr>
+
+<h2>Example #7: Using Named Parameters</h2>
+<p>This example demonstrates how to use PHP's named parameters feature (introduced in PHP 8.0) with the <code>out()</code> function, providing clearer and more maintainable code when specifying parameters:</p>
+[code=php]
+// Change only encoding (uses default 'html' format)
+$legacy_data = out($input, encoding: 'ISO-8859-1');
+
+// Change only output format (uses default 'UTF-8' encoding)
+$json_output = out($data, output_format: 'json');
+
+// Change both parameters - order doesn't matter with named parameters
+$xml_data = out($input, output_format: 'xml', encoding: 'UTF-16');
+$same_xml = out($input, encoding: 'UTF-16', output_format: 'xml'); // Also valid
+[/code]
+<div class="alert alert-info">
+    <p><strong>What are Named Parameters?</strong></p>
+    <p>Named parameters (also called named arguments) allow you to specify function arguments by their parameter name rather than relying solely on position. This PHP 8.0+ feature makes code more readable and allows you to skip optional parameters without needing placeholder values.</p>
+    <p><strong>Benefits of using named parameters with <code>out()</code>:</strong></p>
+    <ul>
+        <li>Improved readability - the parameter's purpose is immediately clear</li>
+        <li>Flexibility to specify only the parameters you need, in any order</li>
+        <li>Easier to override encoding without specifying format (skips middle parameter)</li>
+        <li>Self-documenting code that's easier to maintain</li>
+        <li>Reduces errors when changing less common parameters like encoding</li>
+    </ul>
+    <p><strong>Note:</strong> Named parameters require PHP 8.0 or later.</p>
+</div>
+<p><strong>Understanding the examples:</strong></p>
+<p>In the first example, <code>encoding: 'ISO-8859-1'</code> explicitly names the third parameter, making it clear that we're overriding the default UTF-8 encoding. This is particularly useful when working with legacy systems or databases that use different character encodings.</p>
+<p>In the second example, <code>output_format: 'json'</code> names the second parameter, making the intent obvious even without seeing the function signature. This approach is especially valuable in larger codebases where developers may not be familiar with every function's parameter order.</p>
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Named parameters require PHP 8.0 or higher. If your project needs to support older PHP versions, you must use positional parameters instead.</p>
+</div>
+<p class="mt-3">Using named parameters with the <code>out()</code> function enhances code clarity and makes your intentions explicit, particularly when overriding default values like the encoding parameter or when you want to emphasize which output format is being used. This is especially valuable in team environments where code readability and maintainability are priorities.</p>
+<hr>
+
+    <h2>Output Comparison</h2>
+    <p>Given the input: <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code></p>
+    <table>
+        <thead>
+            <tr><th>Format</th><th>Output</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>html</code></td>
+                <td><code>&amp;lt;script&amp;gt;alert(&amp;#039;xss&amp;#039;)&amp;lt;/script&amp;gt;</code></td>
+                <td>Safe for HTML content between tags</td>
+            </tr>
+            <tr>
+                <td><code>attribute</code></td>
+                <td><code>&amp;lt;script&amp;gt;alert(&amp;#039;xss&amp;#039;)&amp;lt;/script&amp;gt;</code></td>
+                <td>Identical to 'html' but semantically distinct</td>
+            </tr>
+            <tr>
+                <td><code>xml</code></td>
+                <td><code>&amp;lt;script&amp;gt;alert(&amp;apos;xss&amp;apos;)&amp;lt;/script&amp;gt;</code></td>
+                <td>Uses XML-specific escaping</td>
+            </tr>
+            <tr>
+                <td><code>json</code></td>
+                <td><code>"\u003Cscript\u003Ealert('xss')\u003C\/script\u003E"</code></td>
+                <td>Valid JSON string with Unicode escapes</td>
+            </tr>
+            <tr>
+                <td><code>javascript</code></td>
+                <td><code>\u003Cscript\u003Ealert('xss')\u003C\/script\u003E</code></td>
+                <td>Same as JSON but without surrounding quotes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <p><strong>How Each Format Works:</strong></p>
+        <ul>
+            <li><strong>HTML and Attribute:</strong> Use <code>htmlspecialchars()</code> with <code>ENT_QUOTES</code> flag, escaping <code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>, <code>"</code>, and <code>'</code></li>
+            <li><strong>XML:</strong> Uses <code>htmlspecialchars()</code> with <code>ENT_XML1</code> flag for XML 1.0-specific escaping</li>
+            <li><strong>JSON:</strong> Uses <code>json_encode()</code> with flags including <code>JSON_HEX_TAG</code>, <code>JSON_HEX_AMP</code>, <code>JSON_UNESCAPED_UNICODE</code>, and <code>JSON_THROW_ON_ERROR</code></li>
+            <li><strong>JavaScript:</strong> Same as JSON but removes surrounding quotes for inline use in string literals</li>
+        </ul>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Important Note About JavaScript Format:</strong> The <code>javascript</code> format returns string <em>content</em> only. You must supply the surrounding quotes in your code:</p>
+[code=php]
+&lt;script&gt;
+  let username = "&lt;?= out($username, 'javascript') ?&gt;";
+  let message = '&lt;?= out($message, 'javascript') ?&gt;';
+&lt;/script&gt;
+[/code]
+    </div>
+
+    <div class="alert alert-danger">
+        <p><strong>Common Pitfalls to Avoid:</strong></p>
+        <ul>
+            <li><strong>Double-escaping:</strong> Don't pass already-escaped data through <code>out()</code> again</li>
+            <li><strong>Wrong format:</strong> Using <code>'html'</code> format for JSON will produce invalid JSON</li>
+            <li><strong>Missing quotes:</strong> The <code>'javascript'</code> format requires you to add quotes around the output</li>
+            <li><strong>Unquoted attributes:</strong> Always use quotes around HTML attributes, even with the <code>'attribute'</code> format</li>
+        </ul>
+    </div>
+
+    <div class="alert alert-success">
+        <p><strong>Security Best Practices:</strong></p>
+        <ul>
+            <li>Always escape output from user input, databases, or external sources</li>
+            <li>Choose the correct format for your output context</li>
+            <li>Ensure document encoding matches the <code>$encoding</code> parameter (UTF-8 recommended)</li>
+            <li>Use the <code>'json'</code> format for embedding complex data structures in JavaScript</li>
+            <li>When using <code>'attribute'</code> format, always quote your HTML attributes</li>
+        </ul>
+    </div>
+
+    <h2>Exceptions</h2>
+    <table>
+        <thead>
+            <tr><th>Exception</th><th>When Thrown</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>InvalidArgumentException</code></td>
+                <td>If an unsupported <code>$output_format</code> is provided</td>
+            </tr>
+            <tr>
+                <td><code>RuntimeException</code></td>
+                <td>If character encoding fails due to invalid encoding specification</td>
+            </tr>
+            <tr>
+                <td><code>JsonException</code></td>
+                <td>If JSON encoding fails (malformed UTF-8, circular references, etc.)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Notes</h2>
+    <ul>
+        <li>The function guarantees a string return value by converting <code>null</code> inputs to empty strings</li>
+        <li>Character encoding is critical for security - mismatched encoding can allow XSS attacks</li>
+        <li>The <code>'html'</code> and <code>'attribute'</code> formats produce identical output but represent different semantic contexts</li>
+        <li>JSON output includes proper Unicode escapes for dangerous characters, providing defense-in-depth protection</li>
+        <li>The function follows a "fail fast" approach, throwing exceptions rather than silently producing unsafe output</li>
+        <li>Requires PHP 7.3+ for <code>JSON_THROW_ON_ERROR</code> flag support</li>
+    </ul>
+</div>

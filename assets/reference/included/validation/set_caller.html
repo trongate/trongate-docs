@@ -1,0 +1,74 @@
+<div class="container">
+  <h1>set_caller()</h1>
+  <p class="signature">public function set_caller(object $caller): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Sets the calling controller instance, enabling callback validation rules. Callback rules allow you to define custom validation logic in your controller methods.</p>
+    <p>The Validation module automatically sets the caller when instantiated via <code>$this->validation</code>. You only need to call this method manually when creating Validation instances programmatically.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$caller</td>
+        <td>object</td>
+        <td>The controller instance that contains callback methods.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic caller setting (standard usage)
+class Products extends Trongate {
+    public function submit() {
+        // $this->validation already has $this as caller
+        $this->validation->set_rules('sku', 'SKU', 'required|callback_check_sku');
+        // ...
+    }
+    
+    public function check_sku($value) {
+        // Custom validation logic
+        return $this->model->sku_exists($value) ? false : true;
+    }
+}
+
+// Manual caller setting (rare)
+$validation = new Validation('products');
+$validation->set_caller($this);
+$validation->set_rules('field', 'Label', 'callback_my_method');[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Callback methods must be public and return <code>true</code> (validation passed) or <code>false</code> (validation failed).</li>
+    <li>Callback method names in rules must be prefixed with <code>callback_</code> (e.g., <code>callback_check_unique</code>).</li>
+    <li>The callback method receives the field value as its only parameter.</li>
+    <li>If a callback returns <code>false</code>, a generic error "Validation failed for {field}" is added.</li>
+  </ul>
+</div>

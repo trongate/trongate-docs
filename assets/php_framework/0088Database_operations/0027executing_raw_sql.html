@@ -1,0 +1,105 @@
+[meta-description]Learn to safely execute raw SQL in Trongate using the query_bind() method for parameter binding or the query() method for trusted code, with examples and security guidance.[/meta-description]
+<h1>Executing Raw SQL</h1>
+
+<p>Sometimes the built-in helpers aren’t enough.</p>
+
+<p>That’s when you go raw – <i>safely</i>.</p>
+
+<p>The <code>db</code> module gives you two weapons:</p>
+
+<ul>
+    <li><span class="feature-ref">query()</span> – fire-and-forget raw SQL</li>
+    <li><span class="feature-ref">query_bind()</span> – raw SQL with proper parameter binding (the one you’ll use 99% of the time)</li>
+</ul>
+
+<hr>
+
+<h2>query_bind() – The Safe Choice</h2>
+
+<p>Always prefer this when user input is involved.</p>
+
+<h3>Named parameters (cleanest)</h3>
+
+[code=php]
+$sql = "SELECT * FROM users
+        WHERE age > :age
+          AND city = :city
+        ORDER BY joined_date DESC";
+
+$data = [
+    'age'  => 25,
+    'city' => 'London'
+];
+
+$users = $this->db->query_bind($sql, $data, 'object');
+[/code]
+
+<h3>Unnamed parameters (? placeholders)</h3>
+
+[code=php]
+$sql = "SELECT * FROM products
+        WHERE category = ?
+          AND price < ?";
+
+$data = ['Electronics', 500];
+
+$products = $this->db->query_bind($sql, $data, 'array');
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>If any part of the query comes from user input → use <code>query_bind()</code> or one of the <a href="documentation/trongate_php_framework/database-operations/database-interaction-methods">other database interaction methods</a>. No exceptions.</strong></p>
+</div>
+
+<hr>
+
+<h2>query() – Only When You’re 100% Sure</h2>
+
+<p>Use this only for fully trusted, hard-coded queries (migrations, reporting, complex joins, etc.).</p>
+
+[code=php]
+$sql = "SELECT u.name, COUNT(o.id) as total_orders
+        FROM users u
+        LEFT JOIN orders o ON o.user_id = u.id
+        GROUP BY u.id
+        ORDER BY total_orders DESC";
+
+$top_customers = $this->db->query($sql, 'object');
+[/code]
+
+<div class="alert alert-danger">
+    <p><strong>Never</strong> do this with user input from the outside world:</p>
+[code=php]
+// DANGEROUS – instant SQL injection
+$sql = "SELECT * FROM users WHERE email = '$email'";
+$this->db->query($sql);
+[/code]
+</div>
+
+<hr>
+
+<h2>Return Types</h2>
+
+<p>Both methods accept a <code>$return_type</code> parameter. For <span class="feature-ref">query_bind()</span> it's the third argument; for <span class="feature-ref">query()</span> it's the second.</p>
+
+<ul>
+    <li><code>'object'</code> → rows returned as objects (the Trongate default)</li>
+    <li><code>'array'</code>  → rows returned as associative arrays</li>
+    <li>omit or <code>null</code> → no result set (perfect for INSERT/UPDATE/DELETE)</li>
+</ul>
+
+[code=php]
+$this->db->query_bind($sql, $data);           // just run it
+$this->db->query_bind($sql, $data, 'array');  // force arrays
+[/code]
+
+<hr>
+
+<h2>Debug Mode Works Here Too</h2>
+
+<p>Turn on debug mode → both methods dump the fully bound SQL before execution. Lifesaver on hairy queries.</p>
+
+<div class="alert alert-success">
+    <p>Need raw power or complex table joins? Use <span class="feature-ref">query_bind()</span>.</p>
+    <p>Need raw power and you wrote every character yourself? <span class="feature-ref">query()</span> is fine.</p>
+    <p>For everything else, stick to the <a href="documentation/trongate_php_framework/database-operations/database-interaction-methods">built-in helpers</a>.</p>
+</div>

@@ -1,0 +1,79 @@
+[meta-description]Flashdata: one-time session messages. Set it. It shows once. It dies. Zero bloat, zero config - just Native PHP doing its job.[/meta-description]
+<h1>Flashdata Helpers</h1>
+
+<p>Flashdata is for one-time messages. Set it. It displays once. It never displays again.</p>
+
+<p>Two functions. That's literally all:</p>
+
+<ul id="feature-ref-list" class="mt-2">
+    <li><span class="feature-ref">set_flashdata()</span> <span class="sm">stores the message</span></li>
+    <li><span class="feature-ref">flashdata()</span> <span class="sm">returns the message (and kills it)</span></li>
+</ul>
+
+<h2>Setting Flashdata</h2>
+
+<p>In a controller, after you've done the thing:</p>
+
+[code=php]
+set_flashdata('Record successfully nuked');
+redirect('trash/empty'); // Send the user to another page.
+[/code]
+
+<h2>Displaying Flashdata</h2>
+
+<p>In any view (usually right under the headline or in your template). Because the function <b>returns</b> a string, you must use an echo statement to display it:</p>
+
+[code=vf]
+&lt;?= flashdata() ?&gt;
+[/code]
+
+<p>Default output:</p>
+
+[code=html]
+&lt;p style="color: green;"&gt;Record successfully nuked&lt;/p&gt;
+[/code]
+
+<p>Refresh the page → gone. Forever.</p>
+
+<h2>Customizing the Markup</h2>
+
+<p>By default, flashdata wraps your message in a boring green paragraph. Change it whenever you want.</p>
+
+<h3>Option 1  -  One-off override (in a view)</h3>
+
+[code=vf]
+&lt;?= flashdata('&lt;div class="alert alert-success"&gt;', '&lt;/div&gt;') ?&gt;
+[/code]
+
+<p>Output:</p>
+[code=html]
+&lt;div class="alert alert-success"&gt;Record successfully nuked&lt;/div&gt;
+[/code]
+
+<h3>Option 2  -  Global default (the smart way)</h3>
+
+<p>Add this once in <code>config/config.php</code>:</p>
+
+[code=php]
+define('FLASHDATA_OPEN', '&lt;div class="alert alert-success"&gt;');
+define('FLASHDATA_CLOSE', '&lt;/div&gt;');
+[/code]
+
+<p>Now every single call to <code><?= flashdata() ?></code> in your entire app automatically uses your markup  -  no extra arguments needed.</p>
+
+<div class="alert alert-success">
+    <p>Define <code>FLASHDATA_OPEN</code> and <code>FLASHDATA_CLOSE</code> once in config, then just write <code><!--?= flashdata() ?--></code> everywhere. Put that line in your main template and every page is flashdata-ready forever.</p>
+</div>
+
+<h3>Option 3  -  Mix both (when you want to be special)</h3>
+
+<p>You can still override the globals on a single page whenever you feel like it:</p>
+
+[code=vf]
+&lt;?= flashdata('&lt;div class="alert alert-danger"&gt;', '&lt;/div&gt;') ?&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p>Drop <code><?= flashdata() ?></code> into your main template once. Every page becomes flashdata-ready forever.</p>
+    <p>You're welcome.</p>
+</div>

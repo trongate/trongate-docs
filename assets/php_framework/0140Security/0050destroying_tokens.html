@@ -1,0 +1,345 @@
+[meta-description]Destroy Trongate tokens with destroy() method. Clears session, cookies, database, and expired tokens automatically. Essential for secure logout functionality.[/meta-description]
+
+<h1>Destroying Tokens</h1>
+
+<p>When a user logs out, you need to destroy their token. This removes it from their device and from the database, ensuring they can't access protected pages until they log in again.</p>
+
+<h2>The destroy() Method</h2>
+
+<p>Use the <span class="feature-ref">destroy()</span> method to remove tokens completely:</p>
+
+[code=php]
+public function destroy(): void
+[/code]
+
+<p>This method takes no parameters and performs a complete cleanup.</p>
+
+<h2>What destroy() Does</h2>
+
+<p>When you call <code>destroy()</code>, the framework:</p>
+
+<ol>
+    <li><strong>Clears the session token</strong>
+        <ul>
+            <li>Unsets <code>$_SESSION['trongatetoken']</code></li>
+        </ul>
+    </li>
+    <li><strong>Destroys the cookie token</strong>
+        <ul>
+            <li>Sets <code>$_COOKIE['trongatetoken']</code> to expire in the past</li>
+        </ul>
+    </li>
+    <li><strong>Deletes tokens from the database</strong>
+        <ul>
+            <li>Removes the current user's tokens from <code>trongate_tokens</code> table</li>
+        </ul>
+    </li>
+    <li><strong>Cleans up expired tokens</strong>
+        <ul>
+            <li>Automatically purges all expired tokens from the database</li>
+        </ul>
+    </li>
+</ol>
+
+<div class="alert alert-success">
+    <p>The <span class="feature-ref">destroy()</span> method automatically calls <span class="feature-ref">delete_old_tokens()</span> internally, so you don't need to clean up expired tokens manually during logout.</p>
+</div>
+
+<h2>Basic Logout Example</h2>
+
+<p>Here's a simple logout method:</p>
+
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    public function logout(): void {
+        // Destroy the token
+        $this-&gt;trongate_tokens-&gt;destroy();
+        
+        // Redirect to home page
+        redirect('welcome');
+    }
+
+}
+[/code]
+
+<p>That's it. Two lines of code for a complete logout.</p>
+
+<h2>Logout with Confirmation Message</h2>
+
+<p>Add a flashdata message to confirm successful logout:</p>
+
+[code=php]
+public function logout(): void {
+    // Destroy the token
+    $this-&gt;trongate_tokens-&gt;destroy();
+    
+    // Set success message
+    set_flashdata('You have been logged out successfully');
+    
+    // Redirect to login page
+    redirect('members/login');
+}
+[/code]
+
+<h2>Complete Logout Workflow</h2>
+
+<p>Here's a more complete example showing login and logout together:</p>
+
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    public function login(): void {
+        // Show login form
+        $data['view_file'] = 'login';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+    public function submit_login(): void {
+        // Get credentials
+        $username = post('username');
+        $password = post('password');
+
+        // Validate
+        $member = $this-&gt;db-&gt;get_where_custom('username', $username, 'members');
+
+        if (!$member || !password_verify($password, $member-&gt;password)) {
+            set_flashdata('Invalid username or password');
+            redirect('members/login');
+        }
+
+        // Generate token
+        $token = $this-&gt;trongate_tokens-&gt;generate_token([
+            'user_id' =&gt; $member-&gt;trongate_user_id
+        ]);
+
+        // Redirect to dashboard
+        redirect('members/dashboard');
+    }
+
+    public function dashboard(): void {
+        // Validate token
+        $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
+        
+        if ($token === false) {
+            redirect('members/login');
+        }
+
+        // Show dashboard
+        $data['view_file'] = 'dashboard';
+        $this-&gt;templates-&gt;members_area($data);
+    }
+
+    public function logout(): void {
+        // Destroy token
+        $this-&gt;trongate_tokens-&gt;destroy();
+        
+        // Confirm and redirect
+        set_flashdata('You have been logged out successfully');
+        redirect('members/login');
+    }
+
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This example assumes you have a <code>members_area</code> template and a <code>public</code> template created.</p>
+</div>
+
+<h2>What Happens If No Token Exists?</h2>
+
+<p>Calling <code>destroy()</code> when no token exists is safe. The method will:</p>
+
+<ul>
+    <li>Not throw any errors</li>
+    <li>Not cause any warnings</li>
+    <li>Simply complete successfully</li>
+</ul>
+
+<p>This means you can safely call <code>destroy()</code> even if you're not sure whether a user has a token.</p>
+
+<h2>Manual Token Cleanup</h2>
+
+<p>While <code>destroy()</code> automatically cleans up expired tokens, you might want to run manual cleanup as a maintenance task.</p>
+
+<h3>The delete_old_tokens() Method</h3>
+
+[code=php]
+public function delete_old_tokens(?int $user_id = null): void
+[/code]
+
+<p><strong>Usage 1: Clean up all expired tokens</strong></p>
+
+[code=php]
+$this-&gt;trongate_tokens-&gt;delete_old_tokens();
+[/code]
+
+<p>This removes all tokens where <code>expiry_date &lt; current_time</code>.</p>
+
+<p><strong>Usage 2: Delete all tokens for a specific user</strong></p>
+
+[code=php]
+$this-&gt;trongate_tokens-&gt;delete_old_tokens($trongate_user_id);
+[/code]
+
+<p>This removes all tokens for the specified user, regardless of expiry date.</p>
+
+<h3>When to Use Manual Cleanup</h3>
+
+<ul>
+    <li><strong>Scheduled maintenance</strong> - Run via cron job to keep database clean</li>
+    <li><strong>User deletion</strong> - Remove all tokens when deleting a user account</li>
+    <li><strong>Security incidents</strong> - Force logout of specific users</li>
+    <li><strong>Password changes</strong> - Invalidate existing sessions when password changes</li>
+</ul>
+
+<h2>Example: Force Logout on Password Change</h2>
+
+[code=php]
+public function change_password(): void {
+    // Validate current user
+    $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+    
+    if ($user === false) {
+        redirect('login');
+    }
+
+    // Update password in database
+    $new_password = password_hash(post('new_password'), PASSWORD_DEFAULT);
+    $this-&gt;db-&gt;update($member_id, ['password' =&gt; $new_password], 'members');
+
+    // Delete all tokens for this user (force re-login everywhere)
+    $this-&gt;trongate_tokens-&gt;delete_old_tokens($user-&gt;trongate_user_id);
+
+    // Redirect to login
+    set_flashdata('Password changed. Please log in again.');
+    redirect('members/login');
+}
+[/code]
+
+<p>This ensures the user must log in again on all devices after changing their password.</p>
+
+<h2>Example: Delete User Account and Tokens</h2>
+
+[code=php]
+public function delete_account(): void {
+    // Get current user
+    $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+    
+    if ($user === false) {
+        redirect('login');
+    }
+
+    $trongate_user_id = $user-&gt;trongate_user_id;
+
+    // Delete from members table
+    $this-&gt;db-&gt;delete($member_id, 'members');
+
+    // Delete from trongate_users table
+    $this-&gt;db-&gt;delete($trongate_user_id, 'trongate_users');
+
+    // Delete all tokens for this user
+    $this-&gt;trongate_tokens-&gt;delete_old_tokens($trongate_user_id);
+
+    // Redirect
+    set_flashdata('Your account has been deleted');
+    redirect('welcome');
+}
+[/code]
+
+<h2>Scheduled Maintenance with Cron</h2>
+
+<p>For large applications, schedule automatic cleanup:</p>
+
+[code=php]
+&lt;?php
+class Maintenance extends Trongate {
+
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);
+        block_url($this-&gt;module_name);
+    }
+
+    public function clean_expired_tokens(): void {
+        $this-&gt;trongate_tokens-&gt;delete_old_tokens();
+        echo 'Expired tokens cleaned at ' . date('Y-m-d H:i:s');
+    }
+
+}
+[/code]
+
+<p>Set up a cron job to run daily:</p>
+
+[code=bash]
+0 2 * * * /usr/bin/php /path/to/your/app/index.php maintenance/clean_expired_tokens
+[/code]
+
+<p>This runs at 2 AM every day and purges expired tokens.</p>
+
+<h2>Security Considerations</h2>
+
+<ul>
+    <li><strong>Always destroy tokens on logout</strong> - Never just redirect without calling <code>destroy()</code></li>
+    <li><strong>Destroy tokens on password change</strong> - Force re-authentication after security changes</li>
+    <li><strong>Clean up on user deletion</strong> - Remove tokens when deleting user accounts</li>
+    <li><strong>Use HTTPS</strong> - Ensure tokens can't be intercepted during the logout process</li>
+    <li><strong>Run scheduled cleanup</strong> - Keep your database clean with regular maintenance</li>
+</ul>
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: Simple Logout</h3>
+
+[code=php]
+public function logout(): void {
+    $this-&gt;trongate_tokens-&gt;destroy();
+    redirect('welcome');
+}
+[/code]
+
+<h3>Pattern 2: Logout with Message</h3>
+
+[code=php]
+public function logout(): void {
+    $this-&gt;trongate_tokens-&gt;destroy();
+    set_flashdata('You have been logged out');
+    redirect('members/login');
+}
+[/code]
+
+<h3>Pattern 3: Force Logout All Devices</h3>
+
+[code=php]
+public function force_logout_everywhere(): void {
+    $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+    $this-&gt;trongate_tokens-&gt;delete_old_tokens($user-&gt;trongate_user_id);
+    redirect('members/login');
+}
+[/code]
+
+<h2>Chapter Summary</h2>
+
+<p>You now know how to:</p>
+
+<ul>
+    <li>✅ Understand the three security tables</li>
+    <li>✅ Generate tokens after successful login</li>
+    <li>✅ Validate tokens on protected pages</li>
+    <li>✅ Fetch user data from tokens</li>
+    <li>✅ Destroy tokens on logout</li>
+</ul>
+
+<p>With these fundamentals, you can build complete authentication systems in Trongate.</p>
+
+<div class="alert alert-success">
+    <p><strong>What's Next?</strong></p>
+    <p>Advanced topics to explore:</p>
+    <ul>
+        <li>API authentication with HTTP headers</li>
+        <li>The Trongate Security module for scenario-based access control</li>
+        <li>Building complete login/registration systems</li>
+        <li>Multi-device session management</li>
+    </ul>
+</div>

@@ -1,0 +1,89 @@
+[meta-description]Customize your 404 Pages in Trongate by changing the ERROR_404 constant in config/config.php. This constant acts as a single source of truth, pointing to any module/method you like (e.g., templates/error_404 or errors/not_found) for total control over the page content and template.[/meta-description]
+<h1>Custom 404 Pages</h1>
+<p>Trongate has always made 404 pages dead simple. In v2 it's even cleaner.</p>
+
+<h2>The Single Source of Truth</h2>
+<p>Open this file →</p>
+[code]config/config.php[/code]
+<p class="mt-1">And you'll find this line →</p>
+[code=php]
+define('ERROR_404', 'templates/error_404');
+[/code]
+
+<p class="mt-1">When a URL cannot be matched, Trongate automatically calls →</p>
+[code=php]
+$this->templates->error_404();
+[/code]
+
+<p class="mt-1">The above code simply loads this view →</p>
+[code]modules/templates/views/error_404.php[/code]
+<p class="mt-1">It uses the exact same mechanism as <code>admin()</code> and <code>public()</code>.</p>
+
+<hr class="mt-3">
+
+<h2>Three Ways to Customize Your 404 Pages</h2>
+
+<h3>Option 1 – Quick & Easy (most common)</h3>
+<p>Just edit the existing file →</p>
+[code]modules/templates/views/error_404.php[/code]
+<p class="mt-1">Make it friendly, funny, or brutally honest – your call.</p>
+
+<h3>Option 2 – Use a Different View in the templates Module</h3>
+<p>Add a new method to this file →</p>
+[code]modules/templates/Templates.php[/code]
+
+[code=php]
+public function my_cool_404(array $data = []): void {
+    $this->display('my_cool_404', $data);
+}
+[/code]
+
+<p class="mt-1">Create this view →</p>
+[code]modules/templates/views/my_cool_404.php[/code]
+
+<p class="mt-1">Then change the constant →</p>
+[code=php]
+define('ERROR_404', 'templates/my_cool_404');
+[/code]
+
+<h3>Option 3 – Point to Any Module/Method You Like</h3>
+<p>Want a completely custom 404 page with extra logic? Point the constant anywhere →</p>
+[code=php]
+define('ERROR_404', 'errors/not_found');
+// or
+define('ERROR_404', 'welcome/oops');
+// or even
+define('ERROR_404', 'modern_templates/minimal');
+[/code]
+<p class="mt-1">Trongate will automatically call that module and method.</p>
+
+<h2>Real-World Example (Simple & Clean)</h2>
+<p>Here's a tidy, beginner-friendly custom 404 that still feels professional →</p>
+
+[code=php]
+// config/config.php
+define('ERROR_404', 'errors/show_404');
+[/code]
+
+<p>Then, from within <code>modules/errors/Errors.php</code>:</p>
+
+[code=php]
+&lt;?php
+class Errors extends Trongate {
+    public function show_404(array $data = []): void {
+        $data['page_title'] = 'Page Not Found';
+        $data['message']    = 'Sorry, we couldn't find that page.';
+        $this->templates->public($data);
+    }
+}
+[/code]
+
+<p class="mt-1">You can, of course, make it as fancy as you like later – add logging, suggested pages, a search box – but the pattern is always the same: one constant, one method, one template.</p>
+
+<div class="alert alert-info">
+  <p>One line in config.php → total control over every 404.</p>
+  <p>No hooks, no events, no middleware. Just Native PHP doing what it does best.</p>
+</div>
+
+<p class="mt-3"><b>Congratulations!</b> You now know everything there is to know about templates in Trongate v2.</p>
+<p>Go build something beautiful.</p>

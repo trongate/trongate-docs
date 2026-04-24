@@ -1,0 +1,335 @@
+<div class="container">
+    <h1>write()</h1>
+    <p class="signature">public function write(string $file_path, $data, bool $append = false): bool</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Writes or appends data to a file. This method includes path validation to prevent writing to restricted application areas.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$file_path</td>
+                <td>string</td>
+                <td>The path to the destination file.</td>
+            </tr>
+            <tr>
+                <td>$data</td>
+                <td>mixed</td>
+                <td>The data to write to the file.</td>
+            </tr>
+            <tr>
+                <td>$append</td>
+                <td>bool</td>
+                <td>(optional) Whether to append data instead of overwriting. Default is false.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>bool</td>
+                <td>Returns true on successful write.</td>
+            </tr>
+        </tbody>
+    </table>
+
+ <h2>Example #1</h2>
+<p>The code sample below demonstrates the most basic file writing operation.</p>
+[code=php]
+$file_path = 'modules/documents/notes.txt';
+$content = 'This is my note content.';
+
+$result = $this-&gt;file-&gt;write($file_path, $content);
+
+if ($result === true) {
+    echo 'File written successfully';
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Overwrite vs Append:</strong> By default, <code>write()</code> overwrites any existing file content. To add content to the end of an existing file without removing what's already there, set the third parameter to <code>true</code>: <code>$this-&gt;file-&gt;write($file_path, $data, true)</code>.</p>
+</div>
+
+<h2>Example #2</h2>
+<p>The example above shows how to append log entries to an existing log file.</p>
+[code=php]
+public function log_user_activity(string $message): void {
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $log_file = 'modules/admin/logs/user_activity.log';
+    
+    // Create log entry with timestamp
+    $timestamp = date('[Y-m-d H:i:s]');
+    $log_entry = "{$timestamp} User {$user_id}: {$message}\n";
+    
+    // Append to existing log file (creates file if it doesn't exist)
+    $result = $this-&gt;file-&gt;write($log_file, $log_entry, true);
+    
+    if ($result === true) {
+        echo 'Activity logged';
+    }
+}
+[/code]
+
+<h2>Example #3</h2>
+<p>The example above demonstrates how to export database records to a CSV file.</p>
+[code=php]
+public function export_users(): void {
+    // Get all users from database
+    $users = $this-&gt;model-&gt;get('users');
+    
+    // Create CSV header
+    $csv = "ID,Name,Email,Created\n";
+    
+    // Add each user as a CSV row
+    foreach ($users as $user) {
+        $csv .= "{$user-&gt;id},{$user-&gt;name},{$user-&gt;email},{$user-&gt;created_at}\n";
+    }
+    
+    // Generate filename with timestamp
+    $filename = 'users_export_' . date('Y-m-d_His') . '.csv';
+    $file_path = 'modules/users/exports/' . $filename;
+    
+    // Ensure exports directory exists
+    $export_dir = 'modules/users/exports';
+    if (!$this-&gt;file-&gt;exists($export_dir)) {
+        $this-&gt;file-&gt;create_directory($export_dir, 0755);
+    }
+    
+    // Write CSV file
+    $result = $this-&gt;file-&gt;write($file_path, $csv);
+    
+    if ($result === true) {
+        set_flashdata('Export file created');
+        redirect('users/download_export/' . $filename);
+    }
+}
+[/code]
+
+<h2>Example #4</h2>
+<p>The example above shows how to save user preferences to a JSON configuration file.</p>
+[code=php]
+public function save_user_preferences(): void {
+    $user_id = segment(3, 'int');
+    
+    // Get preferences from POST data
+    $preferences = [
+        'theme' =&gt; $this-&gt;input-&gt;post('theme', true),
+        'language' =&gt; $this-&gt;input-&gt;post('language', true),
+        'notifications_enabled' =&gt; $this-&gt;input-&gt;post('notifications', true) === 'on',
+        'items_per_page' =&gt; (int)$this-&gt;input-&gt;post('items_per_page', true)
+    ];
+    
+    // Convert to JSON
+    $json_data = json_encode($preferences, JSON_PRETTY_PRINT);
+    
+    // Ensure user preferences directory exists
+    $prefs_dir = 'modules/users/preferences';
+    if (!$this-&gt;file-&gt;exists($prefs_dir)) {
+        $this-&gt;file-&gt;create_directory($prefs_dir, 0755);
+    }
+    
+    // Write preferences file
+    $file_path = $prefs_dir . '/user_' . $user_id . '.json';
+    $result = $this-&gt;file-&gt;write($file_path, $json_data);
+    
+    if ($result === true) {
+        set_flashdata('Preferences saved successfully');
+        redirect('users/settings/' . $user_id);
+    }
+}
+[/code]
+
+<h2>Example #5</h2>
+<p>The example above demonstrates how to create a daily report file that gets overwritten each day.</p>
+[code=php]
+public function generate_daily_report(): void {
+    // Get today's statistics
+    $total_orders = $this-&gt;model-&gt;count('orders', ['date' =&gt; date('Y-m-d')]);
+    $total_revenue = $this-&gt;model-&gt;sum('orders', 'amount', ['date' =&gt; date('Y-m-d')]);
+    $new_users = $this-&gt;model-&gt;count('users', ['created_date' =&gt; date('Y-m-d')]);
+    
+    // Build report content
+    $report = "Daily Report - " . date('F j, Y') . "\n";
+    $report .= str_repeat('=', 50) . "\n\n";
+    $report .= "Total Orders: {$total_orders}\n";
+    $report .= "Total Revenue: $" . number_format($total_revenue, 2) . "\n";
+    $report .= "New Users: {$new_users}\n\n";
+    $report .= "Generated at: " . date('H:i:s') . "\n";
+    
+    // Ensure reports directory exists
+    $reports_dir = 'modules/reports/daily';
+    if (!$this-&gt;file-&gt;exists($reports_dir)) {
+        $this-&gt;file-&gt;create_directory($reports_dir, 0755);
+    }
+    
+    // Write report (overwrites if already exists for today)
+    $file_path = $reports_dir . '/report_' . date('Y-m-d') . '.txt';
+    $result = $this-&gt;file-&gt;write($file_path, $report);
+    
+    if ($result === true) {
+        echo 'Daily report generated successfully';
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Batch Processing Tip:</strong> To convert multiple files at once, you could extend this example to use <code>$this-&gt;file-&gt;list_directory()</code> to get all files in a directory, then loop through them applying the same conversion process to each file.</p>
+</div>
+
+<h2>Example #6</h2>
+<p>The example below demonstrates how to convert British English documentation to American English by reading a translation mapping from a JSON file and applying it to a target documentation file.</p>
+[code=php]
+public function convert_to_american_english(): void {
+    // Get directory and filename from URL segments
+    // Example URL: documentation/convert_to_american_english/user_guide/authentication.html
+    $doc_directory = segment(3); // e.g., 'user_guide'
+    $doc_filename = segment(4);  // e.g., 'authentication.html'
+    
+    // Validate inputs
+    if (empty($doc_directory) || empty($doc_filename)) {
+        echo 'Error: Directory and filename are required';
+        return;
+    }
+    
+    // Build full path to documentation file
+    $doc_path = 'modules/documentation/' . $doc_directory . '/' . $doc_filename;
+    
+    // Check if documentation file exists
+    if (!$this-&gt;file-&gt;exists($doc_path)) {
+        echo 'Error: Documentation file not found';
+        return;
+    }
+    
+    // Read the British-to-American translation mappings from a view file
+    // The view file contains a JSON array of translations
+    $json_content = $this-&gt;view('british_to_american_mappings', [], true);
+    $translations = json_decode($json_content, true);
+    
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo 'Error: Invalid JSON in translations file';
+        return;
+    }
+    
+    // Read the original documentation content
+    $original_content = $this-&gt;file-&gt;read($doc_path);
+    
+    // Apply translations (case-sensitive replacement)
+    $converted_content = $original_content;
+    foreach ($translations as $british =&gt; $american) {
+        $converted_content = str_replace($british, $american, $converted_content);
+    }
+    
+    // Create output directory for converted files
+    $output_dir = 'modules/documentation/converted/' . $doc_directory;
+    if (!$this-&gt;file-&gt;exists($output_dir)) {
+        $this-&gt;file-&gt;create_directory($output_dir, 0755);
+    }
+    
+    // Write converted content to new file
+    $output_path = $output_dir . '/' . $doc_filename;
+    $result = $this-&gt;file-&gt;write($output_path, $converted_content);
+    
+    if ($result === true) {
+        set_flashdata('Documentation converted to American English');
+        redirect('documentation/view_converted/' . $doc_directory . '/' . $doc_filename);
+    }
+}
+[/code]
+
+ <h4>The View File</h4>
+<p>Create a view file at <code>modules/documentation/views/british_to_american_mappings.php</code> containing only the JSON array. The <code>view()</code> method with the third parameter set to <code>true</code> returns the raw content as a string instead of rendering it to the browser.</p>
+
+[code=vf]
+{
+  "analyse": "analyze",
+  "analysed": "analyzed",
+  "analyses": "analyzes",
+  "analysing": "analyzing",
+  "colour": "color",
+  "colours": "colors",
+  "centre": "center",
+  "centred": "centered",
+  "centres": "centers",
+  "initialise": "initialize",
+  "initialised": "initialized",
+  "initialises": "initializes",
+  "initialising": "initializing",
+  "optimise": "optimize",
+  "optimised": "optimized",
+  "optimises": "optimizes",
+  "optimising": "optimizing",
+  "organise": "organize",
+  "organised": "organized",
+  "organises": "organizes",
+  "organising": "organizing",
+  "normalise": "normalize",
+  "normalised": "normalized",
+  "normalises": "normalizes",
+  "normalising": "normalizing",
+  "serialise": "serialize",
+  "serialised": "serialized",
+  "serialises": "serializes",
+  "serialising": "serializing",
+  "randomise": "randomize",
+  "randomised": "randomized",
+  "randomises": "randomizes",
+  "randomising": "randomizing",
+  "customise": "customize",
+  "customised": "customized",
+  "customises": "customizes",
+  "customising": "customizing",
+  "finalise": "finalize",
+  "finalised": "finalized",
+  "finalises": "finalizes",
+  "finalising": "finalizing",
+  "globalise": "globalize",
+  "globalised": "globalized",
+  "globalises": "globalizes",
+  "globalising": "globalizing",
+  "localise": "localize",
+  "localised": "localized",
+  "localises": "localizes",
+  "localising": "localizing",
+  "standardise": "standardize",
+  "standardised": "standardized",
+  "standardises": "standardizes",
+  "standardising": "standardizing",
+  "visualise": "visualize",
+  "visualised": "visualized",
+  "visualises": "visualizes",
+  "visualising": "visualizing",
+  "utilise": "utilize",
+  "utilised": "utilized",
+  "utilises": "utilizes",
+  "utilising": "utilizing",
+  "programme": "program",
+  "programmes": "programs",
+  "licence": "license",
+  "licenced": "licensed",
+  "licences": "licenses",
+  "modelling": "modeling",
+  "labelled": "labeled",
+  "labelling": "labeling"
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Directory Must Exist:</strong> The <code>write()</code> method will create the file if it doesn't exist, but it will not create the parent directory. Always ensure the destination directory exists before writing files, either by checking with <code>$this-&gt;file-&gt;exists($directory)</code> or by creating it with <code>$this-&gt;file-&gt;create_directory($directory)</code>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Security Note:</strong> The method automatically validates paths to prevent writing to restricted system directories (like <code>config</code> and <code>engine</code>). Attempting to write to protected directories will throw an exception with the message "Access to this path is restricted".</p>
+</div>
+    
+</div>

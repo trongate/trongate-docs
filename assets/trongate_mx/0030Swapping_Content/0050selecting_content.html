@@ -1,0 +1,91 @@
+<h1>Selecting Content</h1>
+<p>The <code>mx-select</code> attribute in Trongate MX is a powerful feature that allows you to extract and use specific parts of a server response, rather than the entire response. This capability is particularly useful when dealing with large HTML documents where only a portion of the content is needed.</p>
+<h2>Understanding mx-select</h2>
+<p>When you use <code>mx-select</code>, you're telling Trongate MX to look inside the server's response and pick out only the parts you've specified. This is done using CSS selector syntax, allowing for precise targeting of elements within the response.</p>
+<h2>When to Use mx-select</h2>
+<p>The <code>mx-select</code> attribute is particularly useful in scenarios where:</p>
+<ul>
+  <li>You're fetching data from an endpoint that returns an entire HTML page, but you only need a specific section.</li>
+  <li>You want to update part of your page without affecting the rest of the layout.</li>
+  <li>You're working with legacy systems or APIs that return full pages instead of focused data.</li>
+</ul>
+<h2>Example Scenario</h2>
+<p>Let's consider a practical example to illustrate the use of <code>mx-select</code>:</p>
+<p>Imagine having an API that returns a complete HTML page but you only need one element from it (like a specific table).  With <code>mx-select</code> you can fetch <b><i>just that element</i></b> and add it onto your current page. Here's how:</p>
+
+[code=html]
+&lt;button mx-get="api/full_page_data" 
+        mx-target="#data-container" 
+        mx-select="table#user-data"&gt;Fetch Data&lt;/button&gt;
+
+&lt;div id="data-container"&gt;
+    &lt;!-- The selected table will be inserted here --&gt;
+&lt;/div&gt;
+[/code]
+
+<p>In the example above, we're fetching a <code>&lt;table&gt;</code> element - from a target endpoint.  The target HTML table (i.e., the table that we are <i>fetching</i>) has an 'id' of 'user-data'.  Once the table has been fetched, it would then being inserted inside our <code>&lt;div&gt;</code> element that has an id of 'data-container'.</p>
+
+<p class="mt-3 mb-0">Here's an alternative way to build the same solution, using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper function:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' => 'api/full_page_data',
+    'mx-target' => '#data-container',
+    'mx-select' => 'table.important-data'
+];
+echo form_button('fetch_btn', 'Fetch Data', $btn_attr);
+?&gt;
+
+&lt;div id="data-container"&gt;
+    &lt;!-- The selected table will be inserted here --&gt;
+&lt;/div&gt;
+[/code]
+
+<h3 class="mt-3">Breaking Down the Example</h3>
+<ul>
+  <li>The button triggers a GET request to 'api/full_page_data', which returns a complete HTML page.</li>
+  <li><code>mx-select="table#user-data"</code> instructs Trongate MX to extract only the table with the id of 'user-data' from the response.</li>
+  <li>The selected table is then inserted into the #data-container div.</li>
+</ul>
+<h2>Benefits of Using mx-select</h2>
+<p>This approach offers several advantages:</p>
+<ul>
+  <li><strong>Reusability:</strong> You can reuse existing server-side rendering logic that generates full pages.</li>
+  <li><strong>Performance:</strong> By minimizing the amount of data inserted into the DOM, you can improve page performance.</li>
+  <li><strong>Clean Markup:</strong> Your client-side markup remains clean and focused on the required data.</li>
+  <li><strong>Flexibility:</strong> You can easily change what part of the response you want without modifying server-side code.</li>
+</ul>
+<h2>Advanced Usage</h2>
+<p>The <code>mx-select</code> attribute is not limited to simple selectors. You can use complex CSS selectors to pinpoint exactly what you need:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' => 'api/complex_data',
+    'mx-target' => '#specific-data',
+    'mx-select' => 'main > div.data-section:nth-child(2) table'
+];
+echo form_button('fetch_btn', 'Fetch Specific Table', $btn_attr);
+?&gt;
+[/code]
+<p>The example above selects a <code>&lt;table&gt;</code> element that is the second child of a <code>&lt;div&gt;</code> with class 'data-section', which is inside the  <code>&lt;main&gt;</code> element.</p>
+
+<p class="mt-3 mb-0">Below is the solution, written with pure HTML:</p>
+[code=html]
+&lt;button mx-get="api/complex_data" 
+        mx-target="#specific-data" 
+        mx-select="main &gt; div.data-section:nth-child(2) table"&gt;
+        Fetch Specific Table&lt;/button&gt;
+
+&lt;div id="specific-data"&gt;&lt;/div&gt;
+
+[/code]
+
+<div class="alert alert-info">
+  <strong>Note:</strong> The <code>mx-select</code> attribute uses CSS selector syntax. You can use any valid CSS selector to pinpoint the exact element you need from the response. This includes IDs, classes, attributes, and even pseudo-selectors.
+</div>
+
+<div class="alert alert-success">
+<ul>
+  <li>Use specific and unique selectors to ensure you're getting exactly what you need.</li>
+  <li>Consider the structure of your server responses when designing your selectors.</li>
+  <li>Test your selectors thoroughly, especially when working with dynamic content.</li>
+</ul>
+</div>

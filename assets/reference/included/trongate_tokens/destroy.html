@@ -1,0 +1,58 @@
+<div class="container">
+  <h1>destroy()</h1>
+  <p class="signature">public function destroy(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Destroys all Trongate tokens from the current request context: session, cookie, HTTP headers, and database. Also performs cleanup of expired tokens.</p>
+    <p>This method is typically called during logout or when forcibly invalidating a user's sessions.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Destroy all tokens (logout)
+$this->trongate_tokens->destroy();
+
+// Logout controller method
+public function logout() {
+    $this->trongate_tokens->destroy();
+    set_flashdata('You have been logged out.');
+    redirect('welcome');
+}
+
+// Force token invalidation (security incident)
+public function force_logout_all_sessions(int $user_id) {
+    $this->trongate_tokens->delete_old_tokens($user_id);
+    $this->trongate_tokens->destroy();
+    set_flashdata('All sessions for user #' . $user_id . ' have been invalidated.');
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Removes token from <code>$_SESSION['trongatetoken']</code> (sets to 'x' as fallback before unsetting).</li>
+    <li>Deletes the <code>trongatetoken</code> cookie by setting expiration to a past date.</li>
+    <li>Captures token from <code>$_SERVER['HTTP_TRONGATETOKEN']</code> header if present.</li>
+    <li>Deletes all captured tokens from the database via <code>$this->model->delete_tokens()</code>.</li>
+    <li>Calls <code>$this->model->delete_old_tokens()</code> to clean up expired tokens.</li>
+    <li>Use <code>delete_old_tokens()</code> for targeted deletion of expired tokens only.</li>
+  </ul>
+</div>

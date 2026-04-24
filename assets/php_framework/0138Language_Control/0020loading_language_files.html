@@ -1,0 +1,111 @@
+[meta-description]Learn the professional way to load language files in Trongate v2. Understand the directory structure, the {lang} placeholder, and how to manage multi-language support across English, French, and Spanish.[/meta-description]
+
+<h1>Loading Language Files</h1>
+
+<p>Trongate allows you to maintain a clean, professional application by separating your logic from your static text. The framework does not impose a single global file; instead, it encourages a structured directory system based on the principle of <strong>one subdirectory per language</strong>.</p>
+
+<hr>
+
+<h2 class="mt-0">The Directory Protocol</h2>
+
+<p>To support multiple languages, you must create a dedicated subdirectory for every language your application supports. These directories are named using standard language codes (e.g., <code>en</code>, <code>fr</code>, <code>es</code>).</p>
+
+<p>A typical structure within a module looks like this:</p>
+
+<ul>
+    <li><code>modules/contact/language/<strong>en</strong>/phrases.php</code></li>
+    <li><code>modules/contact/language/<strong>fr</strong>/phrases.php</code></li>
+    <li><code>modules/contact/language/<strong>es</strong>/phrases.php</code></li>
+</ul>
+
+<hr>
+
+<h2 class="mt-0">The load() Method</h2>
+
+<p>The <code>load()</code> method is used to fetch the translation array from the correct subdirectory. To ensure your code remains dynamic, use the <code>{lang}</code> placeholder:</p>
+
+[code=php]
+$path = 'modules/contact/language/{lang}/phrases.php';
+$phrases = $this->language->load($path);
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Multi-Language Example: Thank You Page</h2>
+
+<p>In this scenario, we define the text for English, French, and Spanish. Notice that the language file must define an array named <code>$phrases</code>.</p>
+
+<h3>1. Language Files</h3>
+<p><strong>English (en/phrases.php):</strong></p>
+[code=php]
+&lt;?php
+$phrases = [
+    'headline'        =&gt; 'Thank You!',
+    'success_message' =&gt; 'Your contact form was successfully submitted.'
+];
+[/code]
+
+<p><strong>French (fr/phrases.php):</strong></p>
+[code=php]
+&lt;?php
+$phrases = [
+    'headline'        =&gt; 'Merci !',
+    'success_message' =&gt; 'Votre formulaire de contact a été soumis avec succès.'
+];
+[/code]
+
+<p><strong>Spanish (es/phrases.php):</strong></p>
+[code=php]
+&lt;?php
+$phrases = [
+    'headline'        =&gt; '¡Gracias!',
+    'success_message' =&gt; 'Su formulario de contacto ha sido enviado con éxito.'
+];
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Controller and View (Separation of Concerns)</h2>
+
+<p>The controller prepares clean, simple variables for the view. This ensures the view is "dumb" and strictly concerned with output.</p>
+
+<h3>The Controller</h3>
+[code=php]
+&lt;?php
+class Contact extends Trongate {
+
+    function thank_you() {
+        $data['lang'] = $this->language->get_language();
+
+        // Load phrases from the language-coded subdirectory
+        $path = 'modules/contact/language/{lang}/phrases.php';
+        $phrases = $this->language->load($path);
+
+        // Map phrases to simple variables
+        $data['headline'] = $phrases['headline'];
+        $data['success_message'] = $phrases['success_message'];
+
+        $data['view_module'] = 'contact';
+        $this-&gt;view('thank_you_view', $data);
+    }
+}
+[/code]
+
+<h3>The View</h3>
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="&lt;?= $lang ?&gt;"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;&lt;?= out($headline) ?&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;&lt;?= out($headline) ?&gt;&lt;/h1&gt;
+    &lt;p&gt;&lt;?= out($success_message) ?&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p class="mb-0">By mapping language strings to specific variables in the controller, you create a clear contract between your logic and your display. This makes your code more readable, safer, and easier to maintain.</p>
+</div>

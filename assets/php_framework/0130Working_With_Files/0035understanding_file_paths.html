@@ -1,0 +1,527 @@
+[meta-description]Master file paths in Trongate: Learn the difference between relative paths for PHP operations and URLs for browser access. Understand module assets trigger and path construction patterns.[/meta-description]
+
+<h1>Understanding File Paths</h1>
+
+<p>Working with files in Trongate requires understanding three distinct concepts: <strong>relative paths</strong> (for PHP operations), <strong>absolute paths</strong> (filesystem paths), and <strong>URLs</strong> (for browser access).</p>
+
+<p>Get this right, and file management becomes simple. Get it wrong, and you'll encounter "file not found" errors everywhere.</p>
+
+<h2>The Three Types of Paths</h2>
+
+<p>Before diving into Trongate's file handling, let's clarify what we mean by different path types:</p>
+
+<div class="alert alert-info">
+    <p><strong>Path Types Explained:</strong></p>
+    <ul>
+        <li><strong>Relative path:</strong> A path relative to an application directory (e.g., <code>uploads/file.pdf</code> or <code>../modules/users/files/doc.pdf</code>)</li>
+        <li class="mt-2"><strong>Absolute path:</strong> A complete filesystem path from root (e.g., <code>/Applications/XAMPP/htdocs/myapp/uploads/file.pdf</code>)</li>
+        <li class="mt-2"><strong>URL:</strong> A web-accessible address (e.g., <code>https://example.com/files/doc.pdf</code> or <code>users_module/files/doc.pdf</code>)</li>
+    </ul>
+</div>
+
+<h2>Use Relative Paths</h2>
+
+<p>The File module methods accept any PHP-accessible file path. However, <b>using relative paths is recommended</b> as it aligns with Trongate's conventions and ensures portability.</p>
+
+
+<div class="alert alert-info">
+    <p>
+        <strong>Path Compatibility Summary:</strong>
+    </p>
+
+    <ul>
+        <li>
+            <strong>✅ WORKS &amp; RECOMMENDED:</strong>
+            Relative paths
+            (<code>uploads/report.txt</code>, <code>../modules/docs/files/manual.md</code>)
+        </li>
+
+        <li class="mt-2">
+            <strong>⚠️ WORKS BUT NOT RECOMMENDED:</strong>
+            Absolute paths
+            (<code>/var/www/html/public/uploads/data.csv</code>)
+        </li>
+
+        <li class="mt-2">
+            <strong>❌ DOES NOT WORK:</strong>
+            Web URLs
+            (<code>https://example.com/downloads/log.txt</code>,
+            <code>example.com/files/document.md</code>)
+        </li>
+
+        <li class="mt-2">
+            <strong>🔄 SPECIAL CASE:</strong>
+            <code>_module</code> trigger paths work
+            <strong>only in browser URLs</strong>,
+            not with File module methods
+        </li>
+    </ul>
+</div>
+
+<h2>What upload() Returns</h2>
+
+<p>When you upload a file using the File module's <span class="feature-ref">included-file-upload()</span> method, it returns an array containing four properties with a <code>file_path</code> key that contains a <strong>relative path</strong>:</p>
+
+[code=php]
+// Example 1: Upload to module directory
+$config = [
+    'destination' =&gt; 'documents',
+    'upload_to_module' =&gt; true
+];
+
+$file_info = $this-&gt;file-&gt;upload($config);
+// Returns: array(4) {
+//   ["file_name"]=&gt; string(11) "report.pdf"
+//   ["file_path"]=&gt; string(42) "../modules/users/documents/report.pdf"
+//   ["file_type"]=&gt; string(15) "application/pdf"
+//   ["file_size"]=&gt; int(245760)
+// }
+
+// Example 2: Upload to public directory
+$config = [
+    'destination' =&gt; 'my_uploads'
+];
+
+$file_info = $this-&gt;file-&gt;upload($config);
+// Returns: array(4) {
+//   ["file_name"]=&gt; string(11) "report.pdf"
+//   ["file_path"]=&gt; string(21) "my_uploads/report.pdf"
+//   ["file_type"]=&gt; string(15) "application/pdf"
+//   ["file_size"]=&gt; int(245760)
+// }
+[/code]
+
+<p>These relative paths are what you use with <strong>all other File module methods</strong> including; <code>delete()</code>, <code>copy()</code>, <code>move()</code>, <code>read()</code>, <code>write()</code>, <code>info()</code>, <code>exists()</code>.</p>
+
+<h2>Path Construction Patterns</h2>
+
+<p>Understanding how paths are constructed helps you work with files stored anywhere in your application.</p>
+
+<h3>Module Directory Uploads</h3>
+
+<p>When <code>upload_to_module</code> is <code>true</code>, files are stored in the target module directory.  For example:</p>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'cvs',
+    'upload_to_module' =&gt; true
+];
+$file_info = $this-&gt;file-&gt;upload($config);
+
+// Relative path returned:
+// '../modules/users/cvs/resume.pdf'
+[/code]
+
+<div class="alert alert-info">
+    <p>When you upload a file, using the <a href="documentation-ref/list_refs/included/file" target="_blank">File module</a>, a PHP array (<code>$file_info</code>) is automatically returned by the <code>upload()</code> method.</p>
+    <p class="mt-3">The <code>$file_info</code> array contains the following four properties:</p>
+    <ol>
+        <li><code>'file_name'</code> - The final, sanitized filename on disk</li>
+        <li><code>'file_path'</code> - The relative path to the file</li>
+        <li><code>'file_type'</code> - The MIME type of the file</li>
+        <li><code>'file_size'</code> - The file size in bytes</li>
+    </ol>
+
+    <p>The value of the <code>file_path</code> will always be a <i>relative_path</i>.</p>
+    <p>In instances where you've uploaded a file to a <i>module</i> the value of <code>$file_info['file_path']</code> will follow this pattern:</p>
+    [code]../modules/{module_name}/{destination}/{filename}[/code]
+
+</div>
+
+<h3>Public Directory Uploads</h3>
+
+<p>When <code>upload_to_module</code> is <code>false</code> (or not set), files are stored in the <b>public</b> directory:</p>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'downloads'
+];
+$file_info = $this-&gt;file-&gt;upload($config);
+
+// Relative path returned:
+// 'downloads/report.pdf'
+[/code]
+
+<p>In this instance, the value of <code>$file_info['file_path']</code> takes the form: <code>{destination}/{filename}</code></p>
+
+<div class="alert alert-info">
+    <p class="mb-0">In the above example, uploaded files would be stored at:</p>
+    [code]public/downloads/&lt;file-name&gt;[/code]
+</div>
+
+<h3>Quick Reference Table</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Storage Location</th>
+            <th>Relative Path Format</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Module directory</td>
+            <td><code>../modules/{module}/{folder}/{filename}</code></td>
+            <td><code>../modules/users/cvs/resume.pdf</code></td>
+        </tr>
+        <tr>
+            <td>Public directory</td>
+            <td><code>{folder}/{filename}</code></td>
+            <td><code>my_uploads/image.jpg</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Reconstructing Paths from Database</h2>
+
+<p>A common pattern is to store the file metadata from <span class="feature-ref">included-file-upload()</span> in your database, then use the stored <code>file_path</code> when needed:</p>
+
+[code=php]
+// During upload - store all file metadata
+$file_info = $this-&gt;file-&gt;upload($config);
+
+// Store ALL data returned by upload() for later use
+$data = [
+    'file_name' => $file_info['file_name'],
+    'file_path' => $file_info['file_path'],
+    'file_type' => $file_info['file_type'],
+    'file_size' => $file_info['file_size']
+];
+$this-&gt;db-&gt;insert($data, 'documents');
+
+// Later - retrieve the stored file_path
+$doc = $this-&gt;db-&gt;get_where($id, 'documents');
+
+// Use the stored file_path with File module methods
+if ($this-&gt;file-&gt;exists($doc-&gt;file_path)) {
+    $content = $this-&gt;file-&gt;read($doc-&gt;file_path);
+    $this-&gt;file-&gt;delete($doc-&gt;file_path);
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Always use the complete relative path when calling File module methods. Using just filenames will cause "file does not exist" exceptions.</p>
+</div>
+
+<h2>Relative Paths vs. URLs</h2>
+
+<p>Here's where developers often get confused: the relative path you use for PHP operations is <strong>different</strong> from the URL you use for browser access.</p>
+
+<h3>For PHP Operations: Use Relative Paths</h3>
+
+[code=php]
+// Relative path for File module operations
+$file_path = '../modules/users/documents/report.pdf';
+
+$this-&gt;file-&gt;exists($file_path);
+$this-&gt;file-&gt;read($file_path);
+$info = $this-&gt;file-&gt;info($file_path);
+$this-&gt;file-&gt;delete($file_path);
+[/code]
+
+<h3>For Browser Access: Use URLs</h3>
+
+<p>To let users view or download files, you need a URL that the browser can access. This is where things differ based on storage location.</p>
+
+<h2>Accessing Files via URL</h2>
+
+<h3>Public Directory Files</h3>
+
+<p>Files in the public directory are straightforward - the relative path and URL are the same:</p>
+
+[code=php]
+// Upload to public directory
+$config['destination'] = 'downloads';
+$file_info = $this-&gt;file-&gt;upload($config);
+
+// Relative path for PHP:
+// 'downloads/report.pdf'
+
+// URL for browser:
+// 'downloads/report.pdf'
+// or with BASE_URL: https://example.com/downloads/report.pdf
+[/code]
+
+<p>In your view:</p>
+
+[code=html]
+&lt;a href="&lt;?= BASE_URL ?&gt;downloads/report.pdf" target="_blank"&gt;
+    View File
+&lt;/a&gt;
+[/code]
+
+<h3>Module Directory Files: The Module Assets Trigger</h3>
+
+<p>Files in module directories require a special URL pattern called the <strong>module assets trigger</strong>:</p>
+
+[code]
+{module-name}_module/{subdirectory}/{filename}
+[/code]
+
+<p>Example:</p>
+
+[code=php]
+// Upload to module directory
+$config = [
+    'destination' =&gt; 'uploads',
+    'upload_to_module' =&gt; true
+];
+$file_info = $this-&gt;file-&gt;upload($config);
+
+// Relative path for PHP operations:
+// '../modules/simple_uploader/uploads/document.pdf'
+
+// URL for browser access:
+// 'simple_uploader_module/uploads/document.pdf'
+[/code]
+
+<p>In your view:</p>
+
+[code=html]
+&lt;a href="&lt;?= BASE_URL ?&gt;simple_uploader_module/uploads/document.pdf" target="_blank"&gt;
+    View File
+&lt;/a&gt;
+[/code]
+
+<h3>How the Module Assets Trigger Works</h3>
+
+<p>When Trongate sees <code>_module</code> in a URL, it automatically serves files from the corresponding module directory:</p>
+
+[code]
+modules/
+  simple_uploader/
+    uploads/
+      document.pdf
+      report.csv
+  users/
+    files/
+      resume.pdf
+    images/
+      avatar.png
+[/code]
+
+<p>These files become accessible via:</p>
+
+<div class="element-wrapper">
+<ul>
+    <li><code>simple_uploader_module/uploads/document.pdf</code></li>
+    <li><code>simple_uploader_module/uploads/report.csv</code></li>
+    <li><code>users_module/files/resume.pdf</code></li>
+    <li><code>users_module/images/avatar.png</code></li>
+</ul>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>The Module Assets Trigger</strong> is defined in <code>config/config.php</code>:</p>
+    [code=php]
+define('MODULE_ASSETS_TRIGGER', '_module');
+[/code]
+    <p>You can change this trigger if needed, but <i>do</i> avoid naming modules with the trigger in the name (e.g., don't name a module <code>users_module</code> - use <code>users</code> instead).</p>
+
+    <p>For additional guidance, check out the <a href="documentation/trongate_php_framework/module-fundamentals/module-assets" target="_blank">Module Assets</a> documentation.</p>
+
+</div>
+
+<div class="container">
+    <h2>Complete Example: Upload, Store in Database, and Display</h2>
+    <p>This example demonstrates how to work with file paths, store file metadata in a database, and then display the data returned by the <span class="feature-ref">included-file-upload()</span> method.</p>
+ 
+    <h3>1. The Controller</h3>
+    <p>In this code, we upload a file, store all metadata in the database, and then redirect to a page that displays the file information retrieved from the database.</p>
+
+[code=php]&lt;?php
+class File_demo extends Trongate {
+
+    /**
+     * Display the upload form
+     */
+    public function index() {
+        $data['view_module'] = 'file_demo';
+        $data['view_file'] = 'upload_form';
+        $this-&gt;view('upload_form', $data);
+    }
+
+    /**
+     * Process the file upload and store in database
+     * 
+     * Responsibility: Validate, upload file, store metadata, then redirect
+     * Uses POST-Redirect-GET pattern to prevent duplicate submissions
+     */
+    public function submit_upload() {
+        // Set validation rules
+        $this-&gt;validation-&gt;set_rules(
+            'userfile',
+            'File',
+            'required|allowed_types[pdf,txt,md]|max_size[5000]'
+        );
+
+        if ($this-&gt;validation-&gt;run() === true) {
+
+            // Configure file upload options
+            $config = [
+                'destination' => 'uploads', 
+                'upload_to_module' => true,
+                'make_rand_name' => true
+            ];
+            
+            // Upload file and get all metadata
+            $file_info = $this-&gt;file-&gt;upload($config);
+            
+            // Store ALL data returned by upload() in database
+            $data = [
+                'file_name' => $file_info['file_name'],
+                'file_path' => $file_info['file_path'],
+                'file_type' => $file_info['file_type'],
+                'file_size' => $file_info['file_size']
+            ];
+            
+            $insert_id = $this-&gt;db-&gt;insert($data, 'documents');
+            
+            set_flashdata('File uploaded successfully!');
+            
+            // Redirect to display page with database ID
+            redirect('file_demo/display/' . $insert_id);
+        } else {
+            // Validation failed - show form again with errors
+            $this-&gt;index();
+        }
+    }
+
+    /**
+     * Display file metadata from database
+     * 
+     * Responsibility: Retrieve file info from database and display it
+     */
+    public function display() {
+        // Fetch the record ID from the URL.
+        $id = segment(3, 'int');
+
+        // Get file metadata from database
+        $doc = $this-&gt;db-&gt;get_where($id, 'documents');
+        
+        if ($doc === false) {
+            // Record not found - send the user elsewhere.
+            redirect('file_demo/file_not_found');
+        }
+        
+        // Prepare data for view using database values
+        $data = [
+            'file_name' => $doc-&gt;file_name,
+            'file_path' => $doc-&gt;file_path,
+            'file_type' => $doc-&gt;file_type,
+            'file_size' => $doc-&gt;file_size,
+            'formatted_size' => $this-&gt;format_size($doc-&gt;file_size),
+            'download_url' => $this-&gt;convert_to_url($doc-&gt;file_path)
+        ];
+        
+        $data['view_module'] = 'file_demo';
+        $data['view_file'] = 'display_file';
+        $this-&gt;view('display_file', $data);
+    }
+
+    /**
+     * Helper function to format file size (in controller, not view)
+     */
+    private function format_size($bytes) {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
+
+    /**
+     * Convert module file path to URL (in controller, not view)
+     */
+    private function convert_to_url($file_path) {
+        if (strpos($file_path, '../modules/') === 0) {
+            $path_parts = explode('/', $file_path);
+            $module_name = $path_parts[2];
+            return str_replace("../modules/{$module_name}/", "{$module_name}_module/", $file_path);
+        }
+        return $file_path;
+    }
+
+}
+[/code]
+
+<div class="alert alert-success">
+    <p>The controller example above includes several lines of code dedicated to data processing.</p>
+    <p>For better organization, separation of concerns, and long-term maintainability, it is recommended to move data-handling logic into a dedicated <a href="documentation/trongate_php_framework/module-fundamentals/model-files" target="_blank">model file</a>.</p>
+</div>
+
+
+    <h3>2. The View File (display_file.php)</h3>
+    <p>The view displays all file metadata retrieved from the database.</p>
+
+[code=vf]
+&lt;h2&gt;File Information&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Stored Filename:&lt;/strong&gt; &lt;?= out($file_name) ?&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;File Type:&lt;/strong&gt; &lt;?= out($file_type) ?&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Size:&lt;/strong&gt; &lt;?= out($formatted_size) ?&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Relative Path:&lt;/strong&gt; &lt;code&gt;&lt;?= out($file_path) ?&gt;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Download Link:&lt;/strong&gt; &lt;?= anchor($download_url, 'Download') ?&gt;&lt;/p&gt;
+&lt;p&gt;&lt;?= anchor('file_demo', 'Upload Another File') ?&gt;&lt;/p&gt;
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Important:</strong> This example demonstrates the complete workflow:</p>
+        <ol>
+            <li><code>upload()</code> returns all four file metadata properties</li>
+            <li>All four properties are stored in the database exactly as returned</li>
+            <li>The <code>file_path</code> from the database is used for all file operations</li>
+            <li>Helper functions in the controller format data for display</li>
+            <li>The POST-Redirect-GET pattern prevents duplicate submissions</li>
+        </ol>
+        <p><strong>Database Schema Note:</strong> Your 'documents' table should have columns for: <code>file_name</code>, <code>file_path</code>, <code>file_type</code>, and <code>file_size</code> to store all metadata from <code>upload()</code>.</p>
+    </div>
+</div>
+
+<h2>Path Conversion Quick Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Storage Location</th>
+            <th>Relative Path (for PHP)</th>
+            <th>URL (for browser)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Module directory</td>
+            <td><code>../modules/users/files/doc.pdf</code></td>
+            <td><code>users_module/files/doc.pdf</code></td>
+        </tr>
+        <tr>
+            <td>Public directory</td>
+            <td><code>my_uploads/doc.pdf</code></td>
+            <td><code>my_uploads/doc.pdf</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Key Takeaways</h2>
+
+<div class="alert alert-success">
+    <p><strong>Remember these essentials:</strong></p>
+    <ul>
+        <li>File module methods expect <strong>relative paths</strong></li>
+        <li><code>upload()</code> returns four properties in an array</li>
+        <li>Store all four properties from <code>upload()</code> in your database</li>
+        <li>The <code>file_path</code> property contains the relative path for PHP operations</li>
+        <li>Module files need <strong>path conversion</strong> for browser access:
+            <ul>
+                <li>PHP: <code>../modules/module_name/...</code></li>
+                <li>URL: <code>{module}_module/...</code></li>
+            </ul>
+        </li>
+        <li>Public files use the same path for both PHP and URLs</li>
+        <li>Format <code>file_size</code> in the controller, not the view</li>
+        <li>Use POST-Redirect-GET pattern to prevent duplicate submissions</li>
+        <li>Always verify file existence with <code>exists()</code> before operations</li>
+    </ul>
+</div>

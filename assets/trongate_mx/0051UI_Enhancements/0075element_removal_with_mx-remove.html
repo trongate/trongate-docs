@@ -1,0 +1,269 @@
+<h1>Element Removal</h1>
+
+<p>Trongate MX makes it super easy to remove elements from your webpage with its <code>mx-remove</code> attribute. You won't need to write a single line of JavaScript - it just works!</p>
+
+<h2>Demonstration</h2>
+<p>Try clicking on the 'Remove' buttons and notice how the items are immediately removed from the page.</p>
+<style>
+.code-demo {
+  padding-top: 2em;
+  min-height: 9em;
+}
+
+.shopping-list {
+  margin: 0;
+}
+
+.shopping-list li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shopping-list li button {
+  margin-top: 0;
+  margin-right: 1em;
+}
+</style>
+
+
+<div class="code-demo text-center">
+<ul class="shopping-list text-left">
+  <li>
+    <span>Bread</span>
+    <span><button mx-remove="li">Remove <i class="fa fa-trash"></i></button></span>
+  </li>
+  <li>
+    <span>Milk</span>
+    <span><button mx-remove="li">Remove <i class="fa fa-trash"></i></button></span>
+  </li>
+  <li>
+    <span>Eggs</span>
+    <span><button mx-remove="li">Remove <i class="fa fa-trash"></i></button></span>
+  </li>
+</ul>
+</div>
+
+<div class="alert alert-info">
+  <p>The <code>mx-remove</code> attribute only removes elements from the current page - it doesn't delete anything from your database or make any HTTP requests.</p>
+</div>
+
+<h2>How Does It Work?</h2>
+
+<p>The <code>mx-remove</code> attribute can work in two specific ways:</p>
+
+<h3>1. Remove Immediate Parent Element</h3>
+<p>When you set <code>mx-remove="true"</code>, it will remove the clicked element's immediate parent.</p>
+
+[code=html]
+&lt;div class="notification"&gt;
+  &lt;span&gt;
+    &lt;button mx-remove="true"&gt;×&lt;/button&gt;
+  &lt;/span&gt;
+  Your message has been sent!
+&lt;/div&gt;
+[/code]
+
+<p>In this example, clicking the button removes the surrounding <b>span element</b>, since it's the button's immediate parent.</p>
+
+<h3>2. Remove Specific Ancestor Using Selectors</h3>
+<p>When you provide a CSS selector value to <html>mx-remove</code>, it will remove the closest ancestor that matches that selector.</p>
+
+[code=html]
+&lt;div class="notification"&gt;
+  &lt;span&gt;
+    &lt;button mx-remove=".notification"&gt;×&lt;/button&gt;
+  &lt;/span&gt;
+  Your message has been sent!
+&lt;/div&gt;
+[/code]
+
+<p>Here, clicking the button removes the entire <b>notification div</b> since it matches the .notification selector.</p>
+
+<h2>Basic Examples</h2>
+
+<h3>Simple List Item Removal</h3>
+[code=html]
+&lt;ul&gt;
+    &lt;li&gt;Rolex Explorer 2 
+        &lt;button mx-remove="true"&gt;×&lt;/button&gt;
+    &lt;/li&gt;
+    &lt;li&gt;Omega Seamaster 
+        &lt;button mx-remove="true"&gt;×&lt;/button&gt;
+    &lt;/li&gt;
+    &lt;li&gt;Tag Heuer Carrera 
+        &lt;button mx-remove="true"&gt;×&lt;/button&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+[/code]
+
+<p>The buttons above remove the closest li ancestor when clicked, deleting entire list items.</p>
+
+<h3>Alert Dismissal</h3>
+[code=html]
+&lt;div class="alert alert-success"&gt;
+  &lt;p&gt;Changes saved successfully!&lt;/p&gt;
+  &lt;button mx-remove=".alert"&gt;×&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+
+<p>Clicking the × button removes the entire alert because it targets the closest element with the 'alert' class.</p>
+
+<h2>What's The Point?</h2>
+<p>
+  You might wonder: <em>"If mx-remove doesn't make HTTP requests or affect my database, why would I use it?"</em>
+</p>
+<p>
+  Good question! The beauty of <code>mx-remove</code> lies in its simplicity and flexibility. While it only modifies the page display on its own, it becomes incredibly powerful when combined with other MX attributes like <code>mx-post</code>. This allows you to remove elements visually while handling server-side operations behind the scenes.
+</p>
+<h2>Practical Use Case: Shopping Cart with Error Handling</h2>
+<p>
+  Here's how you can create a robust shopping cart system where items are removed visually and server communication is handled seamlessly.
+</p>
+<h3>Example Code: Cart Item Removal</h3>
+<p>
+[code=vf]
+&lt;div class="cart-item"&gt;<br>
+  &nbsp;&nbsp;&lt;img src="product.jpg"&gt;<br>
+  &nbsp;&nbsp;&lt;div class="details"&gt;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;h3&gt;Blue T-Shirt&lt;/h3&gt;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;$19.99&lt;/p&gt;<br>
+  &nbsp;&nbsp;&lt;/div&gt;<br><br>
+  &nbsp;&nbsp;&lt;?php<br>
+  &nbsp;&nbsp;$attr = [<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;'mx-post' =&gt; 'cart/remove/'.$item_id,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;'mx-remove' =&gt; '.cart-item',<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;'mx-target' =&gt; '#cart-total',<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;'mx-redirect-on-error' =&gt; 'true'<br>
+  &nbsp;&nbsp;];<br>
+  &nbsp;&nbsp;echo form_button('remove_btn', 'Remove', $attr);<br>
+  &nbsp;&nbsp;?&gt;<br>
+&lt;/div&gt;
+[/code]
+</p>
+
+<p class="mt-3 mb-0">Below is the <i>same solution</i>, expressed <b>without</b> using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
+
+[code=vf]
+&lt;div class="cart-item"&gt;
+    &lt;img src="product.jpg"&gt;
+    &lt;div class="details"&gt;
+      &lt;h3&gt;Blue T-Shirt&lt;/h3&gt;
+      &lt;p&gt;$19.99&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;button mx-post="cart/remove/&lt;?= $item_id ?&gt;"
+            mx-remove=".cart-item"
+            mx-target="#cart-total"
+            mx-redirect-on-error="true"&gt;Remove&lt;/button&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>Even though no data is being explicitly posted in the deletion request, there's a very important reason we're using <code>mx-post</code> here. According to REST principles, DELETE operations should be made using either POST or DELETE HTTP methods, not GET.</p>
+  <p>This is because:</p>
+  <ul>
+    <li>GET requests should be idempotent (they shouldn't change server state).</li>
+    <li>GET requests are often cached by browsers and can be pre-fetched.</li>
+    <li>GET requests can be accidentally triggered (e.g., by search engine crawlers).</li>
+  </ul>
+  <p>While <code>mx-delete</code> would also be valid here (and arguably more semantically correct), <code>mx-post</code> is often chosen because:</p>
+  <ul>
+    <li>Some legacy systems might not properly handle DELETE requests.</li>
+    <li>Some firewalls might block DELETE methods.</li>
+    <li>Older browsers might not fully support DELETE methods.</li>
+  </ul>
+  <p>So while we could use either <code>mx-post</code> or <code>mx-delete</code>, using <code>mx-post</code> for deletion operations is a common and safe choice. The key point is that we're avoiding <code>mx-get</code> for operations that modify server data.</p>
+</div>
+
+<h3>How It Works</h3>
+<ul>
+  <li><strong>Immediate Feedback:</strong> When the "Remove" button is clicked, the cart item disappears from the page instantly thanks to <code>mx-remove</code>.</li>
+  <li><strong>Server Communication:</strong> The <code>mx-post</code> attribute sends a request to the server to update the database.</li>
+  <li><strong>Error Handling:</strong> If the server responds with an error (e.g., an expired session), the <code>mx-redirect-on-error</code> attribute redirects the user to a specified error page.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>While using <code>mx-remove</code> with <code>mx-post</code> can provide immediate visual feedback, a more conventional approach is to refresh the affected content <b>after</b> server confirmation. Here's an example:</p>
+
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-post' => 'members/delete_record/'.$row->id,
+    'mx-indicator' => '#spinner-'.$row->id,
+    'mx-on-success' => '.response'  // Refreshes the container on success
+];
+echo form_button('delete_btn', 'Delete', $btn_attr);
+?>[/code]
+
+  <p>This pattern ensures UI updates only occur after successful server operations, maintaining data consistency and providing clear visual feedback through spinners. It's particularly suitable for data-critical operations like deletions in admin interfaces.</p>
+</div>
+
+<h3 class="mt-3">Backend Example: Handling Item Removal</h3>
+<p>Here's an example of the kind of code that could potentially be used for the item removal API endpoint.  This is just one of <i>many</i> possible methodologies.</p>
+[code=php]
+public function remove() {<br>
+
+  // Fetch item ID from URL (making sure it's an integer)
+  $item_id = segment(3, 'int');
+
+  // Attempt remove item from shopping cart
+  $result = $this-&gt;attempt_remove_from_cart($item_id);
+
+  if ($result !== true) {
+    http_response_code(400);
+    echo 'cart/error'; // Redirects to an error page
+    die();
+  }
+
+  http_response_code(200);
+  echo $this-&gt;cart-&gt;get_total(); // Returns updated cart total on success
+}[/code]
+</p>
+
+<div class="alert alert-success">
+<ul>
+  <li>Use <code>mx-remove="true"</code> to remove the immediate parent element.</li>
+  <li>Use <code>mx-remove="&lt;CSS Selector&gt;"</code> to target and remove a specific ancestor.</li>
+  <li>Combine <code>mx-remove</code> with attributes like <code>mx-post</code> or <code>mx-target</code> to handle backend operations while updating the UI.</li>
+  <li>
+    Remember:
+    <ol>
+      <li>Class selectors require a dot (e.g., <code>.notification</code>).</li>
+      <li>ID selectors require a hash symbol (e.g., <code>#message</code>).</li>
+    </ol>
+  </li>
+  <li>Test error scenarios to ensure robust error handling.</li>
+</ul>
+</div>
+
+<h2>Technical Details</h2>
+<p>When a click event occurs on an element with the <code>mx-remove</code> attribute, Trongate MX performs the following steps:</p>
+
+<ol>
+ <li>
+   <strong>Check Attribute Value</strong>
+   <p>The system checks the attribute value and processes it in one of two ways:</p>
+   <ul>
+     <li>For <code>mx-remove="true"</code>: Identifies the immediate parent using <code>parentElement</code></li>
+     <li>For <code>mx-remove="selector"</code>: Finds the closest matching ancestor using <code>closest(selector)</code></li>
+   </ul>
+ </li>
+ <li>
+   <strong>Update DOM</strong>
+   <p>The matched element is immediately removed from the DOM, with all changes applied instantly without additional JavaScript.</p>
+ </li>
+</ol>
+
+<div class="alert alert-info">
+<ul>
+  <li><strong>Client-Side Only:</strong> <code>mx-remove</code> doesn't send HTTP requests or modify your database. Combine it with <code>mx-post</code> for server-side operations.</li>
+  <li><strong>Immediate Changes:</strong> Removal is instant and cannot be undone without refreshing the page.</li>
+  <li><strong>Value Requirements:</strong> The <code>mx-remove</code> attribute must be set to either <code>true</code> or a valid CSS selector.</li>
+  <li><strong>Versatility:</strong> Works with any clickable element (e.g., buttons, links).</li>
+</ul>
+</div>
+<h2>Summary</h2>
+<p>
+  The <code>mx-remove</code> attribute lets your remove UI elements easily. Whether you're removing a notification, dismissing an alert, or updating a shopping cart, <code>mx-remove</code> provides a simple yet powerful solution. When paired with other MX attributes, it becomes a complete tool for managing client-side interactions with minimal effort.
+</p>
+

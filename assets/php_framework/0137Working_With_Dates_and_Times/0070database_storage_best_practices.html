@@ -1,0 +1,854 @@
+ [meta-description]Master database storage for dates and times in Trongate. MySQL DATE, TIME, DATETIME types, ISO 8601 format conversion, timezone handling, indexing strategies, and query optimization best practices.[/meta-description]
+<h1>Database Storage Best Practices</h1>
+
+<p>Proper database storage of dates and times is crucial for data integrity, query performance, and international compatibility. This page covers best practices for storing date and time data in MySQL.</p>
+
+<h2>MySQL Date and Time Types</h2>
+
+<p>MySQL provides five specialized data types for storing temporal data. Understanding each type's characteristics helps you choose the right one for your application.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>MySQL Type</th>
+            <th>Stores</th>
+            <th>Format</th>
+            <th>Range</th>
+            <th>Use For</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>DATE</code></td>
+            <td>Date only</td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td>1000-01-01 to 9999-12-31</td>
+            <td>Birthdays, due dates, event dates</td>
+        </tr>
+        <tr>
+            <td><code>TIME</code></td>
+            <td>Time only</td>
+            <td><code>HH:MM:SS</code></td>
+            <td>-838:59:59 to 838:59:59</td>
+            <td>Opening hours, duration</td>
+        </tr>
+        <tr>
+            <td><code>DATETIME</code></td>
+            <td>Date + Time</td>
+            <td><code>YYYY-MM-DD HH:MM:SS</code></td>
+            <td>1000-01-01 00:00:00 to 9999-12-31 23:59:59</td>
+            <td>Appointments, events, logs</td>
+        </tr>
+        <tr>
+            <td><code>TIMESTAMP</code></td>
+            <td>Date + Time (UTC)</td>
+            <td><code>YYYY-MM-DD HH:MM:SS</code></td>
+            <td>1970-01-01 00:00:01 to 2038-01-19 03:14:07</td>
+            <td>Record creation/update times</td>
+        </tr>
+        <tr>
+            <td><code>YEAR</code></td>
+            <td>Year only</td>
+            <td><code>YYYY</code></td>
+            <td>1901 to 2155</td>
+            <td>Birth year, academic year</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Understanding Each MySQL Type</h2>
+
+<h3>MySQL DATE Type</h3> 
+<p>Stores <b>date-only</b> values in <code>YYYY-MM-DD</code> format. Requires 3 bytes of storage. Range spans from 1000-01-01 to 9999-12-31. Use DATE when time-of-day is irrelevant, such as birthdays, due dates, or holidays. The compact storage makes it ideal for large datasets where only the date matters.</p>  
+<p>For additional details, please refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/datetime.html" target="_blank">MySQL DATE Documentation</a>.</p>
+<hr>
+<h3>MySQL TIME Type</h3> 
+<p>Stores <b>time-only</b> values or time durations in <code>HH:MM:SS</code> format. Requires 3 bytes of storage. Unusually, TIME supports a wide range from -838:59:59 to 838:59:59, allowing it to represent time differences exceeding 24 hours. Use TIME for store hours, appointment slots, or elapsed time calculations. Negative values are supported for representing time differences.</p>  
+<p>For more information, please refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/time.html" target="_blank">MySQL TIME Documentation</a>.</p>
+<hr>
+<h3>MySQL DATETIME Type</h3>
+<p>Stores <b>date and time</b> together in <code>YYYY-MM-DD HH:MM:SS</code> format without timezone conversion. Requires 8 bytes of storage. Range spans from 1000-01-01 00:00:00 to 9999-12-31 23:59:59. DATETIME stores exactly what you insert - no timezone conversions occur. Use DATETIME for appointments, scheduled events, and any "local time" data. This is the most commonly used type for user-facing date/time data.</p>  
+<p>For additional guidance, please refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/datetime.html" target="_blank">MySQL DATETIME Documentation</a>.</p>
+<hr>
+
+<h3>MySQL TIMESTAMP Type</h3>
+<p>Stores <b>date and time</b> in <code>YYYY-MM-DD HH:MM:SS</code> format with automatic timezone conversion. Requires 4 bytes of storage. Limited range from 1970-01-01 00:00:01 UTC to 2038-01-19 03:14:07 UTC (the Year 2038 problem). TIMESTAMP stores values in UTC internally and automatically converts to the session's timezone on retrieval. TIMESTAMP is perfect for system timestamps like created_at and updated_at because it automatically updates and handles timezone conversions. However, its limited range makes it unsuitable for birth dates or far-future events.</p> 
+<p>For more information, please refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/datetime.html" target="_blank">MySQL TIMESTAMP Documentation</a>.</p>
+<hr>
+
+<h3>MySQL YEAR Type</h3>
+<p>Stores <b>year-only</b> values in <code>YYYY</code> format. Requires just 1 byte of storage. Range from 1901 to 2155. Use YEAR for birth years, academic years, vehicle model years, or any year-only data where the specific date isn't needed. The minimal storage footprint makes it ideal for large datasets.</p>  
+<p>For additional guidance, please refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/year.html" target="_blank">MySQL YEAR Documentation</a>.</p>
+<hr>
+<h2>Choosing the Right Type</h2>
+
+<h3>Use DATE When:</h3>
+<ul>
+    <li>You only need the date, not the time (birthdays, deadlines, holidays)</li>
+    <li>Time of day is irrelevant</li>
+    <li>You want to save storage space (3 bytes vs 8 bytes for DATETIME)</li>
+</ul>
+
+[code=sql]
+CREATE TABLE tasks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    task_title VARCHAR(255),
+    due_date DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+[/code]
+
+<h3 class="mt-3">Use TIME When:</h3>
+<ul>
+    <li>You only need the time, not the date (store hours, appointment slots)</li>
+    <li>You're storing duration (elapsed time)</li>
+    <li>Date context is stored separately or unnecessary</li>
+</ul>
+
+[code=sql]
+CREATE TABLE store_hours (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    day_of_week VARCHAR(10),
+    opening_time TIME,
+    closing_time TIME
+);
+[/code]
+
+<h3 class="mt-3">Use DATETIME When:</h3>
+<ul>
+    <li>You need both date and time (appointments, events, deadlines)</li>
+    <li>You're storing "local time" without timezone conversion</li>
+    <li>You need a wide date range (beyond 2038)</li>
+</ul>
+
+[code=sql]
+CREATE TABLE appointments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_name VARCHAR(100),
+    appointment_datetime DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+[/code]
+
+<h3 class="mt-3">Use TIMESTAMP When:</h3>
+<ul>
+    <li>You need automatic timezone conversion (UTC storage)</li>
+    <li>You're tracking record creation/modification times</li>
+    <li>Your date range is after 1970 and before 2038</li>
+</ul>
+
+[code=sql]
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>DATETIME vs TIMESTAMP:</strong> Use DATETIME for user-facing dates/times (appointments, events). Use TIMESTAMP for system timestamps (created_at, updated_at). TIMESTAMP stores in UTC and converts to session timezone; DATETIME stores exactly as entered.</p>
+</div>
+
+<h2>Format Conversions</h2>
+
+<p>Understanding how HTML5 input formats map to MySQL formats is essential for proper data handling.</p>
+
+<h3>DATE Input (form_date)</h3>
+
+<p>No conversion needed - direct mapping:</p>
+
+[code=php]
+// Form submits: 2025-12-27
+// Database stores: 2025-12-27
+$data['due_date'] = post('due_date', true);
+$this-&gt;db-&gt;insert($data, 'tasks');
+
+// Retrieving from database
+$record = $this-&gt;db-&gt;get_where($id, 'tasks');
+echo form_date('due_date', $record-&gt;due_date); // Direct use
+[/code]
+
+<h3>TIME Input (form_time)</h3>
+
+<p>MySQL automatically adds seconds if not provided:</p>
+
+[code=php]
+// Form submits: 14:30
+// Database stores: 14:30:00 (MySQL adds :00)
+$data['start_time'] = post('start_time', true);
+$this-&gt;db-&gt;insert($data, 'schedule');
+
+// Retrieving from database
+$record = $this-&gt;db-&gt;get_where($id, 'schedule');
+// $record-&gt;start_time = "14:30:00"
+
+// For form display, optionally strip seconds
+$time_for_form = substr($record-&gt;start_time, 0, 5); // "14:30"
+echo form_time('start_time', $time_for_form);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>PHP substr():</strong> The <code>substr()</code> function extracts a portion of a string. <code>substr($string, 0, 5)</code> extracts 5 characters starting from position 0, effectively getting "14:30" from "14:30:00". The third parameter is length, not the ending position.</p> 
+
+    <p>For more information, please refer to the <a href="https://www.php.net/manual/en/function.substr.php" target="_blank">PHP substr() Documentation</a>.</p>
+</div>
+
+<h3>DATETIME-LOCAL Input (form_datetime_local)</h3>
+
+<p>Requires conversion between formats:</p>
+
+[code=php]
+// STORING: Form → Database
+// Form submits: 2025-12-27T14:30
+// Database needs: 2025-12-27 14:30:00
+
+$datetime_from_form = post('appointment_datetime', true);
+$datetime_for_db = str_replace('T', ' ', $datetime_from_form) . ':00';
+$data['appointment_datetime'] = $datetime_for_db;
+$this-&gt;db-&gt;insert($data, 'appointments');
+
+// RETRIEVING: Database → Form
+// Database has: 2025-12-27 14:30:00
+// Form needs: 2025-12-27T14:30
+
+$record = $this-&gt;db-&gt;get_where($id, 'appointments');
+$datetime_from_db = $record-&gt;appointment_datetime;
+$datetime_for_form = str_replace(' ', 'T', substr($datetime_from_db, 0, 16));
+echo form_datetime_local('appointment_datetime', $datetime_for_form);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>PHP str_replace():</strong> The <code>str_replace()</code> function replaces all occurrences of a search string with a replacement string. It's case-sensitive and processes the entire string. Format: <code>str_replace($search, $replace, $subject)</code>. Perfect for simple find-and-replace operations like swapping 'T' with a space.</p> 
+
+    <p>For more information, please refer to the <a href="https://www.php.net/manual/en/function.str-replace.php" target="_blank">PHP str_replace() Documentation</a>.</p>
+</div>
+
+<h3>MONTH Input (form_month)</h3>
+
+<p>Store as VARCHAR - no conversion needed:</p>
+
+[code=php]
+// Form submits: 2025-12
+// Database stores: 2025-12 (VARCHAR)
+$data['billing_month'] = post('billing_month', true);
+$this-&gt;db-&gt;insert($data, 'subscriptions');
+
+// Retrieving from database
+$record = $this-&gt;db-&gt;get_where($id, 'subscriptions');
+echo form_month('billing_month', $record-&gt;billing_month); // Direct use
+[/code]
+
+<h3>WEEK Input (form_week)</h3>
+
+<p>Store as VARCHAR - no conversion needed:</p>
+
+[code=php]
+// Form submits: 2025-W52
+// Database stores: 2025-W52 (VARCHAR)
+$data['work_week'] = post('work_week', true);
+$this-&gt;db-&gt;insert($data, 'timesheets');
+
+// Retrieving from database
+$record = $this-&gt;db-&gt;get_where($id, 'timesheets');
+echo form_week('work_week', $record-&gt;work_week); // Direct use
+[/code]
+
+<h2>Model Helper Methods</h2>
+
+<p>Create reusable conversion methods in your models to maintain clean, consistent code:</p>
+
+[code=php]
+class Events_model extends Model {
+    
+    /**
+     * Convert form datetime-local to database DATETIME format
+     * From: 2025-12-27T14:30
+     * To:   2025-12-27 14:30:00
+     */
+    private function form_datetime_to_db(string $form_datetime): string {
+        if (empty($form_datetime)) {
+            return '';
+        }
+        return str_replace('T', ' ', $form_datetime) . ':00';
+    }
+    
+    /**
+     * Convert database DATETIME to form datetime-local format
+     * From: 2025-12-27 14:30:00
+     * To:   2025-12-27T14:30
+     */
+    private function db_datetime_to_form(string $db_datetime): string {
+        if (empty($db_datetime) || $db_datetime === '0000-00-00 00:00:00') {
+            return '';
+        }
+        return str_replace(' ', 'T', substr($db_datetime, 0, 16));
+    }
+    
+    /**
+     * Get data ready for database insert/update
+     */
+    public function prepare_for_database(): array {
+        return [
+            'event_title' =&gt; post('event_title', true),
+            'event_start' =&gt; $this-&gt;form_datetime_to_db(post('event_start', true)),
+            'event_end' =&gt; $this-&gt;form_datetime_to_db(post('event_end', true))
+        ];
+    }
+    
+    /**
+     * Get data ready for form display
+     */
+    public function get_form_data(int $update_id): array {
+        if ($update_id &gt; 0 &amp;&amp; REQUEST_TYPE === 'GET') {
+            $record = $this-&gt;db-&gt;get_where($update_id, 'events');
+            return [
+                'event_title' =&gt; $record-&gt;event_title,
+                'event_start' =&gt; $this-&gt;db_datetime_to_form($record-&gt;event_start),
+                'event_end' =&gt; $this-&gt;db_datetime_to_form($record-&gt;event_end)
+            ];
+        }
+        
+        return [
+            'event_title' =&gt; post('event_title', true),
+            'event_start' =&gt; post('event_start', true),
+            'event_end' =&gt; post('event_end', true)
+        ];
+    }
+}
+[/code]
+
+<h2>Default Values and NULL Handling</h2>
+
+<h3>Setting Default Values</h3>
+
+[code=sql]
+CREATE TABLE orders (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    order_number VARCHAR(50),
+    order_date DATE NOT NULL,
+    ship_date DATE DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>MySQL CURRENT_TIMESTAMP:</strong> A special function that returns the current date and time. When used as DEFAULT CURRENT_TIMESTAMP, MySQL automatically sets the column to the current timestamp when a new record is inserted. The ON UPDATE CURRENT_TIMESTAMP clause automatically updates the timestamp whenever the record is modified.</p> 
+
+    <p>For more information, please refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_current-timestamp" target="_blank">MySQL CURRENT_TIMESTAMP Documentation</a>.</p>
+</div>
+
+<h3>Handling NULL vs Empty String</h3>
+
+[code=php]
+// Good: Use NULL for optional dates
+$data['completion_date'] = post('completion_date', true) ?: null;
+$this-&gt;db-&gt;insert($data, 'projects');
+
+// Bad: Don't use empty string for dates
+$data['completion_date'] = post('completion_date', true); // Could be empty string
+
+// Checking for NULL in queries
+$sql = "SELECT * FROM projects WHERE completion_date IS NULL";
+$incomplete = $this-&gt;db-&gt;query($sql, 'array');
+
+$sql = "SELECT * FROM projects WHERE completion_date IS NOT NULL";
+$completed = $this-&gt;db-&gt;query($sql, 'array');
+[/code]
+
+<h2>Indexing for Performance</h2>
+
+<p>Proper indexing of date and time columns can dramatically improve query performance, especially for range queries and filtering operations.</p>
+
+<h3>When to Index Date/Time Columns</h3>
+
+[code=sql]
+-- Index frequently queried date ranges
+CREATE INDEX idx_order_date ON orders(order_date);
+CREATE INDEX idx_created_at ON logs(created_at);
+
+-- Composite indexes for common query patterns
+CREATE INDEX idx_user_date ON appointments(user_id, appointment_date);
+CREATE INDEX idx_status_date ON tasks(status, due_date);
+
+-- Covering index for report queries
+CREATE INDEX idx_sales_report ON sales(sale_date, amount, region);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>MySQL Indexes:</strong> An index is a data structure that improves the speed of data retrieval operations. Think of it like a book's index - instead of scanning every page, you can jump directly to relevant content. Indexes are essential for WHERE clauses, JOIN conditions, and ORDER BY operations on large tables. However, indexes consume storage space and slow down INSERT/UPDATE operations slightly.</p> 
+
+    <p>For more information, refer to the official <a href="https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html" target="_blank">MySQL Index Optimization Documentation</a>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Composite Indexes:</strong> A composite (or compound) index includes multiple columns. The order of columns matters - MySQL can use the index for queries that filter on the leftmost column(s). For example, an index on (user_id, appointment_date) works for queries filtering by user_id alone, or by both user_id and appointment_date, but not for queries filtering only by appointment_date.</p> 
+
+    <p>For additional guidance, please refer to the official <a href="https://dev.mysql.com/doc/refman/8.0/en/multiple-column-indexes.html" target="_blank">MySQL Composite Indexes Documentation</a>.</p>
+</div>
+
+<h3>Index Usage Examples</h3>
+
+[code=sql]
+-- These queries will use indexes effectively
+SELECT * FROM orders WHERE order_date = '2025-12-27';
+SELECT * FROM orders WHERE order_date BETWEEN '2025-12-01' AND '2025-12-31';
+SELECT * FROM orders WHERE order_date &gt;= '2025-01-01';
+
+-- This query will NOT use date index efficiently
+SELECT * FROM orders WHERE YEAR(order_date) = 2025; -- Avoid functions on indexed columns
+
+-- Better: Use range instead
+SELECT * FROM orders WHERE order_date BETWEEN '2025-01-01' AND '2025-12-31';
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Index Performance Tip:</strong> Avoid using functions on indexed date columns in WHERE clauses. When you apply a function like YEAR(), MONTH(), or DATE() to a column, MySQL cannot use the index and must examine every row. Instead of <code>WHERE YEAR(date_column) = 2025</code>, use <code>WHERE date_column BETWEEN '2025-01-01' AND '2025-12-31'</code> to leverage the index.</p>
+</div>
+
+<h2>Querying Date and Time Data</h2>
+
+<h3>Date Range Queries</h3>
+
+[code=php]
+// Get all appointments for a specific date
+$sql = "SELECT * FROM appointments WHERE DATE(appointment_datetime) = :date";
+$appointments = $this-&gt;db-&gt;query_bind($sql, ['date' =&gt; '2025-12-27'], 'array');
+
+// Get appointments for a date range
+$sql = "SELECT * FROM appointments 
+        WHERE appointment_datetime BETWEEN :start AND :end
+        ORDER BY appointment_datetime";
+$appointments = $this-&gt;db-&gt;query_bind($sql, [
+    'start' =&gt; '2025-12-01 00:00:00',
+    'end' =&gt; '2025-12-31 23:59:59'
+], 'array');
+
+// Get tasks due in the next 7 days
+$sql = "SELECT * FROM tasks 
+        WHERE due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+        ORDER BY due_date";
+$upcoming_tasks = $this-&gt;db-&gt;query($sql, 'array');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>MySQL CURDATE():</strong> Returns the current date in YYYY-MM-DD format. Unlike NOW() or CURRENT_TIMESTAMP (which return date and time), CURDATE() returns only the date. It's equivalent to <code>CURRENT_DATE</code> and is useful for date-only comparisons.</p> 
+
+    <p>For more information and guidance, refer to the <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curdate" target="_blank">MySQL CURDATE() Documentation</a>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>MySQL DATE_ADD():</strong> Adds a time interval to a date. Format: <code>DATE_ADD(date, INTERVAL value unit)</code>. Common units: DAY, WEEK, MONTH, YEAR, HOUR, MINUTE. Example: <code>DATE_ADD(CURDATE(), INTERVAL 7 DAY)</code> returns the date 7 days from today. Also supports negative intervals via DATE_SUB().</p> 
+
+    <p>For additional information, refer to the official <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_date-add" target="_blank">MySQL DATE_ADD() Documentation</a>.</p>
+</div>
+
+<h3>Time-Based Queries</h3>
+
+[code=php]
+// Get store hours for a specific day
+$sql = "SELECT opening_time, closing_time FROM store_hours 
+        WHERE day_of_week = :day";
+$hours = $this-&gt;db-&gt;query_bind($sql, ['day' =&gt; 'Monday'], 'object');
+
+// Check if currently open
+$sql = "SELECT COUNT(*) as is_open FROM store_hours 
+        WHERE day_of_week = :day 
+        AND CURTIME() BETWEEN opening_time AND closing_time";
+$result = $this-&gt;db-&gt;query_bind($sql, ['day' =&gt; date('l')], 'object');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>MySQL CURTIME():</strong> Returns the current time in HH:MM:SS format (24-hour). Unlike NOW() which returns date and time, CURTIME() returns only the time component. Useful for comparing against TIME columns like business hours. Equivalent to <code>CURRENT_TIME</code>.</p> 
+
+    <p>For more information, please refer to the official <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_curtime" target="_blank">MySQL CURTIME() Documentation</a>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>PHP date():</strong> Formats a timestamp into a readable string using format characters. The format character <code>'l'</code> (lowercase L) returns the full textual day of the week (e.g., "Monday", "Tuesday"). Common format characters: 'Y' (4-digit year), 'm' (month with leading zero), 'd' (day with leading zero), 'H' (24-hour format), 'i' (minutes), 's' (seconds).</p> 
+
+    <p>For additional guidance, please refer to the official <a href="https://www.php.net/manual/en/function.date.php" target="_blank">PHP date() Documentation</a>.</p>
+</div>
+
+<h3>Aggregating by Date Periods</h3>
+
+[code=php]
+// Daily sales totals
+$sql = "SELECT DATE(sale_datetime) as sale_date, SUM(amount) as daily_total
+        FROM sales
+        WHERE sale_datetime BETWEEN :start AND :end
+        GROUP BY DATE(sale_datetime)
+        ORDER BY sale_date";
+$daily_sales = $this-&gt;db-&gt;query_bind($sql, [
+    'start' =&gt; '2025-12-01 00:00:00',
+    'end' =&gt; '2025-12-31 23:59:59'
+], 'array');
+
+// Monthly totals
+$sql = "SELECT YEAR(sale_date) as year, MONTH(sale_date) as month, 
+               SUM(amount) as monthly_total
+        FROM sales
+        WHERE sale_date BETWEEN :start AND :end
+        GROUP BY YEAR(sale_date), MONTH(sale_date)
+        ORDER BY year, month";
+$monthly_sales = $this-&gt;db-&gt;query_bind($sql, [
+    'start' =&gt; '2025-01-01',
+    'end' =&gt; '2025-12-31'
+], 'array');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>MySQL DATE(), YEAR(), MONTH() Functions:</strong> These extract specific components from date/time values. <code>DATE()</code> extracts just the date from a DATETIME. <code>YEAR()</code> extracts the year (returns integer 1000-9999). <code>MONTH()</code> extracts the month (returns integer 1-12). While useful in SELECT and GROUP BY clauses, avoid using them in WHERE clauses on indexed columns as this prevents index usage.</p> 
+
+    <p>For more information, please refer to the official <a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html" target="_blank">MySQL Date/Time Functions Documentation</a>.</p>
+</div>
+
+<h2>Timezone Considerations</h2>
+
+<p>Understanding timezone behavior is crucial for applications serving users across different time zones.</p>
+
+<h3>DATETIME vs TIMESTAMP Timezone Behavior</h3>
+
+[code=sql]
+-- DATETIME: Stores exactly what you give it (no timezone conversion)
+INSERT INTO events (event_datetime) VALUES ('2025-12-27 14:30:00');
+-- Stored as: 2025-12-27 14:30:00
+-- Retrieved as: 2025-12-27 14:30:00 (same value, regardless of session timezone)
+
+-- TIMESTAMP: Converts to UTC for storage, converts back to session timezone on retrieval
+SET time_zone = '+00:00'; -- UTC
+INSERT INTO logs (log_timestamp) VALUES ('2025-12-27 14:30:00');
+-- Stored as: 2025-12-27 14:30:00 UTC
+
+SET time_zone = '+05:00'; -- Change timezone
+SELECT log_timestamp FROM logs; 
+-- Retrieved as: 2025-12-27 19:30:00 (converted to +05:00 timezone)
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>MySQL Timezone Handling:</strong> TIMESTAMP columns automatically convert between UTC (for storage) and the session's timezone (for display). DATETIME stores exactly what you insert with no conversion. For most Trongate applications serving a local audience, DATETIME is simpler and more predictable. Use TIMESTAMP only when you need automatic timezone conversion or for system timestamps like created_at/updated_at.</p> 
+
+    <p>For additional guidance, please refer to the official <a href="https://dev.mysql.com/doc/refman/8.0/en/datetime.html" target="_blank">MySQL Timezone Documentation</a>.</p>
+</div>
+
+<h3>Application-Level Timezone Handling</h3>
+
+[code=php]
+// For DATETIME fields (most common in Trongate apps)
+// Store in local time, display in local time
+$data['appointment_datetime'] = '2025-12-27 14:30:00'; // User's local time
+$this-&gt;db-&gt;insert($data, 'appointments');
+
+// Later, display as entered (optionally format for user's locale)
+$record = $this-&gt;db-&gt;get_where($id, 'appointments');
+$datetime = new DateTime($record-&gt;appointment_datetime);
+echo $datetime-&gt;format('F j, Y \a\t g:i A'); // December 27, 2025 at 2:30 PM
+
+// For applications requiring timezone awareness, store timezone separately
+$data['appointment_datetime'] = '2025-12-27 14:30:00';
+$data['timezone'] = 'America/New_York';
+$this-&gt;db-&gt;insert($data, 'appointments');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>PHP DateTime Class:</strong> An object-oriented approach to date/time handling. Create instances with <code>new DateTime($string)</code> and format them with <code>-&gt;format($format)</code>. The DateTime class is more powerful and reliable than the procedural <code>date()</code> and <code>strtotime()</code> functions, especially for timezone handling, date arithmetic, and parsing complex formats. Methods include <code>modify()</code>, <code>add()</code>, <code>sub()</code>, and <code>setTimezone()</code>.</p> 
+
+    <p>For more information, please refer to the official <a href="https://www.php.net/manual/en/class.datetime.php" target="_blank">PHP DateTime Class Documentation</a>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>PHP DateTime::format():</strong> Formats a DateTime object into a string using format characters. In the example, <code>'F j, Y \a\t g:i A'</code>: 'F' = full month name, 'j' = day without leading zero, 'Y' = 4-digit year, '\a\t' = literal "at" (backslashes escape the letters), 'g' = 12-hour format without leading zero, 'i' = minutes with leading zero, 'A' = AM/PM.</p> 
+
+    <p>For additional guidance, please refer to the <a href="https://www.php.net/manual/en/datetime.format.php" target="_blank">PHP DateTime::format() Documentation</a>.</p>
+</div>
+
+<h2>Data Migration and Import</h2>
+
+<p>When importing data from external sources, you'll often need to convert various date formats to MySQL's expected format.</p>
+
+<h3>Converting External Date Formats</h3>
+
+[code=php]
+// Converting US format (MM/DD/YYYY) to MySQL format
+$us_date = '12/27/2025';
+$mysql_date = date('Y-m-d', strtotime($us_date));
+// Result: 2025-12-27
+
+// Converting EU format (DD/MM/YYYY) to MySQL format
+$eu_date = '27/12/2025';
+$parts = explode('/', $eu_date);
+$mysql_date = $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+// Result: 2025-12-27
+
+// Using DateTime for complex conversions
+$date = DateTime::createFromFormat('d/m/Y', '27/12/2025');
+$mysql_date = $date-&gt;format('Y-m-d');
+// Result: 2025-12-27
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>PHP strtotime():</strong> Converts any English textual datetime description into a Unix timestamp. It's very flexible, parsing formats like "12/27/2025", "next Monday", "+7 days", or "2025-12-27 14:30:00". However, strtotime() can be ambiguous with formats like "01/02/2025" (is it January 2 or February 1?). For non-standard or ambiguous formats, use DateTime::createFromFormat() instead.</p> 
+
+    <p>For more information, refer to the <a href="https://www.php.net/manual/en/function.strtotime.php" target="_blank">PHP strtotime() Documentation</a>.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>PHP DateTime::createFromFormat():</strong> Creates a DateTime object from a string using an explicit format specification. Unlike strtotime() which guesses the format, createFromFormat() requires you to specify exactly how the date is formatted. Format: <code>DateTime::createFromFormat($format, $string)</code>. Example: <code>'d/m/Y'</code> means day/month/year with leading zeros. This is the most reliable way to parse dates in known formats.</p> 
+
+    <p>For additional guidance, please refer to the <a href="https://www.php.net/manual/en/datetime.createfromformat.php" target="_blank">PHP DateTime::createFromFormat() Documentation</a>.</p>
+</div>
+
+<h3>Handling Excel Date Imports</h3>
+
+[code=php]
+// Excel dates are stored as number of days since 1900-01-01
+function excel_date_to_mysql($excel_date) {
+    $unix_timestamp = ($excel_date - 25569) * 86400;
+    return date('Y-m-d', $unix_timestamp);
+}
+
+// Example: Excel date 45653 = 2025-12-27
+$mysql_date = excel_date_to_mysql(45653);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Excel Date System:</strong> Excel stores dates as serial numbers - the count of days since January 1, 1900 (with a known bug treating 1900 as a leap year). To convert to Unix timestamps, subtract 25569 (days between 1900-01-01 and 1970-01-01) and multiply by 86400 (seconds per day). This conversion is necessary when importing data from Excel spreadsheets. Be aware that Excel also has an alternate 1904 date system used primarily on older Mac versions.</p>
+</div>
+
+<h2>Working with Month Values</h2>
+
+<p>When working with month data from form_month(), you'll often need to convert to date ranges or perform month-based queries.</p>
+
+[code=php]
+// Input: 2025-12
+$month = post('billing_month', true);
+
+// Get first and last day of the month
+$first_day = $month . '-01';
+$last_day = date('Y-m-t', strtotime($first_day)); // 2025-12-31
+
+// Use in queries
+$sql = "SELECT * FROM transactions 
+        WHERE transaction_date BETWEEN :start AND :end";
+$data = $this-&gt;db-&gt;query_bind($sql, [
+    'start' =&gt; $first_day,
+    'end' =&gt; $last_day
+], 'array');
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>PHP date() 't' Format Character:</strong> The <code>'t'</code> format character returns the number of days in the given month (28-31). This automatically accounts for varying month lengths and leap years. For example, <code>date('Y-m-t', strtotime('2025-12-01'))</code> returns "2025-12-31" (December has 31 days), while <code>date('Y-m-t', strtotime('2025-02-01'))</code> returns "2025-02-28" (February 2025 has 28 days).</p> 
+
+    <p>For more information, please refer to the official PHP documentation regarding <a href="https://www.php.net/manual/en/datetime.format.php" target="_blank">PHP date() Format Characters</a>.</p>
+</div>
+
+<h2>Common Pitfalls to Avoid</h2>
+
+<h3>1. Using VARCHAR Instead of DATE Types</h3>
+
+[code=sql]
+-- BAD: Hard to query, sort, and validate
+CREATE TABLE events (
+    event_date VARCHAR(20) -- Could contain '12/27/2025', '2025-12-27', or 'Next Tuesday'
+);
+
+-- GOOD: Proper data type with built-in validation
+CREATE TABLE events (
+    event_date DATE -- Only accepts valid dates in YYYY-MM-DD format
+);
+[/code]
+
+<h3>2. Storing Dates as Integers or Timestamps</h3>
+
+[code=sql]
+-- BAD: Hard to read, query by date parts
+CREATE TABLE logs (
+    log_time INT -- Unix timestamp like 1735309800
+);
+
+-- GOOD: Readable and queryable
+CREATE TABLE logs (
+    log_time DATETIME -- 2025-12-27 14:30:00
+);
+[/code]
+
+<h3>3. Not Handling NULL Values Properly</h3>
+
+[code=php]
+// BAD: Using '0000-00-00' as "no date"
+$data['completion_date'] = post('completion_date', true) ?: '0000-00-00';
+
+// GOOD: Use NULL for missing dates
+$data['completion_date'] = post('completion_date', true) ?: null;
+[/code]
+
+<h3>4. Using Functions on Indexed Columns</h3>
+
+[code=sql]
+-- BAD: Index on created_at won't be used
+SELECT * FROM orders WHERE YEAR(created_at) = 2025 AND MONTH(created_at) = 12;
+
+-- GOOD: Index will be used
+SELECT * FROM orders WHERE created_at BETWEEN '2025-12-01' AND '2025-12-31';
+[/code]
+
+<h3>5. Inconsistent Date Formats</h3>
+
+[code=php]
+// BAD: Mixing formats
+$data['start_date'] = '2025-12-27';      // MySQL format
+$data['end_date'] = '12/27/2025';        // US format (will fail)
+
+// GOOD: Always use ISO 8601 / MySQL format
+$data['start_date'] = '2025-12-27';
+$data['end_date'] = '2025-12-31';
+[/code]
+
+<h2>Complete Example: Table Design</h2>
+
+[code=sql]
+CREATE TABLE appointments (
+    -- Primary key
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    
+    -- Foreign keys
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    
+    -- Date and time fields
+    appointment_date DATE NOT NULL,
+    appointment_time TIME NOT NULL,
+    appointment_datetime DATETIME NOT NULL, -- Composite for easier querying
+    
+    -- Duration (optional alternative: use end_time instead)
+    duration_minutes SMALLINT DEFAULT 30,
+    
+    -- Status and notes
+    status ENUM('scheduled', 'completed', 'cancelled', 'no-show') DEFAULT 'scheduled',
+    notes TEXT,
+    
+    -- System timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Indexes for performance
+    INDEX idx_appointment_datetime (appointment_datetime),
+    INDEX idx_patient_date (patient_id, appointment_date),
+    INDEX idx_doctor_datetime (doctor_id, appointment_datetime),
+    INDEX idx_status_date (status, appointment_date),
+    
+    -- Foreign key constraints
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+[/code]
+
+<h2>Performance Optimization Summary</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Practice</th>
+            <th>Impact</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Use proper date types</td>
+            <td>High</td>
+            <td>DATE vs VARCHAR(10)</td>
+        </tr>
+        <tr>
+            <td>Index date columns in WHERE clauses</td>
+            <td>High</td>
+            <td>CREATE INDEX idx_date ON table(date_column)</td>
+        </tr>
+        <tr>
+            <td>Avoid functions on indexed columns</td>
+            <td>High</td>
+            <td>Use BETWEEN instead of YEAR()</td>
+        </tr>
+        <tr>
+            <td>Use composite indexes for common queries</td>
+            <td>Medium</td>
+            <td>INDEX(user_id, date_column)</td>
+        </tr>
+        <tr>
+            <td>Use DATETIME over TIMESTAMP when possible</td>
+            <td>Low</td>
+            <td>Better range, no timezone conversion</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Quick Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Input Type</th>
+            <th>Form Format</th>
+            <th>Database Type</th>
+            <th>Database Format</th>
+            <th>Conversion Required</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>date</td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td>DATE</td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>time</td>
+            <td><code>HH:MM</code></td>
+            <td>TIME</td>
+            <td><code>HH:MM:SS</code></td>
+            <td>No (MySQL adds :00)</td>
+        </tr>
+        <tr>
+            <td>datetime-local</td>
+            <td><code>YYYY-MM-DDTHH:MM</code></td>
+            <td>DATETIME</td>
+            <td><code>YYYY-MM-DD HH:MM:SS</code></td>
+            <td>Yes (replace T with space, add :00)</td>
+        </tr>
+        <tr>
+            <td>month</td>
+            <td><code>YYYY-MM</code></td>
+            <td>VARCHAR(7)</td>
+            <td><code>YYYY-MM</code></td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>week</td>
+            <td><code>YYYY-W##</code></td>
+            <td>VARCHAR(8)</td>
+            <td><code>YYYY-W##</code></td>
+            <td>No</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Summary</h2>
+
+<ul>
+    <li>Use proper MySQL date/time types (DATE, TIME, DATETIME) for validation and performance</li>
+    <li>Store dates in ISO 8601 format for international compatibility</li>
+    <li>Use NULL for optional dates, not empty strings or '0000-00-00'</li>
+    <li>Create indexes on frequently queried date columns</li>
+    <li>Avoid using functions on indexed columns in WHERE clauses</li>
+    <li>Use DATETIME for most user-facing dates, TIMESTAMP for system timestamps</li>
+    <li>Create model helper methods for datetime-local conversions</li>
+    <li>Store month and week values as VARCHAR in their native format</li>
+    <li>Always validate and sanitize date input on the server side</li>
+    <li>Consider timezone implications for global applications</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Key Principle:</strong> Store dates and times in standardized, database-native formats. This ensures data integrity, enables efficient querying, and maintains international compatibility across your application.</p>
+</div>

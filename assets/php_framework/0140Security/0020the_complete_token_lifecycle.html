@@ -1,0 +1,294 @@
+[meta-description]Trongate token workflow: login generates token, store in DB and device, validate on requests, grant access, auto-expire. Database-driven. Requires MySQL/MariaDB.[/meta-description]
+
+<h1>The Complete Token Lifecycle</h1>
+
+<p>Trongate's token system follows a simple, predictable flow. No hidden state. No magic middleware. Just explicit steps that you control. This page explains exactly how the token system operates for authentication and authorization.</p>
+
+<div class="alert alert-info">
+    <p>If the information on this page seems overwhelming, <b>don't worry</b>. Remember, the framework does all of the heavy lifting. Making the whole thing work is remarkably easy.</p>
+</div>
+
+<p>Here's what happens from login to logout:</p>
+
+<ol>
+    <li><strong>User logs in</strong> - They submit credentials (username/password, email/password, etc.)</li>
+    <li><strong>You validate credentials</strong> - Check against YOUR database table (e.g., <code>members</code>, <code>administrators</code>)</li>
+    <li><strong>Token gets generated</strong> - A random 32-character string is created</li>
+    <li><strong>Token gets stored in database</strong> - Insert into <code>trongate_tokens</code> with user_id and expiry_date</li>
+    <li><strong>Token gets stored on device</strong> - Save in session or cookie</li>
+    <li><strong>User makes subsequent requests</strong> - Token is sent automatically with each request</li>
+    <li><strong>Token gets validated</strong> - Check database: does it exist? Has it expired? Does user have required level?</li>
+    <li><strong>Access granted or denied</strong> - If valid, proceed. If not, redirect to login</li>
+    <li><strong>Token expires or gets destroyed</strong> - Either reaches expiry_date or user logs out</li>
+</ol>
+
+<h2>What Trongate Does (and Doesn't Do)</h2>
+
+<p>Trongate's token system is managed via a module, that's included with the framework, named '<a href="documentation-ref/list_refs/included/trongate-tokens" target="_blank">Trongate Tokens</a>'.</p>
+
+<p>The <b>Trongate Tokens</b> module is responsible for:</p>
+
+<ul>
+    <li>Generating tokens</li>
+    <li>Storing tokens</li>
+    <li>Validating tokens</li>
+    <li>Destroying tokens</li>
+</ul>
+
+<p>That's all.</p>
+
+<p>The <b>Trongate Tokens</b> module is <b>not</b> responsible for:</p>
+
+<ul>
+    <li>How users log in</li>
+    <li>How you manage the login process</li>
+    <li>Any kind of rate limiting</li>
+    <li>Restricting how many users are allowed to be logged in</li>
+</ul>
+
+<p>Once you've decided a user is legitimate, THEN you call Trongate to generate a token.</p>
+
+<p>This separation is intentional. It keeps the token system simple, flexible, and future-proof.</p>
+
+<div class="alert alert-info">
+    <p>Trongate doesn't care HOW users log in. Username/password? Email verification? OAuth? Two-factor? Biometrics? Face recognition? Magic links? Up to you!</p>
+</div>
+
+<h2>Example: Members-Only Website</h2>
+
+<p>Let's walk through a concrete example. You're building a members-only website.</p>
+
+<h3>Setup Phase</h3>
+
+<p>First, create your database tables:</p>
+
+[code=sql]
+-- Your application table
+CREATE TABLE members (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(125) UNIQUE NOT NULL,
+    password VARCHAR(60) NOT NULL,
+    first_name VARCHAR(50),
+    trongate_user_id INT(11),
+    FOREIGN KEY (trongate_user_id) REFERENCES trongate_users(id)
+);
+
+-- Trongate's security tables (already covered in previous page)
+-- trongate_user_levels
+-- trongate_users  
+-- trongate_tokens
+[/code]
+
+<p>Add a "member" user level:</p>
+
+[code=sql]
+INSERT INTO trongate_user_levels (id, level_title) VALUES (2, 'member');
+[/code]
+
+<h3>Registration Phase</h3>
+
+<p>When someone registers:</p>
+
+[code=php]
+// 1. Create trongate_users record
+$user_data = [
+    'code' =&gt; make_rand_str(32),
+    'user_level_id' =&gt; 2  // member level
+];
+$trongate_user_id = $this-&gt;db-&gt;insert($user_data, 'trongate_users');
+
+// 2. Create members record
+$member_data = [
+    'email' =&gt; $posted_email,
+    'password' =&gt; password_hash($posted_password, PASSWORD_DEFAULT),
+    'first_name' =&gt; $posted_first_name,
+    'trongate_user_id' =&gt; $trongate_user_id
+];
+$this-&gt;db-&gt;insert($member_data, 'members');
+[/code]
+
+<h3>Login Phase</h3>
+
+<p>When someone logs in:</p>
+
+[code=php]
+// 1. Validate credentials (YOUR code)
+$member = $this-&gt;db-&gt;get_where_custom('email', $posted_email, 'members');
+
+if (!$member || !password_verify($posted_password, $member-&gt;password)) {
+    // Invalid credentials - show error
+    redirect('login');
+}
+
+// 2. Generate token
+$token_data = [
+    'user_id' =&gt; $member-&gt;trongate_user_id,
+    'expiry_date' =&gt; time() + (86400 * 30)  // 30 days
+];
+
+$token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+
+// 3. Redirect to members area
+redirect('members/dashboard');
+[/code]
+
+<h3>Protected Page Phase</h3>
+
+<p>On any members-only page:</p>
+
+[code=php]
+public function dashboard(): void {
+    // Validate token
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);  // level 2 = member
+    
+    if ($token === false) {
+        redirect('login');
+    }
+    
+    // Token valid - show dashboard
+    $data['view_file'] = 'dashboard';
+    $this-&gt;templates-&gt;members_area($data);
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>The example above assumes you have a <code>members_area</code> template created.</p>
+</div>
+
+<h3>Logout Phase</h3>
+
+[code=php]
+public function logout(): void {
+    // Destroy token (clears session, cookies, database, and expired tokens)
+    $this-&gt;trongate_tokens-&gt;destroy();
+    
+    redirect('welcome');
+}
+[/code]
+
+<div class="alert alert-success">
+    <p>The <span class="feature-ref">destroy()</span> method automatically cleans up expired tokens from the database as part of the logout process. You don't need to call <span class="feature-ref">delete_old_tokens()</span> separately unless you're running a scheduled maintenance task.</p>
+</div>
+
+<h2>Token Storage Locations</h2>
+
+<p>When you generate a token, it gets stored in TWO places:</p>
+
+<ol>
+    <li><strong>Database</strong> - Always stored in <code>trongate_tokens</code> table</li>
+    <li><strong>User's device</strong> - Stored as either a session variable OR a cookie</li>
+</ol>
+
+<h3>Storage Option 1: Session (Default)</h3>
+
+[code=php]
+$token_data = ['user_id' =&gt; $trongate_user_id];
+$token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+
+// Token stored in $_SESSION['trongatetoken']
+[/code]
+
+<p><strong>Use case:</strong> Standard web applications. Token persists until browser closes or session expires.</p>
+
+<h3>Storage Option 2: Cookie</h3>
+
+[code=php]
+$token_data = [
+    'user_id' =&gt; $trongate_user_id,
+    'expiry_date' =&gt; time() + (86400 * 30),  // 30 days
+    'set_cookie' =&gt; true
+];
+$token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+
+// Token stored in $_COOKIE['trongatetoken']
+[/code]
+
+<p><strong>Use case:</strong> "Remember me" functionality. Token persists across browser sessions.</p>
+
+<h2>Token Validation Priority</h2>
+
+<p>When validating tokens, Trongate checks two locations in this order:</p>
+
+<ol>
+    <li><strong>Cookies</strong> - <code>$_COOKIE['trongatetoken']</code></li>
+    <li><strong>Session</strong> - <code>$_SESSION['trongatetoken']</code></li>
+</ol>
+
+<p>The first valid token found wins.</p>
+
+<h2>Token Expiration</h2>
+
+<p>Every token has an <code>expiry_date</code> stored as a Unix timestamp.</p>
+
+<p><strong>Default lifespan:</strong> 86400 seconds (24 hours)</p>
+
+<p>When validating tokens, Trongate automatically checks:</p>
+
+[code=sql]
+SELECT * FROM trongate_tokens 
+WHERE token = ? 
+AND expiry_date &gt; ?  -- Must be greater than current time
+[/code]
+
+<p>Expired tokens return <code>false</code> during validation, forcing re-authentication.</p>
+
+<h2>The Trongate Security Module</h2>
+
+<p>Trongate includes a <code>Trongate_security</code> module that provides a centralized way to handle authorization checks across your application.</p>
+
+<p>Instead of calling <code>trongate_tokens</code> methods directly, you can use:</p>
+
+[code=php]
+public function dashboard(): void {
+    // Centralized security check
+    $this-&gt;trongate_security-&gt;make_sure_allowed('members area');
+    
+    // If we reach here, user is authorized
+    $data['view_file'] = 'dashboard';
+    $this-&gt;templates-&gt;public($data);
+}
+[/code]
+
+<p>The <code>Trongate_security</code> module uses scenario-based access control, making it easy to define different authorization rules for different parts of your application (admin panel, members area, etc.).</p>
+
+<div class="alert alert-info">
+    <p>Using <code>Trongate_security</code> is optional but recommended. It provides a clean separation between your application logic and security checks. We'll cover this in detail in a later section.</p>
+</div>
+
+<h2>Security Considerations</h2>
+
+<p>A few important points:</p>
+
+<ul>
+    <li><strong>Tokens are NOT encrypted</strong> - They're random strings. Treat them like passwords.</li>
+    <li><strong>Always use HTTPS</strong> - Tokens sent over HTTP can be intercepted.</li>
+    <li><strong>Hash passwords properly</strong> - Use <code>password_hash()</code> and <code>password_verify()</code>. Never store plain text.</li>
+    <li><strong>Set appropriate expiry dates</strong> - Short-lived tokens for sensitive operations, longer for convenience.</li>
+    <li><strong>Clean up on user deletion</strong> - When deleting a user, delete their tokens too using <span class="feature-ref">delete_old_tokens()</span>.</li>
+</ul>
+
+<h2>Database Requirements</h2>
+
+<p>Trongate's token system requires a MySQL or MariaDB database.</p>
+
+<p>The system is database-driven by design. Every token validation queries the <code>trongate_tokens</code> table to check:</p>
+
+<ul>
+    <li>Does the token exist?</li>
+    <li>Has it expired?</li>
+    <li>What user level does it have?</li>
+</ul>
+
+<p>This approach ensures tokens can be invalidated instantly (e.g., when a user logs out or gets banned) without waiting for session timeouts.</p>
+
+<h2>What's Next</h2>
+
+<p>Now that you understand the workflow, the next pages will show you exactly how to:</p>
+
+<ul>
+    <li>Generate tokens with the <code>trongate_tokens</code> module</li>
+    <li>Validate tokens and fetch user data</li>
+    <li>Destroy tokens on logout</li>
+</ul>
+
+<p>Each page includes working code examples you can copy directly into your application.</p>

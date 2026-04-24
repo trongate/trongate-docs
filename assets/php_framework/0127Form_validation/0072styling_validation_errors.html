@@ -1,0 +1,300 @@
+[meta-description]Trongate v2 gives you full control over how your form validation errors are rendered. In this page you'll learn how to change the appearance of validation errors by adding or adjusting some simple CSS rules.[/meta-description]
+
+<h1>Styling Validation Errors</h1>
+
+<p>The Trongate framework includes a core CSS file named <code>trongate.css</code>. While there is no obligation to include this stylesheet on every page, leveraging it allows you to quickly build responsive, professional-looking webpages that handle form states out of the box.</p>
+
+<h2>How Form Validation Errors Are Rendered</h2>
+
+<p>When working with Trongate, there are two primary ways that form validation errors are rendered:</p>
+
+<ol>
+    <li><strong>Summary validation errors</strong> (standard)</li>
+    <li><strong>Inline validation errors</strong></li>
+</ol>
+
+<p>In both instances, validation errors are rendered as unordered lists (using <code>&lt;ul&gt;</code> tags), with individual error messages appearing as list items (using <code>&lt;li&gt;</code> tags).</p>
+
+<hr>
+
+<h3>1. Summary Validation Errors</h3>
+
+<p>Summary errors are typically positioned above the form or near the top of the page. In this mode, all validation messages are grouped into a single list, providing the user with a comprehensive overview of what needs to be corrected.</p>
+
+<p>Below is an example of the HTML source code generated for a summary error display:</p>
+
+[code]
+&lt;ul class="validation-errors validation-errors--summary"&gt;
+    &lt;li&gt;The task title field is required.&lt;/li&gt;
+    &lt;li&gt;The description field is required.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;form action="http://localhost/app/tasks/submit" method="post" class="highlight-errors shake"&gt;
+    &lt;label&gt;Task Title&lt;/label&gt;
+    &lt;input placeholder="Task title..." autocomplete="off" type="text" name="task_title" value=""&gt;
+
+    &lt;label&gt;Description&lt;/label&gt;
+    &lt;textarea placeholder="Enter task details here..." name="description"&gt;&lt;/textarea&gt;
+
+    &lt;label&gt;
+        &lt;input type="checkbox" name="complete" value="1"&gt;Task complete
+    &lt;/label&gt;
+
+    &lt;div class="text-center"&gt;
+        &lt;a href="http://localhost/app/tasks/manage" class="button alt"&gt;Cancel&lt;/a&gt;
+        &lt;button type="submit" name="submit" value="Submit"&gt;Submit&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;input type="hidden" name="csrf_token" value="2ad4deae80eb8d33793436478b93a3f2e9ac086da100ce74ef429f670dcf25e8"&gt;
+&lt;/form&gt;
+[/code]
+
+<hr>
+
+<h3>2. Inline Validation Errors</h3>
+
+<p>With inline validation, error messages are displayed directly adjacent to the specific form field that failed validation. This provides immediate context to the user. Additionally, Trongate automatically applies the <code>form-field-validation-error</code> class to the invalid input or textarea, and adds a <code>shake</code> class to the opening <code>&lt;form&gt;</code> tag to grab the user's attention.</p>
+
+<p>Here is the typical source code rendered for inline validation:</p>
+
+[code]
+&lt;form action="http://localhost/app/tasks/submit" method="post" class="highlight-errors shake"&gt;
+    &lt;label&gt;Task Title&lt;/label&gt;
+    &lt;ul class="validation-errors validation-errors--inline"&gt;
+        &lt;li&gt;The task title field is required.&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;input placeholder="Task title..." autocomplete="off" type="text" name="task_title" value="" class="form-field-validation-error"&gt;
+
+    &lt;label&gt;Description&lt;/label&gt;
+    &lt;ul class="validation-errors validation-errors--inline"&gt;
+        &lt;li&gt;The description field is required.&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;textarea placeholder="Enter task details here..." name="description" class="form-field-validation-error"&gt;&lt;/textarea&gt;
+
+    &lt;label&gt;
+        &lt;input type="checkbox" name="complete" value="1"&gt;Task complete
+    &lt;/label&gt;
+
+    &lt;div class="text-center"&gt;
+        &lt;a href="http://localhost/app/tasks/manage" class="button alt"&gt;Cancel&lt;/a&gt;
+        &lt;button type="submit" name="submit" value="Submit"&gt;Submit&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;input type="hidden" name="csrf_token" value="2ad4deae80eb8d33793436478b93a3f2e9ac086da100ce74ef429f670dcf25e8"&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>In order for inline validation errors to be rendered, a class of <code>highlight-errors</code> should be added to your opening <code>form</code> tag.</p>
+    <p>In addition, the <span class="feature-ref">validation_errors()</span> function should be applied adjacent to the relevant form fields. For example:</p>
+[code=vf]
+&lt;?php
+echo form_open($form_location, array('class' => 'highlight-errors'));
+
+echo form_label('Email Address');
+echo validation_errors('email');
+echo form_input('email', $email);
+
+echo form_label('Password');
+echo validation_errors('password');
+echo form_password('password');
+
+echo form_submit('submit', 'Register');
+echo form_close();
+?&gt;
+[/code]
+
+<p>For more information about this, see: <a href="documentation/trongate_php_framework/form-validation/displaying-validation-errors">Displaying Validation Errors</a>.</p>
+</div>
+
+<hr>
+
+<h2>Customizing the Appearance</h2>
+
+<p>Both summary and inline error lists share a base class of <code>validation-errors</code>, which handles the general layout, borders, and colors. Specific modifiers are then added depending on the error type:</p>
+
+<ul>
+    <li><strong>.validation-errors:</strong> The base class applied to all error <code>&lt;ul&gt;</code> elements.</li>
+    <li><strong>.validation-errors--summary:</strong> Added when errors are grouped at the top of the form.</li>
+    <li><strong>.validation-errors--inline:</strong> Added when errors are placed next to specific fields.</li>
+    <li><strong>.form-field-validation-error:</strong> Added directly to <code>&lt;input&gt;</code> or <code>&lt;textarea&gt;</code> elements that have failed validation.</li>
+</ul>
+
+<h3>The Default CSS</h3>
+
+<p>By default, <code>trongate.css</code> uses CSS variables and animations to highlight issues. Here are the core rules that govern the look and feel of validation errors:</p>
+
+[code=css]
+form .form-field-validation-error,
+form .form-field-validation-error:focus {
+    border: 3px solid var(--danger);
+    background-color: #ff000011;
+}
+
+.validation-errors {
+    margin: 0.5em 0 1em 0;
+    padding: 0.3em 1em;
+    border: 1px solid var(--danger);
+    background-color: #ff000011;
+    color: var(--danger);
+    border-radius: 6px;
+    font-size: .9em;
+}
+
+.validation-errors li {
+    margin-left: 1.2em;
+    padding-left: 0;
+}
+
+.shake {
+    animation: form-shake 0.35s ease-in-out;
+}
+
+@keyframes form-shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+}
+[/code]
+
+<hr>
+
+<h2>Practical Examples: Customizing List Markers</h2>
+
+<p>One of the easiest ways to change the "vibe" of your validation errors is by tweaking the list markers. By targeting the <code>.validation-errors--inline</code> class, you can quickly move away from the default look. Here are a few ways to style your error lists using simple CSS:</p>
+
+<h3>Minimalist (No Markers)</h3>
+<p>A clean, modern look that relies purely on text and color contrast.</p>
+[code=css]
+.validation-errors--inline {
+    list-style-type: none;
+}
+[/code]
+
+<h3>Professional Square</h3>
+<p>A square marker often feels more like a "UI component" than a document list. This is a great choice for admin panels.</p>
+[code=css]
+.validation-errors--inline {
+    list-style-type: square;
+}
+[/code]
+
+<h3>Modern Dash Style</h3>
+<p>Using the <code>::marker</code> pseudo-element, you can replace standard bullets with a clean dash.</p>
+[code=css]
+.validation-errors--inline {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.validation-errors--inline li::marker {
+    content: "– ";
+}
+[/code]
+
+<h3>Numbered Errors (Decimal)</h3>
+<p>Useful if multiple validation rules per field are common, helping the user address them sequentially.</p>
+[code=css]
+.validation-errors--inline {
+    list-style-type: decimal;
+    list-style-position: inside;
+}
+[/code]
+
+<hr>
+
+<h2>Using Icons and Symbols</h2>
+
+<p>Sometimes a standard bullet point doesn't convey enough urgency. You can use CSS to replace list markers with symbols or emojis to give your validation errors more visual impact.</p>
+
+<h3>1. The "Warning" Emoji</h3>
+<p>Using a standard <code>::marker</code> is the most modern way to inject an emoji into your error list.</p>
+[code=css]
+.validation-errors--inline li::marker {
+    content: "⚠️ ";
+}
+[/code]
+
+<h3>2. The "Error" Cross</h3>
+<p>A simple "X" symbol is a universal indicator that something needs to be fixed. It works perfectly with the default red theme.</p>
+[code=css]
+.validation-errors--inline li::marker {
+    content: "❌ ";
+    font-size: 0.8em;
+}
+[/code]
+
+<h3>3. The "Action" Pointer</h3>
+<p>Guide the user's eye directly to the input field with a pointer emoji.</p>
+[code=css]
+.validation-errors--inline li::marker {
+    content: "👉 ";
+}
+[/code]
+
+<h3>4. Custom "Check" (For success states)</h3>
+<p>If you've created a custom <code>.validation-success</code> class for valid fields, you can use a green checkmark.</p>
+[code=css]
+.validation-success li::marker {
+    content: "✅ ";
+}
+[/code]
+
+<h3>Advanced: Using Pseudo-elements for Precision</h3>
+<p>If you need more control over positioning, use the <code>::before</code> pseudo-element. This allows the icon to be styled independently of the text.</p>
+
+[code=css]
+.validation-errors--inline {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.validation-errors--inline li::before {
+    content: "●";
+    color: var(--danger);
+    font-weight: bold;
+    display: inline-block; 
+    width: 1em;
+    margin-left: -1em;
+}
+[/code]
+
+<hr>
+
+<h2>Improving Readability with Spacing</h2>
+
+<p>When using large icons, emojis, or multi-line error messages, the list items can sometimes appear crowded. You can use the <code>margin-top</code> property on the <code>li</code> elements to create "breathing room" between each error.</p>
+
+<h3>Adding Vertical Spacing</h3>
+<p>This approach is particularly helpful when using emojis like ⚠️ or ❌, as it prevents the icons from overlapping or feeling too tight.</p>
+
+[code=css]
+/* Add a small gap between individual error messages */
+.validation-errors li {
+    margin-top: 0.8em;
+}
+
+/* Ensure the first error doesn't have extra top spacing */
+.validation-errors li:first-child {
+    margin-top: 0;
+}
+[/code]
+
+<h3>Adjusting Line Height</h3>
+<p>If your error messages are long and wrap onto multiple lines, increasing the <code>line-height</code> can also make the text much easier to scan.</p>
+
+[code=css]
+.validation-errors li {
+    line-height: 1.5;
+    margin-bottom: 0.5em; /* An alternative to margin-top */
+}
+[/code]
+
+<p><strong>Note:</strong> In the example above, we targeted <code>.validation-errors li</code>. This will apply the spacing to <strong>both</strong> summary and inline validation lists, ensuring a consistent look across your entire application.</p>
+
+<div class="alert alert-success">
+    <p>When using emojis as markers, ensure your <code>meta charset</code> is set to <code>UTF-8</code> in your HTML header to ensure they render correctly across all devices.</p>
+</div>

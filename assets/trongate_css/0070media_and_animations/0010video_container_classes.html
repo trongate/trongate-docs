@@ -1,0 +1,73 @@
+<h1>Video Containers</h1>  
+<p>Trongate CSS provides utility classes to help you embed videos responsively. The <code>.video-container</code> and <code>.video</code> classes work together to ensure embedded videos maintain proper aspect ratios and remain responsive across all device sizes.</p>
+
+<h2>Basic Implementation</h2>  
+<p>To embed a responsive video, wrap the <code>&lt;iframe&gt;</code> in a container with the <code>.video-container</code> class, and add the <code>.video</code> class to the <code>&lt;iframe&gt;</code> itself. For example:</p>
+
+[code=html]  
+&lt;div class="video-container"&gt;  
+    &lt;iframe  
+        class="video"  
+        src="https://www.youtube.com/embed/UIa3r12oCo8?si=9Nb8ivyEbxYt0Z27"  
+        title="YouTube video player"  
+        frameborder="0"  
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  
+        referrerpolicy="strict-origin-when-cross-origin"  
+        allowfullscreen&gt;&lt;/iframe&gt;  
+&lt;/div&gt;  
+[/code]  
+
+<p><strong>Note:</strong> The <code>width</code> and <code>height</code> attributes are intentionally omitted from the <code>&lt;iframe&gt;</code> tag as the CSS rules dynamically control the dimensions to ensure responsiveness.</p>
+
+<h2>Different Aspect Ratios</h2>  
+<p>While the default aspect ratio is 16:9, you can specify different ratios using modifier classes:</p>  
+
+[code=html]  
+&lt;!-- For 4:3 videos --&gt;  
+&lt;div class="video-container aspect-4-3"&gt;  
+    &lt;iframe  
+        class="video"  
+        src="https://www.youtube.com/embed/UIa3r12oCo8"  
+        allowfullscreen&gt;&lt;/iframe&gt;  
+&lt;/div&gt;  
+
+&lt;!-- For square (1:1) videos --&gt;  
+&lt;div class="video-container aspect-1-1"&gt;  
+    &lt;iframe  
+        class="video"  
+        src="https://www.youtube.com/embed/UIa3r12oCo8"  
+        allowfullscreen&gt;&lt;/iframe&gt;  
+&lt;/div&gt;  
+[/code]  
+
+<h2>How It Works</h2>  
+<p>The video container classes use CSS custom properties to maintain the correct aspect ratio. The key is the <code>padding-bottom</code> value, which is calculated based on the aspect ratio:</p>  
+
+[code=css]  
+.video-container {  
+    --aspect-ratio: 16 / 9; /* Default aspect ratio */  
+    position: relative;  
+    width: 100%;  
+    height: 0;  
+    padding-bottom: calc(100% / var(--aspect-ratio));  
+}  
+
+.video-container.aspect-4-3 {  
+    --aspect-ratio: 4 / 3;  
+}  
+
+.video-container.aspect-1-1 {  
+    --aspect-ratio: 1 / 1;  
+}  
+
+.video {  
+    position: absolute;  
+    top: 0;  
+    left: 0;  
+    width: 100%;  
+    height: 100%;  
+    border: 0;  
+}  
+[/code]  
+
+<p>By combining the <code>.video-container</code> and <code>.video</code> classes, your videos will maintain their proper proportions and adapt seamlessly to different screen sizes.</p>  

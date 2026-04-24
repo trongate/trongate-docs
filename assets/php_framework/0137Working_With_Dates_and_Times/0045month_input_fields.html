@@ -1,0 +1,519 @@
+[meta-description]Learn how to use form_month() in Trongate for month selection inputs. Native HTML5 month picker with YYYY-MM format, validation, database storage, and real-world examples.[/meta-description]
+<h1>Month Input Fields</h1>
+
+<p>The month input field allows users to select a month and year. It provides a user-friendly month picker and submits data in <code>YYYY-MM</code> format.</p>
+
+<div class="alert alert-info">
+    <p><strong>Browser Display vs Submitted Format:</strong> Browsers display months according to user locale, but always submit in consistent YYYY-MM format that your PHP code can rely on.</p>
+</div>
+
+<h2>Basic Usage</h2>
+
+<p>Use <span class="feature-ref">form_month()</span> to create a month input field:</p>
+
+[code=php]
+echo form_month('billing_month');
+// Output: &lt;input type="month" name="billing_month"&gt;
+[/code]
+
+<h2>Demonstration</h2>
+<p>Below is the native HTML5 month input rendered by <code>form_month()</code>:</p>
+<div class="code-demo text-center">
+    <p><input type="month" name="billing_month"></p>
+</div>
+
+<h2>Function Signature</h2>
+
+[code=php]
+function form_month(string $name, ?string $value = null, array $attributes = []): string
+[/code]
+
+<h3>Parameters</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$name</code></td>
+            <td>string</td>
+            <td>The name attribute for the input (required)</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td><code>$value</code></td>
+            <td>string|null</td>
+            <td>The value in YYYY-MM format</td>
+            <td>null</td>
+        </tr>
+        <tr>
+            <td><code>$attributes</code></td>
+            <td>array</td>
+            <td>Additional HTML attributes</td>
+            <td>[]</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>With a Default Value</h2>
+
+[code=php]
+echo form_month('report_month', '2025-12');
+// Output: &lt;input type="month" name="report_month" value="2025-12"&gt;
+[/code]
+
+<h2>Setting Current Month as Default</h2>
+
+[code=php]
+$current_month = date('Y-m');
+echo form_month('subscription_month', $current_month);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Automatic Zero-Padding:</strong> PHP's <code>date('Y-m')</code> automatically zero-pads the month, producing values like <code>2025-01</code> for January.</p>
+</div>
+
+<h2>With Attributes</h2>
+
+[code=php]
+$attributes = [
+    'min' => '2025-01',
+    'max' => '2025-12',
+    'required' => true
+];
+echo form_month('target_month', '', $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;input type="month" name="target_month" value="" min="2025-01" max="2025-12" required&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Downloadable Demo:</strong> Want to see the <span class="feature-ref">form_month()</span> function in action?  We've made a working demo that you can download.  Check out the complete <strong>Monthly Reports</strong> demo module example on GitHub:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2-Monthly-Reports-Module" target="_blank">https://github.com/trongate/Trongate-v2-Monthly-Reports-Module</a></p>
+    <p>This repository provides a ready-to-use example of building a monthly reporting system using the Trongate PHP framework (version 2). It includes pagination, form validation, secure admin access, native HTML5 month input handling, and clean separation of concerns.</p>
+</div>
+
+<h2>Common Attributes</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>min</code></td>
+            <td>Earliest selectable month (YYYY-MM)</td>
+            <td><code>['min' => '2025-01']</code></td>
+        </tr>
+        <tr>
+            <td><code>max</code></td>
+            <td>Latest selectable month (YYYY-MM)</td>
+            <td><code>['max' => '2025-12']</code></td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>Field must have a value</td>
+            <td><code>['required' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>readonly</code></td>
+            <td>Prevent user editing</td>
+            <td><code>['readonly' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>disabled</code></td>
+            <td>Disable the input</td>
+            <td><code>['disabled' => true]</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>How to Repopulate Forms After Validation Errors</h2>
+
+<h3>Controller Example</h3>
+
+[code=php]
+public function create(): void {
+    // Fetch posted value (returns empty string if form hasn't been submitted)
+    $data['billing_month'] = post('billing_month', true);
+    $data['report_month'] = post('report_month', true);
+    
+    // Pass data to view
+    $this->view('billing_form', $data);
+}
+[/code]
+
+<h3>View Example</h3>
+
+[code=php]
+&lt;?php
+echo form_open('billing/submit');
+echo form_label('Billing Month');
+echo form_month('billing_month', $billing_month);
+echo form_label('Report Month');
+echo form_month('report_month', $report_month);
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Form Repopulation Pattern:</strong> Always use <code>post('field_name', true)</code> in the controller to fetch submitted values. The <code>true</code> parameter trims whitespace, ensuring clean data.</p>
+</div>
+
+<h2>Real-World Example: Monthly Report Selection</h2>
+
+<p>Controller:</p>
+
+[code=php]
+public function generate_report(): void {
+    $data['headline'] = 'Generate Monthly Report';
+    $data['report_month'] = post('report_month', true);
+    
+    // Default to current month if not submitted
+    if ($data['report_month'] === '') {
+        $data['report_month'] = date('Y-m');
+    }
+    
+    $data['form_location'] = BASE_URL . 'reports/submit';
+    $this->templates->admin($data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('report_month', 'report month', 'required|valid_month');
+
+    if ($this->validation->run() === true) {
+        $report_month = post('report_month', true);
+        
+        // Generate report for selected month
+        $report_data = $this->generate_monthly_data($report_month);
+        
+        set_flashdata('Report generated for ' . $report_month);
+        redirect('reports/view/' . $report_month);
+    } else {
+        $this->generate_report();
+    }
+}
+
+private function generate_monthly_data(string $month): array {
+    // Parse month: 2025-12 becomes year=2025, month=12
+    list($year, $month_num) = explode('-', $month);
+    
+    // Query data for this month
+    $sql = "SELECT * FROM sales 
+            WHERE YEAR(sale_date) = :year 
+            AND MONTH(sale_date) = :month";
+    
+    return $this->db->query_bind($sql, [
+        'year' => $year,
+        'month' => $month_num
+    ], 'array');
+}
+[/code]
+
+<p>View:</p>
+
+[code=php]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Report Month');
+$attrs = [
+    'max' => date('Y-m'), // Can't generate reports for future months
+    'required' => true
+];
+echo form_month('report_month', $report_month, $attrs);
+
+echo form_submit('submit', 'Generate Report');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Working with the Create/Update Pattern</h2>
+
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing record - load from database
+        $record = $this->db->get_where($update_id, 'subscriptions');
+        $data['customer_name'] = $record->customer_name;
+        $data['billing_month'] = $record->billing_month; // Already in YYYY-MM format
+    } else {
+        // New record OR validation error - use POST data
+        $data['customer_name'] = post('customer_name', true);
+        $data['billing_month'] = post('billing_month', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'subscriptions/submit/' . $update_id;
+    $this->view('subscription_form', $data);
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Type-Casting Segments:</strong> Always use <code>segment(3, 'int')</code> when expecting numeric IDs. This prevents type-related bugs and improves code clarity.</p>
+</div>
+
+<h2>Database Storage</h2>
+
+<p>Month inputs submit in <code>YYYY-MM</code> format, which can be stored directly in a VARCHAR column:</p>
+
+<h3>Table Schema</h3>
+
+[code=sql]
+CREATE TABLE subscriptions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(255),
+    billing_month VARCHAR(7), -- Stores YYYY-MM
+    amount DECIMAL(10, 2),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+[/code]
+
+<h3>Inserting Data</h3>
+
+[code=php]
+public function submit(): void {
+    $this->validation->set_rules('billing_month', 'billing month', 'required|valid_month');
+    
+    if ($this->validation->run() === true) {
+        $data['customer_name'] = post('customer_name', true);
+        $data['billing_month'] = post('billing_month', true); // e.g., "2025-12"
+        
+        $this->db->insert($data, 'subscriptions');
+        redirect('subscriptions/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Direct Storage:</strong> The <code>YYYY-MM</code> format from HTML5 month inputs can be stored directly in a <code>VARCHAR(7)</code> column. No conversion is needed, and the data remains human-readable.</p>
+</div>
+
+<h2>Converting Month to Date Range</h2>
+
+<p>To query data for a specific month, you'll often need to convert to a date range:</p>
+
+[code=php]
+// Input: 2025-12
+$month = post('billing_month', true);
+
+// Get first and last day of the month
+$first_day = $month . '-01';
+$last_day = date('Y-m-t', strtotime($first_day)); // 2025-12-31
+
+// Use in queries
+$sql = "SELECT * FROM transactions 
+        WHERE transaction_date BETWEEN :start AND :end
+        ORDER BY transaction_date";
+
+$data = $this->db->query_bind($sql, [
+    'start' => $first_day,
+    'end' => $last_day
+], 'array');
+[/code]
+
+<h2>Querying by Month</h2>
+
+<h3>Using Date Functions</h3>
+
+[code=php]
+// Get all records for a specific month
+$month = '2025-12';
+list($year, $month_num) = explode('-', $month);
+
+$sql = "SELECT * FROM sales 
+        WHERE YEAR(sale_date) = :year 
+        AND MONTH(sale_date) = :month
+        ORDER BY sale_date";
+
+$results = $this->db->query_bind($sql, [
+    'year' => $year,
+    'month' => $month_num
+], 'array');
+[/code]
+
+<h3>Using Date Range</h3>
+
+[code=php]
+$month = '2025-12';
+$first_day = $month . '-01';
+$last_day = date('Y-m-t', strtotime($first_day));
+
+$sql = "SELECT * FROM sales 
+        WHERE sale_date BETWEEN :start AND :end
+        ORDER BY sale_date";
+
+$results = $this->db->query_bind($sql, [
+    'start' => $first_day,
+    'end' => $last_day
+], 'array');
+[/code]
+
+<h2>Formatting Months for Display</h2>
+
+<p>When displaying months to users, you'll often want to format them in a more readable way:</p>
+
+[code=php]
+// From database or form: 2025-12
+
+// Simple PHP approach
+$date = new DateTime('2025-12-01');
+echo $date->format('F Y');  // December 2025
+echo $date->format('M Y');   // Dec 2025
+echo $date->format('m/Y');   // 12/2025
+
+// Locale-aware formatting (requires intl extension)
+$date = new DateTime('2025-12-01');
+$formatter = new IntlDateFormatter(
+    'en_US',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::NONE,
+    null,
+    null,
+    'MMMM yyyy'
+);
+echo $formatter->format($date); // December 2025
+
+// For French users
+$formatter = new IntlDateFormatter(
+    'fr_FR',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::NONE,
+    null,
+    null,
+    'MMMM yyyy'
+);
+echo $formatter->format($date); // décembre 2025
+[/code]
+
+<h2>Validation</h2>
+
+<p>Use the <code>valid_month</code> validation rule to ensure the submitted value is in the correct format:</p>
+
+[code=php]
+$this->validation->set_rules('billing_month', 'billing month', 'required|valid_month');
+[/code]
+
+<p>This validates that the value matches <code>YYYY-MM</code> format and represents a valid month.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Client vs Server Validation:</strong> While browsers validate month formats client-side, <strong>always</strong> use server-side validation with <code>valid_month</code>. Client validation can be bypassed and doesn't protect your database.</p>
+</div>
+
+<div class="alert alert-info">
+    <p>See the <strong>Validating Date and Time Data</strong> chapter for complete validation rule documentation.</p>
+</div>
+
+<h2>Restricting Month Selection</h2>
+
+<h3>Current Year Only</h3>
+
+[code=php]
+$current_year = date('Y');
+$attributes = [
+    'min' => $current_year . '-01',
+    'max' => $current_year . '-12',
+    'required' => true
+];
+echo form_month('report_month', $report_month, $attributes);
+[/code]
+
+<h3>Last 12 Months</h3>
+
+[code=php]
+$max = date('Y-m');
+$min = date('Y-m', strtotime('-12 months'));
+$attributes = [
+    'min' => $min,
+    'max' => $max,
+    'required' => true
+];
+echo form_month('period', $period, $attributes);
+[/code]
+
+<h3>Future Months (Budget Planning)</h3>
+
+[code=php]
+$current_date = new DateTime();
+$min_month = $current_date->format('Y-m');
+
+$max_date = clone $current_date;
+$max_date->modify('+12 months');
+$max_month = $max_date->format('Y-m');
+
+$attributes = [
+    'min' => $min_month,
+    'max' => $max_month,
+    'required' => true
+];
+echo form_month('budget_month', $budget_month, $attributes);
+[/code]
+
+<h2>Common Use Cases</h2>
+
+<ul>
+    <li><strong>Billing and subscriptions</strong> - Monthly billing cycles and recurring payments</li>
+    <li><strong>Financial reports</strong> - Monthly revenue reports, P&L statements, expense tracking</li>
+    <li><strong>Planning and budgets</strong> - Monthly budgets, forecasts, and financial planning</li>
+    <li><strong>Performance reviews</strong> - Monthly KPIs, metrics, and performance tracking</li>
+    <li><strong>Content calendars</strong> - Editorial planning and content scheduling by month</li>
+    <li><strong>Inventory reports</strong> - Monthly stock levels and inventory analysis</li>
+    <li><strong>Sales tracking</strong> - Monthly sales targets, quotas, and achievement</li>
+    <li><strong>Employee records</strong> - Start months, anniversary months, review periods</li>
+</ul>
+
+<h2>Browser Rendering</h2>
+
+<p>Different browsers provide different month picker interfaces:</p>
+
+<ul>
+    <li><strong>Chrome/Edge:</strong> Dropdown with month and year selectors</li>
+    <li><strong>Firefox:</strong> Similar dropdown interface with clear navigation</li>
+    <li><strong>Safari:</strong> Native month picker wheel optimized for the platform</li>
+    <li><strong>Mobile:</strong> Native month picker optimized for touch input</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Excellent Browser Support:</strong> Month inputs have excellent support across all modern browsers and mobile devices, providing a consistent user experience.</p>
+</div>
+
+<h2>Important Notes</h2>
+
+<ul>
+    <li>Value format is always <code>YYYY-MM</code> (e.g., 2025-12)</li>
+    <li>Store as <code>VARCHAR(7)</code> in database</li>
+    <li>No conversion needed between form and database</li>
+    <li>PHP's <code>date('Y-m')</code> automatically zero-pads months</li>
+    <li>Use for monthly periods, not specific dates within a month</li>
+    <li>Browser displays in user's locale but always submits in YYYY-MM format</li>
+    <li>Min/max attributes restrict the selectable month range</li>
+    <li>Browser validates format automatically, but server validation is still required</li>
+</ul>
+
+<div class="alert alert-warning">
+    <p><strong>Value Format:</strong> The value attribute must be in <code>YYYY-MM</code> format. Values like <code>12/2025</code> or <code>2025-December</code> will not work and the field will appear empty.</p>
+</div>

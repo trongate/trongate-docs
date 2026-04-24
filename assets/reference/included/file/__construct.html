@@ -1,0 +1,47 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct()</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Constructor for the File module. Blocks direct URL access to the module for security.
+   </p>
+    <p>
+      <strong>Note:</strong> The framework automatically instantiates File via <code>$this->file</code>. You rarely need to call this constructor manually.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This constructor accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Constructor does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic instantiation by framework (inside a controller)
+class Products extends Trongate {
+    public function upload() {
+        // $this->file is automatically a File instance
+        $result = $this->file->upload($_FILES['picture']);
+    }
+}
+
+// Manual instantiation (rare)
+$file = new File();[/code]
+</div>

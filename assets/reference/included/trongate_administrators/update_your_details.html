@@ -1,0 +1,28 @@
+<div class="container">
+  <h1>update_your_details()</h1>
+  <p class="signature">public function update_your_details(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Redirects the currently logged‑in user to their own profile page for editing. Uses the authentication token to identify the user and redirects to <code>trongate_administrators/show/{user_id}</code>.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Redirects to the user's own profile page.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// In a navigation menu or sidebar
+&lt;a href="&lt;?= BASE_URL ?&gt;trongate_administrators/update_your_details"&gt;My Profile&lt;/a&gt;
+
+// Controller redirect
+public function profile() {
+    $this->trongate_administrators->update_your_details();
+}
+[/code]
+</div>

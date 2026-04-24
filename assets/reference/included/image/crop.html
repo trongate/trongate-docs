@@ -1,0 +1,266 @@
+ <div class="container">
+    <h1>crop()</h1>
+    <p class="signature">public function crop(int $width, int $height, string $trim = 'center'): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Crops a loaded image to the specified dimensions. The method extracts a portion of the current image based on the provided width, height, and trim position, then replaces the loaded image with the cropped version.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Load First, Then Crop:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>crop()</code> without a loaded image will result in an error.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$width</td>
+                <td>int</td>
+                <td>The desired width of the cropped image in pixels.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$height</td>
+                <td>int</td>
+                <td>The desired height of the cropped image in pixels.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$trim</td>
+                <td>string</td>
+                <td>Determines which part of the image to keep. Options: 'left', 'center', 'right'.</td>
+                <td>'center'</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the Trim Parameter</h2>
+    <p>The <code>$trim</code> parameter controls which portion of the image is preserved when cropping to dimensions smaller than the original:</p>
+
+    <ul>
+        <li><strong>'left':</strong> Crops from the top-left corner, preserving the left side of the image</li>
+        <li><strong>'center':</strong> (default) Crops from the center, preserving the middle portion of the image</li>
+        <li><strong>'right':</strong> Crops from the top-right corner, preserving the right side of the image</li>
+    </ul>
+
+    <div class="alert alert-info">
+        <p><strong>How Trim Works:</strong> When the crop dimensions are smaller than the current image, <code>crop()</code> calculates the offset to determine which pixels to extract. For 'center' trim, the offset is half the difference between current and target dimensions. For 'right' trim, the offset is the full difference. For 'left' trim, there is no offset (starts at 0,0).</p>
+    </div>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It modifies the loaded image resource in place.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic image cropping operation.</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/landscape.jpg');
+
+// Crop to 400x400 pixels from center
+$this-&gt;image-&gt;crop(400, 400);
+
+// Save the cropped image
+$this-&gt;image-&gt;save('modules/gallery/photos/landscape_cropped.jpg');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The Stateful Workflow:</strong> The Image module follows a load → manipulate → save pattern. Always load an image first with <code>load()</code>, then apply operations like <code>crop()</code>, and finally either <code>save()</code> to disk or <code>output()</code> to the browser. Each operation modifies the internal image resource, so operations are cumulative.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to create a square profile picture by cropping an uploaded image.</p>
+[code=php]
+public function process_avatar(): void {
+    $user_id = segment(3, 'int');
+    
+    // Validate image upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Profile Picture', 'required|allowed_types[jpg,png,gif]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'avatars',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'users',
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure destination exists
+        $avatar_dir = 'modules/users/avatars';
+        if (!$this-&gt;file-&gt;exists($avatar_dir)) {
+            $this-&gt;file-&gt;create_directory($avatar_dir, 0755);
+        }
+        
+        // Upload the image
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load the uploaded image for cropping
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        
+        // Crop to perfect square (300x300) from center
+        $this-&gt;image-&gt;crop(300, 300, 'center');
+        
+        // Save the cropped version
+        $this-&gt;image-&gt;save($file_info['file_path'], 85);
+        
+        // Update user record
+        $data = [
+            'avatar_filename' =&gt; $file_info['file_name'],
+            'avatar_updated_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;update($user_id, $data, 'users');
+        
+        set_flashdata('Profile picture updated successfully');
+        redirect('users/profile/' . $user_id);
+    } else {
+        $this-&gt;avatar_upload_form($user_id);
+    }
+}
+[/code]
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates creating multiple crop variations with different trim positions.</p>
+[code=php]
+public function generate_product_previews(): void {
+    $product_id = segment(3, 'int');
+    
+    // Get product record
+    $product = $this-&gt;db-&gt;get_where($product_id, 'products');
+    
+    if ($product === false) {
+        redirect('products/not_found');
+    }
+    
+    $source_image = 'modules/products/images/' . $product-&gt;main_image;
+    
+    if (!$this-&gt;file-&gt;exists($source_image)) {
+        redirect('products/image_not_found');
+    }
+    
+    // Define crop variations for different display contexts
+    $crop_configs = [
+        'square' =&gt; ['width' =&gt; 400, 'height' =&gt; 400, 'trim' =&gt; 'center'],
+        'wide' =&gt; ['width' =&gt; 600, 'height' =&gt; 400, 'trim' =&gt; 'center'],
+        'tall' =&gt; ['width' =&gt; 300, 'height' =&gt; 500, 'trim' =&gt; 'left']
+    ];
+    
+    foreach ($crop_configs as $variant =&gt; $config) {
+        // Load source image for each variation
+        $this-&gt;image-&gt;load($source_image);
+        
+        // Apply crop
+        $this-&gt;image-&gt;crop($config['width'], $config['height'], $config['trim']);
+        
+        // Save with descriptive filename
+        $output_path = 'modules/products/images/preview_' . $variant . '_' . $product-&gt;main_image;
+        $this-&gt;image-&gt;save($output_path, 85);
+    }
+    
+    set_flashdata('Product preview images generated successfully');
+    redirect('products/manage/' . $product_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Multiple Operations on Same Source:</strong> When creating multiple variations from one source image, load the original image fresh before each operation. Image operations are cumulative - if you crop once and then crop again, the second crop operates on the already-cropped image, not the original.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows combining resize and crop operations to create a thumbnail with exact dimensions.</p>
+[code=php]
+public function create_gallery_thumbnail(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'gallery_photos');
+    
+    if ($photo === false) {
+        redirect('gallery/not_found');
+    }
+    
+    $source_path = 'modules/gallery/uploads/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('gallery/file_missing');
+    }
+    
+    // Load the source image
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Get current dimensions
+    $current_width = $this-&gt;image-&gt;get_width();
+    $current_height = $this-&gt;image-&gt;get_height();
+    
+    // Target thumbnail dimensions
+    $thumb_width = 200;
+    $thumb_height = 200;
+    
+    // Calculate aspect ratios
+    $source_ratio = $current_width / $current_height;
+    $target_ratio = $thumb_width / $thumb_height;
+    
+    // Resize to ensure the image is at least as large as target dimensions
+    if ($source_ratio &gt; $target_ratio) {
+        // Image is wider - resize based on height
+        $this-&gt;image-&gt;resize_to_height($thumb_height);
+    } else {
+        // Image is taller or square - resize based on width
+        $this-&gt;image-&gt;resize_to_width($thumb_width);
+    }
+    
+    // Now crop to exact dimensions from center
+    $this-&gt;image-&gt;crop($thumb_width, $thumb_height, 'center');
+    
+    // Save thumbnail
+    $thumb_path = 'modules/gallery/uploads/thumbs/' . $photo-&gt;filename;
+    
+    // Ensure thumbnail directory exists
+    if (!$this-&gt;file-&gt;exists('modules/gallery/uploads/thumbs')) {
+        $this-&gt;file-&gt;create_directory('modules/gallery/uploads/thumbs', 0755);
+    }
+    
+    $this-&gt;image-&gt;save($thumb_path, 85);
+    
+    // Update photo record with thumbnail path
+    $update_data = [
+        'thumbnail_path' =&gt; $thumb_path,
+        'thumbnail_generated_at' =&gt; date('Y-m-d H:i:s')
+    ];
+    $this-&gt;model-&gt;update($photo_id, $update_data, 'gallery_photos');
+    
+    set_flashdata('Thumbnail generated successfully');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Resize Then Crop Pattern:</strong> For perfect thumbnails with exact dimensions, use the resize-then-crop pattern. First resize the image so its smallest dimension matches your target (using <code>resize_to_width()</code> or <code>resize_to_height()</code>), then crop to exact dimensions. This ensures no distortion while filling the target area completely.</p>
+    </div>
+
+</div>

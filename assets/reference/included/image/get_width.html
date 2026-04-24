@@ -1,0 +1,271 @@
+ <div class="container">
+    <h1>get_width()</h1>
+    <p class="signature">public function get_width(): int</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Returns the width in pixels of the currently loaded image. This method uses PHP's GD library imagesx() function to retrieve the width of the image resource.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Image Must Be Loaded:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>get_width()</code> without a loaded image will throw an Exception with the message "No image is loaded."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <p>This method takes no parameters.</p>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>int</td>
+                <td>The width of the loaded image in pixels.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of get_width().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Get the width
+$width = $this-&gt;image-&gt;get_width();
+
+echo $width; // Outputs: 1920 (for example)
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Common Use Cases:</strong> The <code>get_width()</code> method is typically used to determine aspect ratios, validate image dimensions, calculate resize operations, or make decisions about how to process an image based on its dimensions.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to validate image width before processing.</p>
+[code=php]
+public function process_product_image(): void {
+    $product_id = segment(3, 'int');
+    
+    // Validate file upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Product Image', 'required|allowed_types[jpg,png]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'products/temp',
+            'upload_to_module' =&gt; true,
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure temp directory exists
+        $temp_dir = 'modules/products/products/temp';
+        if (!$this-&gt;file-&gt;exists($temp_dir)) {
+            $this-&gt;file-&gt;create_directory($temp_dir, 0755);
+        }
+        
+        // Upload the image
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load to check dimensions
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        
+        $width = $this-&gt;image-&gt;get_width();
+        $height = $this-&gt;image-&gt;get_height();
+        
+        // Validate minimum dimensions
+        if ($width &lt; 800 || $height &lt; 600) {
+            // Delete invalid upload
+            $this-&gt;file-&gt;delete($file_info['file_path']);
+            $this-&gt;image-&gt;destroy();
+            
+            set_flashdata('Product images must be at least 800x600 pixels. Your image was ' . $width . 'x' . $height);
+            redirect('products/upload_image/' . $product_id);
+        }
+        
+        // Dimensions are valid - process the image
+        $this-&gt;image-&gt;resize_to_width(800);
+        
+        // Save to permanent location
+        $output_path = 'modules/products/products/images/' . $file_info['file_name'];
+        
+        // Ensure directory exists
+        if (!$this-&gt;file-&gt;exists('modules/products/products/images')) {
+            $this-&gt;file-&gt;create_directory('modules/products/products/images', 0755);
+        }
+        
+        $this-&gt;image-&gt;save($output_path, 85);
+        
+        // Delete temp file
+        $this-&gt;file-&gt;delete($file_info['file_path']);
+        $this-&gt;image-&gt;destroy();
+        
+        // Update product record
+        $data = [
+            'image_filename' =&gt; $file_info['file_name'],
+            'image_width' =&gt; 800,
+            'image_height' =&gt; $this-&gt;image-&gt;get_height()
+        ];
+        $this-&gt;model-&gt;update($product_id, $data, 'products');
+        
+        set_flashdata('Product image uploaded successfully');
+        redirect('products/manage');
+    } else {
+        $this-&gt;upload_form($product_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Minimum Dimension Validation:</strong> Use <code>get_width()</code> and <code>get_height()</code> to enforce minimum dimension requirements. Upload to a temporary location first, validate dimensions, then move to permanent storage only if valid. This prevents poor-quality images from entering your system.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates using get_width() to determine the optimal resize strategy.</p>
+[code=php]
+public function create_responsive_sizes(): void {
+    $image_id = segment(3, 'int');
+    
+    // Get image record
+    $image = $this-&gt;db-&gt;get_where($image_id, 'gallery_images');
+    
+    if ($image === false) {
+        redirect('gallery/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $image-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('gallery/file_missing');
+    }
+    
+    // Load the source image
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Get current width
+    $current_width = $this-&gt;image-&gt;get_width();
+    
+    // Define responsive breakpoints (only create if source is larger)
+    $breakpoints = [
+        'xlarge' =&gt; 1920,
+        'large' =&gt; 1200,
+        'medium' =&gt; 800,
+        'small' =&gt; 480
+    ];
+    
+    foreach ($breakpoints as $size_name =&gt; $target_width) {
+        // Only create this size if source is larger
+        if ($current_width &gt; $target_width) {
+            // Load source fresh for each size
+            $this-&gt;image-&gt;load($source_path);
+            
+            // Resize to target width
+            $this-&gt;image-&gt;resize_to_width($target_width);
+            
+            // Save the responsive version
+            $output_dir = 'modules/gallery/' . $size_name;
+            if (!$this-&gt;file-&gt;exists($output_dir)) {
+                $this-&gt;file-&gt;create_directory($output_dir, 0755);
+            }
+            
+            $output_path = $output_dir . '/' . $image-&gt;filename;
+            $this-&gt;image-&gt;save($output_path, 85);
+            
+            // Free memory
+            $this-&gt;image-&gt;destroy();
+        }
+    }
+    
+    set_flashdata('Responsive image sizes generated');
+    redirect('gallery/view/' . $image_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Responsive Image Generation:</strong> Check the source width with <code>get_width()</code> before creating responsive sizes. Only generate smaller versions if the source is actually larger than the target. This prevents unnecessary upscaling and maintains image quality.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows using get_width() to calculate proportional crop dimensions.</p>
+[code=php]
+public function create_proportional_thumbnail(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/photos/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load the image
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Get dimensions
+    $width = $this-&gt;image-&gt;get_width();
+    $height = $this-&gt;image-&gt;get_height();
+    
+    // Target thumbnail dimensions
+    $thumb_size = 300;
+    
+    // Calculate aspect ratio
+    $aspect_ratio = $width / $height;
+    
+    // Determine crop dimensions based on aspect ratio
+    if ($aspect_ratio &gt; 1) {
+        // Landscape: resize based on height, then crop width
+        $resize_height = $thumb_size;
+        $resize_width = (int)($thumb_size * $aspect_ratio);
+        
+        $this-&gt;image-&gt;resize_to_height($resize_height);
+        $this-&gt;image-&gt;crop($thumb_size, $thumb_size, 'center');
+    } elseif ($aspect_ratio &lt; 1) {
+        // Portrait: resize based on width, then crop height
+        $resize_width = $thumb_size;
+        $resize_height = (int)($thumb_size / $aspect_ratio);
+        
+        $this-&gt;image-&gt;resize_to_width($resize_width);
+        $this-&gt;image-&gt;crop($thumb_size, $thumb_size, 'center');
+    } else {
+        // Square: simple resize
+        $this-&gt;image-&gt;resize_to_width($thumb_size);
+    }
+    
+    // Save thumbnail
+    $thumb_dir = 'modules/gallery/photos/thumbs';
+    if (!$this-&gt;file-&gt;exists($thumb_dir)) {
+        $this-&gt;file-&gt;create_directory($thumb_dir, 0755);
+    }
+    
+    $thumb_path = $thumb_dir . '/' . $photo-&gt;filename;
+    $this-&gt;image-&gt;save($thumb_path, 85);
+    $this-&gt;image-&gt;destroy();
+    
+    // Update photo record
+    $update_data = [
+        'thumbnail_path' =&gt; $thumb_path,
+        'thumbnail_created_at' =&gt; date('Y-m-d H:i:s')
+    ];
+    $this-&gt;model-&gt;update($photo_id, $update_data, 'photos');
+    
+    set_flashdata('Thumbnail created successfully');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Aspect Ratio Calculations:</strong> Use <code>get_width()</code> and <code>get_height()</code> together to calculate aspect ratios and make intelligent processing decisions. This allows you to apply different strategies for landscape, portrait, and square images, ensuring optimal results for all orientations.</p>
+    </div>
+
+</div>

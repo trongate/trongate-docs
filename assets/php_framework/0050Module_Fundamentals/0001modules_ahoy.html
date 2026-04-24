@@ -1,0 +1,38 @@
+[meta-description]Discover how Modules form the core of the Trongate PHP framework. A module is a self-contained folder that holds everything for a feature - controller, model, views, and assets. Learn how Trongate modules are portable, independent, and require zero configuration.[/meta-description]
+<h1>Modules Ahoy!</h1>
+
+<p>Everything in Trongate is made of modules.</p>
+
+<p>Your app? A pile of <strong>modules</strong>.</p>
+<p>Your features? <strong>Modules</strong>.</p>
+<p>HTML templates? <strong>Modules</strong>.</p>
+<p>Database interaction? <strong>Modules</strong>.</p>
+<p>Your life? <strong>Modules.</strong></p>
+
+<hr>
+
+<h2>What the Hell Is a Module?</h2>
+
+<p>A <strong>module</strong> is a folder in <code>modules/</code> that contains <em>everything</em> for a feature.</p>
+
+[code]
+modules/
+  users/
+    Users.php           ← controller (required)
+    Users_model.php     ← optional
+    views/              ← PHP templates
+    css/
+    js/
+    images/
+    child_modules/      ← modules in modules (ooh lala!)
+[/code]
+
+<p><strong>Trongate modules are portable, independent, and 100% <b>Native PHP</b>.</strong></p>
+
+<p>No routes. No service providers. No PSR-4.</p>
+<p>Drop it in. Hit refresh. <strong>Done.</strong></p>
+
+<p>At the heart of every module? <strong>The controller.</strong></p>
+<p>Next page: how to rule the universe with modules.</p>
+
+<p class="text-center mt-3"><strong>Let’s roll.</strong></p>

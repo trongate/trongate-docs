@@ -1,0 +1,198 @@
+[meta-description]Trongate's token system: simple database-driven auth with three tables. No bloat. No ceremony. Just tokens that prove identity and control access.[/meta-description]
+
+<h1>Understanding Trongate's Token System</h1>
+
+<p><b>Trongate comes with its own battle-tested token system for authorization and authentication.</b></p>
+
+<p>Authentication answers "Who are you?" Authorization answers "What can you do?" Trongate handles both with tokens.</p>
+
+<p>A <strong>token</strong> is a random string stored in your database. When a user logs in successfully, you generate a token. That token proves their identity on every subsequent request.</p>
+
+<p>With Trongate's token system, there are no sessions to manage. No JWT overhead. No auth middleware chains. Just three database tables and some Native PHP.</p>
+
+<h2>The Three Security Tables</h2>
+
+<p>Trongate's token system uses three relational database tables. Each has a specific job:</p>
+
+<ul>
+    <li><strong>trongate_user_levels</strong> - Defines roles (admin, member, guest, etc.)</li>
+    <li><strong>trongate_users</strong> - Links users to roles</li>
+    <li><strong>trongate_tokens</strong> - Stores active tokens with expiry dates</li>
+</ul>
+
+<div class="alert alert-info">
+    <p>The three tables involved with Trongate's token system are designed to work with relational databases like MySQL and MariaDB.</p>
+</div>
+
+<h2>Table 1: trongate_user_levels</h2>
+
+<p>This table defines every role in your application.</p>
+
+<p>SQL Statement:</p>
+
+[code=sql]
+CREATE TABLE trongate_user_levels (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    level_title VARCHAR(125) NOT NULL
+);
+[/code]
+
+<p>Sample data:</p>
+
+[code=sql]
+INSERT INTO trongate_user_levels (id, level_title) VALUES
+(1, &#039;admin&#039;),
+(2, &#039;member&#039;);
+[/code]
+
+<p>That's it. One row per role. The <code>id</code> is what you'll reference when checking permissions.</p>
+
+<h2>Table 2: trongate_users</h2>
+
+<p>This table represents every user who needs a token.</p>
+
+<p>SQL Statement:</p>
+
+[code=sql]
+CREATE TABLE trongate_users (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(32) NOT NULL,
+    user_level_id INT(11) NOT NULL,
+    FOREIGN KEY (user_level_id) REFERENCES trongate_user_levels(id)
+);
+[/code]
+
+<p>Sample data:</p>
+
+[code=sql]
+INSERT INTO trongate_users (id, code, user_level_id) VALUES
+(1, &#039;7rSvE86mYi2Z8EKwVMrBDHm3FmTBDDkL&#039;, 1),
+(2, &#039;Tz8tehsWsTPUHEtzfbYjXzaKNqLmfAUz&#039;, 2);
+[/code]
+
+<h3>Key Points</h3>
+
+<ul>
+    <li><strong>id</strong> - Auto-incrementing primary key. This is the "Trongate User ID" referenced throughout the system.</li>
+    <li><strong>code</strong> - Random 32-character string for privacy. Use this in URLs instead of exposing numeric IDs.</li>
+    <li><strong>user_level_id</strong> - Links to <code>trongate_user_levels.id</code> via foreign key.</li>
+</ul>
+
+<div class="alert alert-success">
+    <p>Generate the <code>code</code> value using Trongate's built-in <span class="feature-ref">make_rand_str()</span> helper:</p>
+    [code=php]
+$code = make_rand_str(32);
+    [/code]
+</div>
+
+<div class="alert alert-warning">
+    <p><strong>Do NOT add username or password columns to this table.</strong></p>
+    <p>Keep authentication data in your application-specific tables (e.g., <code>members</code>, <code>administrators</code>). Link them to <code>trongate_users</code> with a <code>trongate_user_id</code> column.</p>
+    <p>This separation keeps the token system focused purely on tokens.</p>
+</div>
+
+<h2>Table 3: trongate_tokens</h2>
+
+<p>This table stores active authentication tokens.</p>
+
+<p>SQL Statement:</p>
+
+[code=sql]
+CREATE TABLE trongate_tokens (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    token VARCHAR(125) NOT NULL,
+    user_id INT(11) DEFAULT 0,
+    expiry_date INT(11) NOT NULL,
+    code VARCHAR(3) DEFAULT &#039;0&#039;,
+    FOREIGN KEY (user_id) REFERENCES trongate_users(id)
+);
+[/code]
+
+<h3>Key Points</h3>
+
+<ul>
+    <li><strong>id</strong> - Auto-incrementing primary key.</li>
+    <li><strong>token</strong> - The randomly generated token string (typically 32 characters).</li>
+    <li><strong>user_id</strong> - Links to <code>trongate_users.id</code> via foreign key.</li>
+    <li><strong>expiry_date</strong> - Unix timestamp. Tokens expire automatically.</li>
+    <li><strong>code</strong> - Internal use by the API manager (max 3 characters). Usually left as '0'.</li>
+</ul>
+
+<p>When a user logs in, you insert a row here. When they log out, you delete it. Expired tokens are purged automatically.</p>
+
+<h2>How The Tables Connect</h2>
+
+<p>Here's the relationship:</p>
+
+[code]
+trongate_tokens.user_id  &rarr;  trongate_users.id
+trongate_users.user_level_id  &rarr;  trongate_user_levels.id
+[/code]
+
+<p>This means:</p>
+
+<ul>
+    <li>Every token belongs to a user</li>
+    <li>Every user has a level</li>
+    <li>Query any token to instantly know the user's role</li>
+</ul>
+
+<div class="text-center">
+    <figure>
+        <img src="images/tokens_tables.webp" alt="Trongate token system table relationships" style="width:100%; max-width: 600px;">
+        <figcaption>How the three security tables relate to each other.</figcaption>
+    </figure>
+</div>
+
+<h2>Connecting Your Application Tables</h2>
+
+<p>Let's say you have a <code>members</code> table with columns like <code>first_name</code>, <code>last_name</code>, <code>email</code>, and <code>password</code> (hashed, obviously).</p>
+
+<p>To integrate with the token system:</p>
+
+<ol>
+    <li>Add a <code>trongate_user_id</code> column to your <code>members</code> table</li>
+    <li>When someone registers, create a record in both <code>members</code> AND <code>trongate_users</code></li>
+    <li>Store the <code>trongate_users.id</code> in <code>members.trongate_user_id</code></li>
+</ol>
+
+<p>Example schema:</p>
+
+[code=sql]
+CREATE TABLE members (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(125) UNIQUE NOT NULL,
+    password VARCHAR(60) NOT NULL,
+    trongate_user_id INT(11),
+    FOREIGN KEY (trongate_user_id) REFERENCES trongate_users(id)
+);
+[/code]
+
+<p>Now when a member logs in:</p>
+
+<ol>
+    <li>Validate their email/password against the <code>members</code> table</li>
+    <li>Grab their <code>trongate_user_id</code></li>
+    <li>Generate a token for that <code>trongate_user_id</code></li>
+    <li>Store the token in <code>trongate_tokens</code></li>
+</ol>
+
+<div class="alert alert-info">
+    <p>This separation means you can have multiple user types (members, administrators, vendors etc) all using the same token system.</p>
+    <p>Each type has its own table for credentials. All share <code>trongate_users</code> and <code>trongate_tokens</code>.</p>
+</div>
+
+<h2>Why This Design Works</h2>
+
+<p>Three tables. Clear responsibilities. No magic.</p>
+
+<ul>
+    <li><strong>Scalable:</strong> Add as many user types as needed without touching the token system</li>
+    <li><strong>Secure:</strong> Passwords live in your app tables, not framework tables</li>
+    <li><strong>Simple:</strong> One foreign key lookup tells you everything about a token</li>
+    <li><strong>Fast:</strong> Indexed queries, no complex joins required for validation</li>
+</ul>
+
+<p>In the next section, we'll walk through exactly how tokens flow through this system from login to logout.</p>

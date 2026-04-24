@@ -1,0 +1,198 @@
+[meta-description]Learn how to create forms in Trongate using form_open() and form_close(). Automatic CSRF protection, clean HTML generation, custom attributes, and absolute URL handling - all with Native PHP helpers.[/meta-description]
+<h1>Creating Forms</h1>
+
+<p>Every form needs an opening tag and a closing tag. In Trongate, two functions handle this:</p>
+
+<ul>
+    <li><span class="feature-ref">form_open()</span> - generates the opening <code>&lt;form&gt;</code> tag</li>
+    <li><span class="feature-ref">form_close()</span> - generates the closing <code>&lt;/form&gt;</code> tag <strong>plus</strong> a hidden CSRF token</li>
+</ul>
+
+<p>That's it. Two functions. Clean HTML. Automatic security.</p>
+
+<h2>Basic Usage</h2>
+
+<p>Here's the simplest possible form:</p>
+
+[code=vf]
+echo form_open('tasks/submit');
+echo form_input('task_name');
+echo form_submit('submit', 'Save');
+echo form_close();
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&amp;lt;form action="https://yoursite.com/tasks/submit" method="post"&amp;gt;
+    &amp;lt;input type="text" name="task_name"&amp;gt;
+    &amp;lt;button type="submit" name="submit"&amp;gt;Save&amp;lt;/button&amp;gt;
+    &amp;lt;input type="hidden" name="csrf_token" value="a7f3d9e2b1c4..."&amp;gt;
+&amp;lt;/form&amp;gt;
+[/code]
+
+<p>Notice:</p>
+<ul>
+    <li>The action URL is automatically converted to an absolute URL</li>
+    <li>The method defaults to <code>post</code></li>
+    <li>The CSRF token is automatically added</li>
+</ul>
+
+<h2>Setting the Form Action</h2>
+
+<p>The first parameter of <span class="feature-ref">form_open()</span> is the submission URL. You have three options:</p>
+
+<h3>Option 1: Relative URL (most common)</h3>
+[code=vf]
+echo form_open('users/submit');
+// Becomes: &amp;lt;form action="https://yoursite.com/users/submit" method="post"&amp;gt;
+[/code]
+
+<h3>Option 2: Absolute URL</h3>
+[code=vf]
+echo form_open('https://yoursite.com/users/submit');
+// Stays as-is: &amp;lt;form action="https://yoursite.com/users/submit" method="post"&amp;gt;
+[/code]
+
+<h3>Option 3: Root-relative path</h3>
+[code=vf]
+echo form_open('/users/submit');
+// Stays as-is: &amp;lt;form action="/users/submit" method="post"&amp;gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Trongate automatically prepends <code>BASE_URL</code> to relative URLs. If you pass an absolute URL or a path starting with <code>/</code>, it leaves it alone.</p>
+</div>
+
+<h2>Adding Custom Attributes</h2>
+
+<p>The second parameter is an optional array of HTML attributes:</p>
+
+[code=vf]
+$attributes = [
+    'id' =&gt; 'login-form',
+    'class' =&gt; 'highlight-errors'
+];
+
+echo form_open('auth/login', $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&amp;lt;form action="https://yoursite.com/auth/login" method="post" id="login-form" class="highlight-errors"&amp;gt;
+[/code]
+
+<h2>Changing the HTTP Method</h2>
+
+<p>By default, forms use <code>POST</code>. To use <code>GET</code>:</p>
+
+[code=vf]
+$attributes = ['method' =&gt; 'get'];
+echo form_open('search/results', $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&amp;lt;form action="https://yoursite.com/search/results" method="get"&amp;gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> GET forms still receive a CSRF token via <code>form_close()</code>. The Validation module only checks these tokens on POST requests, so there is no harm in including one on a GET form.</p>
+</div>
+
+<h2>File Upload Forms</h2>
+
+<p>For forms that accept file uploads, use <span class="feature-ref">form_open_upload()</span> instead of <span class="feature-ref">form_open()</span>. It sets <code>enctype="multipart/form-data"</code> automatically:</p>
+
+[code=vf]
+echo form_open_upload('products/upload_picture');
+
+// Same output as form_open(), but with enctype added:
+// &amp;lt;form action="https://yoursite.com/products/upload_picture" method="post" enctype="multipart/form-data"&amp;gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Every other form helper works the same way. The only difference is the <code>enctype</code> attribute on the form tag. See the <a href="documentation/trongate_php_framework/working-with-files/basic-file-uploading">Working With Files</a> chapter for the full file upload workflow.</p>
+</div>
+
+<h2>Real-World Examples</h2>
+
+<h3>Login Form</h3>
+[code=vf]
+echo form_open('auth/login');
+echo form_label('Email');
+$email_attr = ['placeholder' =&gt; 'Enter your email address', 'autocomplete' =&gt; 'email'];
+echo form_email('email', '', $email_attr);
+echo form_label('Password');
+echo form_password('password', '', array('placeholder' =&gt; 'Enter password'));
+echo form_submit('submit', 'Log In');
+echo form_close();
+[/code]
+
+<h3>Search Form (GET method)</h3>
+[code=vf]
+$attributes = [
+    'method' =&gt; 'get',
+    'class' =&gt; 'search-form'
+];
+
+echo form_open('products/search', $attributes);
+echo form_search('q', '', ['placeholder' =&gt; 'Search products...']);
+echo form_submit('submit', 'Search');
+echo form_close();
+[/code]
+
+<h2>Understanding form_close()</h2>
+
+<p>The <span class="feature-ref">form_close()</span> function does two things:</p>
+
+<ol>
+    <li>Injects a hidden CSRF token field</li>
+    <li>Outputs the closing <code>&lt;/form&gt;</code> tag</li>
+</ol>
+
+<p>Here's what actually gets generated for POST forms:</p>
+
+[code=html]
+&amp;lt;input type="hidden" name="csrf_token" value="a7f3d9e2b1c4f8a9d0e5b2c7..."&amp;gt;
+&amp;lt;/form&amp;gt;
+[/code]
+
+<p>When the form submits, Trongate's <a href="documentation-ref/list_refs/included/validation" target="_blank">Validation</a> module automatically checks this token. If it's missing or invalid, the request gets blocked.</p>
+
+<div class="alert alert-info">
+    <p><strong>You never have to think about CSRF tokens.</strong> Just use <code>form_close()</code> and you're protected.</p>
+</div>
+
+<h2>Working with Variables</h2>
+
+<p>In real applications, you'll usually build the form action dynamically:</p>
+
+[code=vf]
+$update_id = segment(3, 'int');
+
+if ($update_id &gt; 0) {
+    $form_location = 'tasks/submit/'.$update_id;
+} else {
+    $form_location = 'tasks/submit';
+}
+
+echo form_open($form_location);
+[/code]
+
+<p>Or pass it from the controller:</p>
+
+[code=php]
+// In controller
+$data['form_location'] = 'tasks/submit/'.$update_id;
+$this-&gt;view('create', $data);
+
+// In view
+echo form_open($form_location);
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Pro tip:</strong> Always use <span class="feature-ref">form_close()</span> instead of manually writing <code>&lt;/form&gt;</code>. The CSRF protection is automatic and worth it.</p>
+</div>

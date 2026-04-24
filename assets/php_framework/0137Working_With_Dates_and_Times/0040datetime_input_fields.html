@@ -1,0 +1,710 @@
+[meta-description]Learn how to use form_datetime_local() in Trongate for combined date and time inputs. Native HTML5 picker with YYYY-MM-DDTHH:MM format, validation, database conversion, and timezone handling.[/meta-description]
+<h1>DateTime Input Fields</h1>
+
+<p>The datetime-local input field combines date and time selection in a single control. It provides an integrated picker and submits data in <code>YYYY-MM-DDTHH:MM</code> format.</p>
+
+<div class="alert alert-info">
+    <p><strong>Browser Display vs Submitted Format:</strong> Browsers display datetime-local inputs according to user locale, but always submit in consistent ISO 8601 format (YYYY-MM-DDTHH:MM) that your PHP code can rely on.</p>
+</div>
+
+<h2>Basic Usage</h2>
+
+<p>Use <span class="feature-ref">form_datetime_local()</span> to create a datetime input field:</p>
+
+[code=php]
+echo form_datetime_local('event_datetime');
+// Output: &lt;input type="datetime-local" name="event_datetime"&gt;
+[/code]
+
+<h2>Demonstration</h2>
+<p>Below is the native HTML5 date and time input rendered by <code>form_datetime_local()</code>:</p>
+<div class="code-demo text-center">
+    <p><input type="datetime-local" name="event_datetime"></p>
+</div>
+
+<h2>Function Signature</h2>
+
+[code=php]
+function form_datetime_local(string $name, ?string $value = null, array $attributes = []): string
+[/code]
+
+<h3>Parameters</h3>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Default</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$name</code></td>
+            <td>string</td>
+            <td>The name attribute for the input (required)</td>
+            <td>N/A</td>
+        </tr>
+        <tr>
+            <td><code>$value</code></td>
+            <td>string|null</td>
+            <td>The value in YYYY-MM-DDTHH:MM format</td>
+            <td>null</td>
+        </tr>
+        <tr>
+            <td><code>$attributes</code></td>
+            <td>array</td>
+            <td>Additional HTML attributes</td>
+            <td>[]</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>With a Default Value</h2>
+
+[code=php]
+echo form_datetime_local('appointment', '2025-12-27T14:30');
+// Output: &lt;input type="datetime-local" name="appointment" value="2025-12-27T14:30"&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Format Note:</strong> The value must include the literal "T" character between date and time: <code>2025-12-27T14:30</code>. This is the ISO 8601 format for datetime-local.</p>
+</div>
+
+<h2>With Attributes</h2>
+
+[code=php]
+$attributes = [
+    'min' => '2025-01-01T09:00',
+    'max' => '2025-12-31T17:00',
+    'required' => true
+];
+echo form_datetime_local('deadline', '', $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&lt;input type="datetime-local" name="deadline" value="" min="2025-01-01T09:00" max="2025-12-31T17:00" required&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Downloadable Demo:</strong> Want to see the <span class="feature-ref">form_datetime_local()</span> function in action? You've got it!  Check out the complete <strong>Events</strong> module example on GitHub:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2-Events-Module" target="_blank">https://github.com/trongate/Trongate-v2-Events-Module</a></p>
+    <p>This GitHub repository demonstrates a full-featured CRUD (Create, Read, Update, Delete) application for scheduling events with precise date and time tracking. It includes bidirectional datetime conversion between ISO 8601 and MySQL DATETIME formats. Check it out and learn by exploring a full working example.</p>
+</div>
+
+<h2>Common Attributes</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Attribute</th>
+            <th>Purpose</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>min</code></td>
+            <td>Earliest selectable datetime (YYYY-MM-DDTHH:MM)</td>
+            <td><code>['min' => '2025-01-01T00:00']</code></td>
+        </tr>
+        <tr>
+            <td><code>max</code></td>
+            <td>Latest selectable datetime (YYYY-MM-DDTHH:MM)</td>
+            <td><code>['max' => '2025-12-31T23:59']</code></td>
+        </tr>
+        <tr>
+            <td><code>step</code></td>
+            <td>Time interval in seconds</td>
+            <td><code>['step' => 900]</code> (15 min)</td>
+        </tr>
+        <tr>
+            <td><code>required</code></td>
+            <td>Field must have a value</td>
+            <td><code>['required' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>readonly</code></td>
+            <td>Prevent user editing</td>
+            <td><code>['readonly' => true]</code></td>
+        </tr>
+        <tr>
+            <td><code>disabled</code></td>
+            <td>Disable the input</td>
+            <td><code>['disabled' => true]</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Setting Current DateTime as Default</h2>
+
+[code=php]
+$now = date('Y-m-d\TH:i');
+echo form_datetime_local('scheduled_at', $now);
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Notice the escaped <code>\T</code> in the date format string. This ensures PHP outputs the literal "T" character required by the datetime-local format.</p>
+</div>
+
+<h2>How to Repopulate Forms After Validation Errors</h2>
+
+<h3>Controller Example</h3>
+
+[code=php]
+public function create(): void {
+    // Fetch posted value (returns empty string if form hasn't been submitted)
+    $data['event_datetime'] = post('event_datetime', true);
+    $data['deadline'] = post('deadline', true);
+    
+    // Pass data to view
+    $this->view('event_form', $data);
+}
+[/code]
+
+<h3>View Example</h3>
+
+[code=php]
+&lt;?php
+echo form_open('events/submit');
+echo form_label('Event Date &amp; Time');
+echo form_datetime_local('event_datetime', $event_datetime);
+echo form_label('Registration Deadline');
+echo form_datetime_local('deadline', $deadline);
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Form Repopulation Pattern:</strong> Always use <code>post('field_name', true)</code> in the controller to fetch submitted values. The <code>true</code> parameter trims whitespace, ensuring clean data.</p>
+</div>
+
+<h2>Real-World Example: Event Scheduling</h2>
+
+<p>Controller:</p>
+
+[code=php]
+public function create(): void {
+    $data['headline'] = 'Schedule Event';
+    $data['event_start'] = post('event_start', true);
+    $data['event_end'] = post('event_end', true);
+    $data['form_location'] = BASE_URL . 'events/submit';
+    $this->templates->admin($data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('event_start', 'event start', 'required|valid_datetime_local');
+    $this->validation->set_rules('event_end', 'event end', 'required|valid_datetime_local|callback_end_after_start');
+
+    if ($this->validation->run() === true) {
+        // Convert from YYYY-MM-DDTHH:MM to MySQL DATETIME format
+        $data['event_start'] = str_replace('T', ' ', post('event_start', true)) . ':00';
+        $data['event_end'] = str_replace('T', ' ', post('event_end', true)) . ':00';
+
+        $new_id = $this->db->insert($data, 'events');
+
+        set_flashdata('Event successfully scheduled');
+        redirect('events/show/' . $new_id);
+    } else {
+        $this->create();
+    }
+}
+
+public function callback_end_after_start($event_end): string|bool {
+    $event_start = post('event_start', true);
+    
+    if ($event_start === '' || $event_end === '') {
+        return true;
+    }
+    
+    if (strtotime($event_end) <= strtotime($event_start)) {
+        return 'The {label} must be after the event start time.';
+    }
+    
+    return true;
+}
+[/code]
+
+<p>View:</p>
+
+[code=php]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Event Start');
+$start_attrs = ['required' => true, 'step' => 900];
+echo form_datetime_local('event_start', $event_start, $start_attrs);
+
+echo form_label('Event End');
+$end_attrs = ['required' => true, 'step' => 900];
+echo form_datetime_local('event_end', $event_end, $end_attrs);
+
+echo form_submit('submit', 'Schedule Event');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Database Conversion</h2>
+
+<p>The datetime-local input submits data in <code>YYYY-MM-DDTHH:MM</code> format, but MySQL's DATETIME type expects <code>YYYY-MM-DD HH:MM:SS</code> format. You need to convert between these formats.</p>
+
+<h3>Table Schema</h3>
+
+[code=sql]
+CREATE TABLE events (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    event_title VARCHAR(255),
+    event_start DATETIME,
+    event_end DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+[/code]
+
+<h3>Converting for Database Storage</h3>
+
+[code=php]
+public function submit(): void {
+    $this->validation->set_rules('event_start', 'event start', 'required|valid_datetime_local');
+    
+    if ($this->validation->run() === true) {
+        // From: 2025-12-27T14:30
+        // To:   2025-12-27 14:30:00
+        
+        $datetime_submitted = post('event_start', true);
+        $datetime_for_db = str_replace('T', ' ', $datetime_submitted) . ':00';
+        
+        $data['event_title'] = post('event_title', true);
+        $data['event_start'] = $datetime_for_db;
+        
+        $this->db->insert($data, 'events');
+        redirect('events/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+<h3>Converting for Form Display</h3>
+
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // From database: 2025-12-27 14:30:00
+        // To form:       2025-12-27T14:30
+        
+        $record = $this->db->get_where($update_id, 'events');
+        $datetime_from_db = $record->event_start;
+        
+        // Remove seconds and replace space with T
+        $datetime_for_form = substr($datetime_from_db, 0, 16);
+        $datetime_for_form = str_replace(' ', 'T', $datetime_for_form);
+        
+        $data['event_start'] = $datetime_for_form;
+    } else {
+        $data['event_start'] = post('event_start', true);
+    }
+    
+    $this->view('event_form', $data);
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Helper Function Idea:</strong> Consider creating helper functions in your model for these conversions:</p>
+    [code=php]
+// In model
+private function datetime_to_form(string $db_datetime): string {
+    return str_replace(' ', 'T', substr($db_datetime, 0, 16));
+}
+
+private function datetime_to_db(string $form_datetime): string {
+    return str_replace('T', ' ', $form_datetime) . ':00';
+}
+    [/code]
+</div>
+
+<h2>Working with the Create/Update Pattern</h2>
+
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing - load and convert from database
+        $record = $this->db->get_where($update_id, 'appointments');
+        $data['scheduled_at'] = str_replace(' ', 'T', substr($record->scheduled_at, 0, 16));
+    } else {
+        // New or validation error - use POST
+        $data['scheduled_at'] = post('scheduled_at', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'appointments/submit/' . $update_id;
+    $this->view('appointment_form', $data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('scheduled_at', 'appointment time', 'required|valid_datetime_local');
+    
+    if ($this->validation->run() === true) {
+        $update_id = segment(3, 'int');
+        
+        // Convert for database
+        $data['scheduled_at'] = str_replace('T', ' ', post('scheduled_at', true)) . ':00';
+        
+        if ($update_id > 0) {
+            $this->db->update($update_id, $data, 'appointments');
+            set_flashdata('Appointment updated');
+        } else {
+            $this->db->insert($data, 'appointments');
+            set_flashdata('Appointment scheduled');
+        }
+        
+        redirect('appointments/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Type-Casting Segments:</strong> Always use <code>segment(3, 'int')</code> when expecting numeric IDs. This prevents type-related bugs and improves code clarity.</p>
+</div>
+
+<h2>Formatting DateTime for Display</h2>
+
+[code=php]
+// From database: 2025-12-27 14:30:00
+
+$datetime = new DateTime('2025-12-27 14:30:00');
+
+// Various formats
+echo $datetime->format('F j, Y \a\t g:i A');    // December 27, 2025 at 2:30 PM
+echo $datetime->format('M d, Y - H:i');         // Dec 27, 2025 - 14:30
+echo $datetime->format('Y-m-d H:i');            // 2025-12-27 14:30
+echo $datetime->format('l, F j, Y \a\t g:i A'); // Friday, December 27, 2025 at 2:30 PM
+
+// Locale-aware
+$formatter = new IntlDateFormatter(
+    'en_US',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::SHORT
+);
+echo $formatter->format($datetime); // December 27, 2025, 2:30 PM
+
+// French
+$formatter = new IntlDateFormatter(
+    'fr_FR',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::SHORT
+);
+echo $formatter->format($datetime); // 27 décembre 2025 à 14:30
+
+// Japanese
+$formatter = new IntlDateFormatter(
+    'ja_JP',
+    IntlDateFormatter::LONG,
+    IntlDateFormatter::SHORT
+);
+echo $formatter->format($datetime); // 2025年12月27日 14:30
+[/code]
+
+<h2>Validation</h2>
+
+<p>Use the <code>valid_datetime_local</code> validation rule:</p>
+
+[code=php]
+$this->validation->set_rules('event_datetime', 'event date and time', 'required|valid_datetime_local');
+[/code]
+
+<p>This validates that the value matches <code>YYYY-MM-DDTHH:MM</code> format and represents a valid date and time.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Client vs Server Validation:</strong> While browsers validate datetime formats client-side, <strong>always</strong> use server-side validation with <code>valid_datetime_local</code>. Client validation can be bypassed and doesn't protect your database.</p>
+</div>
+
+<div class="alert alert-info">
+    <p>See the <strong>Validating Date and Time Data</strong> chapter for complete validation rule documentation.</p>
+</div>
+
+<h2>Restricting to Business Hours</h2>
+
+<p>Example: Only allow appointments during business hours (9 AM - 5 PM, Monday-Friday):</p>
+
+[code=php]
+public function book_appointment(): void {
+    $data['appointment_time'] = post('appointment_time', true);
+    
+    // Set min to tomorrow at 9 AM
+    $tomorrow = new DateTime('tomorrow');
+    $tomorrow->setTime(9, 0);
+    $data['min_datetime'] = $tomorrow->format('Y-m-d\TH:i');
+    
+    // Set max to 30 days from now at 5 PM
+    $max_date = new DateTime('+30 days');
+    $max_date->setTime(17, 0);
+    $data['max_datetime'] = $max_date->format('Y-m-d\TH:i');
+    
+    $this->view('booking_form', $data);
+}
+
+public function submit_appointment(): void {
+    $this->validation->set_rules('appointment_time', 'appointment time', 'required|valid_datetime_local|callback_during_business_hours');
+    
+    if ($this->validation->run() === true) {
+        // Process booking
+        $data['appointment_time'] = str_replace('T', ' ', post('appointment_time', true)) . ':00';
+        $this->db->insert($data, 'appointments');
+        set_flashdata('Appointment booked successfully');
+        redirect('appointments/confirm');
+    } else {
+        $this->book_appointment();
+    }
+}
+
+public function callback_during_business_hours($datetime): string|bool {
+    $dt = new DateTime($datetime);
+    $hour = (int) $dt->format('H');
+    $day_of_week = (int) $dt->format('N'); // 1=Monday, 7=Sunday
+    
+    // Check if weekend
+    if ($day_of_week >= 6) {
+        return 'Appointments are only available Monday through Friday.';
+    }
+    
+    // Check if outside business hours
+    if ($hour < 9 || $hour >= 17) {
+        return 'Appointments must be between 9:00 AM and 5:00 PM.';
+    }
+    
+    return true;
+}
+[/code]
+
+[code=php]
+// View
+&lt;?php
+$attrs = [
+    'min' => $min_datetime,
+    'max' => $max_datetime,
+    'step' => 1800, // 30-minute intervals
+    'required' => true
+];
+echo form_datetime_local('appointment_time', $appointment_time, $attrs);
+?&gt;
+[/code]
+
+<h2>Common Patterns</h2>
+
+<h3>Event Scheduling (Future Dates Only)</h3>
+
+[code=php]
+$now = date('Y-m-d\TH:i');
+$attributes = [
+    'min' => $now,
+    'required' => true,
+    'step' => 900 // 15-minute intervals
+];
+echo form_datetime_local('event_start', $event_start, $attributes);
+[/code]
+
+<h3>Deadline Setting (Next 90 Days)</h3>
+
+[code=php]
+$now = date('Y-m-d\TH:i');
+$max = date('Y-m-d\TH:i', strtotime('+90 days'));
+$attributes = [
+    'min' => $now,
+    'max' => $max,
+    'required' => true
+];
+echo form_datetime_local('deadline', $deadline, $attributes);
+[/code]
+
+<h3>Log Entry (Past Dates Only)</h3>
+
+[code=php]
+$now = date('Y-m-d\TH:i');
+$attributes = [
+    'max' => $now,
+    'required' => true
+];
+echo form_datetime_local('occurred_at', $occurred_at, $attributes);
+[/code]
+
+<h2>Timezone Considerations</h2>
+
+<p>The datetime-local input type intentionally does <strong>not</strong> include timezone information. It represents "local time" - the date and time as displayed on a calendar and clock.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Important Timezone Behavior:</strong></p>
+    <ul>
+        <li>The value submitted is exactly what the user sees and enters</li>
+        <li>No timezone conversion happens automatically</li>
+        <li>The server receives the datetime "as entered" by the user</li>
+        <li>This is perfect for: appointments, deadlines, event times, scheduled tasks</li>
+    </ul>
+</div>
+
+<h3>When This Works Well</h3>
+
+[code=php]
+// User in New York books appointment for 2:00 PM
+// Form submits: 2025-12-27T14:00
+// Database stores: 2025-12-27 14:00:00
+// Display shows: December 27, 2025 at 2:00 PM
+// ✓ This is correct - the appointment is at 2 PM local time
+[/code]
+
+<h3>When You Need Timezone Awareness</h3>
+
+<p>If your application needs to coordinate times across timezones (like a global conference call), you'll need additional handling:</p>
+
+[code=php]
+// Capture timezone separately
+echo form_datetime_local('meeting_time', $meeting_time);
+echo form_dropdown('timezone', $timezone_options, $selected_timezone);
+
+// Or detect timezone with JavaScript and submit as hidden field
+// Or store user's timezone in their profile
+[/code]
+
+<h2>Browser Rendering</h2>
+
+<p>Different browsers provide different datetime picker interfaces:</p>
+
+<ul>
+    <li><strong>Chrome/Edge:</strong> Combined date and time picker with calendar popup</li>
+    <li><strong>Firefox:</strong> Separate date and time controls in one input</li>
+    <li><strong>Safari:</strong> Native datetime picker with smooth scrolling interface</li>
+    <li><strong>Mobile:</strong> Native datetime picker optimized for touch</li>
+</ul>
+
+<h2>Datetime-Local vs Separate Date and Time Fields</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Aspect</th>
+            <th>datetime-local</th>
+            <th>Separate date + time</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>User Experience</td>
+            <td>Single control, faster input</td>
+            <td>Two controls, more explicit</td>
+        </tr>
+        <tr>
+            <td>Data Format</td>
+            <td>YYYY-MM-DDTHH:MM (one value)</td>
+            <td>Two separate values to combine</td>
+        </tr>
+        <tr>
+            <td>Database Conversion</td>
+            <td>Replace T with space, add seconds</td>
+            <td>Concatenate date + time</td>
+        </tr>
+        <tr>
+            <td>Validation</td>
+            <td>One rule: valid_datetime_local</td>
+            <td>Two rules: valid_date + valid_time</td>
+        </tr>
+        <tr>
+            <td>Best For</td>
+            <td>Appointments, deadlines, events</td>
+            <td>More control, optional times</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Complete Model Example with Conversions</h2>
+
+[code=php]
+class Events_model extends Model {
+    
+    /**
+     * Convert database datetime to form format
+     */
+    private function db_to_form_datetime(?string $db_datetime): string {
+        if (empty($db_datetime) || $db_datetime === '0000-00-00 00:00:00') {
+            return '';
+        }
+        // From: 2025-12-27 14:30:00
+        // To:   2025-12-27T14:30
+        return str_replace(' ', 'T', substr($db_datetime, 0, 16));
+    }
+    
+    /**
+     * Convert form datetime to database format
+     */
+    private function form_to_db_datetime(string $form_datetime): string {
+        if (empty($form_datetime)) {
+            return '';
+        }
+        // From: 2025-12-27T14:30
+        // To:   2025-12-27 14:30:00
+        return str_replace('T', ' ', $form_datetime) . ':00';
+    }
+    
+    /**
+     * Get form data for create/update
+     */
+    public function get_form_data(int $update_id): array {
+        if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+            $record = $this->db->get_where($update_id, 'events');
+            return [
+                'event_title' => $record->event_title,
+                'event_start' => $this->db_to_form_datetime($record->event_start),
+                'event_end' => $this->db_to_form_datetime($record->event_end)
+            ];
+        }
+        
+        return [
+            'event_title' => post('event_title', true),
+            'event_start' => post('event_start', true),
+            'event_end' => post('event_end', true)
+        ];
+    }
+    
+    /**
+     * Prepare POST data for database
+     */
+    public function get_post_data_for_database(): array {
+        return [
+            'event_title' => post('event_title', true),
+            'event_start' => $this->form_to_db_datetime(post('event_start', true)),
+            'event_end' => $this->form_to_db_datetime(post('event_end', true))
+        ];
+    }
+}
+[/code]
+
+<h2>Important Notes</h2>
+
+<ul>
+    <li>Value format must include literal "T": <code>YYYY-MM-DDTHH:MM</code></li>
+    <li>Database conversion required: replace T with space, add :00 for seconds</li>
+    <li>When loading from database: remove seconds, replace space with T</li>
+    <li>Represents "local time" - no timezone information included</li>
+    <li>Use MySQL's <code>DATETIME</code> type for storage</li>
+    <li>Step attribute works same as time input (seconds)</li>
+    <li>Browser handles display format automatically</li>
+    <li>Server-side validation still required despite browser validation</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Best Practice:</strong> Create helper methods in your model for datetime conversions. This keeps your controllers clean and makes conversions consistent across your application.</p>
+</div>

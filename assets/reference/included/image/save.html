@@ -1,0 +1,287 @@
+ <div class="container">
+    <h1>save()</h1>
+    <p class="signature">public function save(?string $filename = null, int $compression = 100, ?int $permissions = null): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Saves the currently loaded and processed image to disk. This method writes the image resource to a file with optional compression settings for JPEG and WEBP formats, and allows setting file permissions. The method automatically handles format-specific requirements such as transparency preservation for PNG images.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Load and Process First:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Any processing operations (resize, crop, etc.) must be performed before calling <code>save()</code>. The method saves the current state of the image resource.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$filename</td>
+                <td>string|null</td>
+                <td>The path where the image will be saved. If null, uses the internal filename from <code>load()</code>.</td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$compression</td>
+                <td>int</td>
+                <td>Compression level for JPEG/WEBP (0-100). Higher values = better quality, larger files. Has no effect on GIF/PNG.</td>
+                <td>100</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$permissions</td>
+                <td>int|null</td>
+                <td>File permissions in octal format (e.g., 0644, 0755). If null, uses system defaults.</td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding Compression</h2>
+    <p>The <code>$compression</code> parameter controls the quality vs. file size trade-off for JPEG and WEBP images:</p>
+
+    <ul>
+        <li><strong>100:</strong> Maximum quality, largest file size - ideal for archival or source images</li>
+        <li><strong>85-95:</strong> High quality, reasonable file size - recommended for most web use</li>
+        <li><strong>70-84:</strong> Good quality, smaller files - suitable for thumbnails or bandwidth-conscious applications</li>
+        <li><strong>Below 70:</strong> Noticeable quality loss - generally not recommended unless file size is critical</li>
+    </ul>
+
+    <div class="alert alert-info">
+        <p><strong>Format-Specific Behaviour:</strong> The compression parameter only affects JPEG and WEBP images. PNG uses lossless compression automatically, and GIF has no compression options. PNG images also have transparency (alpha channel) preserved automatically via <code>imagesavealpha()</code>.</p>
+    </div>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It writes the image to disk.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of save().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/original.jpg');
+
+// Resize it
+$this-&gt;image-&gt;resize_to_width(800);
+
+// Save to a new location
+$this-&gt;image-&gt;save('modules/gallery/photos/resized.jpg', 85);
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The Standard Workflow:</strong> The typical pattern is load → manipulate → save. All processing operations (resize, crop, etc.) modify the image resource in memory. Call <code>save()</code> as the final step to write the processed image to disk. The compression value of 85 provides excellent quality whilst significantly reducing file size compared to 100.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to save an image with specific permissions for security.</p>
+[code=php]
+public function process_secure_upload(): void {
+    $document_id = segment(3, 'int');
+    
+    // Validate upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Secure Document', 'required|allowed_types[jpg,png]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload to secure directory
+        $config = [
+            'destination' =&gt; 'secure/documents',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'documents',
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure secure directory exists
+        $secure_dir = 'modules/documents/secure/documents';
+        if (!$this-&gt;file-&gt;exists($secure_dir)) {
+            $this-&gt;file-&gt;create_directory($secure_dir, 0750);
+        }
+        
+        // Upload the image
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load for processing
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        
+        // Resize if necessary
+        if ($this-&gt;image-&gt;get_width() &gt; 1200) {
+            $this-&gt;image-&gt;resize_to_width(1200);
+        }
+        
+        // Save with restricted permissions (owner read/write only)
+        $this-&gt;image-&gt;save($file_info['file_path'], 85, 0600);
+        $this-&gt;image-&gt;destroy();
+        
+        // Store in database
+        $data = [
+            'document_id' =&gt; $document_id,
+            'filename' =&gt; $file_info['file_name'],
+            'file_path' =&gt; $file_info['file_path'],
+            'uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;insert($data, 'secure_documents');
+        
+        set_flashdata('Secure document uploaded successfully');
+        redirect('documents/view/' . $document_id);
+    } else {
+        $this-&gt;upload_form($document_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Security Through Permissions:</strong> Use the <code>$permissions</code> parameter to control file access. Common values include 0644 (owner read/write, others read), 0600 (owner read/write only), and 0755 (owner full access, others read/execute). For sensitive images, use restrictive permissions like 0600 and store outside the public directory.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates creating multiple quality versions of the same image.</p>
+[code=php]
+public function generate_quality_variants(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Define quality/compression variants
+    $quality_settings = [
+        'high' =&gt; 95,      // Near-lossless
+        'standard' =&gt; 85,  // Excellent quality, good compression
+        'web' =&gt; 75,       // Good quality, smaller files
+        'thumbnail' =&gt; 70  // Acceptable quality, minimal size
+    ];
+    
+    foreach ($quality_settings as $quality_name =&gt; $compression) {
+        // Load source fresh for each variant
+        $this-&gt;image-&gt;load($source_path);
+        
+        // Resize appropriately for quality level
+        if ($quality_name === 'thumbnail') {
+            $this-&gt;image-&gt;resize_to_width(300);
+        } else {
+            $this-&gt;image-&gt;resize_to_width(1200);
+        }
+        
+        // Ensure quality directory exists
+        $output_dir = 'modules/gallery/quality/' . $quality_name;
+        if (!$this-&gt;file-&gt;exists($output_dir)) {
+            $this-&gt;file-&gt;create_directory($output_dir, 0755);
+        }
+        
+        // Save with specific compression level
+        $output_path = $output_dir . '/' . $photo-&gt;filename;
+        $this-&gt;image-&gt;save($output_path, $compression);
+        $this-&gt;image-&gt;destroy();
+    }
+    
+    set_flashdata('Quality variants generated successfully');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Compression Strategy:</strong> Different use cases require different compression levels. Use high compression (95-100) for archival copies, moderate compression (80-90) for web display, and lower compression (70-80) for thumbnails where small file size matters more than perfect quality. This multi-quality approach allows you to serve appropriate versions based on context.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows saving processed images whilst preserving transparency for PNG format.</p>
+[code=php]
+public function process_logo_upload(): void {
+    $company_id = segment(3, 'int');
+    
+    // Validate PNG upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Company Logo', 'required|allowed_types[png]|max_size[2000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'logos',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'companies',
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure directory exists
+        $logo_dir = 'modules/companies/logos';
+        if (!$this-&gt;file-&gt;exists($logo_dir)) {
+            $this-&gt;file-&gt;create_directory($logo_dir, 0755);
+        }
+        
+        // Upload the logo
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Create multiple sizes whilst preserving transparency
+        $sizes = [
+            'large' =&gt; 400,
+            'medium' =&gt; 200,
+            'small' =&gt; 100,
+            'favicon' =&gt; 32
+        ];
+        
+        foreach ($sizes as $size_name =&gt; $width) {
+            // Load source fresh
+            $this-&gt;image-&gt;load($file_info['file_path']);
+            
+            // Resize
+            $this-&gt;image-&gt;resize_to_width($width);
+            
+            // Save PNG (transparency preserved automatically)
+            $filename_parts = pathinfo($file_info['file_name']);
+            $sized_filename = $filename_parts['filename'] . '_' . $size_name . '.png';
+            $output_path = $logo_dir . '/' . $sized_filename;
+            
+            // PNG compression parameter is ignored, but transparency is preserved
+            $this-&gt;image-&gt;save($output_path, 100, 0644);
+            $this-&gt;image-&gt;destroy();
+        }
+        
+        // Update company record
+        $data = [
+            'logo_filename' =&gt; $file_info['file_name'],
+            'logo_updated_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;update($company_id, $data, 'companies');
+        
+        set_flashdata('Company logo uploaded and processed successfully');
+        redirect('companies/view/' . $company_id);
+    } else {
+        $this-&gt;logo_upload_form($company_id);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Transparency Preservation:</strong> When working with PNG images that contain transparency (alpha channels), the <code>save()</code> method automatically preserves transparency through the <code>imagesavealpha()</code> function. This happens regardless of the compression parameter value. This is essential for logos, icons, and overlay images that require transparent backgrounds.</p>
+    </div>
+
+</div>

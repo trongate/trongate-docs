@@ -1,0 +1,285 @@
+[meta-description]Learn file uploading the Trongate way: three methods, zero complexity. Display form → validate → upload → redirect. Clean separation, automatic security, working code you can use today.[/meta-description]
+<h1>Basic File Uploading</h1>
+
+<p>Let's build a file uploader. Not a theoretical example. Not a "hello world" toy. A <strong>real uploader</strong> that lets you upload files, using Trongate's <b>File</b> module.</p>
+
+<p>We'll use the following <strong>three-method pattern</strong>:</p>
+
+<ol>
+    <li><strong>Display</strong> the upload form</li>
+    <li><strong>Process</strong> the upload with validation</li>
+    <li><strong>Show</strong> the success page</li>
+</ol>
+
+<p>Each method does <strong>one thing</strong>. Clean. Simple. Maintainable.</p>
+
+<div class="alert alert-info">
+    <p><strong>In a hurry?</strong> Head over to GitHub and download the <strong>Simple Uploader</strong> module:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2---Simple-Uploader" target="_blank">https://github.com/trongate/Trongate-v2---Simple-Uploader</a></p>
+    <p>The code demonstrates basic file uploading concepts in the clearest possible way.</p>
+</div>
+
+<div class="alert alert-success">
+    <p><strong>Uploading images?</strong> Image uploads usually require additional processing.</p>
+    <p>For image uploads, use the <a href="documentation/trongate_php_framework/image-manipulation" target="_blank">Image Module</a>, which includes support for common image manipulation tasks.</p>
+</div>
+
+<h2>The Complete Controller</h2>
+
+<p>Create <code>modules/simple_uploader/Simple_uploader.php</code>:</p>
+
+[code=php]
+&lt;?php
+class Simple_uploader extends Trongate {
+
+    /**
+     * 1. Display the upload form
+     */
+    function index() {
+        $data['view_module'] = 'simple_uploader';
+        $data['view_file'] = 'upload_form';
+        $this-&gt;view('upload_form', $data);
+    }
+
+    /**
+     * 2. Process the file upload
+     */
+    function submit_upload() {
+        // Validate first
+        $this-&gt;validation-&gt;set_rules(
+            'userfile',
+            'File',
+            'required|allowed_types[txt,md,csv,log]|max_size[500]'
+        );
+
+        $result = $this-&gt;validation-&gt;run();
+
+        if ($result === true) {
+            // Configure and upload
+            $config['destination'] = 'uploads';
+            $config['upload_to_module'] = true;
+            $config['make_rand_name'] = false;
+            
+            $file_info = $this-&gt;file-&gt;upload($config);
+            
+            // Success - redirect to prevent resubmission
+            set_flashdata('File uploaded successfully!');
+            redirect('simple_uploader/success/' . $file_info['file_name']);
+                
+        } else {
+            // Validation failed - show form with errors
+            $this-&gt;index();
+        }
+    }
+
+    /**
+     * 3. Display the success page
+     */
+    function success($filename = '') {
+        $data['filename'] = $filename;
+        $data['view_module'] = 'simple_uploader';
+        $data['view_file'] = 'upload_success';
+        $this-&gt;view('upload_success', $data);
+    }
+
+}
+?&gt;
+[/code]
+
+<p>That's the entire controller. Three methods. Zero complexity. Production-ready pattern.</p>
+
+<div class="alert alert-info">
+    <p>The File module automatically processes the <strong>first file</strong> uploaded in your form, regardless of its input field name. This makes it consistent with the <a href="documentation-ref/list_refs/included/image" target="_blank">Image module</a>.</p>
+</div>
+
+<div class="alert alert-warning">
+    <p><strong>Important: File Input Name</strong></p>
+    <p>The name attribute of your file input field <b>must match what you're validating</b>. In this example, we use <code>userfile</code> consistently throughout:</p>
+    <ul>
+        <li>Form: <code>form_file_select('userfile', ...)</code></li>
+        <li>Validation: <code>set_rules('userfile', 'File', ...)</code></li>
+    </ul>
+</div>
+
+<h2>The Upload Form View</h2>
+
+<p>Create <code>modules/simple_uploader/views/upload_form.php</code>:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;link rel="stylesheet" href="simple_uploader_module/css/simple_uploader.css"&gt;
+    &lt;title&gt;Upload Form&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Upload Form&lt;/h1&gt;
+    
+    &lt;?= validation_errors() ?&gt;
+
+    &lt;div class="info"&gt;
+        &lt;p&gt;&lt;strong&gt;Allowed file types:&lt;/strong&gt; TXT, MD, CSV, LOG&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Maximum file size:&lt;/strong&gt; 500 KB&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; For image uploads, use the &lt;code&gt;image&lt;/code&gt; module instead.&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;?php
+    echo form_open_upload('simple_uploader/submit_upload');
+    echo form_label('Select File:', ['for' =&gt; 'userfile']);
+
+    $select_attr = [
+        'id' =&gt; 'userfile',
+        'size' =&gt; '20',
+        'accept' =&gt; '.txt,.md,.csv,.log'
+    ];
+
+    echo form_file_select('userfile', $select_attr);
+    echo form_submit('submit', 'Upload File');
+    echo form_close();
+    ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>About the CSS file:</strong> The two view files mentioned on this page reference <code>simple_uploader.css</code>, which should be located at:</p>
+    <p><code>modules/simple_uploader/css/simple_uploader.css</code></p>
+    <p>Trongate's <a href="documentation/trongate_php_framework/module-fundamentals/module-assets" target="_blank">Module Asset Manager</a> will automatically find and load this file when the views are rendered.</p>
+    <p>As a reminder, you can download the complete module (including the CSS file) from GitHub: <br><br><a href="https://github.com/trongate/Trongate-v2---Simple-Uploader" target="_blank">Simple Uploader Module</a></p>
+</div>
+
+
+
+<h2>The Success Page View</h2>
+
+<p>Create <code>modules/simple_uploader/views/upload_success.php</code>:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;link rel="stylesheet" href="simple_uploader_module/css/simple_uploader.css"&gt;
+    &lt;title&gt;Upload Complete&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Upload Complete!&lt;/h1&gt;
+    &lt;?= flashdata() ?&gt;
+
+    &lt;?php if (!empty($filename)) { ?&gt;
+        &lt;div class="file-info"&gt;
+            &lt;p&gt;&lt;strong&gt;File Name:&lt;/strong&gt;&lt;/p&gt;
+            &lt;p class="file-name"&gt;&lt;?= out($filename) ?&gt;&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;p&gt;
+            &lt;a href="&lt;?= BASE_URL ?&gt;simple_uploader_module/uploads/&lt;?= $filename ?&gt;" 
+               target="_blank" 
+               class="button"&gt;
+                View File
+            &lt;/a&gt;
+            &lt;?= anchor('simple_uploader', 'Upload Another File', ['class' =&gt; 'button secondary']) ?&gt;
+        &lt;/p&gt;
+    &lt;?php } else { ?&gt;
+        &lt;div class="alert"&gt;
+            &lt;p&gt;No file information available.&lt;/p&gt;
+            &lt;p&gt;&lt;?= anchor('simple_uploader', 'Upload a File', ['class' =&gt; 'button']) ?&gt;&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;?php } ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<h2>Create the Upload Directory</h2>
+
+<p>One last step - create the directory where files will be stored:</p>
+
+[code]
+# From your application root:
+mkdir modules/simple_uploader/uploads
+chmod 755 modules/simple_uploader/uploads
+[/code]
+
+<p>Or create it via PHP if you prefer:</p>
+
+[code=php]
+// Run this once in a controller
+$this-&gt;file-&gt;create_directory('uploads', 0755, true);
+[/code]
+
+<h2>How It Works (The Flow)</h2>
+
+<ol>
+    <li><strong>User visits</strong> <code>yoursite.com/simple_uploader</code> (or <code>yoursite.com/simple_uploader/index</code>)</li>
+    <li><strong>Form displays</strong> with file selection input</li>
+    <li><strong>User selects file</strong> and clicks "Upload File"</li>
+    <li><strong>Browser POSTs</strong> to <code>yoursite.com/simple_uploader/submit_upload</code></li>
+    <li><strong>Trongate validates</strong> the file (required, type, size)</li>
+    <li><strong>If valid:</strong> Uploads file, sets success message, redirects to success page</li>
+    <li><strong>If invalid:</strong> Redisplays form with error messages</li>
+    <li><strong>Success page</strong> shows filename and "View File" button</li>
+</ol>
+
+<h2>Key Concepts Explained</h2>
+
+<h3>1. form_open_upload() vs form_open()</h3>
+
+<p>Use <span class="feature-ref">form_open_upload()</span> for file uploads. It automatically adds:</p>
+
+[code=html]
+&lt;!-- form_open() --&gt;
+&lt;form action="..." method="post"&gt;
+
+&lt;!-- form_open_upload() --&gt;
+&lt;form action="..." method="post" enctype="multipart/form-data"&gt;
+[/code]
+
+<p>That <code>enctype</code> attribute is required for file uploads. Trongate adds it automatically.</p>
+
+<h3>2. The POST-Redirect-GET Pattern</h3>
+
+<p>Notice, we don't render the success page directly.  Instead, when an upload is successful, we immediately direct the user elsewhere:</p>
+
+[code=php]
+// ❌ WRONG - causes "resubmit form?" on refresh
+if ($result === true) {
+    $data['filename'] = $file_info['file_name'];
+    $this-&gt;view('upload_success', $data); // Don't do this!
+}
+
+// ✅ RIGHT - clean refresh, no duplicate uploads
+if ($result === true) {
+    set_flashdata('File uploaded successfully!');
+    redirect('simple_uploader/success/' . $file_info['file_name']);
+}
+[/code]
+
+<p><strong>POST</strong> (upload) → <strong>Process</strong> → <strong>Redirect</strong> → <strong>GET</strong> (success page)</p>
+
+<h3>3. Validation Before Upload</h3>
+
+<p>In addition, we always validate <strong>before</strong> touching the file system:</p>
+
+[code=php]
+// ❌ WRONG - uploads then validates
+$file_info = $this-&gt;file-&gt;upload($config);
+$this-&gt;validation-&gt;set_rules(...); // Too late!
+
+// ✅ RIGHT - validates then uploads
+$this-&gt;validation-&gt;set_rules(...); // Validate first
+if ($this-&gt;validation-&gt;run() === true) {
+    $file_info = $this-&gt;file-&gt;upload($config); // Upload only if valid
+}
+[/code]
+
+<h2>Try It Right Now</h2>
+
+<ol>
+    <li>Create the three files above</li>
+    <li>Create the uploads directory</li>
+    <li>Visit: <code>yoursite.com/simple_uploader</code></li>
+    <li>Upload a text file (.txt, .md, .csv, or .log)</li>
+    <li>See the success message and view the file</li>
+</ol>
+
+<p>Don't forget:  You're welcome to <a href="https://github.com/trongate/Trongate-v2---Simple-Uploader" target="_blank">download the code from GitHub</a>.</p>

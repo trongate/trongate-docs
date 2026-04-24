@@ -1,0 +1,165 @@
+<div class="container">
+  <h1>get_tables()</h1>
+  <p class="signature">public function get_tables(): array</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves an array of all table names in the current database. This method executes MySQL's SHOW TABLES command and returns the results as a simple indexed array. Useful for database introspection, installation scripts, and administrative tools.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><em>none</em></td>
+        <td><em>none</em></td>
+        <td>This method takes no parameters.</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>array</td>
+        <td>An indexed array of table names (strings) on success, or an empty array on failure.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1: Listing All Database Tables</h2>
+  <p>The code sample below demonstrates how to retrieve and display all tables in the database.</p>
+[code=php]
+$tables = $this-&gt;db-&gt;get_tables();
+
+if (!empty($tables)) {
+    echo "Tables in the database:&lt;br&gt;";
+    echo "&lt;ul&gt;";
+    foreach ($tables as $table) {
+        echo "&lt;li&gt;" . $table . "&lt;/li&gt;";
+    }
+    echo "&lt;/ul&gt;";
+    
+    echo "Total tables: " . count($tables);
+} else {
+    echo "No tables found or unable to retrieve table list.";
+}
+[/code]
+
+  <h2>Example #2: Checking for Required Tables</h2>
+  <p>The code sample below demonstrates how to verify that specific tables exist in the database.</p>
+[code=php]
+$required_tables = ['users', 'products', 'orders', 'categories'];
+$available_tables = $this-&gt;db-&gt;get_tables();
+$missing_tables = [];
+
+foreach ($required_tables as $required) {
+    if (!in_array($required, $available_tables)) {
+        $missing_tables[] = $required;
+    }
+}
+
+if (empty($missing_tables)) {
+    echo "All required tables are present.";
+} else {
+    echo "Missing tables: " . implode(', ', $missing_tables);
+    echo "&lt;br&gt;Available tables: " . implode(', ', $available_tables);
+}
+[/code]
+
+  <h2>Example #3: Performing Operations on All Tables</h2>
+  <p>The code sample below demonstrates how to iterate through all tables and perform operations like counting records.</p>
+[code=php]
+$tables = $this-&gt;db-&gt;get_tables();
+$table_stats = [];
+
+if (!empty($tables)) {
+    foreach ($tables as $table) {
+        try {
+            $count = $this-&gt;db-&gt;count($table);
+            $table_stats[$table] = $count;
+        } catch (Exception $e) {
+            $table_stats[$table] = 'Error: ' . $e-&gt;getMessage();
+        }
+    }
+    
+    echo "Table Statistics:&lt;br&gt;";
+    echo "&lt;table border='1'&gt;";
+    echo "&lt;tr&gt;&lt;th&gt;Table&lt;/th&gt;&lt;th&gt;Record Count&lt;/th&gt;&lt;/tr&gt;";
+    foreach ($table_stats as $table =&gt; $count) {
+        echo "&lt;tr&gt;&lt;td&gt;" . $table . "&lt;/td&gt;&lt;td&gt;" . $count . "&lt;/td&gt;&lt;/tr&gt;";
+    }
+    echo "&lt;/table&gt;";
+}
+[/code]
+
+  <h2>Example #4: Filtering Tables by Pattern</h2>
+  <p>The code sample below demonstrates how to filter tables by name pattern (e.g., all log tables).</p>
+[code=php]
+$all_tables = $this-&gt;db-&gt;get_tables();
+$log_tables = [];
+
+foreach ($all_tables as $table) {
+    if (strpos($table, 'log_') === 0 || strpos($table, '_logs') !== false) {
+        $log_tables[] = $table;
+    }
+}
+
+if (!empty($log_tables)) {
+    echo "Log tables found: " . implode(', ', $log_tables);
+    
+    // Archive old log tables
+    foreach ($log_tables as $log_table) {
+        if (strpos($log_table, '2023_') !== false) { // 2023 logs
+            // Archive logic here
+            echo "&lt;br&gt;Archiving: " . $log_table;
+        }
+    }
+} else {
+    echo "No log tables found.";
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>This method takes <strong>no parameters</strong>.</li>
+    <li>Returns an empty array (<code>[]</code>) if no tables exist or if a database error occurs.</li>
+    <li>Uses MySQL's <code>SHOW TABLES</code> command which is MySQL-specific.</li>
+    <li>Returns table names as strings in an indexed array (not associative).</li>
+    <li>Only returns tables from the current database (the one connected to via the Db class).</li>
+    <li>Does not include views, only actual tables.</li>
+    <li>Table names are returned without database prefix (just the table names).</li>
+    <li>Case sensitivity of table names depends on the underlying operating system and MySQL configuration.</li>
+    <li>Useful for:
+      <ol>
+        <li>Database administration tools</li>
+        <li>Installation/migration scripts</li>
+        <li>Database introspection and reporting</li>
+        <li>Dynamic table operations</li>
+        <li>Backup systems</li>
+      </ol>
+    </li>
+    <li>For better performance when checking multiple individual tables, use this method once rather than calling <code>table_exists()</code> multiple times.</li>
+    <li>This method is used internally by <code>validate_table_exists()</code> to provide detailed error messages in development mode.</li>
+  </ul>
+</div>

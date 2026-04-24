@@ -1,0 +1,44 @@
+[meta-description]Trongate helpers: pure, zero-dependency PHP functions that live in engine/tg_helpers/. Automatically loaded on every request - no includes, no config, just Native PHP that actually works.[/meta-description]
+<h1>Helpers Overview</h1>
+
+<p>Helpers are single-file collections of pure PHP functions. No classes. No namespaces. No autoloading drama. Just drop-dead simple functions you can call anywhere.</p>
+
+<p>They live in <code>engine/tg_helpers/</code> and get loaded automatically on every request. Zero effort required.</p>
+<h3 class="mt-2">Trongate's Helper Files</h3>
+<p class="sm">Five files. Zero dependencies.</p>
+
+<ol class="modules-list">
+    <li><a href="documentation-ref/list_refs/helpers/flashdata-helpers" target="_blank">Flashdata Helpers</a> ← one-time session messages</li>
+    <li><a href="documentation-ref/list_refs/helpers/form-helpers" target="_blank">Form Helpers</a> ← building forms without tears</li>
+    <li><a href="documentation-ref/list_refs/helpers/string-helpers" target="_blank">String Helpers</a> ← text surgery & sanitization</li>
+    <li><a href="documentation-ref/list_refs/helpers/url-helpers" target="_blank">URL Helpers</a> ← links, redirects, segments and more</li>
+    <li><a href="documentation-ref/list_refs/helpers/utilities-helpers" target="_blank">Utilities Helpers</a> ← everything else you need</li>
+</ol>
+<hr>
+<h2>How to Use Them</h2>
+
+<p>Just call the functions. Anywhere. Anytime.</p>
+
+<h3>Example #1</h3>
+<p>Here's an example of how to redirect a user to a login page, using Trongate's <span class="feature-ref">redirect()</span> helper:</p>
+
+[code=php]redirect('login');[/code]
+
+<h3 class="mt-3">Example #2</h3>
+<p>The code below demonstrates how to using Trongate's <span class="feature-ref">form_button()</span> helper.   This kind of code would typically be written inside a view file:</p>
+
+[code=vf]echo form_button('submit', 'Submit');[/code]
+
+<h2>Why Helpers Beat "Modern" Alternatives</h2>
+
+<ul>
+    <li>No includes. No config. No drama.</li>
+    <li>No Composer = runs forever</li>
+    <li>No classes = no instantiation overhead</li>
+    <li>No namespaces = no <code>use</code> statements</li>
+    <li>No service containers = no brain damage</li>
+</ul>
+
+<div class="alert alert-info">
+    <p>For a technical, no-bs breakdown of everything that's included with Trongate's helpers, check out the <a href="documentation-ref/display/helpers" target="_blank">Helpers Reference Guide</a>.</p>
+</div>

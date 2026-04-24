@@ -1,0 +1,65 @@
+[meta-description]Trongate homepage routing: just set BASE_URL, DEFAULT_MODULE, and DEFAULT_METHOD in config.php. Two lines, no routes file, no ceremony - your homepage loads exactly what you want.[/meta-description]
+<h1>Homepage Routing</h1>
+
+<p>Every other PHP framework makes you do an elaborate tap dance routine for your homepage.</p>
+<p>Trongate? Two constants. Refresh. Done.</p>
+
+<h2>First: Lock Down Your BASE_URL</h2>
+<p>Open <code>config/config.php</code> and make sure this line is correct:</p>
+[code=php]
+define('BASE_URL', 'https://yoursite.com/');
+[/code]
+<p><strong>Key Rules:</strong></p>
+<ol>
+    <li>Replace <code>https://yoursite.com/</code> with your actual website address.</li>
+    <li>Make sure your <code>BASE_URL</code> ends with a forwardslash.</li>
+</ol>
+
+<h2>Now Control Your Homepage</h2>
+<p>On <code>config.php</code>, you’ll see these two bad boys:</p>
+[code=php]
+define('DEFAULT_MODULE', 'welcome');
+define('DEFAULT_METHOD', 'index');
+[/code]
+
+<p>Set them!</p>
+
+<p><strong>Key Rules:</strong></p>
+<ol>
+    <li><strong><code>DEFAULT_MODULE</code></strong> - the name of the module that loads when someone visits your homepage.</li>
+    <li><strong><code>DEFAULT_METHOD</code></strong> - the method that runs, by default, inside the controller file for that module.</li>
+</ol>
+
+<p>Set them.  Set them <i>now</i>.  Then, visit your homepage and <b>feel the power</b>.</p>
+
+<h2>Wanna Change It? Cool!</h2>
+<p>Would you like your homepage to load a dashboard instead? Two lines:</p>
+[code=php]
+define('DEFAULT_MODULE', 'dashboard');
+define('DEFAULT_METHOD', 'home');
+[/code]
+
+<p>Now <code>https://yoursite.com</code> → <code>dashboard/Dashboard.php->home()</code></p>
+<p><strong>Boom! Homepage conquered.</strong></p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Module Name</th>
+            <th>Controller File</th>
+            <th>Class Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><code>welcome</code></td><td><code>Welcome.php</code></td><td><code>class Welcome</code></td></tr>
+        <tr><td><code>dashboard</code></td><td><code>Dashboard.php</code></td><td><code>class Dashboard</code></td></tr>
+        <tr><td><code>user_admin</code></td><td><code>User_admin.php</code></td><td><code>class User_admin</code></td></tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Attention v1 Veterans:</strong></p>
+    <p>In v1 you had to declare a <code>DEFAULT_CONTROLLER</code> like a good little soldier.</p>
+    <p>For Trongate v2 we quietly retired it with full honors. That means <b>less typing</b> for you and <b>less stuff to learn</b>.</p>
+    <p>You’re welcome!</p>
+</div>

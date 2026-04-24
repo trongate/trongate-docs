@@ -1,0 +1,382 @@
+[meta-description]Trongate Security module: scenario-based access control with make_sure_allowed(). Delegate security checks to specific modules. Flexible return values (token, boolean, object). Default: admin panel.[/meta-description]
+
+<h1>The Trongate Security Module</h1>
+
+<p>The <code>Trongate_security</code> module provides a centralized way to handle authorization across your application using <strong>scenarios</strong>.</p>
+
+<p>Instead of scattering security checks throughout your codebase, you call one method and let it route to the appropriate handler:</p>
+
+[code=php]
+$this-&gt;trongate_security-&gt;make_sure_allowed('scenario_name');
+[/code]
+
+<p>This approach keeps your security logic organized, consistent, and easy to maintain.</p>
+
+<h2>What Are Scenarios?</h2>
+
+<p>A <strong>scenario</strong> is a named security context that describes what access control rules should apply.</p>
+
+<p>Examples of scenarios:</p>
+
+<ul>
+    <li><code>'admin panel'</code> - Only administrators can access</li>
+    <li><code>'members area'</code> - Any logged-in member can access</li>
+    <li><code>'read comment'</code> - Anyone can access (public)</li>
+    <li><code>'edit comment'</code> - Only comment owner or admin can access</li>
+    <li><code>'premium content'</code> - Only premium subscribers can access</li>
+</ul>
+
+<p>Each scenario routes to a specific module that knows how to handle that particular type of access control.</p>
+
+<div class="alert alert-info">
+    <p>It's for you - the developer - to decide how many scenarios your application is going to have. You also, as the developer, determine what names each scenario should be given.</p>
+</div>
+
+<h2>How It Works</h2>
+
+<p>The <code>Trongate_security</code> module uses a switch statement to delegate scenarios to appropriate modules:</p>
+
+[code=php]
+&lt;?php
+class Trongate_security extends Trongate {
+    
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);
+        block_url($this-&gt;module_name);
+    }
+
+    public function make_sure_allowed(string $scenario = 'admin panel', array $params = []): mixed {
+        switch ($scenario) {
+            // case 'members area':
+            //     $result = $this-&gt;members-&gt;make_sure_allowed($scenario, $params);
+            //     return $result;
+                
+            default:
+                // Default: admin panel access
+                $result = $this-&gt;trongate_administrators-&gt;make_sure_allowed();
+                return $result;
+        }
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>The commented-out case shows how to add custom scenarios. Uncomment and modify as needed for your application.</p>
+</div>
+
+<h2>The Default Scenario</h2>
+
+<p>If you don't specify a scenario, it defaults to <code>'admin panel'</code>:</p>
+
+[code=php]
+// These two calls are identical
+$this-&gt;trongate_security-&gt;make_sure_allowed();
+$this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
+[/code]
+
+<p>Both delegate to <code>trongate_administrators-&gt;make_sure_allowed()</code>, which:</p>
+
+<ol>
+    <li>Checks for a valid token with user level 1 (admin)</li>
+    <li>In dev mode: auto-generates a token for convenience</li>
+    <li>In production: redirects to login if no valid token</li>
+    <li>Returns the token string if successful</li>
+</ol>
+
+<h2>Return Values: Flexible by Design</h2>
+
+<p>The <span class="feature-ref">make_sure_allowed()</span> method is intentionally open-ended. It can return:</p>
+
+<ul>
+    <li><strong>String</strong> - The validated token</li>
+    <li><strong>Boolean</strong> - <code>true</code> for public access, <code>false</code> for denied</li>
+    <li><strong>Object</strong> - Complete user object with permissions</li>
+    <li><strong>Array</strong> - Custom data structure with multiple values</li>
+    <li><strong>Nothing</strong> - Can redirect or die instead of returning</li>
+</ul>
+
+<p>The return type depends on what your scenario needs. You decide.</p>
+
+<div class="alert alert-success">
+    <p>This flexibility means <code>make_sure_allowed()</code> can adapt to any authorization pattern your application requires.</p>
+</div>
+
+<h2>Example: Discussion Forum</h2>
+
+<p>Let's build a hypothetical discussion forum accessible by the public, with special privileges for admin users and member users.</p>
+
+<h3>The Requirements</h3>
+
+<ul>
+    <li><strong>Read comments</strong> - Open to anyone (no authentication)</li>
+    <li><strong>Create comments</strong> - Must be a logged-in member</li>
+    <li><strong>Edit/delete comments</strong> - Must be the comment owner OR an admin</li>
+</ul>
+
+<h3>Trongate_security.php</h3>
+
+<p>Add forum scenarios to the switch statement:</p>
+
+[code=php]
+public function make_sure_allowed(string $scenario = 'admin panel', array $params = []): mixed {
+    switch ($scenario) {
+        case 'read comment':
+            // Public access - no authentication required
+            return true;
+            
+        case 'create comment':
+            // Must be a member (user level 2)
+            $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
+            if ($token === false) {
+                redirect('members/login');
+            }
+            return $token;
+            
+        case 'edit comment':
+        case 'delete comment':
+            // Delegate to members module for ownership check
+            $result = $this-&gt;members-&gt;make_sure_allowed($scenario, $params);
+            return $result;
+            
+        default:
+            // Admin panel access
+            $result = $this-&gt;trongate_administrators-&gt;make_sure_allowed();
+            return $result;
+    }
+}
+[/code]
+
+<h3>Members.php</h3>
+
+<p>The members module handles complex ownership checks:</p>
+
+[code=php]
+public function make_sure_allowed(string $scenario = 'members area', array $params = []): mixed {
+
+    block_url('members/make_sure_allowed');
+
+    switch ($scenario) {
+        case 'edit comment':
+        case 'delete comment':
+            $comment_id = $params['comment_id'] ?? null;
+            
+            if (!is_numeric($comment_id)) {
+                http_response_code(400);
+                die('Invalid comment ID');
+            }
+            
+            // Get current user
+            $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+            
+            if ($user === false) {
+                redirect('members/login');
+            }
+            
+            // Fetch comment
+            $comment = $this-&gt;db-&gt;get_where($comment_id, 'comments');
+            
+            if (!$comment) {
+                http_response_code(404);
+                die('Comment not found');
+            }
+            
+            // Check ownership
+            if ($comment-&gt;trongate_user_id === $user-&gt;trongate_user_id) {
+                return $user-&gt;token; // Owner can edit/delete
+            }
+            
+            // Check admin status
+            if ($user-&gt;user_level === 'admin') {
+                return $user-&gt;token; // Admin can edit/delete
+            }
+            
+            // Access denied
+            http_response_code(403);
+            die('You do not have permission to ' . $scenario);
+            
+        default:
+            return false;
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>The <code>make_sure_allowed()</code> method name, as shown above, uses <span class="feature-ref">block_url()</span> to prevent URL invocation.</p>  
+
+    <p>For more information about these topics check out:</p>
+    <ul>
+        <li><a href="documentation/trongate_php_framework/intercepting-requests/preventing-url-invocation" target="_blank">Preventing URL Invocation</a></li>
+        <li><a href="documentation/trongate_php_framework/tips-and-best-practices/mastering-constructors" target="_blank">Mastering Constructors</a></li>
+    </ul>
+</div>
+
+<h3>Forum_comments.php (Controller)</h3>
+
+<p>Using the scenarios in your controller:</p>
+
+[code=php]
+&lt;?php
+class Forum_comments extends Trongate {
+
+    public function view(int $comment_id): void {
+        // Anyone can read
+        $this-&gt;trongate_security-&gt;make_sure_allowed('read comment');
+        
+        $data['comment'] = $this-&gt;db-&gt;get_where($comment_id, 'comments');
+        $data['view_file'] = 'view_comment';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+    public function create(): void {
+        // Must be logged in
+        $token = $this-&gt;trongate_security-&gt;make_sure_allowed('create comment');
+        
+        $data['view_file'] = 'create_comment';
+        $this-&gt;templates-&gt;members_area($data);
+    }
+
+    public function edit(int $comment_id): void {
+        // Check ownership or admin rights
+        $this-&gt;trongate_security-&gt;make_sure_allowed('edit comment', [
+            'comment_id' =&gt; $comment_id
+        ]);
+        
+        $data['comment'] = $this-&gt;db-&gt;get_where($comment_id, 'comments');
+        $data['view_file'] = 'edit_comment';
+        $this-&gt;templates-&gt;members_area($data);
+    }
+
+    public function delete(int $comment_id): void {
+        // Check ownership or admin rights
+        $this-&gt;trongate_security-&gt;make_sure_allowed('delete comment', [
+            'comment_id' =&gt; $comment_id
+        ]);
+        
+        $this-&gt;db-&gt;delete($comment_id, 'comments');
+        set_flashdata('Comment deleted successfully');
+        redirect('forum_comments/index');
+    }
+
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This example assumes you have <code>public</code> and <code>members_area</code> templates created.</p>
+</div>
+
+<h2>The $params Array</h2>
+
+<p>The optional <code>$params</code> array allows fine-grained control:</p>
+
+[code=php]
+$params = [
+    'comment_id' =&gt; 42,
+    'action' =&gt; 'edit',
+    'user_role' =&gt; 'moderator'
+];
+
+$this-&gt;trongate_security-&gt;make_sure_allowed('moderate forum', $params);
+[/code]
+
+<p>Pass any data your scenario needs to make authorization decisions.</p>
+
+<h2>Dev Mode Auto-Login</h2>
+
+<p>The <code>trongate_administrators</code> module includes special behavior for development:</p>
+
+[code=php]
+if ($token === false) {
+    if (ENV === 'dev') {
+        // Auto-generate token for first admin
+        // (convenience feature for development)
+    } else {
+        redirect('trongate_administrators/login');
+    }
+}
+[/code]
+
+<p>In dev mode, the first administrator is automatically logged in. This speeds up development by eliminating repeated logins.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Production Safety:</strong> This auto-login only works when <code>ENV === 'dev'</code> in your config. Production deployments always require proper authentication.</p>
+</div>
+
+<h2>Building Your Own Scenarios</h2>
+
+<p>To add custom scenarios:</p>
+
+<ol>
+    <li>Open <code>Trongate_security.php</code></li>
+    <li>Add a new case to the switch statement</li>
+    <li>Either handle inline OR delegate to another module</li>
+    <li>Return appropriate value (token, boolean, object, etc.)</li>
+</ol>
+
+<h3>Example: Premium Content</h3>
+
+[code=php]
+case 'premium content':
+    $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+    
+    if ($user === false) {
+        redirect('members/login');
+    }
+    
+    // Check if user has premium subscription
+    $sql = 'SELECT * FROM subscriptions WHERE trongate_user_id = ? AND status = ?';
+    $subscription = $this-&gt;db-&gt;query_bind($sql, [$user-&gt;trongate_user_id, 'active'], 'object');
+    
+    if (empty($subscription)) {
+        redirect('subscriptions/upgrade');
+    }
+    
+    return $user; // Return full user object with subscription info
+[/code]
+
+<h2>Why Scenarios Win</h2>
+
+<ul>
+    <li><strong>Centralized security logic</strong> - All authorization in one place</li>
+    <li><strong>Consistent patterns</strong> - Same method call everywhere</li>
+    <li><strong>Easy to audit</strong> - Review security in one file</li>
+    <li><strong>Flexible delegation</strong> - Complex logic lives in appropriate modules</li>
+    <li><strong>Testable</strong> - Mock scenarios for unit tests</li>
+</ul>
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: Public Access</h3>
+
+[code=php]
+case 'public page':
+    return true;
+[/code]
+
+<h3>Pattern 2: Simple Member Check</h3>
+
+[code=php]
+case 'members area':
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
+    if ($token === false) {
+        redirect('members/login');
+    }
+    return $token;
+[/code]
+
+<h3>Pattern 3: Delegate to Module</h3>
+
+[code=php]
+case 'complex scenario':
+    $result = $this-&gt;custom_module-&gt;make_sure_allowed($scenario, $params);
+    return $result;
+[/code]
+
+<div class="alert alert-success">
+    <ul class="mt-0">
+        <li><strong>Use descriptive scenario names</strong> - <code>'edit comment'</code> not <code>'scenario_7'</code></li>
+        <li><strong>Delegate complex logic</strong> - Keep switch statement clean, push details to modules</li>
+        <li><strong>Return consistent types per scenario</strong> - Don't mix tokens and booleans for same scenario</li>
+        <li><strong>Document your scenarios</strong> - Add comments explaining what each scenario protects</li>
+        <li><strong>Test thoroughly</strong> - Especially ownership checks and edge cases</li>
+    </ul>
+</div>

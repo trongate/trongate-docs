@@ -1,0 +1,201 @@
+[meta-description]Trongate's block_url() helper provides a clear, explicit way to prevent browser access to specific methods or entire modules while keeping them fully callable from code.[/meta-description]
+
+<h1>Preventing URL Invocation</h1>
+
+<p>Sometimes, you may have code that should <b>never</b> be invoked by navigating to a particular URL. For those situations, Trongate v2 offers the <span class="feature-ref">block_url()</span> function.</p>
+
+<p>With <code>block_url()</code>, you explicitly declare which module (or module/method combination) should be blocked from URL access, and the framework enforces it.</p>
+
+<hr>
+
+<h2>How The block_url() Helper Function Works</h2>
+
+<p>The <code>block_url()</code> helper function accepts a string that identifies the module or module-method pair you wish to protect.</p>
+
+<p>The function accepts one argument - a string that represents one of the following:</p>
+
+<ol>
+    <li><code>'module'</code> - blocks <strong>all</strong> methods in the module from URL access</li>
+    <li><code>'module/method'</code> - blocks <strong>only that method</strong> from URL access</li>
+</ol>
+
+<p>The helper compares the supplied <code>$block_path</code> against the current URL segments and returns a <code>403 Forbidden</code> response when a match is detected.</p>
+
+<hr>
+
+<h2>Blocking a Single Method</h2>
+
+<p>To block browser access to a specific method, call <code>block_url()</code> at the top of the method body and pass the module-method combination via <code>$block_path</code>:</p>
+
+[code=php]&lt;?php
+class Reports extends Trongate {
+
+  public function dashboard(): void {
+    echo 'Public dashboard';
+  }
+
+  public function generate_pdf(): void {
+    block_url('reports/generate_pdf');
+    // PDF generation logic here
+  }
+
+}[/code]
+
+<p>The result:</p>
+
+<ul>
+    <li><code>/reports/dashboard</code> → ✓ Works</li>
+    <li><code>/reports/generate_pdf</code> → ✗ Returns 403 Forbidden</li>
+    <li><code>$this-&gt;reports-&gt;generate_pdf()</code> → ✓ Works from code</li>
+</ul>
+
+<p>The method remains public and callable from other modules. Only direct URL invocation is blocked.</p>
+
+<hr>
+
+<h2>How It Works</h2>
+
+<p>When a request is made, <span class="feature-ref">block_url()</span> inspects the supplied <code>$block_path</code> and compares it with the current URL segments.</p>
+
+<p>In the above example, if a visitor attempts to access:</p>
+
+<ol>
+    <li><code>/reports/generate_pdf</code></li>
+    <li>The framework routes to <code>Reports::generate_pdf()</code></li>
+    <li><code>block_url('reports/generate_pdf')</code> executes</li>
+    <li>Segment 1 equals <code>reports</code> and segment 2 equals <code>generate_pdf</code></li>
+    <li>A <code>403 Forbidden</code> response is returned and execution stops</li>
+</ol>
+
+<p>However, when the same method is called from code:</p>
+
+<ol>
+    <li>Code executes <code>$this-&gt;reports-&gt;generate_pdf()</code></li>
+    <li>The current URL reflects whatever page the user is actually visiting</li>
+    <li>The segment comparison does not match</li>
+    <li>Execution continues normally</li>
+</ol>
+
+<hr>
+
+<h2>Blocking an Entire Module</h2>
+
+<p>Some modules should <strong>never</strong> be accessed via a browser. Examples include payment processors, email handlers, background services, and internal utility modules.</p>
+
+<p>To block all methods in a module, pass only the module name to <span class="feature-ref">block_url()</span> via <code>$block_path</code>. The most appropriate place to do this is inside the constructor.</p>
+
+[code=php]&lt;?php
+class Payment extends Trongate {
+
+  public function __construct() {
+    parent::__construct();
+    block_url('payment');
+  }
+
+  public function process_charge(int $amount): void {
+    // Payment logic
+  }
+
+  public function refund(string $transaction_id): void {
+    // Refund logic
+  }
+
+}[/code]
+
+<div class="alert alert-info">
+    <p><strong>PRO-TIP: Avoiding "Ghost" 403 Errors</strong></p>
+    <p>If you are blocking an entire module inside a constructor, it is best practice to use a <b>literal string</b> (e.g., <code>block_url('tasks');</code>) rather than a dynamic variable.</p>
+    <p class="mb-0">This ensures that if your module is ever loaded as a service by another controller, you don't accidentally block the caller's URL. For more details on how modules interact, see <a href="documentation/mastering-constructors">Mastering Constructors</a>.</p>
+</div>
+
+<p>The result:</p>
+
+<ul>
+    <li><code>/payment/process_charge</code> → ✗ Returns 403 Forbidden</li>
+    <li><code>/payment/refund</code> → ✗ Returns 403 Forbidden</li>
+    <li><code>$this-&gt;payment-&gt;process_charge(100)</code> → ✓ Works from code</li>
+    <li><code>$this-&gt;payment-&gt;refund('txn_123')</code> → ✓ Works from code</li>
+</ul>
+
+<div class="alert alert-info">
+    <p class="mb-0">
+        The constructor code, used in the example above, will work in most cases.  However, there are edge cases where different syntax would be required for invoking a constructor. For a full explanation, see 
+        <a href="documentation/trongate_php_framework/tips-and-best-practices/mastering-constructors" target="_blank">Mastering Constructors</a>.
+    </p>
+</div>
+
+<hr>
+
+<h2>Form Validation Callbacks</h2>
+
+<p>Validation callbacks should always be protected to prevent direct browser access.</p>
+
+<p>Use <code>block_url()</code> inside the callback and pass the appropriate module-method target via <code>$block_path</code>:</p>
+
+[code=php]&lt;?php
+class Members extends Trongate {
+
+  public function create(): void {
+    $this-&gt;validation-&gt;set_rules('username', 'username', 'required|callback_username_check');
+
+    if ($this-&gt;validation-&gt;run() === true) {
+      // Create the member...
+    }
+  }
+
+  public function username_check(string $str): string|bool {
+    block_url('members/username_check');
+
+    if ($str === '') {
+      return true;
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $str)) {
+      return 'The {label} can only contain letters, numbers, and underscores.';
+    }
+
+    $update_id = (int) segment(3);
+    $is_available = $this-&gt;model-&gt;is_username_available($str, $update_id);
+
+    if ($is_available === false) {
+      return $update_id === 0
+        ? 'The {label} is already taken. Please choose another.'
+        : 'The {label} is already in use by another account.';
+    }
+
+    return true;
+  }
+
+}[/code]
+
+<p>This ensures the callback can only be executed by the validation engine and can never be triggered by visiting <code>/members/username_check</code> directly in a browser.</p>
+
+<hr>
+
+<div class="alert alert-danger">
+    <p><strong>Do not</strong> use <code>block_url()</code> on module paths that appear in your <a href="documentation/trongate_php_framework/understanding-routing/custom-routing" target="_blank">custom routing</a> configuration.</p>
+    <p class="mb-0"><strong>Keep it simple!</strong> Mixing URL blocking with custom routing creates unnecessary complexity and hard-to-debug behaviour.</p>
+</div>
+
+<div class="alert alert-success">
+    <p><b>Use </b><code>block_url('module/method')</code><b> when:</b></p>
+    <ul>
+        <li>A specific method should never be invoked directly via a browser</li>
+        <li>Writing validation callbacks</li>
+        <li>Creating helper methods used internally by other code</li>
+    </ul>
+
+    <p><b>Use </b><code>block_url('module')</code><b> when:</b></p>
+    <ul>
+        <li>No methods in the module should be URL-accessible</li>
+        <li>The module exists purely as a utility</li>
+        <li>You want clear, explicit, blanket protection</li>
+    </ul>
+</div>
+
+<div class="alert alert-info">
+  <p><b>Attention v1 Veterans</b></p>
+  <p>Trongate v1 prevented URL invocation by usage of an "underscore-first" method naming convention.</p>
+  <p>Trongate v2 removed this approach. To learn why, check out this essay:</p>  
+  <p><a href="essays/why-the-underscore-first-convention-had-to-go" target="_blank">Why The Underscore-First Trick Had To Go</a>.</p>
+</div>

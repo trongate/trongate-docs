@@ -1,0 +1,211 @@
+<h1>Handling Request Timeouts</h1>
+
+<p>The <code>mx-timeout</code> and <code>mx-on-timeout</code> attributes control how long requests wait for a response and what happens when they take too long. These are essential for long-running operations like AI analysis, file uploads, or complex processing.</p>
+
+<div class="alert alert-info">
+  <p>By default, Trongate MX waits 60 seconds before timing out a request.</p>
+</div>
+
+<h2>The mx-timeout Attribute</h2>
+
+<p>Specify how long (in milliseconds) to wait for a server response:</p>
+
+[code=vf]&lt;?php
+// 30 second timeout for AI analysis
+$btn_attr = [
+    'mx-post' => 'api/analyze_content',
+    'mx-timeout' => '30000',
+    'mx-target' => '#result'
+];
+echo form_button('analyze_btn', 'Analyze', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML syntax:</p>
+
+[code=html]
+&lt;button mx-post="api/analyze_content" 
+        mx-timeout="30000" 
+        mx-target="#result"&gt;Analyze&lt;/button&gt;
+[/code]
+
+<h3>Disabling Timeouts</h3>
+
+<p>Set to <code>"none"</code> or <code>"0"</code> to disable (use sparingly):</p>
+
+[code=html]
+&lt;button mx-post="api/long_process" mx-timeout="none"&gt;Process&lt;/button&gt;
+[/code]
+
+<div class="alert alert-warning">
+  <p>Disabling timeouts means requests could wait indefinitely if there's a problem. Only use this when absolutely necessary.</p>
+</div>
+
+<h2>The mx-on-timeout Attribute</h2>
+
+<p>Execute custom JavaScript when a timeout occurs:</p>
+
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-post' => 'api/submit_data',
+    'mx-timeout' => '30000',
+    'mx-on-timeout' => 'handleTimeout()'
+];
+echo form_button('submit_btn', 'Submit', $btn_attr);
+?&gt;
+
+&lt;script&gt;
+function handleTimeout() {
+    alert('Request timed out. Please try again.');
+}
+&lt;/script&gt;[/code]
+
+<p class="mt-3 mb-0">Pure HTML syntax:</p>
+
+[code=html]
+&lt;button mx-post="api/submit_data" 
+        mx-timeout="30000" 
+        mx-on-timeout="handleTimeout()"&gt;Submit&lt;/button&gt;
+
+&lt;script&gt;
+function handleTimeout() {
+    alert('Request timed out. Please try again.');
+}
+&lt;/script&gt;
+[/code]
+
+<h3>Receiving Event Information</h3>
+
+<p>Your timeout function receives an event object with details:</p>
+
+[code=javascript]
+function handleTimeout(event) {
+    const element = event.detail.element;  // The triggering element
+    const http = event.detail.http;        // The XMLHttpRequest object
+    
+    console.log('Timeout occurred on:', element);
+}
+[/code]
+
+<h2>Practical Examples</h2>
+
+<h3>1. User-Friendly Timeout Message</h3>
+
+[code=vf]&lt;?php
+$form_attr = [
+    'mx-post' => 'api/analyze_forum_post',
+    'mx-timeout' => '60000',
+    'mx-target' => '#result',
+    'mx-on-timeout' => 'showTimeoutMessage()'
+];
+echo form_open('#', $form_attr);
+echo form_textarea('content');
+echo form_submit('submit', 'Analyze');
+echo form_close();
+?&gt;
+
+&lt;div id="result"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function showTimeoutMessage() {
+    document.getElementById('result').innerHTML = `
+        &lt;div class="alert alert-warning"&gt;
+            &lt;strong&gt;Analysis Timed Out&lt;/strong&gt;
+            &lt;p&gt;This can happen when content is complex or the AI service is busy. 
+            Try breaking your content into smaller sections.&lt;/p&gt;
+        &lt;/div&gt;
+    `;
+}
+&lt;/script&gt;[/code]
+
+<hr>
+<h3>2. Retry Logic with Redirect</h3>
+
+[code=html]
+&lt;button mx-post="api/submit" 
+        mx-timeout="30000" 
+        mx-on-timeout="retryOrRedirect()"&gt;Submit&lt;/button&gt;
+
+&lt;script&gt;
+let retries = 0;
+
+function retryOrRedirect(event) {
+    if (retries < 2) {
+        retries++;
+        console.log('Retrying...');
+        setTimeout(() => event.detail.element.click(), 1000);
+    } else {
+        window.location.href = 'error/timeout';
+    }
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-success">
+  <p><strong>Best Practices:</strong></p>
+  <ul>
+    <li>Set realistic timeouts based on expected operation duration</li>
+    <li>Always provide user feedback when timeouts occur</li>
+    <li>Consider retry logic for operations that might succeed on second attempt</li>
+    <li>Test timeout handling with various network conditions</li>
+  </ul>
+</div>
+
+<div class="alert alert-danger">
+    <h4 class="mt-0">⚠️ Critical: PHP Session Locking</h4>
+    <p>If your timeout handler redirects to another page and the browser appears to "hang," this is caused by <strong>PHP session locking</strong>.</p>
+    
+    <p><strong>The Problem:</strong> PHP locks the session file during script execution. If your script is processing a long task, the session remains locked. When the timeout redirect tries to load a new page that needs the session, that page hangs waiting for the lock.</p>
+    
+    <p><strong>The Solution:</strong> Call <code>session_write_close();</code> after authentication, before long operations:</p>
+
+[code=vf]
+public function submit_new_thread() {
+    // Authentication/validation
+    $this->trongate_security->make_sure_allowed();
+    
+    // CRITICAL: Release the session lock
+    session_write_close();
+    
+    // Now perform long-running tasks
+    $ai_result = $this->perform_ai_validation();
+}
+[/code]
+
+    <p>This allows users to navigate elsewhere while your script continues processing.</p>
+</div>
+
+<h2>Combining Timeout Attributes</h2>
+
+<p>Use both attributes together for complete control:</p>
+
+[code=html]
+&lt;form mx-post="api/upload" 
+      mx-timeout="120000" 
+      mx-target="#status" 
+      mx-on-timeout="handleUploadTimeout()"&gt;
+    &lt;input type="file" name="document"&gt;
+    &lt;button type="submit"&gt;Upload&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;script&gt;
+function handleUploadTimeout() {
+    document.getElementById('status').innerHTML = 
+        'Upload timed out. File may be too large or connection too slow.';
+}
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>You can use <code>mx-on-timeout</code> alongside <code>mx-on-success</code> and <code>mx-on-error</code> for comprehensive request handling.</p>
+  <p>Learn more: <a href="documentation/display/trongate_mx/events-and-responses/handling-successful-requests">Handling Successful Requests</a> | <a href="documentation/display/trongate_mx/events-and-responses/handling-request-errors">Handling Request Errors</a></p>
+</div>
+
+<h2>Things to Keep in Mind</h2>
+
+<ul>
+  <li>Timeout values are in milliseconds (30000 = 30 seconds)</li>
+  <li>Default timeout is 60 seconds when not specified</li>
+  <li>Timeouts differ from errors - timeouts occur when no response is received</li>
+  <li>Works with all HTTP methods (<code>mx-get</code>, <code>mx-post</code>, <code>mx-put</code>, <code>mx-delete</code>, <code>mx-patch</code>)</li>
+  <li>For long operations with redirects: always call <code>session_write_close()</code> server-side</li>
+</ul>

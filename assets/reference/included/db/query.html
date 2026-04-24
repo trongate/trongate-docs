@@ -1,0 +1,171 @@
+<div class="container">
+  <h1>query()</h1>
+  <p class="signature">public function query(string $sql, ?string $return_type = null): mixed</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Executes a raw SQL query without parameter binding. This method is for executing SQL statements that don't require external parameter values. Use <code>query_bind()</code> for queries that need parameter binding. The method supports returning results as objects or arrays, or returning null for non-SELECT queries.
+   </p>
+    <div class="alert alert-warning">
+      <p><strong>Security Warning:</strong> This method does NOT use parameter binding. Never pass user input directly into the SQL string. For queries with user input, use <code>query_bind()</code> instead to prevent SQL injection.</p>
+    </div>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>sql</td>
+        <td>string</td>
+        <td>The raw SQL query to execute. Must be properly escaped if containing dynamic values.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>return_type</td>
+        <td>string|null</td>
+        <td>Result format: 'object' for objects, 'array' for associative arrays, or null for no return (non-SELECT queries).</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>
+          <ul>
+            <li>Array of objects if <code>$return_type === 'object'</code></li>
+            <li>Array of associative arrays if <code>$return_type === 'array'</code></li>
+            <li>null if <code>$return_type</code> is null or doesn't match 'object'/'array'</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1: SELECT Query Returning Objects</h2>
+  <p>The code sample below demonstrates executing a SELECT query and returning results as objects.</p>
+[code=php]
+$sql = "SELECT * FROM users WHERE age &gt; 18 AND status = 'active' ORDER BY last_login DESC";
+$users = $this-&gt;db-&gt;query($sql, 'object');
+
+foreach ($users as $user) {
+    echo $user-&gt;username . ' - Last login: ' . $user-&gt;last_login . '&lt;br&gt;';
+}
+[/code]
+
+  <h2>Example #2: SELECT Query Returning Arrays</h2>
+  <p>The code sample below demonstrates executing a JOIN query and returning results as associative arrays.</p>
+[code=php]
+$sql = "SELECT 
+          o.id as order_id, 
+          o.order_date, 
+          c.name as customer_name,
+          SUM(oi.quantity * oi.price) as total_amount
+        FROM orders o
+        JOIN customers c ON o.customer_id = c.id
+        JOIN order_items oi ON o.id = oi.order_id
+        WHERE o.order_date &gt;= '2024-01-01'
+        GROUP BY o.id
+        ORDER BY total_amount DESC";
+
+$orders = $this-&gt;db-&gt;query($sql, 'array');
+
+foreach ($orders as $order) {
+    echo "Order #" . $order['order_id'] . " - Customer: " . $order['customer_name'] . " - Total: $" . $order['total_amount'] . "&lt;br&gt;";
+}
+[/code]
+
+  <h2>Example #3: Non-SELECT Query (No Return)</h2>
+  <p>The code sample below demonstrates executing a data modification query without returning results.</p>
+[code=php]
+// Clean up expired sessions
+$sql = "DELETE FROM sessions WHERE expires_at &lt; NOW()";
+$this-&gt;db-&gt;query($sql); // Returns null
+
+// Update multiple records
+$sql = "UPDATE products SET discount_price = price * 0.9 WHERE category_id = 3 AND stock_quantity &gt; 0";
+$this-&gt;db-&gt;query($sql); // Returns null
+
+// Create a temporary table
+$sql = "CREATE TEMPORARY TABLE temp_orders AS 
+        SELECT customer_id, COUNT(*) as order_count 
+        FROM orders 
+        WHERE YEAR(order_date) = 2024 
+        GROUP BY customer_id";
+$this-&gt;db-&gt;query($sql); // Returns null
+[/code]
+
+  <h2>Example #4: Complex Query with Database Functions</h2>
+  <p>The code sample below demonstrates executing a query using database-specific functions.</p>
+[code=php]
+// Using MySQL date functions
+$sql = "SELECT 
+          DATE(created_at) as date_only,
+          COUNT(*) as daily_count,
+          AVG(amount) as average_amount
+        FROM transactions
+        WHERE created_at &gt;= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY DATE(created_at)
+        ORDER BY date_only DESC";
+
+$daily_stats = $this-&gt;db-&gt;query($sql, 'array');
+
+foreach ($daily_stats as $day) {
+    echo $day['date_only'] . ": " . $day['daily_count'] . " transactions, avg: $" . number_format($day['average_amount'], 2) . "&lt;br&gt;";
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The <code>$sql</code> parameter is <strong>required</strong>.</li>
+    <li><strong>CRITICAL SECURITY:</strong> This method does NOT use parameter binding. Never concatenate user input directly into the SQL string.</li>
+    <li>For queries with dynamic values, use <code>query_bind()</code> instead for security.</li>
+    <li>Returns <code>null</code> for:
+      <ul>
+        <li>Non-SELECT queries (INSERT, UPDATE, DELETE, etc.)</li>
+        <li>When <code>$return_type</code> is null</li>
+        <li>When <code>$return_type</code> is not 'object' or 'array'</li>
+      </ul>
+    </li>
+    <li>Uses <code>PDO::FETCH_OBJ</code> for object returns (properties match column names).</li>
+    <li>Uses <code>PDO::FETCH_ASSOC</code> for array returns (associative arrays).</li>
+    <li>If debug mode is enabled, the SQL query will be displayed before execution.</li>
+    <li>Use this method only for:
+      <ul>
+        <li>Static SQL queries (no user input)</li>
+        <li>Queries using only database literals and functions</li>
+        <li>Administrative operations with trusted data</li>
+        <li>Complex queries that can't use the simpler helper methods</li>
+      </ul>
+    </li>
+    <li>Avoid using for:
+      <ul>
+        <li>Queries with any user-provided values</li>
+        <li>Form input processing</li>
+        <li>Search queries with user-entered terms</li>
+        <li>URL parameter-based queries</li>
+      </ul>
+    </li>
+  </ul>
+</div>

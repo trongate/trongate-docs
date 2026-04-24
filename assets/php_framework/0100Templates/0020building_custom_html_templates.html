@@ -1,0 +1,120 @@
+[meta-description]Learn two simple ways to create Custom Templates in Trongate. Option 1 (Most Common): Add a new public method (e.g., members_area()) to the existing templates module and create a corresponding view file that uses <?= display($data) ?> for content injection. Option 2: Create an entirely separate template module for a fully self-contained, reusable design.[/meta-description]
+<h1>Building Custom HTML Templates</h1>
+
+<p>The built-in <code>admin()</code> and <code>public()</code> templates cover most cases, but sometimes you need something completely different that will be reused across many pages.</p>
+
+<p>Typical examples:</p>
+<ul>
+    <li>A private members-only area with its own header, sidebar and footer</li>
+    <li>A documentation site with a custom left-hand navigation</li>
+    <li>An invoice or ticket printing layout</li>
+    <li>A minimal “coming soon” or maintenance page</li>
+</ul>
+
+<p>In Trongate v2 you have <strong>two equally good ways</strong> to create your own templates. Pick the one that feels natural for your project.</p>
+
+<h2>Option 1 – Add to the Existing templates Module (most common)</h2>
+
+<p>Let’s say we are building a private members’ area that has its own layout (different header, different navigation, maybe a dark color scheme). We want to reuse this layout on dozens of pages.</p>
+
+<h3>Step 1 – Add a new method</h3>
+
+<p>Open <code>modules/templates/Templates.php</code> and add:</p>
+
+[code=php]
+public function members_area(array $data): void {
+    $data['additional_includes_top'] = $this->build_additional_includes($data['additional_includes_top'] ?? []);
+    $data['additional_includes_btm'] = $this->build_additional_includes($data['additional_includes_btm'] ?? []);
+    $this->display('members_area', $data);
+}
+[/code]
+
+<h3>Step 2 – Create the template view file</h3>
+
+<p>Create the file:</p> 
+[code]modules/templates/views/members_area.php[/code]
+<p>This is a full HTML page – just remember to include this line exactly where your page content should appear:</p>
+
+[code=php]
+&lt;?= display($data) ?&gt;
+[/code]
+
+<h3>Step 3 – Use it anywhere</h3>
+
+[code=php]
+public function dashboard(): void {
+    $data['page_title'] = 'Member Dashboard';
+    $this->templates->members_area($data);
+}
+[/code]
+
+<p>That’s it. No config, no registration, no fuss.</p>
+
+<h2>Option 2 – Create a Completely Separate Template Module</h2>
+
+<p>Use this when you want a totally self-contained, reusable design (for example, a modern admin theme you plan to reuse on multiple projects).</p>
+
+<h3>Step 1 – Make the module</h3>
+
+[code]
+modules/
+  modern_templates/
+    Modern_templates.php
+    views/
+      minimal.php
+      dark.php
+    css/
+    js/
+[/code]
+
+<h3>Step 2 – Write the controller (copy-paste ready)</h3>
+
+[code=php]
+&lt;?php
+class Modern_templates extends Trongate {
+
+    public function minimal(array $data): void {
+        $this->display('minimal', $data);
+    }
+
+    public function dark(array $data): void {
+        $this->display('dark', $data);
+    }
+
+    private function display(string $template_name, array $data = []): void {
+        $template_path = __DIR__ . "/views/{$template_name}.php";
+        
+        if (!file_exists($template_path)) {
+            throw new Exception("Template '{$template_name}' not found at {$template_path}");
+        }
+
+        extract($data);
+        require $template_path;
+    }
+}
+[/code]
+
+<h3>Step 3 – Use it exactly like any other module</h3>
+
+[code=php]
+public function login(): void {
+    $data['page_title'] = 'Login';
+    $this->modern_templates->minimal($data);
+}
+[/code]
+
+<h2>Where to Put CSS, JS and Images</h2>
+
+<p>Usually, templates will require CSS files and/or JavaScript files. Sometimes they might also contain other types of assets such as images or fonts. As far as choosing a location for all that stuff goes, you have two options:</p>
+
+<ol>
+    <li><strong>Simple:</strong> drop them in <code>public/</code></li>
+    <li><strong>Self-contained (recommended):</strong> store them inside the template module and serve via the <a href="documentation/trongate_php_framework/module-fundamentals/module-assets" target="_blank">module assets trigger</a>:</li>
+</ol>
+
+<p>No extra configuration required.</p>
+
+<div class="alert alert-success">
+  <p class="mt-0">99% of projects only ever need Option 1.</p>
+  <p>Option 2 is there when you want to copy an entire design to another project in seconds.</p>
+</div>

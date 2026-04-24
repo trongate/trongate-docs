@@ -1,0 +1,105 @@
+<div class="container">
+  <h1>module()</h1>
+  <p class="signature">public function module(string $target_module): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Loads a module and makes it available as a property within model files. This method locates the module's controller file, requires it, instantiates the controller class, and caches the instance in the loaded_modules array. Once loaded, the module can be accessed as <code>$this->module_name</code>.</p>
+    
+    <p>This method is necessary in model files to distinguish between database access (which is automatic) and module usage (which requires explicit loading). After calling <code>$this->module('tax')</code>, you can use <code>$this->tax->calculate()</code> to invoke methods from the Tax module.</p>
+    
+    <p>The method supports both standard modules and child modules (using parent-child naming conventions with hyphens).</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$target_module</td>
+        <td>string</td>
+        <td>The name of the module to load. For child modules, use the format 'parent-child'.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This function does not return a value. The loaded module becomes available as a property.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Throws</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Exception</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Exception</td>
+        <td>Thrown if the module controller file cannot be found or the controller class does not exist.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+  <div class="description">
+    <p><strong>Basic module loading:</strong></p>
+[code=php]&lt;?php
+// In a model file
+class Orders_model extends Model {
+    
+    public function process_payment($order_id) {
+        // Load the payment processor module
+        $this->module('payment_processor');
+        
+        // Now use it
+        $result = $this->payment_processor->charge($order_id);
+        return $result;
+    }
+}[/code]
+
+    <p><strong>Loading multiple modules:</strong></p>
+[code=php]
+public function send_order_confirmation($order_id) {
+    // Load required modules
+    $this->module('email_sender');
+    $this->module('pdf_generator');
+    
+    // Use them
+    $pdf = $this->pdf_generator->create_invoice($order_id);
+    $this->email_sender->send_with_attachment($email, $subject, $pdf);
+}[/code]
+
+    <p><strong>Module loading is idempotent (safe to call multiple times):</strong></p>
+[code=php]
+$this->module('tax');  // Loads the module
+$this->module('tax');  // Does nothing (already loaded)[/code]
+  </div>
+  
+  <h2>Notes</h2>
+  <div class="description">
+    <ul>
+      <li>This method is only necessary when using <strong>non-database modules</strong> in model files</li>
+      <li>Database access via <code>$this->db</code> or <code>$this->analytics</code> does <strong>not</strong> require calling <code>module()</code></li>
+      <li>The method caches loaded modules, so calling it multiple times for the same module is safe and efficient</li>
+      <li>In controllers, module loading can be automatic or explicit; in models, it must be explicit</li>
+    </ul>
+  </div>
+</div>

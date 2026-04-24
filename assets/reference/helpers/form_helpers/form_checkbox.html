@@ -1,0 +1,292 @@
+<div class="container">
+    <h1>form_checkbox()</h1>
+    <p class="signature">function form_checkbox(string $name, string|bool|int $value = '1', mixed $checked = false, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML checkbox input element. Checkboxes allow users to select or deselect a single option.</p>
+    </div>
+
+<div class="alert alert-info">
+    <p>Unlike other form elements, unchecked checkboxes do not submit any data to the server.</p>
+</div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the checkbox element.</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|bool|int</td>
+                <td>(optional) The value submitted when checked. Defaults to '1'.</td>
+            </tr>
+            <tr>
+                <td>$checked</td>
+                <td>mixed</td>
+                <td>(optional) Whether the checkbox should be checked. Default is false. Accepts true, false, 'true', 'false', 1, 0, '1', '0', 'yes', 'no', 'on', 'off'.</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes like class, id, etc. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>HTML checkbox input element.</td>
+            </tr>
+        </tbody>
+    </table>
+
+<h2>Example Usage</h2>
+
+<p>Imagine you're building a task manager where users can mark tasks as complete. Here's how checkboxes work in Trongate:</p>
+
+<h3>1. In Your View (create.php)</h3>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Task Title');
+echo form_input('task_title', $task_title);
+echo form_label('Complete');
+echo form_checkbox('complete', 1, $complete); // Third parameter accepts boolean or truthy string
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Trongate Convention:</strong> Always use <code>1</code> as the checkbox value. This makes data conversion simple and consistent.</p>
+</div>
+
+<h3>2. In Your Controller (Tasks.php)</h3>
+<p>The controller prepares data for the view and handles form submission:</p>
+
+[code=php]
+&lt;?php
+class Tasks extends Trongate {
+    
+    public function create(): void {
+        $update_id = segment(3, 'int');
+        
+        if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+            // Editing existing task
+            $task = $this->db->get_where($update_id, 'tasks');
+            $data['complete'] = (bool) $task->complete; // Convert 1/0 to true/false
+        } else {
+            // New task or redisplay after validation error
+            $data['complete'] = (bool) post('complete', true);
+        }
+        
+        $data['form_location'] = 'tasks/submit';
+        $data['task_title'] = post('task_title', true);
+        $this->view('task_form', $data);
+    }
+    
+    public function submit(): void {
+        $this->validation->set_rules('task_title', 'task title', 'required|min_length[2]|max_length[255]');
+        
+        $result = $this->validation->run();
+        
+        if ($result === true) {
+            $data['task_title'] = post('task_title', true);
+            
+            // Convert checkbox for database storage
+            $data['complete'] = (int) (bool) post('complete', true);
+            // Result: 1 if checked, 0 if unchecked
+            
+            $update_id = segment(3, 'int');
+            if ($update_id > 0) {
+                $this->db->update($update_id, $data, 'tasks');
+            } else {
+                $this->db->insert($data, 'tasks');
+            }
+            
+            redirect('tasks/manage');
+        } else {
+            $this->create();
+        }
+    }
+}
+[/code]
+
+<h2>Understanding Checkbox Behavior</h2>
+
+<p>Checkboxes work differently than other form elements:</p>
+
+[code=php]
+// After form submission:
+$value = post('complete', true);
+
+// If checkbox WAS checked:
+// Returns: '1' (the value you set)
+// POST data contains: complete='1'
+
+// If checkbox was NOT checked:
+// Returns: '' (empty string)
+// POST data does NOT contain 'complete' field at all
+[/code]
+
+<p>This is HTML behavior, not Trongate. That's why you need special handling.</p>
+
+<h2>Flexible Checked Parameter</h2>
+
+<p>The <code>$checked</code> parameter accepts various truthy/falsy values:</p>
+
+[code=php]
+// All of these produce a checked checkbox:
+echo form_checkbox('option', 1, true);
+echo form_checkbox('option', 1, 'true');
+echo form_checkbox('option', 1, 'yes');
+echo form_checkbox('option', 1, 'on');
+echo form_checkbox('option', 1, '1');
+echo form_checkbox('option', 1, 1);
+
+// All of these produce an unchecked checkbox:
+echo form_checkbox('option', 1, false);
+echo form_checkbox('option', 1, 'false');
+echo form_checkbox('option', 1, 'no');
+echo form_checkbox('option', 1, 'off');
+echo form_checkbox('option', 1, '0');
+echo form_checkbox('option', 1, 0);
+[/code]
+
+<h2>The Complete Pattern</h2>
+
+<div class="alert alert-success">
+    <p><strong>Remember these conversions:</strong></p>
+    <ul>
+        <li><b>For views:</b> <code>(bool) post('field', true)</code> → returns true/false</li>
+        <li><b>For database:</b> <code>(int) (bool) post('field', true)</code> → returns 1/0</li>
+    </ul>
+</div>
+
+<h3>Simple Examples</h3>
+
+<p>Basic checkbox with default value (unchecked):</p>
+[code=php]
+echo form_checkbox('subscribe');
+// Output: &lt;input type="checkbox" name="subscribe" value="1"&gt;
+[/code]
+
+<p>Explicitly unchecked checkbox:</p>
+[code=php]
+echo form_checkbox('newsletter', 1, false);
+// Same output: &lt;input type="checkbox" name="newsletter" value="1"&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Default State:</strong> By default, checkboxes are unchecked. The third parameter <code>$checked</code> defaults to <code>false</code>, so <code>form_checkbox('field')</code> and <code>form_checkbox('field', 1, false)</code> produce identical unchecked checkboxes.</p>
+</div>
+
+<p>Checked checkbox:</p>
+[code=php]
+echo form_checkbox('newsletter', 1, true);
+// Output: &lt;input type="checkbox" name="newsletter" value="1" checked="checked"&gt;
+[/code]
+
+<p>With custom attributes:</p>
+[code=php]
+$attributes = [
+    'class' => 'form-check-input',
+    'id' => 'terms-checkbox'
+];
+echo form_checkbox('terms', 1, $terms_accepted, $attributes);
+[/code]
+
+<h2>Common Pitfalls</h2>
+
+<div class="alert alert-warning">
+    <p><strong>Avoid string values for checkboxes:</strong></p>
+[code=php]
+// ❌ CONFUSING
+echo form_checkbox('newsletter', 'yes');
+
+// Then you need messy checks:
+$value = post('newsletter'); // 'yes' or ''
+$is_checked = ($value === 'yes'); // Have to check string
+[/code]
+
+<p><strong>Do this instead:</strong></p>
+[code=php]
+// ✅ CLEAR
+echo form_checkbox('newsletter', 1, $newsletter_checked);
+
+// Simple conversions:
+$for_view = (bool) post('newsletter', true);     // true/false
+$for_db = (int) (bool) post('newsletter', true); // 1/0
+[/code]
+</div>
+
+<h2>Database Schema</h2>
+<p>Store checkbox values as integers in your database:</p>
+[code=sql]
+CREATE TABLE tasks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    task_title VARCHAR(255),
+    complete TINYINT(1) DEFAULT 0, -- 0 = no, 1 = yes
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+[/code]
+
+<h2>Quick Reference</h2>
+
+<p>The table below illustrates how checkboxes are the <i>only</i> form element type that requires special handling when converting between view logic and database storage.</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>View Code</th>
+            <th>To View (boolean)</th>
+            <th>To Database</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Checkbox</td>
+            <td><code>form_checkbox('field', 1, $checked)</code></td>
+            <td><code>(bool) post('field', true)</code></td>
+            <td><code>(int) (bool) post('field', true)</code></td>
+        </tr>
+        <tr>
+            <td>Radio</td>
+            <td><code>form_radio('field', 'value', $checked)</code></td>
+            <td><code>post('field', true)</code></td>
+            <td><code>post('field', true)</code></td>
+        </tr>
+        <tr>
+            <td>Text Input</td>
+            <td><code>form_input('field', $value)</code></td>
+            <td><code>post('field', true)</code></td>
+            <td><code>post('field', true)</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Remember:</strong> Checkboxes are the only form element that needs different handling for views vs. databases. Everything else uses the same value for both.</p>
+</div>
+</div>

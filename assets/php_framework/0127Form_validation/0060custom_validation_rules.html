@@ -1,0 +1,553 @@
+[meta-description]Create custom form validation rules in Trongate using callback_ rules with block_url() for secure methods. Validate unique values, complex business rules, and any logic beyond built-in validation rules with {label} placeholders, automatic security protection, and pre-cleaned input values.[/meta-description]
+
+<h1>Custom Validation Rules</h1>
+
+<p>For validation logic beyond the built-in rules, create custom validation callbacks. Creating your own custom validation callbacks gives you unlimited flexibility while maintaining Trongate's security-first approach.</p>
+
+<h2>The Pattern</h2>
+
+<p>Custom validation uses the <code>callback_</code> prefix in rules, with secured methods protected by <span class="feature-ref">block_url()</span>:</p>
+
+<ol>
+    <li>Add <code>callback_method_name</code> to your validation rules</li>
+    <li>Create a method that receives the field value</li>
+    <li>Call <code>block_url('module/method')</code> at the start to prevent direct URL access</li>
+    <li>Return <code>true</code> (pass) or an error string (fail)</li>
+</ol>
+
+<div class="alert alert-success">
+    <p><strong>Security First:</strong> Validation callback methods should call <code>block_url()</code> to prevent direct URL access. This protects your validation logic from being invoked outside the validation flow.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Input is Pre-Cleaned:</strong> The value passed to your callback method has already been processed by the <span class="feature-ref">post()</span> helper function, specifically with <code>post($field, true)</code>. This means whitespace is trimmed and multiple spaces are collapsed.</p> 
+    <p>Therefore, within your form validation callback methods, you don't need to clean the input again - just validate it.</p>
+</div>
+
+<h2>Basic Example</h2>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('username', 'username', 'required|callback_username_available');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Save data
+    } else {
+        $this-&gt;create(); // Display the 'create' form again.
+    }
+}
+
+public function username_available(string $username): string|bool {
+    block_url('members/username_available');
+
+    // No cleaning needed - value is already cleaned by post($field, true)
+    $existing = $this-&gt;db-&gt;get_one_where('username', $username, 'users');
+    
+    if ($existing !== false) {
+        return 'The {label} is already taken.';
+    }
+    
+    return true;
+}
+[/code]
+
+<p>When the form is submitted with a username that already exists in the database, the error message displays: "The username is already taken." The <code>{label}</code> placeholder is automatically replaced with the field label you defined in <code>set_rules()</code>.</p>
+
+<h2>How It Works</h2>
+
+<p>When validation runs:</p>
+
+<ol>
+    <li>Validation system retrieves field value using <code>post($field, true)</code> (cleaned and trimmed)</li>
+    <li>Trongate sees <code>callback_method_name</code> in the validation rules</li>
+    <li>Calls the method with the cleaned field value</li>
+    <li>The method calls <code>block_url('module/method')</code> to secure the endpoint</li>
+    <li><strong>If method returns a string:</strong> Validation fails, string becomes error message (with <code>{label}</code> substitution if present)</li>
+    <li><strong>If method returns <code>true</code>:</strong> Validation passes</li>
+</ol>
+
+<h2>Return Values</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Return</th>
+            <th>Result</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>true</code></td>
+            <td>Validation passes</td>
+            <td><code>return true;</code></td>
+        </tr>
+        <tr>
+            <td>String (error message)</td>
+            <td>Validation fails with custom message</td>
+            <td><code>return 'Invalid format.';</code></td>
+        </tr>
+        <tr>
+            <td>String with <code>{label}</code></td>
+            <td>Fails with label substitution</td>
+            <td><code>return 'The {label} must be unique.';</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Validation callback methods must only return <i>either</i> <code>true</code> <i>or</i> a string.</p> 
+    <p>Custom validation callback methods must never return <code>false</code>, <code>null</code>, or other values.</p>
+</div>
+
+<h2>Real-World Examples</h2>
+
+<p>For the examples below, we'll assume the code exists in a controller file named <code>Members.php</code> (in a <code>members</code> module).</p> 
+
+<div class="alert alert-success">
+  <p><strong>Security Tip:</strong> Protect your custom validation callbacks from direct URL access by calling <span class="feature-ref">block_url()</span> at the start of each method.</p>
+  <p>In those instances, pass the <b>module name</b> and <b>method name</b> as a single string, separated by a forward slash. For example: <code>block_url('members/method_name')</code>.</p>
+</div>
+
+<h3>Username Validation (Create and Update)</h3>
+
+<p>Allow usernames only during creation, or allow existing username to remain unchanged during updates:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[2]|max_length[50]|callback_username_check');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        $update_id = segment(3, 'int');
+        $data = $this-&gt;model-&gt;get_data_from_post();
+        
+        if ($update_id &gt; 0) {
+            $this-&gt;db-&gt;update($update_id, $data, 'users');
+            $flash_msg = 'User updated successfully';
+        } else {
+            $update_id = $this-&gt;db-&gt;insert($data, 'users');
+            $flash_msg = 'User created successfully';
+        }
+        
+        set_flashdata($flash_msg);
+        redirect('users/show/'.$update_id);
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates username availability and format for create/update operations.
+ *
+ * @param string $username The username to check (pre-cleaned by validation system).
+ * @return string|bool Error message if validation fails, true if passes.
+ */
+public function username_check(string $username): string|bool {
+    block_url('members/username_check');
+
+    if ($username === '') {
+        return true;
+    }
+    
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        return 'The {label} can only contain letters, numbers, and underscores.';
+    }
+    
+    $update_id = (int) segment(3);
+    $existing = $this-&gt;db-&gt;get_one_where('username', $username, 'users');
+    
+    if ($existing === false) {
+        return true;
+    }
+    
+    $existing_id = (int) $existing-&gt;id;
+    
+    if ($update_id === 0 || $existing_id !== $update_id) {
+        return 'The {label} is already in use by another account.';
+    }
+    
+    return true;
+}
+[/code]
+
+<p><strong>Key insights:</strong> This example handles both creation and updates. When creating (<code>$update_id === 0</code>), any existing username fails. When updating, the existing username is allowed only if it belongs to the same user being edited.</p>
+
+<h3>Email Uniqueness with Security</h3>
+
+<p>For sensitive fields like email, use generic error messages to prevent account enumeration attacks:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email|callback_email_unique');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Save user
+        $data = $this-&gt;model-&gt;get_data_from_post();
+        $this-&gt;db-&gt;insert($data, 'users');
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates email is unique without revealing if an email exists in the system.
+ *
+ * @param string $email The email address to check.
+ * @return string|bool Generic error message if exists, true otherwise.
+ */
+public function email_unique(string $email): string|bool {
+    block_url('members/email_unique');
+
+    $existing = $this-&gt;db-&gt;get_one_where('email', $email, 'users');
+    
+    if ($existing !== false) {
+        // Generic message - don't reveal that the email exists
+        return 'This email address cannot be used. Please try a different one.';
+    }
+    
+    return true;
+}
+[/code]
+
+<p><strong>Security note:</strong> Notice how the error message doesn't say "email already exists" - it uses a generic message instead. This prevents attackers from using the validation system to enumerate valid email addresses.</p>
+
+<h3>Discount Code Validation</h3>
+
+<p>Check if a discount code exists and is valid before allowing form submission:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('promo_code', 'promo code', 'callback_validate_discount_code');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process order with discount
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates a discount code exists and is currently active.
+ *
+ * @param string $code The discount code to validate.
+ * @return string|bool Error message if invalid, true if valid.
+ */
+public function validate_discount_code(string $code): string|bool {
+    block_url('members/validate_discount_code');
+
+    // Empty codes are allowed (discount is optional)
+    if ($code === '') {
+        return true;
+    }
+
+    $discount = $this-&gt;db-&gt;get_one_where('code', strtoupper($code), 'discounts');
+    
+    if ($discount === false) {
+        return 'The {label} you entered is not valid.';
+    }
+    
+    // Check if discount is still active
+    $today = date('Y-m-d');
+    if ($discount-&gt;expires &lt; $today) {
+        return 'The {label} has expired.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Product Code Validation</h3>
+
+<p>Verify a product code exists in inventory and is not discontinued:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('product_code', 'product code', 'required|callback_check_product_code');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Save order with valid product
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates a product code exists and is available for purchase.
+ *
+ * @param string $code The product code to check.
+ * @return string|bool Error message if unavailable, true if available.
+ */
+public function check_product_code(string $code): string|bool {
+    block_url('members/check_product_code');
+
+    $product = $this-&gt;db-&gt;get_one_where('code', strtoupper($code), 'products');
+    
+    if ($product === false) {
+        return 'The {label} does not exist.';
+    }
+    
+    if ((int) $product-&gt;active === 0) {
+        return 'The {label} is no longer available.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Sale Price Validation</h3>
+
+<p>Ensure a sale price is less than the original price:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('original_price', 'original price', 'required|numeric|greater_than[0]');
+    $this-&gt;validation-&gt;set_rules('sale_price', 'sale price', 'required|numeric|callback_sale_price_valid');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Save product with sale pricing
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates sale price is less than original price.
+ *
+ * @param string $sale_price The sale price entered.
+ * @return string|bool Error message if invalid, true if valid.
+ */
+public function sale_price_valid(string $sale_price): string|bool {
+    block_url('members/sale_price_valid');
+
+    $original_price = (float) post('original_price', true);
+    $sale_price = (float) $sale_price;
+    
+    if ($sale_price &gt;= $original_price) {
+        return 'The {label} must be less than the original price.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Checkbox Agreement Validation</h3>
+
+<p>Require users to agree to terms or confirm they meet age requirements:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('agree_to_terms', 'terms agreement', 'required|callback_terms_agreed');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process registration
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates user has agreed to terms (checkbox must be checked).
+ *
+ * @param string $value The checkbox value (will be '1' if checked, empty if not).
+ * @return string|bool Error message if not agreed, true if agreed.
+ */
+public function terms_agreed(string $value): string|bool {
+    block_url('members/terms_agreed');
+
+    $value = (string) $value;
+    
+    if ($value !== '1') {
+        return 'You must agree to the {label} to proceed.';
+    }
+    
+    return true;
+}
+[/code]
+
+<p><strong>Note:</strong> Checkboxes return '1' when checked and an empty string when unchecked. We explicitly cast to string for type consistency.</p>
+
+<h3>External API Validation</h3>
+
+<p>Call an external service to validate data. For example, verify a phone number with a telecom API:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('phone_number', 'phone number', 'required|callback_verify_phone_number');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Save contact with verified number
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates phone number format and checks it with an external API.
+ *
+ * @param string $phone The phone number to verify.
+ * @return string|bool Error message if invalid, true if valid.
+ */
+public function verify_phone_number(string $phone): string|bool {
+    block_url('members/verify_phone_number');
+
+    // Basic format check first
+    if (!preg_match('/^\+?[\d\s\-\(\)]{10,}$/', $phone)) {
+        return 'The {label} must be a valid format.';
+    }
+    
+    try {
+        // Call external API (example using a hypothetical phone validation service)
+        $api_url = 'https://api.phoneverification.service/validate';
+        $response = file_get_contents(
+            $api_url . '?phone=' . urlencode($phone),
+            false,
+            stream_context_create(['http' =&gt; ['timeout' =&gt; 5]])
+        );
+        
+        $result = json_decode($response, true);
+        
+        if (!$result['valid']) {
+            return 'The {label} could not be verified. Please check and try again.';
+        }
+        
+        return true;
+    } catch (Exception $e) {
+        // If API is unavailable, allow submission (don't block user)
+        return true;
+    }
+}
+[/code]
+
+<h3>Conditional Logic Validation</h3>
+
+<p>Validate one field based on the value of another field. For example, require "other reason" only if "reason" is set to "other":</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('reason', 'reason', 'required');
+    $this-&gt;validation-&gt;set_rules('other_reason', 'other reason', 'callback_validate_conditional_reason');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Process form
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates "other reason" field - only required if reason is "other".
+ *
+ * @param string $value The "other reason" value.
+ * @return string|bool Error message if invalid, true if valid.
+ */
+public function validate_conditional_reason(string $value): string|bool {
+    block_url('members/validate_conditional_reason');
+
+    $reason = post('reason', true);
+    
+    if ($reason === 'other' &amp;&amp; $value === '') {
+        return 'Please specify the {label}.';
+    }
+    
+    return true;
+}
+[/code]
+
+<h3>Complex Business Logic Validation</h3>
+
+<p>Validate against multiple conditions that represent your business rules. For example, ensure a user has sufficient credits before allowing a purchase:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;validation-&gt;set_rules('quantity', 'quantity', 'required|integer|greater_than[0]|callback_verify_sufficient_credits');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Proceed with purchase
+    } else {
+        $this-&gt;create();
+    }
+}
+
+/**
+ * Validates user has sufficient credits for the requested purchase quantity.
+ *
+ * @param string $quantity The quantity being purchased.
+ * @return string|bool Error message if insufficient credits, true if valid.
+ */
+public function verify_sufficient_credits(string $quantity): string|bool {
+    block_url('members/verify_sufficient_credits');
+
+    $user_id = $this-&gt;trongate_tokens-&gt;get_user_id();
+    $quantity = (int) $quantity;
+    
+    // Get user's current credits
+    $user = $this-&gt;db-&gt;get_one_where('id', $user_id, 'users');
+    
+    if ($user === false) {
+        return 'User information could not be retrieved.';
+    }
+    
+    // Get cost per unit
+    $product_code = post('product_code', true);
+    $product = $this-&gt;db-&gt;get_one_where('code', $product_code, 'products');
+    
+    if ($product === false) {
+        return 'The product could not be found.';
+    }
+    
+    $total_cost = (float) $product-&gt;price * $quantity;
+    $available_credits = (float) $user-&gt;credits;
+    
+    if ($available_credits &lt; $total_cost) {
+        $shortfall = number_format($total_cost - $available_credits, 2);
+        return "Insufficient credits. You need {$shortfall} more to complete this purchase.";
+    }
+    
+    return true;
+}
+[/code]
+
+<div class="alert alert-success">
+    <ol>
+        <li><strong>Always secure your callback methods:</strong> Call <code>block_url('module/method')</code> at the start of each callback to prevent direct URL access.</li>
+        <li><strong>Use correct block_url() syntax:</strong> Pass the module name and method name separated by a forward slash: <code>block_url('members/username_check')</code>.</li>
+        <li><strong>Don't clean input:</strong> Input is already cleaned by <code>post($field, true)</code> - no need to trim or process again.</li>
+        <li><strong>Handle empty optional fields:</strong> Return <code>true</code> for optional fields when the value is an empty string.</li>
+        <li><strong>Use framework database helpers:</strong> Prefer <code>get_one_where()</code> over manual <code>query_bind()</code> for simple queries.</li>
+        <li><strong>Explicit comparisons:</strong> Use <code>!== false</code> for database result checks to distinguish between "no results" and "actual data."</li>
+        <li><strong>Use {label} appropriately:</strong> Use <code>{label}</code> placeholders where they create natural, readable phrasing.</li>
+        <li><strong>Security-conscious messages:</strong> For sensitive data (emails, usernames, accounts), use generic error messages to prevent enumeration attacks.</li>
+        <li><strong>Type consistency:</strong> Convert checkbox values to string for consistent comparison: <code>$value = (string) $value</code>.</li>
+        <li><strong>Type hints (recommended):</strong> Add parameter and return type hints for clarity: <code>function callback(string $value): string|bool</code>.</li>
+        <li><strong>Descriptive names:</strong> Use clear method names like <code>email_unique</code> or <code>verify_phone_number</code>, not <code>check1</code>.</li>
+        <li><strong>Document your callbacks:</strong> Add PHPDoc comments explaining what the callback validates and what it returns.</li>
+    </ol>
+</div>
+
+<div class="alert alert-danger">
+    <p><strong>Always use parameterized queries or framework helpers:</strong> Use <span class="feature-ref">included-db-get_one_where()</span> or <span class="feature-ref">included-db-query_bind()</span> with placeholders. Never concatenate user input directly into SQL queries.</p>
+[code=php]
+// GOOD - framework helper (automatically parameterized)
+$existing = $this-&gt;db-&gt;get_one_where('email', $email, 'users');
+
+// GOOD - parameterized query
+$sql = 'SELECT id FROM users WHERE email = :email';
+$result = $this-&gt;db-&gt;query_bind($sql, ['email' =&gt; $email], 'object');
+
+// BAD - vulnerable to SQL injection
+$sql = "SELECT id FROM users WHERE email = '$email'";
+$result = $this-&gt;db-&gt;query($sql, 'object');
+[/code]
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Framework Security Features:</strong> By following Trongate validation patterns, you automatically get:</p>
+    <ul>
+        <li><strong>Automatic URL blocking</strong> - via <code>block_url()</code></li>
+        <li><strong>Pre-cleaned input</strong> - Values are processed by <code>post($field, true)</code> before reaching callbacks</li>
+        <li><strong>Built-in SQL injection prevention</strong> - Framework helpers use parameterized queries</li>
+        <li><strong>CSRF protection</strong> - Automatic token validation on form submissions</li>
+        <li><strong>Session-based validation</strong> - Errors survive redirects and display appropriately</li>
+        <li><strong>Zero configuration security</strong> - Works automatically when patterns are followed</li>
+    </ul>
+</div>

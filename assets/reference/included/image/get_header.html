@@ -1,0 +1,195 @@
+ <div class="container">
+    <h1>get_header()</h1>
+    <p class="signature">public function get_header(): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Returns the MIME type of the currently loaded image. This method determines the appropriate Content-Type header value for serving images directly to browsers, returning values like 'image/jpeg', 'image/png', 'image/gif', or 'image/webp' based on the loaded image format.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Image Must Be Loaded:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>get_header()</code> without a loaded image will throw an InvalidArgumentException with the message "No image has been loaded, or image type is unset."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <p>This method takes no parameters.</p>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>The MIME type of the loaded image. Possible values: 'image/jpeg', 'image/png', 'image/gif', 'image/webp'.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of get_header().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Get the MIME type
+$mime_type = $this-&gt;image-&gt;get_header();
+
+echo $mime_type; // Outputs: image/jpeg
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Primary Use Case:</strong> The <code>get_header()</code> method is primarily used when serving images directly to browsers. It provides the correct Content-Type header value needed for the browser to properly interpret and display the image data.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to serve a dynamically processed image directly to the browser.</p>
+[code=php]
+public function serve_thumbnail(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $image_path = 'modules/gallery/photos/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($image_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load and process the image
+    $this-&gt;image-&gt;load($image_path);
+    $this-&gt;image-&gt;resize_to_width(200);
+    
+    // Set the correct Content-Type header
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    
+    // Output the image directly to browser
+    $this-&gt;image-&gt;output();
+    
+    // Free memory
+    $this-&gt;image-&gt;destroy();
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The Dynamic Image Serving Pattern:</strong> When serving images on-the-fly, always set the Content-Type header using <code>get_header()</code> before calling <code>output()</code>. This tells the browser what type of image data to expect. Without the correct header, browsers may fail to display the image or attempt to download it as a file.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates serving protected images with authentication checks.</p>
+[code=php]
+public function serve_private_document(): void {
+    $document_id = segment(3, 'int');
+    $user_id = $this-&gt;user-&gt;get_id();
+    
+    // Verify user is logged in
+    if (!$user_id) {
+        redirect('login');
+    }
+    
+    // Get document record
+    $document = $this-&gt;db-&gt;get_where($document_id, 'private_documents');
+    
+    if ($document === false) {
+        redirect('documents/not_found');
+    }
+    
+    // Verify user has access to this document
+    if ($document-&gt;user_id !== $user_id) {
+        redirect('documents/access_denied');
+    }
+    
+    $image_path = 'modules/documents/private/' . $document-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($image_path)) {
+        redirect('documents/file_missing');
+    }
+    
+    // Load the image
+    $this-&gt;image-&gt;load($image_path);
+    
+    // Set appropriate headers for direct image serving
+    header('Content-Type: ' . $this-&gt;image-&gt;get_header());
+    header('Content-Disposition: inline; filename="' . $document-&gt;filename . '"');
+    header('Cache-Control: private, max-age=3600');
+    
+    // Serve the image
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Protected Image Serving:</strong> When serving images from protected directories (outside the public folder), use controller methods to enforce authentication and authorization. The <code>get_header()</code> method ensures the browser receives the correct MIME type, while your controller logic controls who can access the image.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows how to use get_header() when creating an image download endpoint with proper headers.</p>
+[code=php]
+public function download_processed_image(): void {
+    $order_id = segment(3, 'int');
+    
+    // Get order record
+    $order = $this-&gt;db-&gt;get_where($order_id, 'print_orders');
+    
+    if ($order === false) {
+        redirect('orders/not_found');
+    }
+    
+    // Verify order belongs to current user
+    $user_id = $this-&gt;user-&gt;get_id();
+    if ($order-&gt;user_id !== $user_id) {
+        redirect('orders/access_denied');
+    }
+    
+    $processed_image_path = 'modules/print_orders/processed/' . $order-&gt;processed_filename;
+    
+    if (!$this-&gt;file-&gt;exists($processed_image_path)) {
+        set_flashdata('Processed image not yet ready');
+        redirect('orders/view/' . $order_id);
+    }
+    
+    // Load the processed image
+    $this-&gt;image-&gt;load($processed_image_path);
+    
+    // Get MIME type for Content-Type header
+    $mime_type = $this-&gt;image-&gt;get_header();
+    
+    // Determine file extension from MIME type
+    $extension_map = [
+        'image/jpeg' =&gt; '.jpg',
+        'image/png' =&gt; '.png',
+        'image/gif' =&gt; '.gif',
+        'image/webp' =&gt; '.webp'
+    ];
+    
+    $extension = $extension_map[$mime_type] ?? '.jpg';
+    $download_filename = 'order_' . $order_id . '_processed' . $extension;
+    
+    // Set headers for download
+    header('Content-Type: ' . $mime_type);
+    header('Content-Disposition: attachment; filename="' . $download_filename . '"');
+    header('Content-Length: ' . filesize($processed_image_path));
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Pragma: no-cache');
+    
+    // Output the image
+    $this-&gt;image-&gt;output();
+    $this-&gt;image-&gt;destroy();
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Download vs. Inline Display:</strong> The Content-Disposition header controls browser behavior. Use <code>inline</code> to display images in the browser, or <code>attachment</code> to trigger a download. In both cases, <code>get_header()</code> provides the correct MIME type for the Content-Type header.</p>
+    </div>
+
+</div>

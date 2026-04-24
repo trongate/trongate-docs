@@ -1,0 +1,123 @@
+[meta-description]Essential file security in Trongate: path validation, content scanning, permission management, and safe upload practices. Protect your application from common file-based attacks.[/meta-description]
+
+<h1>Regarding File Security</h1>
+
+<p>File uploads are one of the most common attack vectors in web applications. A single malicious file can compromise your entire server. While Trongate provides strong automatic protections, understanding both what is handled for you and what requires your attention is essential for building secure applications.</p>
+
+<h2>What Trongate Handles Automatically</h2>
+
+<h3>1. Path Validation</h3>
+<p>Every file operation (read, write, delete, etc.) inside the File module triggers a validation check to block directory traversal attempts and unauthorized access to system-critical areas.</p>
+
+[code=php]
+// These attacks are automatically blocked:
+$malicious = '../../../etc/passwd';          // Traversal
+$malicious = '/absolute/system/path';        // Outside application scope
+$malicious = 'config/database.php';          // Restricted system directory
+$malicious = 'file.php\x00.jpg';             // Null byte injection
+
+// All would throw: "Access to this path is restricted"
+$this-&gt;file-&gt;read($malicious);
+[/code]
+
+<p><strong>Protected areas:</strong> The <code>config</code> and <code>engine</code> directories are completely off-limits. Files directly under your application root (such as <code>.htaccess</code>) are also protected from manipulation via the File class.</p>
+
+<h3>2. File Content Scanning</h3>
+<p>Content scanning happens during validation (<span class="feature-ref">included-validation-run()</span>), not during the upload itself. The Validation module reads the first 4,096 bytes of <strong>every</strong> uploaded file and checks for dangerous PHP or system patterns. If a threat is detected, the upload is blocked before the file can reach its destination.</p>
+
+[code]
+// These patterns trigger automatic rejection:
+'&lt;?php'              // PHP opening tag
+'&lt;![CDATA['          // CDATA sections
+'&lt;!DOCTYPE'          // XML/HTML doctype
+'eval('              // PHP eval()
+'exec('              // System commands
+'shell_exec('        // Shell execution
+
+// Result: "A security threat was detected in the [label]. The upload has been blocked."
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>How it works:</strong> When you set file validation rules via <code>$this-&gt;validation-&gt;set_rules()</code> followed by <code>$this-&gt;validation-&gt;run()</code>, the Validation module checks the temporary uploaded file for malicious content <strong>before</strong> <span class="feature-ref">included-file-upload()</span> ever touches it. This means a rejected file never leaves the temp directory.</p>
+</div>
+
+<h3>3. MIME Type Verification</h3>
+<p>Trongate validates that files are what they claim to be. If a file has a <code>.jpg</code> extension but contains PHP binary signatures, the upload will be rejected immediately with a "MIME type mismatch" error.</p>
+
+<h2 class="mt-3">What You Must Handle</h2>
+
+<h3>1. File Size Limits</h3>
+<p>Always set explicit size limits in your validation rules to prevent Denial of Service (DoS) attacks via disk exhaustion.</p>
+
+[code=php]
+// ✅ SECURE - explicit size limit (e.g., 5MB)
+$this-&gt;validation-&gt;set_rules(
+    'userfile', 
+    'File', 
+    'allowed_types[pdf]|max_size[5120]' 
+);
+[/code]
+
+<h3>2. File Renaming</h3>
+<p>Never trust original filenames. Using random names prevents attackers from guessing file locations or overwriting existing system files.</p>
+
+[code=php]
+// ✅ SECURE - random name
+$config['make_rand_name'] = true;
+// Result: attacker.pdf becomes x7f9d2e1b4a.pdf
+[/code]
+
+<h3>3. Directory Permissions</h3>
+<p>Always use the most restrictive permissions possible. While <code>0755</code> is standard for web-accessible folders, internal storage should be more restricted.</p>
+
+[code=php]
+// Web-accessible: 0755 (Owner writes, others read)
+$this-&gt;file-&gt;create_directory('public/uploads', 0755);
+
+// Private storage: 0700 (Only PHP/Owner can access)
+$this-&gt;file-&gt;create_directory('private/documents', 0700);
+[/code]
+
+<div class="alert alert-danger">
+    <p><strong>NEVER use 0777 permissions</strong> on production servers. This allows any user on the system to write to or execute files in your directories.</p>
+</div>
+
+<h2>Secure Upload Patterns</h2>
+
+<h3>Pattern: Isolated User Workspaces</h3>
+<p>The most secure way to handle user files is to isolate them by ID and use random naming.</p>
+
+[code=php]
+public function upload_user_file($user_id): void {
+    // 1. Define a user-specific path
+    $user_dir = "users/{$user_id}/" . date('Y/m');
+    
+    // 2. Create the directory with secure permissions
+    $this-&gt;file-&gt;create_directory($user_dir, 0750);
+    
+    // 3. Upload with security configurations
+    $config = [
+        'destination' =&gt; $user_dir,
+        'make_rand_name' =&gt; true,
+        'upload_to_module' =&gt; false
+    ];
+    
+    try {
+        $file_info = $this-&gt;file-&gt;upload($config);
+        // Store $file_info['file_path'] in your database
+    } catch (Exception $e) {
+        // Handle security rejections or upload errors
+        echo out($e-&gt;getMessage());
+    }
+}
+[/code]
+
+<h2>Quick Security Checklist</h2>
+
+    <ul>
+        <li>✅ <strong>Validation:</strong> Are <code>max_size</code> and <code>allowed_types</code> set?</li>
+        <li>✅ <strong>Names:</strong> Is <code>make_rand_name</code> set to true for user uploads?</li>
+        <li>✅ <strong>Permissions:</strong> Are you using <code>0755</code> or <code>0700</code> (and never <code>0777</code>)?</li>
+        <li>✅ <strong>Storage:</strong> Are sensitive files stored outside of the public-facing directory?</li>
+        <li>✅ <strong>Sanitization:</strong> Are you using Trongate's <span class="feature-ref">out()</span> function when rendering filenames in views?</li>
+    </ul>

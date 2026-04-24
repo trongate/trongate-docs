@@ -1,0 +1,195 @@
+<h1>Triggers in Trongate MX</h1>
+
+<p>The <code>mx-trigger</code> attribute in Trongate MX allows you to specify events that trigger HTTP requests. This powerful feature enhances the interactivity and responsiveness of your web application by defining when and how requests should be initiated.</p>
+
+<h2>Usage</h2>
+
+<p>Set the <code>mx-trigger</code> attribute on an element to control the event that triggers the request. If not specified, Trongate MX uses default events based on the element type.</p>
+
+<h3>Basic Example:</h3>
+<p>In the following example, the HTTP GET request is triggered when the button is clicked.</p>
+[code=vf]&lt;?php
+$attributes = [
+  'mx-get' => 'api/data',
+  'mx-trigger' => 'click'
+];
+
+echo form_button('fetch_btn', 'Get Data', $attributes);
+?&gt;[/code]
+
+<p>For those who prefer to work with pure HTML, here's an alternative way to write the code:</p>
+
+[code=html]
+&lt;button mx-get="api/data" mx-trigger="click"&gt;Get Data&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>In the example above, there is - strictly speaking - no need to declare an <code>mx-trigger</code> attribute with a value of 'click'. This is because button elements are automatically assigned click events as their default triggers by Trongate MX. In other words, even if we did <i>not</i> specify an <code>mx-trigger</code> value of 'click' on the button, it would <i>still</i> behave as if the <code>mx-trigger</code> had been set to 'click'.</p>
+  <p>This means that the following code would have produced the same result as the two code snippets shown above:</p>
+
+[code=html]
+&lt;button mx-get="api/data"&gt;Get Data&lt;/button&gt;
+[/code]
+
+</div>
+
+<h2>Default Trigger Events</h2>
+
+<p>When the <code>mx-trigger</code> attribute is not provided, Trongate MX determines the natural trigger event based on the element type.  The following table shows the default trigger events for different HTML elements:</p>
+
+<table class="smaller-table">
+  <thead>
+    <tr>
+      <th>Element Type</th>
+      <th>Default Trigger Event</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>form</td>
+      <td>submit</td>
+    </tr>
+    <tr>
+      <td>button</td>
+      <td>click</td>
+    </tr>
+    <tr>
+      <td>input (type="submit")</td>
+      <td>click</td>
+    </tr>
+    <tr>
+      <td>input (other types)</td>
+      <td>change</td>
+    </tr>
+    <tr>
+      <td>textarea</td>
+      <td>change</td>
+    </tr>
+    <tr>
+      <td>select</td>
+      <td>change</td>
+    </tr>
+    <tr>
+      <td>other elements</td>
+      <td>click</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Supported Events</h2>
+
+<p>Trongate MX listens for various events and triggers the appropriate HTTP requests based on the <code>mx-trigger</code> attribute:</p>
+
+<ul>
+  <li>click</li>
+  <li>dblclick</li>
+  <li>change</li>
+  <li>submit</li>
+  <li>keyup</li>
+  <li>keydown</li>
+  <li>focus</li>
+  <li>blur</li>
+  <li>activate (special value for programmatic triggers only)</li>
+</ul>
+
+<h2>Load Event</h2>
+
+<p>The <code>load</code> event is a special case that triggers the request when the page is loaded:</p>
+
+[code=html]&lt;div mx-get="api/initial-data" mx-trigger="load"&gt;&lt;/div&gt;[/code]
+
+<p>This will fetch data from the API as soon as the page loads.</p>
+
+<div class="alert alert-success">
+  <ul>
+    <li><strong>Use specific events</strong>: Specify the exact event that should trigger the request to avoid unintended behavior.</li>
+    <li><strong>Combine with other attributes</strong>: Use <code>mx-trigger</code> in conjunction with other Trongate MX attributes like <code>mx-get</code>, <code>mx-post</code>, and <code>mx-target</code> for more complex interactions.</li>
+    <li><strong>Consider performance</strong>: Be mindful of the frequency of triggered events to avoid excessive server load and client-side performance issues.</li>
+    <li><strong>Error handling</strong>: Implement appropriate error handling for failed requests to ensure a smooth user experience.</li>
+  </ul>
+</div>
+
+<h2>Programmatic Activation</h2>
+<p>The special value of '<code>activate</code>' can be used to specify that an element should only respond to programmatic triggers (e.g., from <code>mx-on-success</code> or <code>mx-on-error</code>) rather than user events:</p>
+
+<div class="alert alert-info">
+  <p>Using <code>mx-trigger="activate"</code> serves a specific purpose. When you add this attribute to an element, it prevents that element from responding to any user events (like clicks or changes) while still allowing it to be triggered programmatically through <code>mx-on-success</code> or <code>mx-on-error</code>. Without this attribute, the element would respond to both user events AND programmatic triggers, which might not be what you want.</p>
+  <p>Think of <code>mx-trigger="activate"</code> as a way of saying "this element should respond to programmatic triggers, never to default trigger events."</p>
+</div>
+
+[code=vf]&lt;!-- This table will only refresh when triggered by mx-on-success --&gt;
+&lt;table class="data-table" 
+       mx-get="api/get_data" 
+       mx-trigger="activate"&gt;
+    &lt;!-- table content --&gt;
+&lt;/table&gt;
+
+&lt;!-- This button triggers the table refresh on success --&gt;
+&lt;?php
+$btn_attr = [
+  'mx-post' =&gt; 'api/update_data',
+  'mx-on-success' =&gt; '.data-table'
+];
+echo form_button('update_btn', 'Update Data', $btn_attr);
+?&gt;[/code]
+
+<p>In this example, the table won't respond to user clicks or other events, but will refresh when the button's POST request succeeds.</p>
+
+<div class="alert alert-info">
+  <p>When you add an <code>mx-trigger</code> attribute to an element, all default triggers that would otherwise be associated with the element are disabled. For example, if you add <code>mx-trigger="load"</code> to a button, it will no longer respond to clicks (which would normally be the default for buttons).</p>
+  <p>Note that elements can still be triggered programmatically through <code>mx-on-success</code> or <code>mx-on-error</code> attributes on other elements, regardless of their <code>mx-trigger</code> value.</p>
+</div>
+
+<p class="mt-3 mb-0">For an HTML-only approach, here's the corresponding code:</p>
+
+[code=html]
+&lt;!-- This table will only refresh when triggered by mx-on-success --&gt;
+&lt;table class="data-table" 
+       mx-get="api/get_data" 
+       mx-trigger="activate"&gt;
+    &lt;!-- table content --&gt;
+&lt;/table&gt;
+
+&lt;!-- This button triggers the table refresh on success --&gt;
+&lt;button mx-post="api/update_data" 
+        mx-on-success=".data-table"&gt;Update Data&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>Documentation covering the <code>mx-on-success</code> attribute is available <a href="documentation/display/trongate_mx/events-and-responses/handling-successful-requests">from here</a>.</p>
+
+  <p>Documentation covering the <code>mx-on-error</code> attribute is available <a href="documentation/display/trongate_mx/events-and-responses/handling-request-errors">from here</a>.</p>
+</div>
+
+<h2>Disabling Triggers</h2>
+
+<p>There may be cases where you want an element to have attributes like <code>mx-get</code> without responding to any user events, allowing you to invoke the request only programmatically. Setting <code>mx-trigger="none"</code> provides a simple way to accomplish this:</p>
+
+[code=html]
+&lt;div id="data-container" 
+     mx-get="api/fetch_data" 
+     mx-trigger="none"&gt;
+  &lt;!-- This element won't respond to clicks or other user events --&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function fetchDataProgrammatically() {
+  // Manually fetch using the Trongate MX API
+  const container = document.querySelector('#data-container');
+  window.TrongateMX.fetch(container); // Trigger the request programmatically
+}
+&lt;/script&gt;
+[/code]
+
+<p>This approach is particularly useful in these scenarios:</p>
+
+<ol>
+  <li><strong>Elements with polling</strong>: When you want to <a href="documentation/display/trongate_mx/advanced-features/polling-with-trongate-mx">control polling programmatically</a> without having the element respond to user clicks</li>
+  <li><strong>Hidden elements</strong>: For elements that contain API configuration but shouldn't trigger requests when clicked</li>
+  <li><strong>Containers with complex content</strong>: For containers that have clickable children but shouldn't trigger requests when the container itself is clicked</li>
+</ol>
+
+<p>Unlike <code>mx-trigger="activate"</code> which still allows programmatic activation via <code>mx-on-success</code> or <code>mx-on-error</code>, <code>mx-trigger="none"</code> completely disables automatic triggering, giving you full control over when the request occurs.</p>
+
+<h2>Summary</h2>
+<p>By leveraging the <code>mx-trigger</code> attribute, you can create more dynamic and responsive web applications with Trongate MX, allowing for sophisticated event-driven interactions with minimal JavaScript code.</p>

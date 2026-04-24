@@ -1,0 +1,153 @@
+[meta-description]Utilities Helpers: debug with json(), sort arrays with sort_by_property(), get IPs with ip_address(), render views with display(). Pure PHP utilities - no framework bloat.[/meta-description]
+
+<h1>Utilities Helpers</h1>
+
+<p>Utilities helpers are the odds and ends that don't fit anywhere else. Debugging, sorting, IP addresses, file info and view rendering.</p>
+
+<p>Call them whenever:</p>
+
+<ul id="feature-ref-list" class="mt-2">
+    <li><span class="feature-ref">block_url()</span> <span class="sm">block direct URL access to controller methods</span></li>
+    <li><span class="feature-ref">json()</span> <span class="sm">debug output in pretty JSON</span></li>
+    <li><span class="feature-ref">ip_address()</span> <span class="sm">get the client's IP</span></li>
+    <li><span class="feature-ref">display()</span> <span class="sm">render views inside templates</span></li>
+    <li><span class="feature-ref">return_file_info()</span> <span class="sm">extract filename and extension</span></li>
+    <li><span class="feature-ref">sort_by_property()</span> <span class="sm">sort associative arrays</span></li>
+    <li><span class="feature-ref">sort_rows_by_property()</span> <span class="sm">sort object arrays</span></li>
+    <li><span class="feature-ref">from_trongate_mx()</span> <span class="sm">detect MX requests</span></li>
+</ul>
+
+<hr>
+
+<h2>Debug with JSON</h2>
+
+<p>The <span class="feature-ref">json()</span> function dumps data in readable JSON format. Perfect for inspecting arrays and objects during development.</p>
+
+[code=php]
+$data = ['name' => 'John', 'age' => 30];
+json($data);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+<pre>{
+    "name": "John",
+    "age": 30
+}</pre>
+[/code]
+
+<h3>Stop Execution</h3>
+
+<p>Pass <code>true</code> as the second argument to kill the script immediately after output:</p>
+
+[code=php]
+json($data, true);  // Outputs and dies
+[/code]
+
+<hr>
+
+<h2>Get Client IP</h2>
+
+<p>The <span class="feature-ref">ip_address()</span> function returns the visitor's IP address.</p>
+
+[code=php]
+$ip = ip_address();
+echo $ip;  // 192.168.1.1
+[/code]
+
+<hr>
+
+<h2>Render Views</h2>
+
+<p>The <span class="feature-ref">display()</span> function loads a view file from a module. Use it inside templates to inject content.</p>
+
+[code=php]
+$data = [
+    'view_module' => 'products',
+    'view_file' => 'listing',
+    'products' => $products
+];
+
+display($data);
+[/code]
+
+<p>This loads <code>modules/products/views/listing.php</code> and passes <code>$products</code> to it.</p>
+
+<h3>Auto-Detection</h3>
+
+<p>If you don't specify <code>view_module</code>, it uses the first URL segment. If you don't specify <code>view_file</code>, it defaults to <code>index</code>.</p>
+
+[code=php]
+// On URL: /products/list
+display($data);  // Loads modules/products/views/index.php
+[/code]
+
+<div class="alert alert-info">
+    <p>If the view file doesn't exist, <span class="feature-ref">display()</span> shows a red error message with the expected path.</p>
+</div>
+
+<hr>
+
+<h2>Extract File Info</h2>
+
+<p>The <span class="feature-ref">return_file_info()</span> function splits a file path into name and extension.</p>
+
+[code=php]
+$info = return_file_info('document.pdf');
+echo $info['file_name'];       // document
+echo $info['file_extension'];  // .pdf
+[/code]
+
+<hr>
+
+<h2>Sort Arrays</h2>
+
+<p>The <span class="feature-ref">sort_by_property()</span> function sorts associative arrays by a specific key.</p>
+
+[code=php]
+$users = [
+    ['name' => 'John', 'age' => 30],
+    ['name' => 'Jane', 'age' => 25],
+    ['name' => 'Bob', 'age' => 35]
+];
+
+sort_by_property($users, 'age');
+// Sorted by age ascending
+
+sort_by_property($users, 'name', 'desc');
+// Sorted by name descending
+[/code]
+
+<h3>Sort Objects</h3>
+
+<p>The <span class="feature-ref">sort_rows_by_property()</span> function does the same thing but for arrays of objects.</p>
+
+[code=php]
+$rows = [
+    (object)['name' => 'John', 'age' => 30],
+    (object)['name' => 'Jane', 'age' => 25]
+];
+
+sort_rows_by_property($rows, 'age', 'desc');
+[/code]
+
+<hr>
+
+<h2>Detect Trongate MX Requests</h2>
+
+<p>The <span class="feature-ref">from_trongate_mx()</span> function checks if the current request came from Trongate MX (Trongate's JavaScript library for dynamic page updates).</p>
+
+[code=php]
+if (from_trongate_mx()) {
+    // Return JSON or partial HTML
+    echo json_encode($data);
+} else {
+    // Return full page
+    $this->template('standard', $data);
+}
+[/code]
+
+<div class="alert alert-success">
+    <p>Use <span class="feature-ref">from_trongate_mx()</span> to handle AJAX requests differently from normal page loads - no extra routing required.</p>
+</div>

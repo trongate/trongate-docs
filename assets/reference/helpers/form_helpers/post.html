@@ -1,0 +1,230 @@
+<div class="container">
+    <h1>post()</h1>
+    <p class="signature">function post(string|bool|null $field_name = null, bool $clean_up = false, bool $cast_numeric = false): string|int|float|array</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Retrieves submitted form data from POST requests, JSON payloads, or multipart form data. This unified function handles all incoming request data with support for nested structures and automatic parsing.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$field_name</td>
+                <td>string|bool|null</td>
+                <td>(optional) Field name to retrieve (string), <code>null</code> for all raw data, or <code>true</code> for all cleaned data. Default is <code>null</code>.</td>
+            </tr>
+            <tr>
+                <td>$clean_up</td>
+                <td>bool</td>
+                <td>(optional) Trim whitespace from ends and collapse multiple spaces within the string. Default is <code>false</code>.</td>
+            </tr>
+            <tr>
+                <td>$cast_numeric</td>
+                <td>bool</td>
+                <td>(optional) Convert purely numeric strings (e.g., "42", "3.14") to integers or floats. Default is <code>false</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string|int|float|array</td>
+                <td>Request data as string, number, or array depending on parameters and input structure.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <h3>Understanding the $clean_up Parameter</h3>
+        <p>When <code>$clean_up</code> is set to <code>true</code>, the <code>post()</code> function performs two operations on string values:</p>
+        <ol>
+            <li><b>Trimming:</b> Removes whitespace from the beginning and end of strings.</li>
+            <li><b>Collapsing:</b> Reduces multiple consecutive spaces, tabs, or line breaks to a single space.</li>
+        </ol>
+        <p>This cleaning applies recursively to nested arrays.</p>
+        
+        <h4>Examples of $clean_up Behavior:</h4>
+[code=php]
+// Input field value (message): "   Hello    World   \n\n"
+$raw = post('message');          // Returns: "   Hello    World   \n\n" (Raw, spaces preserved)
+$clean = post('message', true);  // Returns: "Hello World" (Trimmed and collapsed)
+
+// Input array value (items): [" item1 ", " item2    item3 "]
+$raw_array = post('items');      // Returns: [" item1 ", " item2    item3 "]
+$clean_array = post('items', true); // Returns: ["item1", "item2 item3"]
+[/code]
+    </div>
+
+    <h2>Basic Retrieval</h2>
+    
+    <h3>Get All or Specific Data</h3>
+[code=php]
+// Get all data as a raw array (no cleaning)
+$all_data = post();
+
+// Get all data with recursive whitespace cleaning
+$clean_data = post(true);
+
+// Get a specific field's raw value
+$username = post('username');
+
+// Get a specific field's cleaned value
+$clean_name = post('username', true);
+
+// Get cleaned value and cast it to a number (if numeric)
+$quantity = post('quantity', true, true);
+[/code]
+
+    <h2>Numeric Casting</h2>
+    <p>When <code>$cast_numeric</code> is <code>true</code>, purely numeric strings are converted to their appropriate PHP types:</p>
+[code=php]
+// Numeric strings are cast:
+$int_val = post('field_1', false, true); // Input: "42" → Output: 42 (integer)
+$float_val = post('field_2', false, true); // Input: "3.14" → Output: 3.14 (float)
+
+// Non-numeric strings are untouched:
+$str_val = post('field_3', false, true); // Input: "abc" → Output: "abc" (string)
+$zero_prefix = post('field_4', false, true); // Input: "0123" → Output: "0123" (string - preserves leading zero)
+[/code]
+
+    <h2>Nested Data Access</h2>
+    <p>The <code>post()</code> function supports two methods for accessing data within nested arrays or objects:</p>
+
+    <h3>Dot Notation (For JSON Payloads)</h3>
+[code=php]
+// Assume POST body is JSON: {"user": {"profile": {"name": "John", "age": "25"}}}
+$name = post('user.profile.name'); // "John"
+$age = post('user.profile.age', true, true); // 25 (integer)
+[/code]
+
+    <h3>Bracket Notation (For Standard Form Arrays)</h3>
+[code=php]
+// Assume POST data is: colors[0]=red&colors[1]=blue
+$first_color = post('colors[0]'); // 'red'
+$second_color = post('colors[1]'); // 'blue'
+$all_colors = post('colors'); // ['red', 'blue']
+[/code]
+
+    <h2>Supported Data Formats</h2>
+    <p><code>post()</code> automatically handles multiple content types:</p>
+    
+    <table class="sm">
+        <thead>
+            <tr>
+                <th>Content Type</th>
+                <th>Source</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>application/x-www-form-urlencoded</code></td>
+                <td>Standard HTML forms</td>
+                <td>Uses <code>$_POST</code> superglobal</td>
+            </tr>
+            <tr>
+                <td><code>multipart/form-data</code></td>
+                <td>Forms with file uploads</td>
+                <td>Uses <code>$_POST</code> superglobal</td>
+            </tr>
+            <tr>
+                <td><code>application/json</code></td>
+                <td>API requests, AJAX</td>
+                <td>Automatically parsed from raw input</td>
+            </tr>
+            <tr>
+                <td>Other formats</td>
+                <td>Custom APIs</td>
+                <td>Parsed with <code>parse_str()</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-warning">
+        <p><strong>JSON Error Handling:</strong> Malformed JSON payloads will throw an <code>Exception</code>. Wrap API endpoints in try-catch blocks when processing JSON input.</p>
+    </div>
+
+    <div class="alert alert-danger">
+        <p><strong>SECURITY NOTE:</strong> The <code>post()</code> function only retrieves and cleans data; it does NOT escape it for HTML output. <b>Always</b> use <code>htmlspecialchars()</code> or Trongate's <code>out()</code> function before displaying user data in views to prevent XSS vulnerabilities.</p>
+    </div>
+
+    <h2>Practical Examples</h2>
+
+    <h3>Form Processing in Controller</h3>
+[code=php]
+public function submit(): void {
+    // Retrieve, clean, and cast data in one step
+    $data['username'] = post('username', true);
+    $data['email'] = post('email', true);
+    $data['age'] = post('age', true, true); 
+    
+    // Checkbox conversion (requires manual cast)
+    $data['newsletter'] = (int) (bool) post('newsletter', true); 
+    
+    $this->db->insert($data, 'users');
+}
+[/code]
+
+    <h3>API Endpoint with JSON</h3>
+[code=php]
+public function api_create(): void {
+    try {
+        // Dot notation is ideal for structured JSON payloads
+        $title = post('article.title', true);
+        $content = post('article.content', true);
+        
+        // ... process API request
+    } catch (Exception $e) {
+        // Handle JSON parsing errors
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid JSON payload']);
+    }
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Performance:</strong> Request data is parsed once and cached for the duration of the request. Subsequent calls to <code>post()</code> within the same request use the cached data.</p>
+    </div>
+
+    <h2>Error Handling and Missing Fields</h2>
+    <ul>
+        <li>Missing fields return an empty string (<code>''</code>)</li>
+        <li>Empty requests return an empty array</li>
+        <li>Nested paths that don't exist return empty string</li>
+        <li>Malformed JSON throws an <code>Exception</code></li>
+    </ul>
+
+    <h2>Debugging</h2>
+    <p>Use the <code>json()</code> helper function to inspect submitted data during development:</p>
+[code=php]
+// View all raw submitted data
+json(post());
+
+// View cleaned, nested data
+json(post('user.profile', true));
+
+// View data and stop script execution
+json(post(), true);
+[/code]
+
+    <div class="alert alert-success">
+        <p>Combining <code>post()</code> with <code>json()</code> makes form debugging straightforward. Use <code>json(post(), true)</code> to immediately see all submitted data and halt further script execution.</p>
+    </div>
+</div>

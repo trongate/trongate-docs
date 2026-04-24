@@ -1,0 +1,132 @@
+<h1>Dynamic URL Construction</h1>
+
+<p>Trongate MX now supports dynamic URL construction for all HTTP method attributes, allowing you to create more flexible and responsive user interfaces. This feature enables you to include dynamic values in your request URLs, making your web applications more interactive and data-driven.</p>
+
+<h2>Basic Usage</h2>
+<p>The HTTP method attributes (<code>mx-get</code>, <code>mx-post</code>, <code>mx-put</code>, <code>mx-patch</code>, and <code>mx-delete</code>) now support placeholders in the URL that will be replaced with the current value of the element. The syntax uses <code>${this.value}</code> to indicate where the element's value should be inserted.</p>
+
+<p>In the following example, if the user selects "User 2", the GET request will be sent to "api/users/2".</p>
+
+[code=html]&lt;select id="user-selector" 
+    mx-get="api/users/${this.value}" 
+    mx-target="#user-details"
+    mx-trigger="change"&gt;
+    &lt;option value="1"&gt;User 1&lt;/option&gt;
+    &lt;option value="2"&gt;User 2&lt;/option&gt;
+    &lt;option value="3"&gt;User 3&lt;/option&gt;
+&lt;/select&gt;[/code]
+
+<p>The code below demonstrates the same solution, but written using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_dropdown()</span> function.</p>
+
+[code=vf]&lt;?php
+$options = [
+  '1' => 'User 1',
+  '2' => 'User 2',
+  '3' => 'User 3'
+];
+
+$attributes = [
+  'id' => 'user-selector',
+  'mx-get' => 'api/users/${this.value}',
+  'mx-target' => '#user-details',
+  'mx-trigger' => 'change'
+];
+
+echo form_dropdown('users', $options, '', $attributes);
+?&gt;[/code]
+
+
+<h2>How It Works</h2>
+<p>When an HTTP request is triggered, Trongate MX will:</p>
+<ol>
+    <li>Detect the <code>${this.value}</code> placeholder in the URL</li>
+    <li>Replace it with the current value of the element</li>
+    <li>Send the HTTP request to the resulting URL</li>
+</ol>
+
+<h2>Supported HTTP Methods</h2>
+<p>This feature works with all HTTP method attributes in Trongate MX:</p>
+<ul>
+    <li><code>mx-get</code></li>
+    <li><code>mx-post</code></li>
+    <li><code>mx-put</code></li>
+    <li><code>mx-patch</code></li>
+    <li><code>mx-delete</code></li>
+</ul>
+
+<h2>More Examples</h2>
+<p>The code sample below demonstrates how to create a dropdown menu that fetches product details dynamically. When a user selects a different product from the dropdown, it triggers a GET request to fetch that specific product's information, which is then displayed in an element with the ID 'product-details'.</p>
+<h3>Fetching Product Details</h3>
+[code=vf]&amp;lt;?php
+$options = [
+    '1' =&gt; 'Product 1',
+    '2' =&gt; 'Product 2'
+];
+
+$attributes = [
+    'mx-get' =&gt; 'api/products/${this.value}',
+    'mx-target' =&gt; '#product-details',
+    'mx-trigger' =&gt; 'change'
+];
+
+echo form_dropdown('products', $options, '', $attributes);
+?&amp;gt;
+
+&lt;div id="product-details"&gt;&lt;/div&gt;[/code]
+<h3 class="mt-3">Checkbox Example</h3>
+<p>The code sample below demonstrates how to toggle the visibility of archived items. When the checkbox is clicked, it sends a GET request using the checkbox's value (1 when checked, 0 when unchecked) to fetch the appropriate content.</p>
+[code=vf]&lt;?php
+$attributes = [
+    'mx-get' => 'api/products/archived/${this.value}',
+    'mx-target' => '#products-list',
+    'mx-trigger' => 'change',
+    'value' => '0'
+];
+
+echo form_checkbox('show_archived', '1', false, $attributes);
+echo form_label('Show Archived Products');
+?&gt;
+
+&lt;div id="products-list"&gt;&lt;/div&gt;
+[/code]
+
+<h3 class="mt-3">Hotel Booking Example</h3>
+<p>The code sample below demonstrates a hotel booking scenario. When the user changes the number of nights, it triggers a GET request to fetch the total price, which then updates in the price-display element.</p>
+[code=vf]&lt;?php
+$attributes = [
+    'mx-get' => 'api/booking/calculate/${this.value}',
+    'mx-target' => '#price-display',
+    'mx-trigger' => 'change',
+    'min' => '1',
+    'max' => '30'
+];
+
+echo form_number('num_nights', '1', $attributes);
+?&gt;
+&lt;div id="price-display"&gt;
+    &lt;h3&gt;Total Price: $150&lt;/h3&gt;
+    &lt;p&gt;(Based on 1 night stay)&lt;/p&gt;
+&lt;/div&gt;[/code]
+
+<h2>Best Practices</h2>
+<ul>
+    <li>Use input elements that naturally provide meaningful values (dropdowns, checkboxes, number inputs, etc.)</li>
+    <li>Ensure that the values used in your dynamic URLs are URL-safe</li>
+    <li>Use appropriate <code>mx-trigger</code> attributes to respond to user interactions</li>
+    <li>Remember that spaces and special characters in the value will be URL-encoded automatically</li>
+    <li>For security reasons, validate and sanitize any dynamic values on the server-side before processing the request</li>
+</ul>
+
+<div class="alert alert-info">
+    <strong>Note:</strong> While this feature allows for dynamic URL construction, it's important to ensure that your server-side routing can handle these dynamic segments appropriately.
+</div>
+
+<h2>Limitations</h2>
+<ul>
+    <li>This feature only supports <code>${this.value}</code> as a placeholder. More complex expressions are not evaluated.</li>
+    <li>The placeholder can only represent the value property of the element that has the HTTP method attribute.</li>
+    <li>Be cautious when using this feature with sensitive data, as the values become part of the URL.</li>
+</ul>
+
+<h2>Summary</h2>
+<p>The dynamic URL construction feature enhances Trongate MX's capabilities by enabling interactive, data-driven interfaces without custom JavaScript. It's particularly useful for creating dynamic filters, toggles, and real-time calculations. The feature works best with form elements that naturally provide values, such as select dropdowns, checkboxes, and number inputs.</p>

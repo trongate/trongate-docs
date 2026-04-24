@@ -1,0 +1,140 @@
+<div class="container">
+  <h1>table_exists()</h1>
+  <p class="signature">public function table_exists(string $table): bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Checks whether a specified table exists in the current database. This method uses MySQL's SHOW TABLES LIKE statement to verify table existence. Returns true if the table exists, false otherwise. Useful for conditional operations and preventing errors when working with dynamic table names.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the table to check for existence.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>True if the specified table exists in the database, false if it doesn't exist or if an error occurs.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1: Basic Table Existence Check</h2>
+  <p>The code sample below demonstrates how to check if a table exists before performing operations on it.</p>
+[code=php]
+if ($this-&gt;db-&gt;table_exists('users')) {
+    echo "The 'users' table exists in the database.";
+} else {
+    echo "The 'users' table does not exist.";
+}
+[/code]
+
+  <h2>Example #2: Conditional Table Creation/Usage</h2>
+  <p>The code sample below demonstrates how to use table_exists() for conditional logic in application setup or migrations.</p>
+[code=php]
+$table_name = 'user_sessions';
+
+if (!$this-&gt;db-&gt;table_exists($table_name)) {
+    // Create the table if it doesn't exist
+    $sql = "CREATE TABLE $table_name (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        session_token VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+    $this-&gt;db-&gt;query($sql);
+    echo "Table '$table_name' created successfully.";
+} else {
+    echo "Table '$table_name' already exists.";
+}
+[/code]
+
+  <h2>Example #3: Dynamic Table Operations with Safety Check</h2>
+  <p>The code sample below demonstrates how to safely perform operations on dynamically determined tables.</p>
+[code=php]
+// Get table name from configuration or user input (sanitized)
+$target_table = 'logs_' . date('Y_m');
+
+if ($this-&gt;db-&gt;table_exists($target_table)) {
+    // Perform operations on the monthly log table
+    $log_count = $this-&gt;db-&gt;count($target_table);
+    echo "There are " . $log_count . " records in the " . $target_table . " table.";
+    
+    // Insert new log entry
+    $log_data = [
+        'message' =&gt; 'System check completed',
+        'level' =&gt; 'INFO',
+        'timestamp' =&gt; date('Y-m-d H:i:s')
+    ];
+    $this-&gt;db-&gt;insert($log_data, $target_table);
+} else {
+    echo "Table '$target_table' not found. Monthly log table may need to be created.";
+}
+[/code]
+
+  <h2>Example #4: Checking Multiple Tables</h2>
+  <p>The code sample below demonstrates how to verify the existence of multiple required tables.</p>
+[code=php]
+$required_tables = ['users', 'products', 'orders', 'categories'];
+$missing_tables = [];
+
+foreach ($required_tables as $table) {
+    if (!$this-&gt;db-&gt;table_exists($table)) {
+        $missing_tables[] = $table;
+    }
+}
+
+if (empty($missing_tables)) {
+    echo "All required tables exist.";
+} else {
+    echo "Missing tables: " . implode(', ', $missing_tables);
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The <code>$table</code> parameter is <strong>required</strong>.</li>
+    <li>Uses MySQL's <code>SHOW TABLES LIKE</code> statement with parameter binding for security.</li>
+    <li>Returns <code>false</code> if the table doesn't exist OR if a database error occurs.</li>
+    <li>Case sensitivity depends on the underlying operating system and MySQL configuration.</li>
+    <li>Only checks tables in the current database (specified during Db class instantiation).</li>
+    <li>Useful for:
+      <ol>
+        <li>Installation scripts and migrations</li>
+        <li>Dynamic table operations</li>
+        <li>Feature toggling based on table availability</li>
+        <li>Preventing errors before table-specific operations</li>
+      </ol>
+    </li>
+    <li>For better performance in loops checking multiple tables, consider using <code>get_tables()</code> once and checking the array.</li>
+    <li>This method is called internally by <code>validate_table_exists()</code> before most database operations.</li>
+  </ul>
+</div>

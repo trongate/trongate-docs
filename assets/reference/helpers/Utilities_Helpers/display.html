@@ -1,0 +1,114 @@
+<div class="container">
+  <h1>display()</h1>
+  <p class="signature">function display(array $data): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Displays a content view within a template. This helper function is used inside template files to inject the actual page content at a specific location. It automatically detects the view module and view file from the provided data array, builds the path to the view file, extracts the data variables, and includes the view. If the specified view file cannot be found, it displays a helpful error message indicating the expected file path.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>An associative array containing view configuration. Expected keys include 'view_module' (the module containing the view) and 'view_file' (the name of the view file without the .php extension). If 'view_module' is not provided, it defaults to the first URL segment or 'welcome'. If 'view_file' is not provided, it defaults to 'index'.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This function does not return a value. It outputs the view content directly or displays an error message if the view file cannot be found.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1</h2>
+  <p>The code sample below shows the most common usage of the display() function inside a template file. This line is typically placed exactly where you want the page content to appear within your template's HTML structure.</p>
+[code=php]&lt;?= display($data) ?&gt;[/code]
+
+  <h2>Example #2</h2>
+  <p>This example demonstrates how the display() function is used within a complete template file. The function call is placed inside the main content area where the view should be injected.</p>
+[code=html]&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;&lt;?= $page_title ?? 'Welcome' ?&gt;&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;h1&gt;My Website&lt;/h1&gt;
+    &lt;/header&gt;
+    
+    &lt;main&gt;
+        &lt;?= display($data) ?&gt;
+    &lt;/main&gt;
+    
+    &lt;footer&gt;
+        &lt;p&gt;&copy; 2024 My Website&lt;/p&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;[/code]
+
+  <h2>Example #3</h2>
+  <p>This example shows how the data array is typically structured in a controller before being passed to a template, which then uses display() to inject the view.</p>
+[code=php]
+// In your controller
+public function dashboard(): void {
+    $data['page_title'] = 'User Dashboard';
+    $data['view_module'] = 'users';
+    $data['view_file'] = 'dashboard';
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+<p>Here's some sample corresponding code that could be added to a template file at <code>modules/templates/views/admin.php</code></p>
+[code=vf]&lt;main&gt;
+    &lt;div class="center-stage"&gt;&lt;?= display($data) ?&gt;&lt;/div&gt;
+&lt;/main&gt;[/code]
+
+  <h2>Example #4</h2>
+  <p>This example shows how display() automatically detects the view module from the URL when it's not explicitly provided in the data array.</p>
+[code=php]// In your controller (view_module not specified)
+public function about(): void {
+    $data['page_title'] = 'About Us';
+    $data['view_file'] = 'about';
+    $this-&gt;templates-&gt;public($data);
+}
+
+// URL: https://yoursite.com/welcome/about
+// display() will automatically use 'welcome' as the view_module
+// It will look for: modules/welcome/views/about.php[/code]
+
+<div class="alert alert-info">
+  <p class="mt-0">For the above example to be meaningful, assume that a website visitor is on the following URL:</p>
+  <code>https://yoursite.com/welcome/about</code>
+  <p>In that scenario, the <code>display()</code> method will automatically use 'welcome' as the <code>view_module</code>.</p>
+  <p>This is because 'welcome' is the value of the first URL segment.</p>
+  <p>This means that the above code sample would serve a view file from:</p>
+  [code]modules/welcome/views/about.php[/code]
+</div>
+
+</div>

@@ -1,0 +1,327 @@
+[meta-description]Build a complete image uploader with automatic resizing and thumbnails. Learn the three-method pattern, validation, and how Trongate's Image module handles everything automatically.[/meta-description]
+<h1>Basic Image Uploading</h1>
+
+<p>Let's build an image uploader. Not a theoretical example. Not a "hello world" toy. A <strong>real image uploader</strong> that resizes images and generates thumbnails automatically, using Trongate's <b>Image</b> module.</p>
+
+<p>We'll use the following <strong>three-method pattern</strong>:</p>
+
+<ol>
+    <li><strong>Display</strong> the upload form</li>
+    <li><strong>Process</strong> the upload with validation</li>
+    <li><strong>Show</strong> the success page with image preview</li>
+</ol>
+
+<p>Each method does <strong>one thing</strong>. Clean. Simple. Maintainable.</p>
+
+<div class="alert alert-info">
+    <p><strong>In a hurry?</strong> Head over to GitHub and download the <strong>Simple Image Uploader</strong> module:</p>
+    <p><a href="https://github.com/trongate/Trongate-v2---Simple-Image-Uploader" target="_blank">https://github.com/trongate/Trongate-v2---Simple-Image-Uploader</a></p>
+    <p>The code demonstrates basic image uploading concepts with automatic resizing and thumbnail generation.</p>
+</div>
+
+<h2>The Complete Controller</h2>
+
+<p>Create a <b>simple_image_uploader</b> directory with a controller file (name 'Simple_image_uploader.php') at:</p>
+
+[code]modules/simple_image_uploader/Simple_image_uploader.php[/code]
+
+<p>Here's the code for the controller file:</p>
+
+[code=php]
+&lt;?php
+class Simple_image_uploader extends Trongate {
+
+    /**
+     * 1. Display the upload form
+     */
+    function index() {
+        $data['view_module'] = 'simple_image_uploader';
+        $data['view_file'] = 'upload_form';
+        $this-&gt;view('upload_form', $data);
+    }
+
+    /**
+     * 2. Process the image upload
+     */
+    function submit_upload() {
+        // Validate first
+        $this-&gt;validation-&gt;set_rules(
+            'userfile',
+            'Image',
+            'required|max_size[5000]|max_width[3000]|max_height[3000]'
+        );
+
+        $result = $this-&gt;validation-&gt;run();
+
+        if ($result === true) {
+            // Configure image upload with automatic processing
+            $config = [
+                'destination' =&gt; 'uploads',
+                'upload_to_module' =&gt; true,
+                'max_width' =&gt; 800,
+                'max_height' =&gt; 800,
+                'thumbnail_dir' =&gt; 'uploads/thumbs',
+                'thumbnail_max_width' =&gt; 150,
+                'thumbnail_max_height' =&gt; 150,
+                'make_rand_name' =&gt; false
+            ];
+            
+            $file_info = $this-&gt;image-&gt;upload($config);
+            
+            set_flashdata('Image uploaded successfully!');
+            redirect('simple_image_uploader/success/' . $file_info['file_name']);
+                
+        } else {
+            $this-&gt;index();
+        }
+    }
+
+    /**
+     * 3. Display the success page
+     */
+    function success() {
+        $data['filename'] = segment(3);
+        $data['view_module'] = 'simple_image_uploader';
+        $data['view_file'] = 'upload_success';
+        $this-&gt;view('upload_success', $data);
+    }
+
+}
+?&gt;
+[/code]
+
+<p>That's the entire controller. Three methods. Zero complexity. Production-ready pattern.</p>
+
+<div class="alert alert-info">
+    <p>The Image module automatically processes the <strong>first file</strong> uploaded in your form, regardless of its input field name. This makes it consistent with the <a href="documentation-ref/list_refs/included/file" target="_blank">File module</a>.</p>
+</div>
+
+<div class="alert alert-warning">
+    <p><strong>Important: File Input Name</strong></p>
+    <p>The name attribute of your file input field <b>must match what you're validating</b>. In this example, we use <code>userfile</code> consistently throughout:</p>
+    <ul>
+        <li>Form: <code>form_file_select('userfile', ...)</code></li>
+        <li>Validation: <code>set_rules('userfile', 'File', ...)</code></li>
+    </ul>
+</div>
+
+<h2>The Upload Form View</h2>
+
+<p>Create a view file named 'upload_form.php' at the following location:</p>
+[code]modules/simple_image_uploader/views/upload_form.php[/code]
+
+<p>Here's the code for the view file:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;link rel="stylesheet" href="simple_image_uploader_module/css/simple_image_uploader.css"&gt;
+    &lt;title&gt;Upload Image&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Upload Image&lt;/h1&gt;
+    
+    &lt;?= validation_errors() ?&gt;
+
+    &lt;div class="info"&gt;
+        &lt;p&gt;&lt;strong&gt;Allowed file types:&lt;/strong&gt; JPEG, PNG, GIF, WEBP&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Maximum file size:&lt;/strong&gt; 5 MB&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Maximum dimensions:&lt;/strong&gt; 3000 x 3000 pixels&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; Images larger than 800x800px will be automatically resized. A 150x150px thumbnail will be generated.&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;?php
+    echo form_open_upload('simple_image_uploader/submit_upload');
+    echo form_label('Select Image:', ['for' =&gt; 'userfile']);
+
+    $select_attr = [
+        'id' =&gt; 'userfile',
+        'accept' =&gt; 'image/jpeg,image/png,image/gif,image/webp'
+    ];
+
+    echo form_file_select('userfile', $select_attr);
+    echo form_submit('submit', 'Upload Image');
+    echo form_close();
+    ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>About the CSS file:</strong> The two view files mentioned on this page reference <code>simple_image_uploader.css</code>, which should be located at:</p>
+    <p><code>modules/simple_image_uploader/css/simple_image_uploader.css</code></p>
+    <p>Trongate's <a href="documentation/trongate_php_framework/module-fundamentals/module-assets" target="_blank">Module Asset Manager</a> will automatically find and load this file when the views are rendered.</p>
+    <p>As a reminder, you can download the complete module (including the CSS file) from GitHub: <br><br><a href="https://github.com/trongate/Trongate-v2---Simple-Image-Uploader" target="_blank">Simple Image Uploader Module</a></p>
+</div>
+
+<h2>The Success Page View</h2>
+
+<p>Create a file named 'upload_success.php' and have it located at:</p>
+
+[code]modules/simple_image_uploader/views/upload_success.php[/code]
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;link rel="stylesheet" href="simple_image_uploader_module/css/simple_image_uploader.css"&gt;
+    &lt;title&gt;Upload Complete&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Upload Complete!&lt;/h1&gt;
+    &lt;?= flashdata() ?&gt;
+
+    &lt;?php if (!empty($filename)) { ?&gt;
+        &lt;div class="image-info"&gt;
+            &lt;h2&gt;Your Uploaded Image&lt;/h2&gt;
+            &lt;p&gt;&lt;strong&gt;File Name:&lt;/strong&gt; &lt;code&gt;&lt;?= out($filename) ?&gt;&lt;/code&gt;&lt;/p&gt;
+            
+            &lt;div class="image-preview"&gt;
+                &lt;h3&gt;Full Size (max 800x800px)&lt;/h3&gt;
+                &lt;img src="&lt;?= BASE_URL ?&gt;simple_image_uploader_module/uploads/&lt;?= $filename ?&gt;" 
+                     alt="Uploaded image"
+                     class="uploaded-image"&gt;
+            &lt;/div&gt;
+
+            &lt;div class="thumbnail-preview"&gt;
+                &lt;h3&gt;Thumbnail (150x150px)&lt;/h3&gt;
+                &lt;img src="&lt;?= BASE_URL ?&gt;simple_image_uploader_module/uploads/thumbs/&lt;?= $filename ?&gt;" 
+                     alt="Thumbnail"
+                     class="thumbnail-image"&gt;
+            &lt;/div&gt;
+
+            &lt;div class="actions"&gt;
+                &lt;?= anchor('simple_image_uploader', 'Upload Another Image', ['class' =&gt; 'button']) ?&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;?php } else { ?&gt;
+        &lt;div class="alert"&gt;
+            &lt;p&gt;No image information available.&lt;/p&gt;
+            &lt;p&gt;&lt;?= anchor('simple_image_uploader', 'Upload an Image', ['class' =&gt; 'button']) ?&gt;&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;?php } ?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<h2>Create the Upload Directories</h2>
+
+<p>Before uploading, create the directories where images and thumbnails will be stored:</p>
+
+[code]
+# From your application root:
+mkdir -p modules/simple_image_uploader/uploads/thumbs
+chmod 755 modules/simple_image_uploader/uploads
+chmod 755 modules/simple_image_uploader/uploads/thumbs
+[/code]
+
+<p>Or create them via PHP if you prefer:</p>
+
+[code=php]
+// Run this once in a controller
+$this-&gt;file-&gt;create_directory('uploads', 0755, true);
+$this-&gt;file-&gt;create_directory('uploads/thumbs', 0755, true);
+[/code]
+
+<h2>How It Works (The Flow)</h2>
+<div class="content-wrapper">
+<ol>
+    <li><strong>User visits</strong> <code>yoursite.com/simple_image_uploader</code></li>
+    <li><strong>Form displays</strong> with image file selection input</li>
+    <li><strong>User selects image</strong> and clicks "Upload Image"</li>
+    <li><strong>Browser POSTs</strong> to <code>yoursite.com/simple_image_uploader/submit_upload</code></li>
+    <li><strong>Trongate validates</strong> the image (required, type, size, dimensions)</li>
+    <li><strong>If valid:</strong> 
+        <ul>
+            <li>Uploads image to <code>modules/simple_image_uploader/uploads/</code></li>
+            <li>Automatically resizes if larger than 800x800px</li>
+            <li>Generates 150x150px thumbnail in <code>uploads/thumbs/</code></li>
+            <li>Sets success message and redirects</li>
+        </ul>
+    </li>
+    <li><strong>If invalid:</strong> Redisplays form with error messages</li>
+    <li><strong>Success page</strong> shows both full-size image and thumbnail</li>
+</ol>
+</div>
+<h2>Key Concepts Explained</h2>
+
+<h3>1. form_open_upload() vs form_open()</h3>
+
+<p>Use <span class="feature-ref">form_open_upload()</span> for image uploads. It automatically adds:</p>
+
+[code=html]
+&lt;!-- form_open() --&gt;
+&lt;form action="..." method="post"&gt;
+
+&lt;!-- form_open_upload() --&gt;
+&lt;form action="..." method="post" enctype="multipart/form-data"&gt;
+[/code]
+
+<p>That <code>enctype</code> attribute is required for file uploads. Trongate adds it automatically.</p>
+
+<h3>2. The POST-Redirect-GET Pattern</h3>
+
+<p>Notice, we don't render the success page directly. Instead, when an upload is successful, we immediately redirect the user elsewhere:</p>
+
+[code=php]
+// ❌ WRONG - causes "resubmit form?" on refresh
+if ($result === true) {
+    $data['filename'] = $file_info['file_name'];
+    $this-&gt;view('upload_success', $data); // Don't do this!
+}
+
+// ✅ RIGHT - clean refresh, no duplicate uploads
+if ($result === true) {
+    set_flashdata('Image uploaded successfully!');
+    redirect('simple_image_uploader/success/' . $file_info['file_name']);
+}
+[/code]
+
+<p><strong>POST</strong> (upload) → <strong>Process</strong> → <strong>Redirect</strong> → <strong>GET</strong> (success page)</p>
+
+<h3>3. Validation Before Upload</h3>
+
+<p>We always validate <strong>before</strong> uploading:</p>
+
+[code=php]
+// ❌ WRONG - uploads then validates
+$file_info = $this-&gt;image-&gt;upload($config);
+$this-&gt;validation-&gt;set_rules(...); // Too late!
+
+// ✅ RIGHT - validates then uploads
+$this-&gt;validation-&gt;set_rules(...); // Validate first
+if ($this-&gt;validation-&gt;run() === true) {
+    $file_info = $this-&gt;image-&gt;upload($config); // Upload only if valid
+}
+[/code]
+
+<h3>4. What Happens Automatically</h3>
+
+<p>When you call <code>$this-&gt;image-&gt;upload($config)</code>, the Image module automatically:</p>
+
+<ul>
+    <li>Validates MIME types (JPEG, PNG, GIF, WEBP only)</li>
+    <li>Checks file signatures to prevent spoofed uploads</li>
+    <li>Scans for embedded malicious content</li>
+    <li>Resizes images that exceed max_width or max_height</li>
+    <li>Maintains aspect ratios during resizing</li>
+    <li>Generates thumbnails with specified dimensions</li>
+    <li>Prevents filename conflicts (car.jpg → car_2.jpg → car_3.jpg)</li>
+</ul>
+
+<p>All of this happens with <strong>zero configuration</strong> beyond the simple config array.</p>
+
+<h2>Try It Right Now</h2>
+
+<ol>
+    <li>Create the three files above</li>
+    <li>Create the upload directories (uploads and uploads/thumbs)</li>
+    <li>Visit: <code>yoursite.com/simple_image_uploader</code></li>
+    <li>Upload an image (JPEG, PNG, GIF, or WEBP)</li>
+    <li>See the resized image and thumbnail on the success page</li>
+</ol>
+
+<p>Don't forget: You're welcome to <a href="https://github.com/trongate/Trongate-v2---Simple-Image-Uploader" target="_blank">download the code from GitHub</a>.</p>

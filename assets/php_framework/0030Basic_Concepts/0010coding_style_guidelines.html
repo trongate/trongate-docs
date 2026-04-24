@@ -1,0 +1,76 @@
+[meta-description]Trongate coding style: raw Native PHP with zero abstraction. Embrace snake_case, K&R bracing, 4-space indentation, and ruthless clarity - because speed and simplicity always win.[/meta-description]
+<h1>Coding Style Guidelines</h1>
+
+<p>Trongate doesn’t wrap PHP in conventions, or abstractions. It <strong>is</strong> PHP  -  raw, fast, and unapologetic. This is <strong>Native PHP</strong>: code that runs like it was written by someone who actually loves the language.</p>
+
+<h2>Core Principles</h2>
+<ul>
+    <li>Zero bloat. Zero abstraction.</li>
+    <li>Write PHP exactly as the creators of the language intended.</li>
+    <li>If it doesn’t make your code faster or clearer, it doesn’t belong.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p>The overwhelming majority of PHP’s built-in functions use <code>snake_case</code>. So should you.</p>
+</div>
+
+<h2 class="mt-2">Why Snake Case Wins</h2>
+<ul>
+    <li>The overwhelming majority of PHP's core functions use snake_case, including :</li>
+
+
+<div class="mt-1"><code>array_merge()</code></div>
+<div class="mt-1"><code>class_exists()</code></div>
+<div class="mt-1"><code>file_get_contents()</code></div>
+<div class="mt-1"><code>function_exists()</code></div>
+<div class="mt-1"><code>str_replace()</code></div>
+<div class="mt-1"><code>strip_tags()</code></div>
+
+
+
+<div class="mt-1">...and more!</div>
+
+
+    <li class="mt-1">Snake case eliminates the eternal <code>userId</code> vs <code>userID</code> vs <code>UserId</code> holy wars.</li>
+    <li>Snake case reads naturally: <code>get_user_by_id()</code> > <code>getUserByID()</code>.</li>
+</ul>
+
+<div class="alert alert-warning">
+  <p>Many PHP frameworks encourage the usage of camelCase.  Unfortunately, camelCase introduces unnecessary ambiguity. Consider the following example, which compares camelCase PHP with Native PHP:</p>
+[code=php]
+// Which is it? ID? Id? iD?
+$userId = getUserByID($userID);
+
+// vs Native PHP:
+$user_id = get_user_by_id($user_id);
+[/code]
+  <p>No debate. No style-guide meetings. Just simple code.</p>
+</div>
+
+<h2>K&amp;R Style  -  Because C Got It Right</h2>
+<p>PHP was built with the C programming language. We honor that. All official examples use Kernighan &amp; Ritchie bracing:</p>
+
+[code=php]
+function hello_world() {
+    echo "Hello, world!\n";
+}
+
+if ($user_is_logged_in) {
+    grant_access();
+} else {
+    deny_access();
+}
+[/code]
+
+<ul>
+    <li>Four spaces. No tabs. Ever.</li>
+    <li>Opening brace on same line.</li>
+    <li>Closing brace aligns with the command.</li>
+</ul>
+
+<h2>The Only Rules That Matter</h2>
+<ol>
+    <li><strong>Consistency</strong> beats dogma.</li>
+    <li><strong>Clarity</strong> beats cleverness.</li>
+    <li><strong>Speed</strong> beats ceremony.</li>
+</ol>

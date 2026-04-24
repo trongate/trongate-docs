@@ -1,0 +1,253 @@
+[meta-description]Understand how to handle HTML lang attributes, character sets, and related concerns when building multilingual applications in Trongate v2.[/meta-description]
+
+<h1>HTML Language Attributes</h1>
+
+<p>The Language module determines <strong>which language your application is using</strong>.</p>
+
+<p>It does <strong>not</strong> automatically modify your HTML.</p>
+
+<p>This is by design.</p>
+
+<p>You remain in full control of how language is expressed in your markup.</p>
+
+<hr>
+
+<h2 class="mt-0">The &lt;html lang=""&gt; Attribute</h2>
+
+<p>Most developers are familiar with this:</p>
+
+[code=html]
+&lt;html lang="en"&gt;
+[/code]
+
+<p>This attribute tells browsers and assistive technologies what language the page is written in.</p>
+
+<h3>Should You Change It?</h3>
+
+<p><strong>Yes - if your page content changes language.</strong></p>
+
+<p>If your application switches from English to French, your HTML should reflect that:</p>
+
+[code=vf]
+&lt;html lang="&lt;?= $lang ?&gt;"&gt;
+[/code]
+
+<p>This ensures:</p>
+
+<ul>
+    <li>Screen readers use the correct pronunciation rules</li>
+    <li>Search engines correctly index your content</li>
+    <li>Browsers apply appropriate language-specific behaviour</li>
+</ul>
+
+<hr>
+
+<h2 class="mt-0">The &lt;meta charset&gt; Tag</h2>
+
+<p>You will often see this in the <code>&lt;head&gt;</code> section:</p>
+
+[code=html]
+&lt;meta charset="UTF-8"&gt;
+[/code]
+
+<h3>Do You Need to Change This?</h3>
+
+<p><strong>In almost all cases: No.</strong></p>
+
+<p>UTF-8 supports virtually all modern languages, including:</p>
+
+<ul>
+    <li>English</li>
+    <li>French</li>
+    <li>Spanish</li>
+    <li>Arabic</li>
+    <li>Chinese</li>
+    <li>Japanese</li>
+</ul>
+
+<p>You should only consider changing the character set if:</p>
+
+<ul>
+    <li>You are working with a legacy system</li>
+    <li>You have a very specific encoding requirement</li>
+</ul>
+
+<p>Otherwise, leave it as UTF-8.</p>
+
+<hr>
+
+<h2 class="mt-0">Text Direction (LTR vs RTL)</h2>
+
+<p>Some languages are written from right to left (RTL), such as Arabic and Hebrew.</p>
+
+<p>Modern browsers handle RTL text automatically when the <code>lang</code> attribute is correctly set. However, you may wish to explicitly declare the text direction to ensure consistent layout behaviour across all rendering engines and CSS frameworks.</p>
+
+<p>Following the principle of Separation of Concerns, compute the direction in your controller:</p>
+
+[code=php]
+&lt;?php
+class Home extends Trongate {
+
+    function index() {
+        $data['lang'] = $this->language->get_language();
+        
+        // Determine text direction based on language
+        $rtl_languages = ['ar', 'he', 'ur', 'fa'];
+        $data['dir'] = in_array($data['lang'], $rtl_languages) ? 'rtl' : 'ltr';
+        
+        $data['view_module'] = 'home';
+        $this-&gt;view('my_template', $data);
+    }
+
+}
+[/code]
+
+<p>Then render it cleanly in your view:</p>
+
+[code=vf]
+&lt;html lang="&lt;?= $lang ?&gt;" dir="&lt;?= $dir ?&gt;"&gt;
+[/code]
+
+<p>This ensures correct text flow and layout while keeping your view free of logic.</p>
+
+<hr>
+
+<h2 class="mt-0">Other Useful HTML Language Attributes</h2>
+
+<h3>1. lang on Individual Elements</h3>
+
+<p>You can override language for specific parts of a page:</p>
+
+[code=vf]
+&lt;p lang="fr"&gt;Bonjour tout le monde&lt;/p&gt;
+[/code]
+
+<p>This is useful when mixing languages within a single page.</p>
+
+<h3>2. hreflang (SEO)</h3>
+
+<p>Used in links to indicate alternate language versions:</p>
+
+[code=vf]
+&lt;link rel="alternate" hreflang="fr" href="/fr/page"&gt;
+&lt;link rel="alternate" hreflang="en" href="/en/page"&gt;
+[/code]
+
+<p>This helps search engines understand multilingual content.</p>
+
+<hr>
+
+<h2 class="mt-0">Putting It All Together</h2>
+
+<p>A typical multilingual HTML template might look like this:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="&lt;?= $lang ?&gt;" dir="&lt;?= $dir ?&gt;"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;My App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;&lt;?= $heading ?&gt;&lt;/h1&gt;
+
+&lt;p&gt;&lt;?= $content ?&gt;&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Key Decisions (Quick Answers)</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Question</th>
+            <th>Answer</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Should I change &lt;html lang&gt;?</td>
+            <td>Yes, when the page language changes</td>
+        </tr>
+        <tr>
+            <td>Should I change charset?</td>
+            <td>No, use UTF-8 in almost all cases</td>
+        </tr>
+        <tr>
+            <td>Do I need to handle text direction?</td>
+            <td>Only for RTL languages (e.g., Arabic, Hebrew)</td>
+        </tr>
+        <tr>
+            <td>Does Trongate do this automatically?</td>
+            <td>No - you remain in full control</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2 class="mt-0">Why Trongate Leaves This to You</h2>
+
+<p>Many frameworks attempt to manage HTML language behaviour automatically.</p>
+
+<p>This often leads to:</p>
+
+<ul>
+    <li>Hidden behaviour</li>
+    <li>Reduced flexibility</li>
+    <li>Unexpected side effects</li>
+</ul>
+
+<p>Trongate takes a different approach:</p>
+
+<p><strong>The framework handles state. You control output.</strong></p>
+
+<hr>
+
+<h2 class="mt-0">Separation of Concerns</h2>
+
+<p>Modules cannot be accessed directly from view files. Therefore, all language state must be resolved within your controller and passed as simple variables. This adheres to a strict <strong>Separation of Concerns</strong> - your view files remain "dumb," readable, and decoupled from the underlying module logic.</p>
+
+<h3>1. The Controller</h3>
+<p>Fetch the language once and pass it into the <code>$data</code> array:</p>
+
+[code=php]
+&lt;?php
+class Home extends Trongate {
+
+    function index() {
+        // Resolve the language state here
+        $data['lang'] = $this->language->get_language();
+        
+        $data['view_module'] = 'home';
+        $this-&gt;view('my_template', $data);
+    }
+
+}
+[/code]
+
+<h3>2. The View</h3>
+<p>Your view remains clean, focusing only on the data it has been given:</p>
+
+[code=vf]
+&lt;!DOCTYPE html&gt;
+&lt;html lang="&lt;?= $lang ?&gt;"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;My App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Regarding Separation of Concerns</strong></p>
+    <p class="mb-0">Keep your views strictly for presentation. Let the controller handle the logic of fetching the state, and let the view simply render the properties it receives. This ensures your code remains clean, independent, and professional.</p>
+</div>

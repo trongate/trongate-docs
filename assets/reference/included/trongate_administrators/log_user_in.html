@@ -1,0 +1,50 @@
+<div class="container">
+  <h1>log_user_in()</h1>
+  <p class="signature">public function log_user_in(string $username, int $remember): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Logs a user in by generating an authentication token and storing it in the database. Handles both web and MX (Trongate MX/API) request types.</p>
+    <p>After successful login, resets failed login counters and lockout information, then redirects to the dashboard home.</p>
+    <p>For MX requests, returns the token as a plain text response rather than redirecting.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>$username</td><td>string</td><td>The username to authenticate and log in.</td></tr>
+      <tr><td>$remember</td><td>int</td><td>0 for session‑only login, 1 for persistent cookie (30 days).</td></tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Redirects on success or terminates with 500 error on failure.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Login form submission handler
+public function submit_login() {
+    $username = post('username', true);
+    $password = post('password', true);
+    
+    $this->validation->set_rules('username', 'username', 'required|callback_login_check');
+    $this->validation->set_rules('password', 'password', 'required|min_length[5]');
+    
+    if ($this->validation->run() === true) {
+        $remember = (int) (bool) post('remember', true);
+        $this->trongate_administrators->log_user_in($username, $remember);
+    }
+}
+
+// Direct login (bypass validation)
+public function auto_login(string $username) {
+    $this->trongate_administrators->log_user_in($username, 1);
+}
+
+// After successful login, user is redirected to:
+// trongate_administrators/manage (dashboard home)
+[/code]
+</div>

@@ -1,0 +1,146 @@
+<div class="container">
+    <h1>form_submit()</h1>
+    <p class="signature">function form_submit(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML submit button element with <code>type="submit"</code> for sending form data to the server.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the submit button element.</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>(optional) The button's visible text. Defaults to "Submit".</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes for the submit button element. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>An HTML submit button element with type="submit".</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Submit Button</h2>
+[code=php]
+echo form_submit('submit-btn');
+
+// Output:
+// &lt;button type="submit" name="submit-btn"&gt;Submit&lt;/button&gt;
+[/code]
+
+    <h2>Example #2: Submit Button with Custom Text</h2>
+[code=php]
+echo form_submit('action', 'Save Changes');
+
+// Output:
+// &lt;button type="submit" name="action"&gt;Save Changes&lt;/button&gt;
+[/code]
+
+    <h2>Example #3: Multiple Action Buttons</h2>
+[code=php]
+echo form_submit('action', 'Save Draft');
+echo form_submit('action', 'Publish Now');
+echo form_submit('action', 'Delete');
+
+// In controller: $action = post('action', true);
+// Returns: 'Save Draft', 'Publish Now', or 'Delete'
+[/code]
+
+    <h2>Example #4: Disabled Submit Button</h2>
+[code=php]
+$attributes = [
+    'disabled' =&gt; 'disabled',
+    'class' =&gt; 'warning'
+];
+echo form_submit('submit', 'Processing...', $attributes);
+
+// Output:
+// &lt;button type="submit" name="submit" disabled="disabled" class="warning"&gt;Processing...&lt;/button&gt;
+[/code]
+
+    <h2>Button Styling</h2>
+    
+    <div class="card mb-2">
+        <div class="card-heading">Available CSS Classes</div>
+        <div class="card-body">
+            <button type="button" class="mr-1">Default</button>
+            <button type="button" class="success mr-1">Success</button>
+            <button type="button" class="danger mr-1">Danger</button>
+            <button type="button" class="warning mr-1">Warning</button>
+            <button type="button" class="inverse mr-1">Inverse</button>
+            <button type="button" class="alt mr-1">Alt</button>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <p>Your buttons may have different colors than those displayed above. The actual appearance depends on your Trongate CSS theme.</p>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Test different CSS classes with your submit buttons. This code assumes Trongate CSS is loaded on your webpage:</p>
+
+[code=vf]
+&lt;?php
+echo form_submit('btn1', 'Default Submit');
+echo form_submit('btn2', 'Success Action', ['class' =&gt; 'success']);
+echo form_submit('btn3', 'Danger Action', ['class' =&gt; 'danger']);
+echo form_submit('btn4', 'Warning Action', ['class' =&gt; 'warning']);
+echo form_submit('btn5', 'Inverse Action', ['class' =&gt; 'inverse']);
+echo form_submit('btn6', 'Alt Style', ['class' =&gt; 'alt']);
+?&gt;
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Submit vs Button:</strong> This creates <code>&lt;button type="submit"&gt;</code> elements that automatically submit forms. For non-submitting buttons, use <code>form_button()</code> instead.</p>
+    </div>
+
+    <div class="alert alert-success">
+        <ul>
+            <li>Submit buttons automatically submit their parent form when clicked</li>
+            <li>Submit buttons are included in POST data - use <code>post('button_name', true)</code> to check which was clicked</li>
+            <li>Use different <code>$value</code> parameters to distinguish multiple submit buttons</li>
+            <li>Add <code>disabled</code> attribute during processing to prevent double-submission</li>
+            <li>Available CSS classes: <code>success</code>, <code>danger</code>, <code>warning</code>, <code>inverse</code>, <code>alt</code></li>
+        </ul>
+    </div>
+
+    <h2>Common Use Cases</h2>
+    <ul>
+        <li>Form submission for data processing</li>
+        <li>Multiple action forms (Save, Publish, Delete)</li>
+        <li>Wizard-style forms with Next/Previous buttons</li>
+        <li>Search forms with specialized submit buttons</li>
+        <li>Forms requiring confirmation before submission</li>
+    </ul>
+</div>

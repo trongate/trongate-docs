@@ -1,0 +1,119 @@
+<div class="container">
+  <h1>segment()</h1>
+
+  <p class="signature">function segment(int $num, ?string $var_type = null): mixed</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Retrieves a specific segment from the current URL. Unlike earlier framework conventions that implicitly injected URL values into controller methods, <code>segment()</code> makes URL input <strong>explicit</strong>, <strong>predictable</strong>, and <strong>secure</strong>.
+   </p>
+
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$num</td>
+        <td>int</td>
+        <td>The position of the URL segment to retrieve (starting from 1).</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$var_type</td>
+        <td>string|null</td>
+        <td>
+          Optional. If provided, the segment value is coerced to this PHP data type using <code>settype()</code>.
+          This enables type safety at the point of retrieval.
+        </td>
+        <td>null</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>
+          The value of the requested URL segment. Returns an empty string if the segment does not exist.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Basic Example</h2>
+[code=php]echo segment(1);
+// URL: https://example.com/blog/view/hello-world
+// Output: blog[/code]
+
+  <h2>Type-Safe Numeric ID</h2>
+  <p>
+    Passing a second argument enables automatic type coercion. This is especially useful for numeric identifiers and makes SQL injection attempts ineffective.
+ </p>
+
+[code=php]public function profile() {
+  $user_id = segment(3, 'int');
+
+  if ($user_id &lt;= 0) {
+    http_response_code(400);
+    die('Invalid user ID');
+  }
+
+  $user = $this-&gt;model-&gt;get_user($user_id);
+}[/code]
+
+  <h2>String Slug Example</h2>
+  <p>
+    Explicitly fetching string values improves readability and makes the source of external input immediately obvious.
+ </p>
+
+[code=php]public function show() {
+  $slug = segment(3, 'string');
+
+  if ($slug === '') {
+    redirect('blog');
+  }
+
+  $post = $this-&gt;model-&gt;get_by_slug($slug);
+}[/code]
+
+  <h2>Boolean Flag Example</h2>
+  <p>
+    Boolean coercion is useful for toggle-style routes where values such as <code>1</code> and <code>0</code> are expected.
+ </p>
+
+[code=php]public function toggle() {
+  $active = segment(3, 'bool');
+  $this-&gt;model-&gt;set_status($active);
+}[/code]
+
+  <h2>Supported Data Types</h2>
+  <ul>
+    <li><code>'int'</code> - integer values</li>
+    <li><code>'float'</code> - decimal values</li>
+    <li><code>'bool'</code> - boolean values</li>
+    <li><code>'string'</code> - string values</li>
+    <li><code>'array'</code> - advanced or edge cases</li>
+  </ul>
+
+  <p>
+    By combining explicit URL access with native PHP type coercion, <code>segment()</code> encourages safer, clearer, and more maintainable controller code.
+ </p>
+</div>

@@ -1,0 +1,76 @@
+[meta-description]In Trongate, View Files are simple Native PHP files (no template engine) that live in the views/ directory of a module. Learn how to load views using $this->view('file', $data) and how to safely output content using the out() string helper to prevent XSS attacks.[/meta-description]
+<h1>View Files</h1>
+
+<p>With Trongate, views are <b>just PHP files</b>. That’s it.</p>
+<p>HTML + <code>&lt;?= $var ?&gt;</code> = dynamic page.</p>
+<p>No template engine. No learning curve. <b>Just PHP.</b></p>
+
+<h2>Where They Live</h2>
+
+<p>Each module can have one <code>views</code> directory. Put your view files in it. Done.</p>
+
+[code]
+modules/
+  users/
+    Users.php
+    Users_model.php ← optional
+    views/
+      users_list.php
+      user_profile.php
+[/code]
+
+<p>The text above demonstrates some file and directory locations for a hypothetical 'users' module.</p>
+
+<h2>How to Load One</h2>
+
+<p>View files can be loaded from any controller by using Trongate's <span class="feature-ref">view()</span> method:</p>
+
+[code=php]
+$this->view('users_list', $data);
+[/code]
+
+<p>Trongate renders <code>views/users_list.php</code>. That’s it.</p>
+
+<h2>Passing Data</h2>
+
+[code=php]
+$data['users'] = $this->model->get();
+$this->view('users_list', $data);
+[/code]
+
+<p>In the view:</p>
+
+[code=php]
+&lt;?php foreach ($users as $user): ?&gt;
+    &lt;p&gt;&lt;?= $user->name ?&gt;&lt;/p&gt;
+&lt;?php endforeach; ?&gt;
+[/code]
+
+<h2>Return as String (Pro Move)</h2>
+
+<p>Need HTML as a variable?</p>
+
+[code=php]
+$html = $this->view('email_template', $data, true);
+[/code]
+
+<p>Third arg = <code>true</code> → returns a string. No output. You control it.</p>
+
+<div class="alert alert-warning">
+    <p><strong>Never</strong> put logic in views.</p>
+    <p><code>if</code>, <code>foreach</code> = OK.</p>
+    <p>Queries, auth, redirects = <b>NO</b>. That’s controller/model territory.</p>
+</div>
+
+<div class="alert alert-success">
+<p>Use Trongate’s <span class="feature-ref">out()</span> string helper to automatically escape user-generated content, protect your site from XSS and ensure proper encoding.</p>
+[code=php]
+&lt;?= out($name) ?&gt; &lt;!-- HTML (default format) --&gt;
+&lt;?= out($xml, 'xml') ?&gt; &lt;!-- XML --&gt;
+&lt;?= out($json, 'json') ?&gt; &lt;!-- JSON --&gt;
+&lt;?= out($js, 'javascript') ?&gt; &lt;!-- JS --&gt;
+[/code]
+</div>
+
+<p class="text-center mt-0"><strong>Remember, when you're dealing with Trongate, PHP <i>is</i> the template engine.</strong></p>
+<p class="text-center mt-0"><strong>100% Native PHP. 100% nailed.</strong></p>

@@ -1,0 +1,131 @@
+<div class="container">
+    <h1>download()</h1>
+    <p class="signature">public function download(string $file_path, bool $as_attachment = true): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Initiates a file download or displays a file inline. This method handles header preparation, including Content-Type and Content-Disposition.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p>This method calls <code>exit</code> after sending the file to prevent additional output.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$file_path</td>
+                <td>string</td>
+                <td>The path to the file.</td>
+            </tr>
+            <tr>
+                <td>$as_attachment</td>
+                <td>bool</td>
+                <td>(optional) Force download (true) or display inline (false). Default is true.</td>
+            </tr>
+        </tbody>
+    </table>
+<h2>Example #1</h2>
+<p>The code sample below demonstrates how to allow users to download their invoice PDFs.</p>
+[code=php]
+public function download_invoice(): void {
+    $invoice_id = segment(3, 'int');
+    $user_id = segment(4, 'int');
+    
+    // Get the invoice record
+    $invoice = $this->db->get_where($invoice_id, 'invoices');
+    
+    if ($invoice === false || $invoice->user_id !== $user_id) {
+        redirect('invoices/not_found');
+    }
+    
+    // Build the file path
+    $file_path = 'modules/invoices/documents/' . $invoice->filename;
+    
+    // Check if file exists before attempting download
+    if ($this->file->exists($file_path)) {
+        // Trigger download
+        $this->file->download($file_path);
+        // Note: Code after this line will not execute due to exit
+    } else {
+        redirect('invoices/not_found');
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Method Behavior:</strong> The <code>download()</code> method calls <code>exit</code> after sending the file, which terminates script execution. This means any code placed after the <code>download()</code> call will not run. There's no need to add a <code>return</code> statement or redirect after calling this method.</p>
+</div>
+
+<h2>Example #2</h2>
+<p>The example above shows how to display a PDF inline in the browser rather than forcing a download.</p>
+[code=php]
+public function view_contract(): void {
+    $contract_id = segment(3, 'int');
+    
+    // Get the contract record
+    $contract = $this->db->get_where($contract_id, 'contracts');
+    
+    if ($contract === false) {
+        redirect('contracts/not_found');
+    }
+    
+    // Build the file path
+    $file_path = 'modules/contracts/storage/' . $contract->filename;
+    
+    // Check if file exists
+    if ($this->file->exists($file_path)) {
+        // Display in browser instead of downloading
+        $this->file->download($file_path, false);
+    } else {
+        redirect('contracts/not_found');
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Inline Display vs Download:</strong> Setting the second parameter to <code>false</code> causes the file to be displayed inline in the browser (if the browser supports the file type). This is useful for PDFs, images, and text files that users may want to preview before downloading. Setting it to <code>true</code> (the default) forces the browser to prompt a download dialog.</p>
+</div>
+
+<h2>Example #3</h2>
+<p>The example above demonstrates how to implement a secure download system that logs file access.</p>
+[code=php]
+public function secure_download(): void {
+    $file_id = segment(3, 'int');
+    $user_id = $_SESSION['user_id'] ?? 0;
+    
+    // Verify user is logged in
+    if ($user_id === 0) {
+        redirect('login');
+    }
+    
+    // Get file record and check permissions
+    $file = $this->db->get_where($file_id, 'secure_files');
+    
+    if ($file === false || $file->owner_id !== $user_id) {
+        redirect('files/unauthorized');
+    }
+    
+    $file_path = 'modules/secure_files/storage/' . $file->filename;
+    
+    if ($this->file->exists($file_path)) {
+        // Log the download
+        $log_data = [
+            'file_id' => $file_id,
+            'user_id' => $user_id,
+            'downloaded_at' => date('Y-m-d H:i:s')
+        ];
+        $this->db->insert($log_data, 'download_logs');
+        
+        // Initiate download
+        $this->file->download($file_path);
+    } else {
+        redirect('files/not_found');
+    }
+}
+[/code]
+</div>

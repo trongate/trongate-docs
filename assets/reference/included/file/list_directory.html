@@ -1,0 +1,123 @@
+<div class="container">
+    <h1>list_directory()</h1>
+    <p class="signature">public function list_directory(string $directory_path, bool $recursive = false): array</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Lists all files and directories within a specified path. Returns a simple array of names for flat listings, or a nested array structure when using recursive mode to traverse subdirectories.</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>Understanding Paths:</strong> The <code>list_directory()</code> method works with paths relative to your application's root directory. The method includes built-in security validation to prevent "directory traversal" attacks or access to sensitive areas like <code>config</code> or <code>engine</code>.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$directory_path</td>
+                <td>string</td>
+                <td>The relative path to the directory whose contents should be listed.</td>
+            </tr>
+            <tr>
+                <td>$recursive</td>
+                <td>bool</td>
+                <td>(optional) If true, includes all subdirectories and their contents in a nested array structure. Default is false.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>array</td>
+                <td>A simple array of names when <code>$recursive</code> is false, or a nested associative array when <code>$recursive</code> is true.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the Return Structure</h2>
+
+    <p>The structure of the returned array changes significantly based on the <code>$recursive</code> parameter. Understanding this difference is key to processing the data correctly.</p>
+
+    <h3>1. Non-Recursive Mode (Flat List)</h3>
+    <p>This is the default mode. It returns a simple, numerically indexed array of strings. <strong>Crucially</strong>, it does not distinguish between a file and a folder.</p>
+
+[code=php]
+$items = $this->file->list_directory('uploads');
+
+/* Result:
+[
+    0 => 'document.pdf',
+    1 => 'image.jpg',
+    2 => 'sub-folder' // Appears as a string, same as a file
+]
+*/
+[/code]
+
+    <h3>2. Recursive Mode (Nested Tree)</h3>
+    <p>In recursive mode, the array becomes associative. Directories are represented as <strong>keys</strong> (strings) pointing to their own arrays of content. Files remain as <strong>values</strong> with numeric keys.</p>
+
+[code=php]
+$items = $this->file->list_directory('uploads', true);
+
+/* Result:
+[
+    0 => 'top-level-file.txt',
+    'sub-folder' => [
+        0 => 'nested-file.jpg',
+        1 => 'another-file.png'
+    ]
+]
+*/
+[/code]
+
+    <h2>Comprehensive Examples</h2>
+
+    <h3>Example 1: Building a Dynamic File Browser</h3>
+    <p>Since flat listings don't differentiate types, we use PHP's <code>is_dir()</code> to build a more informative list.</p>
+
+[code=php]
+$path = 'public/uploads';
+$items = $this->file->list_directory($path);
+
+echo '<ul>';
+foreach ($items as $item) {
+    $full_path = $path . '/' . $item;
+    $icon = is_dir($full_path) ? '📁' : '📄';
+    echo '<li>' . $icon . ' ' . out($item) . '</li>';
+}
+echo '</ul>';
+[/code]
+
+    <h3>Example 2: Recursive File Search</h3>
+    <p>This pattern demonstrates how to traverse the nested array returned by a recursive listing to find specific file types.</p>
+
+[code=php]
+public function find_pdfs($items, $current_path, &$results) {
+    foreach ($items as $key => $value) {
+        if (is_array($value)) {
+            // It's a directory: recurse deeper
+            $this->find_pdfs($value, $current_path . '/' . $key, $results);
+        } else {
+            // It's a file: check extension
+            if (pathinfo($value, PATHINFO_EXTENSION) === 'pdf') {
+                $results[] = $current_path . '/' . $value;
+            }
+        }
+    }
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>The "Check Before You Act" Pattern</strong></p>
+        <p>Always wrap your directory listings in a <code>try/catch</code> block or use <code>$this->file->exists()</code> beforehand. The <code>list_directory()</code> method will throw an exception if the path is invalid, restricted, or simply doesn't exist. Defensive programming ensures your application remains stable even if a folder is deleted manually from the server.</p>
+    </div>
+</div>

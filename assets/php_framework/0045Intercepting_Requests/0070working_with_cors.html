@@ -1,0 +1,130 @@
+[meta-description]Fix CORS errors in your Trongate API using Native PHP headers. Learn the "Nuclear Option" for public APIs and how to securely lock down access by whitelisting trusted domains. Understand preflight requests and the importance of Vary: Origin for caching.[/meta-description]
+<h1>Working With CORS</h1>
+<p>You're building an API. Your frontend screams. The browser blocks it.</p>
+<p><strong><span style="color: red;">"CORS error!"</span></strong></p>
+<p>Relax!</p>
+<p>This is <strong>not</strong> a Trongate problem.</p>
+<p>This is <strong>browser security</strong>  -  and we’re fixing it, <strong>Native PHP style</strong>.</p>
+<hr>
+<h2 class="mt-0">What Is CORS?</h2>
+<p><strong>CORS = Cross-Origin Resource Sharing</strong></p>
+<p>Your page at <code>https://example.com</code> tries to fetch from <code>https://api.com/users</code>.</p>
+<p>The <strong>browser</strong> says:<br>
+→ “Different domain. Not allowed… unless the server says yes.”</p>
+<p>The <strong>server</strong> must send special headers:<br>
+→ “Yes, you’re allowed.”</p>
+<p>That’s it. Just <strong>headers</strong>.</p>
+<hr>
+<h2 class="mt-0">The Nuclear Option (Public APIs)</h2>
+<p>Add this code to the <code>__construct()</code> method of any API controller:</p>
+[code=php]
+public function __construct() {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, trongate-mx-request, X-Window-Type');
+    header('Vary: Origin');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(204);
+        exit;
+    }
+}
+[/code]
+<p>Done. Your API now works with <strong>any frontend</strong>.</p>
+<div class="alert alert-warning">
+    <p><strong>Warning:</strong> <code>*</code> means <em>everyone</em>. Use only for public APIs.</p>
+</div>
+<hr>
+<h2 class="mt-0">Lock It Down (Production-Ready)</h2>
+<p>The "Nuclear Option" allows <strong>any website</strong> to access your API. That's fine for public APIs, but for private applications, you need to restrict access to <strong>only your authorized domains</strong>.</p>
+<p>Here's how to whitelist specific domains  -  <strong>correctly</strong>:</p>
+[code=php]
+public function __construct() {
+    $this->set_cors_headers();
+}
+
+private function set_cors_headers() {
+    header('Vary: Origin');
+
+    $allowed_origins = [
+        'https://trusted-website.com'
+    ];
+
+    if (!isset($_SERVER['HTTP_ORIGIN'])) {
+        return;
+    }
+
+    $origin = $_SERVER['HTTP_ORIGIN'];
+
+    if (in_array($origin, $allowed_origins, true)) {
+        header("Access-Control-Allow-Origin: $origin");
+        header('Access-Control-Allow-Credentials: true');
+    } else {
+        http_response_code(403);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'CORS origin not allowed']);
+        exit;
+    }
+
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, trongate-mx-request, X-Window-Type');
+    header('Access-Control-Max-Age: 86400');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(204);
+        exit;
+    }
+}
+[/code]
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The example above assumes that we are allowing a partner website, <code>https://trusted-website.com</code>, to submit HTTP requests to own website at <code>https://example.com</code>.</p>
+    <p>Same-origin requests are <em>never</em> blocked by CORS.</p>
+    <p>Therefore, you do <strong>not</strong> need to whitelist your own domain.</p>
+</div>
+<div class="alert alert-success">
+    <p><strong>Pro tip:</strong> Need CORS on <em>one method only</em>?<br>
+    Call <code>$this->set_cors_headers();</code> inside that method instead of <code>__construct()</code>.</p>
+</div>
+<hr>
+
+
+<h2 class="mt-0">Preventing Cross-Origin Cache Issues</h2> <p>There’s a small line of code, in the example above, that deserves special attention:</p>
+
+[code=php]
+header('Vary: Origin');
+[/code]
+
+<p>It’s a simple line of pure PHP  -  but a very powerful one.</p>
+<p>Let’s take a moment to clarify what it does, and why it’s <strong>so important</strong>.</p> <p>Imagine two browsers:</p> 
+<div class="element-wrapper">
+<ul> 
+    <li>One from <code>https://trusted-website.com</code> → gets <code>Access-Control-Allow-Origin: https://trusted-website.com</code></li> <li>One from <code>https://hacker.com</code> → gets blocked</li> 
+</ul> 
+</div>
+<p>If your server is behind a cache (Cloudflare, Varnish, etc.), that cache might serve the <em>same stored response</em> to both browsers.</p> 
+
+<p><code>Vary: Origin</code> tells the server: “Don’t serve a cached response that belongs to a different origin  -  keep separate versions for each one.”</p>
+
+ <p><strong>Beginner summary:</strong> It prevents cached responses from leaking to the wrong sites.</p>
+
+<hr>
+<h2 class="mt-0">Preflight Requests (Quick Recap)</h2>
+<p>Complex requests trigger an <code>OPTIONS</code> “preflight” before the real request.</p>
+<table class="sm" style="margin: 0 auto;">
+    <thead>
+        <tr><th>Request</th><th>Preflight?</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>GET</code> (simple)</td><td class="text-center">No</td><td>Standard headers only</td></tr>
+        <tr><td><code>POST</code> + <code>form-data</code></td><td class="text-center">No</td><td>Simple content type</td></tr>
+        <tr><td><code>POST</code> + <code>application/json</code></td><td class="text-center"><span class="highlight">Yes</span></td><td>Custom <code>Content-Type</code></td></tr>
+        <tr><td><code>PUT</code>, <code>DELETE</code></td><td class="text-center"><span class="highlight">Yes</span></td><td>Non-simple method</td></tr>
+        <tr><td>Any + <code>Authorization</code> header</td><td class="text-center"><span class="highlight">Yes</span></td><td>Custom header</td></tr>
+    </tbody>
+</table>
+<p class="text-center mt-3"><strong>Server must reply to preflight with:</strong> <code>204</code> + full CORS headers.</p>
+<hr>
+<h2 class="mt-0">Final Thoughts</h2>
+<p><b>Other frameworks?</b> Middleware. Config files. Third-party packages.</p>
+<p><b>Trongate?</b> Native PHP.</p>
+<p>The difference is clear.</p>

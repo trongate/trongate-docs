@@ -1,0 +1,176 @@
+[meta-description]Master directory management in Trongate: Learn how to create and list directories, calculate Unix permissions using the additive system, and implement scalable storage structures.[/meta-description]
+
+<h1>Directory Management</h1>
+
+<p>Directories are the foundation of a clean and organized file system. Trongate's File module provides a streamlined interface for managing folders, handling path validation and recursive creation automatically.</p>
+
+<h2>The Two Core Methods</h2>
+
+<p>All directory operations are accessed via <code>$this-&gt;file</code> from within your controllers:</p>
+
+<ul>
+    <li><span class="feature-ref">included-file-create_directory()</span> - Creates directories with specified permissions.</li>
+    <li><span class="feature-ref">included-file-list_directory()</span> - Returns a structured array of files and subdirectories.</li>
+</ul>
+
+<h2>Understanding Directory Permissions</h2>
+
+<p>Permissions control who can read, write, or enter your directories. In a web environment, your PHP code typically runs as the <code>www-data</code> or <code>apache</code> user. If this user does not have the correct permissions, your application will fail.</p>
+
+<h3 class="mt-3">Understanding Octal Permissions: Read (4) + Write (2) + Execute (1)</h3>
+<p>Unix/Linux file permissions are represented numerically in octal format. Each permission level is calculated by adding three base values to create a single digit (0–7):</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Permission</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Read</strong></td>
+            <td>4</td>
+            <td>Allows listing the contents of the directory (e.g., seeing file names with <code>ls</code>).</td>
+        </tr>
+        <tr>
+            <td><strong>Write</strong></td>
+            <td>2</td>
+            <td>Allows creating, deleting, or renaming files inside the directory.</td>
+        </tr>
+        <tr>
+            <td><strong>Execute</strong></td>
+            <td>1</td>
+            <td>Allows entering the directory (<code>cd</code> into it) and accessing files/subdirectories inside (traversing the directory).</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>By adding these values together, you determine the permission level for a category. Common examples:</p>
+<ul>
+    <li><strong>4 (Read) + 1 (Execute) = 5</strong>  -  Can list contents and enter the directory, but cannot modify anything.</li>
+    <li><strong>4 (Read) + 2 (Write) + 1 (Execute) = 7</strong>  -  Full control (read, write, and execute).</li>
+    <li><strong>4 (Read) + 2 (Write) = 6</strong>  -  Can read and modify contents, but not execute/traverse.</li>
+</ul>
+
+<p><strong>Note:</strong> The meaning of "execute" differs slightly between files and directories:
+<ul>
+    <li>On <strong>directories</strong>: Allows traversal and access to contents (required for <code>cd</code> and most operations inside).</li>
+    <li>On <strong>files</strong>: Allows running the file as a program/script.</li>
+</ul>
+Common web hosting practice: Use <code>0755</code> for directories and <code>0644</code> for files.</p>
+
+<h3 class="mt-3">The Full Octal Code: Owner, Group, and Others</h3>
+<p>We combine three (or four) digits to set permissions separately for the owner, group, and others:</p>
+
+[code]0755
+ │││
+ ││└─ Others (everyone else on the server): 5 → Read + Execute
+ │└── Group (users in the same group): 5 → Read + Execute
+ └─── Owner (you or the web server/PHP process): 7 → Full access (Read + Write + Execute)[/code]
+
+<div class="alert alert-danger">
+    <p><strong>Security Warning:</strong> Never use <code>0777</code> in a production environment. This gives <em>everyone</em> on the server full read/write/execute access to your files and directories, creating a major security risk. Stick to <code>0755</code> for directories and <code>0644</code> for files in most cases.</p>
+</div>
+
+<h2>Creating Directories</h2>
+
+<p>The <span class="feature-ref">included-file-create_directory()</span> method ensures your target folder exists and applies your chosen permissions.</p>
+
+[code=php]
+// Create a directory inside modules/your_module/uploads
+$this-&gt;file-&gt;create_directory('uploads');
+
+// Create nested directories (e.g., uploads/2024/05)
+$this-&gt;file-&gt;create_directory('uploads/2024/05', 0755, true);
+[/code]
+
+<h2>Listing Directories</h2>
+
+<p>The <span class="feature-ref">included-file-list_directory()</span> method returns a flat array of filenames. With the optional <code>$recursive</code> parameter set to <code>true</code>, subdirectories appear as keys containing their own nested arrays.</p>
+
+[code=php]
+// Non-recursive: flat array of filenames
+$contents = $this-&gt;file-&gt;list_directory('uploads');
+
+/*
+$contents structure (non-recursive):
+[
+    'report.pdf',
+    'invoice_2024.csv',
+    'avatars',       // directories are just names in the flat list
+    'profile.jpg'
+]
+*/
+
+// Recursive: subdirectories become keys
+$all = $this-&gt;file-&gt;list_directory('uploads', true);
+
+/*
+$all structure (recursive):
+[
+    'report.pdf',
+    'invoice_2024.csv',
+    'avatars' =&gt; [
+        'user_1.jpg',
+        'user_2.jpg'
+    ],
+    'profile.jpg'
+]
+*/
+[/code]
+
+<h3>Example: Iterating the Results</h3>
+
+[code=php]
+$items = $this-&gt;file-&gt;list_directory('uploads');
+
+foreach ($items as $key =&gt; $value) {
+    if (is_array($value)) {
+        // $key is a subdirectory name, $value is its file list
+        echo 'Directory: ' . out($key) . '&lt;br&gt;';
+        foreach ($value as $file) {
+            echo '- ' . out($file) . '&lt;br&gt;';
+        }
+    } else {
+        // $value is a filename
+        echo out($value) . '&lt;br&gt;';
+    }
+}
+[/code]
+
+<h2>Deleting Directories</h2>
+
+<p>The <span class="feature-ref">included-file-delete_directory()</span> method recursively removes a directory and all of its contents - files, subdirectories, everything.</p>
+
+<div class="alert alert-danger">
+    <p><strong>This operation is irreversible.</strong> Unlike <span class="feature-ref">included-file-delete()</span> which removes a single file, <span class="feature-ref">included-file-delete_directory()</span> wipes out the entire directory tree. There is no trash bin or undo. Use with extreme care, especially when the path is constructed from user input or database records.</p>
+</div>
+
+[code=php]
+// Remove a temporary processing directory
+$this-&gt;file-&gt;delete_directory('temp/import_67f3a2');
+
+// Check existence first, then delete
+if ($this-&gt;file-&gt;exists('old_backups/january')) {
+    $this-&gt;file-&gt;delete_directory('old_backups/january');
+}
+[/code]
+
+<p>There is no &ldquo;empty directory&rdquo; requirement - <span class="feature-ref">included-file-delete_directory()</span> handles all contents recursively. If you only need to clear a directory without removing the directory itself, use <span class="feature-ref">included-file-list_directory()</span> with a loop of <span class="feature-ref">included-file-delete()</span> calls instead.</p>
+
+<h2>Troubleshooting Ownership</h2>
+
+<p>If your code has <code>0755</code> permissions but still fails, the directory is likely owned by <code>root</code> instead of the web server. You can fix this via the terminal:</p>
+
+[code=bash]
+# Give ownership to the web server user
+sudo chown -R www-data:www-data modules/your_module/uploads
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>The "Check Before You Act" Pattern</strong></p>
+    <p>Professional file management relies on defensive programming. You should never assume a directory exists just because you created it earlier in the script. Server configurations, automated cleanup tasks, or manual changes by an administrator can remove directories without warning.</p>
+    <p>Always verify existence using <span class="feature-ref">included-file-exists()</span> immediately before performing operations like listing files or uploading data. This ensures your application can handle missing paths gracefully - perhaps by recreating them or showing a helpful message - rather than crashing with a fatal system error.</p>
+</div>

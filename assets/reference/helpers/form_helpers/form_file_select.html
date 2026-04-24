@@ -1,0 +1,73 @@
+<div class="container">
+    <h1>form_file_select()</h1>
+    <p class="signature">function form_file_select(string $name, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+    <p>Generates an HTML file input element. Requires forms to use <code>form_open_upload()</code> for proper file upload handling.</p></div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$name</td><td>string</td><td>The name attribute for the file input.</td></tr>
+            <tr><td>$attributes</td><td>array</td><td>(optional) HTML attributes for the file input. Defaults to an empty array ([]).</td></tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>An HTML file input element.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic File Input</h2>
+[code=php]
+echo form_file_select('document');
+
+// Output:
+// &lt;input type="file" name="document"&gt;
+[/code]
+
+    <h2>Example #2: File Input with Restrictions</h2>
+[code=php]
+$attributes = [
+    'accept' =&gt; '.jpg,.png,.gif',
+    'multiple' =&gt; true
+];
+echo form_file_select('images[]', $attributes);
+
+// Output:
+// &lt;input type="file" name="images[]" accept=".jpg,.png,.gif" multiple&gt;
+[/code]
+
+    <h2>Complete Upload Example</h2>
+[code=php]
+// Must use form_open_upload() for file uploads
+echo form_open_upload('documents/upload');
+
+echo form_label('Select File:');
+echo form_file_select('user_file', [
+    'accept' =&gt; '.pdf,.doc,.docx'
+]);
+
+echo form_submit('submit', 'Upload');
+echo form_close();
+[/code]
+
+    <h2>Notes</h2>
+    <ul>
+        <li>Always use <code>form_open_upload()</code> instead of <code>form_open()</code> for forms containing file inputs.</li>
+        <li>Use <code>multiple</code> attribute to allow multiple file selections.</li>
+        <li>Use <code>accept</code> attribute to restrict file types (e.g., <code>'.jpg,.png'</code> or <code>'image/*'</code>).</li>
+        <li>For multiple files, append <code>[]</code> to the field name: <code>'images[]'</code>.</li>
+        <li>Access uploaded files via <code>$_FILES['field_name']</code> in your controller.</li>
+        <li>Configure PHP's <code>upload_max_filesize</code> and <code>post_max_size</code> for larger files.</li>
+    </ul>
+</div>

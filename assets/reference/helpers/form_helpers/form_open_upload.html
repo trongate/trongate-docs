@@ -1,0 +1,126 @@
+<div class="container">
+    <h1>form_open_upload()</h1>
+    <p class="signature">function form_open_upload(string $location, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates the opening tag for an HTML form configured for file uploads. This function is identical to <code>form_open()</code> but automatically adds the <code>enctype="multipart/form-data"</code> attribute required for file submissions.</p>
+    </div>
+    
+    <div class="alert alert-info">
+        <p><strong>Important:</strong> Forms that accept file uploads <em>must</em> use <code>form_open_upload()</code> instead of <code>form_open()</code>. Without the proper encoding type, file data won't be transmitted to the server.</p>
+    </div>
+    
+    <h2>Parameters </h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$location</td>
+                <td>string</td>
+                <td>The URL or path where the form will be submitted.</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes for the form element. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>The HTML opening tag for the form with <code>enctype="multipart/form-data"</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic File Upload Form</h2>
+[code=php]
+echo form_open_upload('photos/upload');
+echo form_label('Profile Picture');
+echo form_file_select('profile_picture');
+echo form_submit('submit', 'Upload');
+echo form_close();
+
+// Output:
+// &lt;form action="https://example.com/photos/upload" method="post" enctype="multipart/form-data"&gt;
+// &lt;label&gt;Profile Picture&lt;/label&gt;
+// &lt;input type="file" name="profile_picture"&gt;
+// &lt;button type="submit" name="submit"&gt;Upload&lt;/button&gt;
+// &lt;/form&gt;
+[/code]
+
+    <h2>Example #2: File Upload with Custom Attributes</h2>
+[code=php]
+$attributes = [
+    'id' =&gt; 'image-upload-form'
+];
+echo form_open_upload('gallery/process', $attributes);
+
+// Output:
+// &lt;form action="https://example.com/gallery/process" method="post" enctype="multipart/form-data" id="image-upload-form"&gt;
+[/code]
+
+    <h2>Example #3: Multiple File Uploads</h2>
+[code=php]
+echo form_open_upload('documents/batch_upload');
+echo form_label('Upload Documents');
+echo form_file_select('documents[]', ['multiple' =&gt; 'multiple']);
+echo form_submit('submit', 'Upload Files');
+echo form_close();
+
+// Output includes the multiple attribute:
+// &lt;input type="file" name="documents[]" multiple="multiple"&gt;
+[/code]
+
+    <h2>Example #4: Form with File Upload in a View</h2>
+[code=vf]
+&lt;?php
+echo form_open_upload('photos/submit');
+echo form_label('Select File');
+echo form_file_select('userfile');
+echo form_submit('submit', 'Upload File');
+echo form_close();
+?&gt;
+[/code]
+
+    <div class="alert alert-success">
+        <ul>
+            <li>Always use <code>form_open_upload()</code> for forms containing <code>form_file_select()</code> inputs.</li>
+            <li>The <code>enctype="multipart/form-data"</code> attribute is automatically added and cannot be overridden.</li>
+            <li>File upload forms must use POST method (default).</li>
+            <li>For security, always validate file types, sizes, and names server-side.</li>
+            <li>Use <code>$_FILES</code> superglobal to access uploaded file data in your controller.</li>
+            <li>Large file uploads may require adjusting PHP configuration (<code>upload_max_filesize</code>, <code>post_max_size</code>).</li>
+            <li>For multiple file uploads, add <code>multiple="multiple"</code> attribute to the file input and use array notation in the name (e.g., <code>name="files[]"</code>).</li>
+            <li>Remember that <code>form_close()</code> includes CSRF protection, which also applies to file upload forms.</li>
+        </ul> 
+    </div>
+
+    <h2>Common Issues</h2>
+    <p>If your <code>$_FILES</code> array is empty after form submission, check the following:</p>
+    
+    <ul>
+        <li>You're using <code>form_open_upload()</code> instead of <code>form_open()</code></li>
+        <li>The form method is POST (default)</li>
+        <li>File size doesn't exceed <code>upload_max_filesize</code> in php.ini</li>
+        <li>The total form data (including files) doesn't exceed <code>post_max_size</code> in php.ini</li>
+        <li>You're accessing the correct field name in <code>$_FILES</code> (matches the name attribute of your file input)</li>
+    </ul>
+</div>

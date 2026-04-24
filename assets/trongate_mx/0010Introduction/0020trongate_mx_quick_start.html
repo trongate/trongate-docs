@@ -1,0 +1,123 @@
+<h1>Trongate MX Quick Start Guide</h1>
+<p>
+  This guide will help you quickly get started with Trongate MX. Please ensure you have the latest version of Trongate installed before proceeding.
+</p>
+
+<h2>Step 1: Include Required Files</h2>
+<p>
+  Trongate MX requires two main files to function properly:
+</p>
+
+<p>1. The JavaScript file "<b>trongate-mx.js</b>" located in:</p>
+[code]public/ 
+  js/ 
+    trongate-mx.js 
+[/code]
+
+<p>2. The CSS stylesheet "<b>trongate.css</b>" located in:</p>
+[code]public/ 
+  css/ 
+    trongate.css 
+[/code]
+
+<p>To activate these files, add the following lines to your website template:</p>
+[code=html]&lt;!-- Include Trongate CSS in the &lt;head&gt; section --&gt;
+&lt;link rel="stylesheet" href="&lt;?= BASE_URL ?&gt;css/trongate.css"&gt;
+
+&lt;!-- Include Trongate MX JavaScript --&gt;
+&lt;script src="&lt;?= BASE_URL ?&gt;js/trongate-mx.js"&gt;&lt;/script&gt;[/code]
+
+<p>The JavaScript file can be placed either:</p>
+<ul>
+  <li>In the <code>&lt;head&gt;</code> section of your HTML document, or </li>
+  <li>Just before the closing <code>&lt;/body&gt;</code> tag </li>
+</ul>
+
+<p>
+  Both placements are valid because Trongate MX initializes after the page loads. The choice of placement can depend on your specific needs and preferences for page loading behaviour. However, the CSS stylesheet should always be included in the <code>&lt;head&gt;</code> section.
+</p>
+
+<div class="alert alert-success">
+  <p>
+    It's highly recommended to include a <code>&lt;base&gt;</code> tag in the head section of any webpage that uses Trongate MX. For example:
+  </p>
+  [code=html]&lt;base href="&lt;?= BASE_URL ?&gt;"&gt;[/code]
+  <p>Adding this to the head section of your page offers several benefits:</p>
+  <ul>
+    <li>It simplifies your URLs, resulting in less typing.</li>
+    <li>It makes your code cleaner and more maintainable.</li>
+    <li>It allows for easier migration or changing of your base URL in the future.</li>
+  </ul>
+  <p>
+    With the <code>&lt;base&gt;</code> tag, instead of writing:
+  </p>
+  [code=html]&lt;link rel="stylesheet" href="&lt;?= BASE_URL ?&gt;css/trongate.css"&gt;
+&lt;script src="&lt;?= BASE_URL ?&gt;js/trongate-mx.js"&gt;&lt;/script&gt;[/code]
+  <p>You can simply write:</p>
+  [code=html]&lt;link rel="stylesheet" href="css/trongate.css"&gt;
+&lt;script src="js/trongate-mx.js"&gt;&lt;/script&gt;[/code]
+</div>
+
+<h2>Step 2: Create an API Endpoint</h2>
+<p>
+  Before using Trongate MX to make API calls, you'll need to create an endpoint in your controller. Here's an example of a simple API endpoint that returns HTML:
+</p>
+
+[code=php]&lt;?php
+class Welcome extends Trongate {
+
+    function get_message() {
+        echo '&lt;h3&gt;Hello from the API!&lt;/h3&gt;';
+        echo '&lt;p&gt;This is &lt;b&gt;pure HTML&lt;/b&gt; being returned from the server.&lt;/p&gt;';
+        echo '&lt;p&gt;The time is: '.date('H:i:s').'&lt;/p&gt;';
+    }
+
+}[/code]
+
+<p>
+  Notice how this endpoint returns pure HTML instead of JSON. This is one of the powerful features of Trongate MX!
+</p>
+
+<h2>Step 3: Invoke AJAX Requests <i>without</i> Writing Any JavaScript!</h2>
+<p>The code below invokes an HTTP request.  Notice that it's just pure HTML with a couple of 'mx' attributes added.</p>
+
+[code=html]
+&lt;button mx-get="welcome/get_message" 
+        mx-target="#message-target"&gt;Click Me&lt;/button&gt;
+
+&lt;div id="message-target"&gt;&lt;/div&gt;
+
+[/code]
+
+<p class="mt-3 mb-0">Here's the solution written using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' =&gt; 'welcome/get_message',
+    'mx-target' =&gt; '#message-target'
+];
+echo form_button('fetch_btn', 'Click Me', $btn_attr);
+?&gt;
+
+&lt;div id="message-target"&gt;&lt;/div&gt;[/code]
+
+<div class="alert alert-info">
+  <p>When using Trongate MX, you can take advantage of Trongate's form helper functions. However, if you prefer writing the syntax as pure HTML with 'mx' attributes, that's perfectly fine too.</p>
+</div>
+
+<p>In the above example, when clicked, the button will:</p>
+<ul>
+  <li>Make an AJAX request to your API endpoint</li>
+  <li>Handle the response</li>
+  <li>Insert the returned HTML into the target element</li>
+</ul>
+
+<p>The key components are:</p>
+<ul>
+  <li><code>mx-get="welcome/get_message"</code> specifies the API endpoint to call</li>
+  <li><code>mx-target="#message-target"</code> indicates where the response should be displayed</li>
+</ul>
+
+<p>
+  Congratulations! You've just taken your first step with Trongate MX. Unlike traditional approaches that force you to work with JSON and complex JavaScript code, Trongate MX lets you enjoy all the benefits of JavaScript but <i>without</i> having to actually <i>write</i> any JavaScript at all!  Best of all, you can return <b>pure HTML</b> directly from your endpoints. This means faster development, cleaner code and smashed deadlines!
+</p>

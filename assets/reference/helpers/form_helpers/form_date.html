@@ -1,0 +1,257 @@
+<div class="container">
+    <h1>form_date()</h1>
+    <p class="signature">function form_date(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML date input field with a native browser date picker. The input always submits dates in ISO 8601 format (YYYY-MM-DD), regardless of how the browser displays the date to the user.</p>
+    </div>
+
+    <h2>Demonstration</h2>
+    <p>Below is the native HTML5 date input rendered by <code>form_date()</code>:</p>
+    <div class="code-demo text-center">
+        <p style="text-align: center;"><input type="date" name="due_date"></p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>HTML5 Date Format:</strong> The value must always be in <code>YYYY-MM-DD</code> format. Browsers display dates according to the user's locale, but your PHP code always receives predictable ISO 8601 format.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the input element</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>The date value in YYYY-MM-DD format</td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>Additional HTML attributes as key-value pairs</td>
+                <td>[]</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The generated HTML date input element</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the Attributes Array</h2>
+    <p>The <code>$attributes</code> array accepts standard HTML input attributes. For date inputs, these are particularly useful:</p>
+    <table>
+        <thead>
+            <tr><th>Attribute</th><th>Description</th><th>Example Value</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>min</code></td>
+                <td>Earliest selectable date (YYYY-MM-DD)</td>
+                <td><code>'2025-01-01'</code></td>
+            </tr>
+            <tr>
+                <td><code>max</code></td>
+                <td>Latest selectable date (YYYY-MM-DD)</td>
+                <td><code>'2025-12-31'</code></td>
+            </tr>
+            <tr>
+                <td><code>required</code></td>
+                <td>Field must have a value</td>
+                <td><code>['required' => true]</code></td>
+            </tr>
+            <tr>
+                <td><code>readonly</code></td>
+                <td>Prevent user editing</td>
+                <td><code>['readonly' => true]</code></td>
+            </tr>
+            <tr>
+                <td><code>disabled</code></td>
+                <td>Disable the input</td>
+                <td><code>['disabled' => true]</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-success">
+        <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+    </div>
+
+    <h2>Example #1: Basic Date Input</h2>
+[code=php]
+echo form_date('birthday');
+[/code]
+
+[code=html]
+Output: &lt;input type="date" name="birthday"&gt;
+[/code]
+
+    <p>The example above shows the simplest usage. This generates a date input field where users can select any date using their browser's native date picker.</p>
+
+    <h2>Example #2: Date Input with Pre-set Value</h2>
+[code=php]
+public function create(): void {
+    // Pre-fill with today's date for new records
+    $data['event_date'] = date('Y-m-d');
+    $data['form_location'] = BASE_URL . 'events/submit';
+    $this->view('event_form', $data);
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Event Date');
+echo form_date('event_date', $event_date);
+echo form_submit('submit', 'Save Event');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates setting a default value. When creating new records, it's common to pre-fill date fields with today's date or another sensible default.</p>
+
+    <div class="alert alert-info">
+        <p><strong>Form Repopulation:</strong> When a form fails validation, use <code>post('field_name', true)</code> in the controller to fetch the submitted value and pass it back to the view for repopulation.</p>
+    </div>
+
+    <h2>Example #3: Date Input with Business Constraints</h2>
+[code=php]
+public function create(): void {
+    $data['booking_date'] = post('booking_date', true);
+    
+    // Business rule: bookings can only be made 1-30 days in advance
+    $data['min_date'] = date('Y-m-d', strtotime('+1 day'));
+    $data['max_date'] = date('Y-m-d', strtotime('+30 days'));
+    
+    $data['form_location'] = BASE_URL . 'bookings/submit';
+    $this->view('booking_form', $data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('booking_date', 'booking date', 'required|valid_date');
+    
+    if ($this->validation->run() === true) {
+        $data['customer_name'] = post('customer_name', true);
+        $data['booking_date'] = post('booking_date', true);
+        
+        $this->db->insert($data, 'bookings');
+        set_flashdata('Booking confirmed successfully');
+        redirect('bookings/confirm');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Booking Date');
+$attributes = [
+    'min' => $min_date,
+    'max' => $max_date,
+    'required' => true
+];
+echo form_date('booking_date', $booking_date, $attributes);
+echo form_submit('submit', 'Confirm Booking');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above shows how to enforce business rules using <code>min</code> and <code>max</code> attributes. The browser prevents users from selecting dates outside the allowed range.</p>
+
+    <div class="alert alert-warning">
+        <p><strong>Server-side Validation Required:</strong> Always validate date inputs server-side with the <code>valid_date</code> rule. Browser validation can be bypassed by malicious users.</p>
+    </div>
+
+    <h2>Example #4: Complete Create/Update Workflow</h2>
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing record - load from database
+        $record = $this->db->get_where($update_id, 'tasks');
+        $data['task_name'] = $record->task_name;
+        $data['due_date'] = $record->due_date;
+    } else {
+        // New record or validation error - use POST data
+        $data['task_name'] = post('task_name', true);
+        $data['due_date'] = post('due_date', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'tasks/submit/' . $update_id;
+    $this->view('task_form', $data);
+}
+
+public function submit(): void {
+    $update_id = segment(3, 'int');
+    
+    $this->validation->set_rules('task_name', 'task name', 'required|min_length[3]');
+    $this->validation->set_rules('due_date', 'due date', 'required|valid_date');
+    
+    if ($this->validation->run() === true) {
+        $data['task_name'] = post('task_name', true);
+        $data['due_date'] = post('due_date', true);
+        
+        if ($update_id > 0) {
+            $this->db->update($update_id, $data, 'tasks');
+            set_flashdata('Task updated successfully');
+        } else {
+            $this->db->insert($data, 'tasks');
+            set_flashdata('Task created successfully');
+        }
+        
+        redirect('tasks/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Task Name');
+echo form_input('task_name', $task_name);
+
+echo form_label('Due Date');
+$attributes = [
+    'min' => date('Y-m-d'), // Can't set due dates in the past
+    'required' => true
+];
+echo form_date('due_date', $due_date, $attributes);
+
+echo form_submit('submit', 'Save Task');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates the complete create/update pattern. Notice that <code>segment(3, 'int')</code> is properly type-cast, and the form works for both creating new records and editing existing ones.</p>
+
+    <div class="alert alert-success">
+        <p><strong>Database Compatibility:</strong> MySQL's <code>DATE</code> type uses YYYY-MM-DD format, which matches HTML5 date inputs exactly. No date format conversion is needed between the form and database.</p>
+    </div>
+</div>

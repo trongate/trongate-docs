@@ -1,0 +1,65 @@
+[meta-description]Understand Trongate's Templates - full-page PHP files that provide the complete HTML skeleton (header, footer, navigation). Templates live in the ordinary templates module and inject your view content with a single line of code (e.g., $this->templates->admin($data)), using 100% Native PHP.[/meta-description]
+<h1>The Big Picture</h1>
+
+<p>You already know that <a href="documentation/trongate_php_framework/module-fundamentals/view-files" target="_blank">view files</a> are just PHP files. HTML + <code>&lt;?= $var ?&gt;</code> = done. No template engine. No drama.</p>
+
+<p>Now meet the next level: <strong>templates</strong>.</p>
+
+<h2>Templates</h2>
+
+<p>Templates are full-page PHP files that define the complete HTML skeleton – <code>&lt;!DOCTYPE html&gt;</code> to <code>&lt;/html&gt;</code>. Header, footer, navigation, global scripts – the stuff that’s identical on every page.</p>
+
+<p>One line loads everything and injects your view.  For example:</p>
+
+[code=php]
+$this->templates->admin($data);
+[/code]
+
+<p>The <code>$data</code> array is automatically available in both the template and the view. Zero extra code.</p>
+
+<h3>Templates vs Views (definitions)</h3>
+<ul>
+    <li><strong>Templates</strong> – the wrapper (full HTML page)</li>
+    <li><strong>Views</strong> – the changing content inside it</li>
+</ul>
+
+<p>Templates load views. Views never load templates. Clean separation. Done.</p>
+
+<h2>Where Templates Live</h2>
+
+<p>Everything lives in the <code>templates</code> module – just like any other module:</p>
+
+[code]
+modules/
+  templates/
+    Templates.php
+    views/
+      admin.php
+      public.php
+      error_404.php
+    css/
+    js/
+[/code]
+
+<div class="alert alert-info">
+  <p>In Trongate v1, <code>templates</code> was a folder that existed at the root directory level.  Trongate v1 also contained a '<b>Template</b>' class (within the <code>engine</code> directory) and a few features that nobody needs, such as <i>themes</i> and <i>partials</i>.</p>
+
+  <p>Trongate v2 changes the game.  Now, <code>templates</code> is an ordinary module that exists within the <code>modules</code> directory.   All of the code pertaining to <i>templates</i> that was previously in the <code>engine</code> directory has been removed.  In short, everything to do with templates has been simplified.</p>
+</div>
+
+<h2>Why This Wins</h2>
+<ul>
+    <li>100% Native PHP – no new syntax</li>
+    <li>No extra folders or config files</li>
+    <li>Fully portable – templates can be dropped into any project</li>
+    <li>Works exactly like every other module</li>
+    <li>Switch layouts with one line, no registration required</li>
+</ul>
+
+<div class="alert alert-info">
+  <ul>
+    <li>In Trongate v2, "Templates" is just an ordinary module.</li>
+    <li>View files get injected <i>inside</i> templates.</li>
+    <li>The Trongate framework does not contain a templating engine and, instead, favors Native PHP.</li>
+  </ul>
+</div>

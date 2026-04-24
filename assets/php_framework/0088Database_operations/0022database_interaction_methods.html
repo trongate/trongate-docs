@@ -1,0 +1,58 @@
+[meta-description]Reference the comprehensive list of database interaction methods in Trongate's db module for data retrieval, manipulation, analysis, and raw queries. Learn to interact with your database efficiently.[/meta-description]
+<h1>Database Interaction Methods</h1>
+
+<p>The <code>db</code> module contains one file: <code>modules/db/Db.php</code>.</p>
+
+<p>Inside lives a single, no-BS PHP class packed with every database method you’ll ever need for database interaction.</p>
+
+<p>Use it exactly like any other module:</p>
+
+[code=php]
+$this->db->get('id', 'users');
+$this->db->insert($data, 'orders');
+$this->db->query($sql);
+[/code]
+
+<p>No magic. No hidden layers. Just Native PHP doing what it does best.</p>
+
+<hr>
+
+<h2>All The Methods</h2>
+
+<p>Everything you need is right here. Click any method for full popup docs. Or just open the file and read the source.</p>
+
+<h3>Data Retrieval</h3>
+<ul>
+    <li><span class="feature-ref">get()</span></li>
+    <li><span class="feature-ref">get_where()</span></li>
+    <li><span class="feature-ref">get_one_where()</span></li>
+    <li><span class="feature-ref">get_where_in()</span></li>
+</ul>
+
+<h3>Data Manipulation</h3>
+<ul>
+    <li><span class="feature-ref">insert()</span></li>
+    <li><span class="feature-ref">insert_batch()</span></li>
+    <li><span class="feature-ref">update()</span></li>
+    <li><span class="feature-ref">delete()</span></li>
+</ul>
+<h3>Analysis & Management</h3>
+<ul>
+    <li><span class="feature-ref">count()</span></li>
+    <li><span class="feature-ref">describe_table()</span></li>
+    <li><span class="feature-ref">table_exists()</span></li>
+    <li><span class="feature-ref">get_tables()</span></li>
+    <li><span class="feature-ref">resequence_ids()</span></li>
+    <li><span class="feature-ref">attempt_truncate()</span></li>
+</ul>
+
+<h3>Raw / Custom Queries</h3>
+<ul>
+    <li><span class="feature-ref">query()</span></li>
+    <li><span class="feature-ref">query_bind()</span></li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Seriously:</strong> ignore this page and open <code>modules/db/Db.php</code>.</p>
+    <p>The source code is the <i>only</i> documentation that you'll ever need!</p>
+</div>

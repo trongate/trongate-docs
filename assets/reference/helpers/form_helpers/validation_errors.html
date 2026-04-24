@@ -1,0 +1,205 @@
+<div class="container">
+    <h1>validation_errors()</h1>
+    <p class="signature">function validation_errors(string|int|null $first_arg = null, ?string $closing_html = null): ?string</p>
+    
+    <div class="alert alert-info">
+        <p><strong>Quick Start:</strong> Use <code>validation_errors()</code> for general form errors, <code>validation_errors('fieldname')</code> for inline errors, or <code>validation_errors(422)</code> for JSON API responses.</p>
+    </div>
+
+    <h2>Description</h2>
+    <div class="description">
+        <p>Displays validation error messages stored in the session. This flexible function supports three output modes: general error display, inline field-specific errors, and JSON error responses for APIs.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>$first_arg</code></td>
+                <td>string|int|null</td>
+                <td>
+                    (optional) This overloaded argument determines the function's mode:
+                    <ul>
+                        <li>If <code>string</code> (no <code>$closing_html</code>): The name of a specific field for inline error reporting. (Mode 2)</li>
+                        <li>If <code>int</code> (400-499): An HTTP status code to trigger a JSON error response. (Mode 3)</li>
+                        <li>If <code>string</code> (with <code>$closing_html</code>): The opening HTML tag for custom error wrappers. (Mode 1 - Custom)</li>
+                        <li>If <code>null</code>: Default general error reporting for all fields. (Mode 1 - Default)</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><code>$closing_html</code></td>
+                <td>?string</td>
+                <td>(optional) The closing HTML tag when <code>$first_arg</code> is used as an opening HTML tag. Defaults to <code>null</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string|null</td>
+                <td>Formatted validation errors as HTML or JSON (for API mode), or <code>null</code> if no errors exist.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-info">
+        <p><strong>Session Management:</strong> Errors are automatically cleared from the session after display. Each error set displays only once per request.</p>
+    </div>
+
+    <h2>Mode 1: General Error Display (All Errors)</h2>
+    <p>Display all validation errors at once, typically at the top of a form. By default, errors are wrapped in <code>&lt;p style="color: red;"&gt;</code> tags unless <code>ERROR_OPEN</code> and <code>ERROR_CLOSE</code> constants are defined globally.</p>
+
+[code=vf]
+&lt;h1&gt;Registration Form&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+[/code]
+
+<div class="card mb-2">
+    <div class="card-heading">Example Output</div>
+    <div class="card-body">
+        <p style="color: red;">The Email field is required.</p>
+        <p style="color: red;">The Password must be at least 8 characters long.</p>
+    </div>
+</div>
+
+    <h3>Custom HTML Wrappers (Mode 1 Custom)</h3>
+    <p>You can override the default wrappers by passing custom HTML tags:</p>
+[code=vf]
+&lt;?php
+// Wrap each error individually
+echo validation_errors('&lt;div class="alert alert-danger"&gt;', '&lt;/div&gt;');
+?&gt;
+[/code]
+
+    <h2>Mode 2: Inline Field Errors (Field-Specific)</h2>
+    <p>Display errors next to specific form fields by passing the field name (<code>string</code>) as the first argument. Errors are automatically wrapped in a <code>&lt;div class="validation-error-report"&gt;</code> container.</p>
+
+[code=vf]
+&lt;?php
+echo form_open('users/submit');
+
+echo form_label('Username');
+echo validation_errors('username'); // Shows username errors only
+echo form_input('username', post('username'));
+
+echo form_label('Email');
+echo validation_errors('email'); // Shows email errors only
+echo form_input('email', post('email'));
+
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+    <h2>Mode 3: JSON Error Responses (API)</h2>
+    <p>Return errors as structured JSON for API endpoints by passing an HTTP status code (integer between 400 and 499) as the first argument.</p>
+
+<div class="alert alert-warning">
+    <p><strong>JSON Mode Important:</strong> When using JSON mode, the function sends headers, outputs the JSON, and <b>exits execution</b>. No further code runs after <code>validation_errors(422)</code>.</p>
+</div>
+
+[code=php]
+public function api_create(): void {
+    $this->validation->set_rules('email', 'email address', 'required|valid_email');
+    $this->validation->set_rules('password', 'password', 'required|min_length[8]');
+    
+    if ($this->validation->run() === false) {
+        // Returns JSON, sets HTTP 422 status, and exits.
+        validation_errors(422);
+    }
+    
+    // Continue with success logic...
+}
+[/code]
+
+    <h3>JSON Output Format (Example)</h3>
+[code]
+[
+  {
+    "field": "email",
+    "messages": ["The email address field is required."]
+  },
+  {
+    "field": "password", 
+    "messages": ["The password must be at least 8 characters long."]
+  }
+]
+[/code]
+
+    <h2>Global Error Styling</h2>
+    <p>Define default error wrappers in your configuration to avoid passing them as arguments every time:</p>
+
+[code=php]
+// In config/config.php
+define('ERROR_OPEN', '&lt;div class="error-message"&gt;');
+define('ERROR_CLOSE', '&lt;/div&gt;');
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Prerequisite:</strong> Errors must first be set using Trongate's Validation class. The <code>validation_errors()</code> function only displays errors that have already been stored in the session.</p>
+    </div>
+
+    <h2>Automatic Field Highlighting</h2>
+    <p>The framework automatically injects JavaScript to highlight fields that have validation errors. To enable this behavior, simply add <code>class="highlight-errors"</code> to your form's opening tag:</p>
+
+[code=vf]
+&lt;?php
+echo form_open('users/register', ['class' => 'highlight-errors']);
+// Fields with errors will automatically receive the 'form-field-validation-error' class.
+?&gt;
+[/code]
+
+    <h2>Common Patterns Summary</h2>
+    <table class="sm">
+        <thead>
+            <tr>
+                <th>Use Case</th>
+                <th>Code</th>
+                <th>Mode</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Simple form errors</td>
+                <td><code>validation_errors()</code></td>
+                <td>Mode 1 (Default)</td>
+                <td>All errors in default <code>&lt;p&gt;</code> format</td>
+            </tr>
+            <tr>
+                <td>Styled general errors</td>
+                <td><code>validation_errors('&lt;div class="error"&gt;', '&lt;/div&gt;')</code></td>
+                <td>Mode 1 (Custom)</td>
+                <td>Each error wrapped individually</td>
+            </tr>
+            <tr>
+                <td>Field-specific error</td>
+                <td><code>validation_errors('email')</code></td>
+                <td>Mode 2</td>
+                <td>Only email field errors, wrapped in <code>validation-error-report</code></td>
+            </tr>
+            <tr>
+                <td>API response</td>
+                <td><code>validation_errors(422)</code></td>
+                <td>Mode 3</td>
+                <td>JSON with 422 status code and script exit</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

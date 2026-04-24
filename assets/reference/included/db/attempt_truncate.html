@@ -1,0 +1,116 @@
+<div class="container">
+  <h1>attempt_truncate()</h1>
+  <p class="signature">public function attempt_truncate(string $table, bool $validate_table = true): bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Attempts to truncate a table but only if it's empty. If the table contains rows, the method returns false and does nothing. This is a safety feature to prevent accidental data loss. The method can optionally validate that the table exists before attempting the operation.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the table to attempt truncation on.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>validate_table</td>
+        <td>bool</td>
+        <td>If true, validates that the table exists before checking row count. If false, skips table validation (use only when certain table exists).</td>
+        <td>true</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>True if truncate was performed (table was empty), false if table had rows (no truncation occurred).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist (when $validate_table is true).</li>
+  </ul>
+
+  <h2>Example #1: Basic Safe Truncation</h2>
+  <p>The code sample below demonstrates how to safely attempt to truncate a table, ensuring no data loss.</p>
+[code=php]
+// Only truncate if the table is empty
+if ($this->db->attempt_truncate('temp_sessions')) {
+    echo "Table 'temp_sessions' was empty and has been truncated.";
+} else {
+    echo "Table 'temp_sessions' contains data; truncation was not performed.";
+}
+[/code]
+
+  <h2>Example #2: Truncate with Table Validation Disabled</h2>
+  <p>The code sample below demonstrates how to skip table existence validation when you're certain the table exists.</p>
+[code=php]
+// Skip validation if you're certain the table exists
+$result = $this->db->attempt_truncate('sessions', false);
+if ($result) {
+    echo "Sessions table was empty and has been truncated.";
+}
+[/code]
+
+  <h2>Example #3: Conditional Table Cleanup</h2>
+  <p>The code sample below demonstrates how to use attempt_truncate() in a maintenance script.</p>
+[code=php]
+$tables_to_clean = ['cache_data', 'temp_uploads', 'session_backups'];
+
+foreach ($tables_to_clean as $table) {
+    if ($this->db->table_exists($table)) {
+        $truncated = $this->db->attempt_truncate($table);
+        if ($truncated) {
+            echo "Table '$table' was empty and truncated.<br>";
+        } else {
+            echo "Table '$table' contains data; preserved.<br>";
+        }
+    }
+}
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The <code>$table</code> parameter is <strong>required</strong>.</li>
+    <li>The <code>$validate_table</code> parameter defaults to true for safety.</li>
+    <li>Uses <code>TRUNCATE TABLE</code> SQL command which resets auto‑increment counters.</li>
+    <li>Unlike <code>DELETE FROM table</code>, truncate cannot be rolled back in some database configurations.</li>
+    <li>This method is safer than direct truncation because it checks row count first.</li>
+    <li>If debug mode is enabled, the generated SQL query will be displayed before execution.</li>
+    <li>Useful for:
+      <ol>
+        <li>Maintenance scripts that clean temporary tables</li>
+        <li>Resetting test data without risking production data loss</li>
+        <li>Safe table initialization in installation routines</li>
+      </ol>
+    </li>
+  </ul>
+</div>

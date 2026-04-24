@@ -1,0 +1,98 @@
+<div class="container">
+  <h1>get_user_obj()</h1>
+  <p class="signature">public function get_user_obj(?string $token = null): object|bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves the full user object associated with a token. If no token is provided, checks session, cookie, and HTTP headers automatically.</p>
+    <p>The user object contains all columns from the user record (typically from <code>trongate_users</code> or your custom users table).</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$token</td>
+        <td>string|null</td>
+        <td>A 64‑character hexadecimal token. If null, the method searches session, cookie, and HTTP headers.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>object|bool</td>
+        <td>
+          <ul>
+            <li><strong>object</strong> – User record as a standard object (properties correspond to table columns)</li>
+            <li><strong>false</strong> – Token not found or invalid</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Get current user object
+$user = $this->trongate_tokens->get_user_obj();
+if ($user !== false) {
+    echo "Welcome, " . $user->username;
+    echo "Email: " . $user->email;
+}
+
+// Get user object from specific token
+$token = post('token', true);
+$user = $this->trongate_tokens->get_user_obj($token);
+
+// Use in member area controller
+public function dashboard() {
+    $user = $this->trongate_tokens->get_user_obj();
+    if ($user === false) {
+        redirect('members/login');
+    }
+    $data['user'] = $user;
+    $this->view('dashboard', $data);
+}
+
+// API endpoint returning user profile
+public function me() {
+    $user = $this->trongate_tokens->get_user_obj();
+    if ($user === false) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        die();
+    }
+    // Remove sensitive fields
+    unset($user->password);
+    echo json_encode($user);
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Calls <code>$this->model->get_user_obj($token)</code> which validates token expiration.</li>
+    <li>Token search order when <code>$token</code> is null: HTTP header → cookie → session.</li>
+    <li>The object contains all database columns; be careful not to expose passwords or other sensitive data.</li>
+    <li>Returns <code>false</code> if token is expired, invalid, or not found.</li>
+    <li>User table name is determined by the <code>users_table</code> property in the model (default: <code>trongate_users</code>).</li>
+  </ul>
+</div>

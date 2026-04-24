@@ -1,0 +1,76 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct(?string $module_name = null, ?object $caller = null)</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Constructor for the Validation module. Initializes the module and stores a reference to the calling controller for callback methods.
+   </p>
+    <p>
+      <strong>Note:</strong> The framework automatically passes the module name and caller when instantiating Validation via <code>$this->validation</code>. You rarely need to call this constructor manually.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>module_name</td>
+        <td>string|null</td>
+        <td>The module name (passed by framework for integration with Trongate module system).</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>caller</td>
+        <td>object|null</td>
+        <td>The calling controller instance, used for callback validation rules.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Constructor does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic instantiation by framework (inside a controller)
+class Products extends Trongate {
+    public function submit() {
+        // $this->validation is automatically a Validation instance
+        $this->validation->set_rules('name', 'Product Name', 'required|min_length[3]');
+        if ($this->validation->run()) {
+            // validation passed
+        }
+    }
+}
+
+// Manual instantiation (rare)
+$validation = new Validation('products', $this);[/code]
+</div>

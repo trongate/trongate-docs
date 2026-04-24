@@ -1,0 +1,224 @@
+<h1>Target Element Control</h1>
+
+<p>
+ The <code>mx-target-loading</code> attribute lets you control how <a href="documentation/display/trongate_mx/core-http-operations/targeting-elements">target elements</a> behave during HTTP requests. You can either temporarily hide elements or swap their content with loading messages while waiting for the server to respond.
+</p>
+
+<h2>Usage</h2>
+
+<p>
+ Here's a simple example showing how to use the <code>mx-target-loading</code> attribute:
+</p>
+
+[code=vf]&amp;lt;?php
+$attributes = [
+   'mx-get' =&gt; 'api/data',
+   'mx-target' =&gt; '#result',
+   'mx-target-loading' =&gt; 'cloak'
+];
+
+echo form_button('fetch_btn', 'Fetch Data', $attributes);
+?&amp;gt;
+
+&amp;lt;div id="result"&amp;gt;This content will be hidden during the request&amp;lt;/div&amp;gt;[/code]
+
+<p>
+ In this example, when the button is clicked the content inside the result div will temporarily disappear while new data is being fetched. Once the request completes, the new content will appear.
+</p>
+
+<p class="mt-3 mb-0">You can achieve the same result, using pure HTML, with the following code:</p>
+[code=html]&lt;button mx-get="api/data"
+        mx-target="#result"
+        mx-target-loading="cloak"&gt;Fetch Data&lt;/button&gt;
+
+&amp;lt;div id="result"&amp;gt;This content will be hidden during the request&amp;lt;/div&amp;gt;
+[/code]
+
+<p>Use the style of syntax that you like best!</p>
+
+<h2>Two Ways to Handle Loading States</h2>
+
+<h3>1. Hiding Content (Cloaking)</h3>
+
+[code=vf]&amp;lt;?php
+$attributes = [
+   'mx-get' =&gt; 'api/users',
+   'mx-target' =&gt; '#user-list',
+   'mx-target-loading' =&gt; 'cloak'
+];
+
+echo form_button('users_btn', 'Load Users', $attributes);
+?&amp;gt;
+
+&lt;div id="user-list"&gt;User list will disappear during loading&lt;/div&gt;[/code]
+
+<p class="mt-3 mb-0">Here's how the same result can be achieved using pure HTML:</p>
+[code=html]&lt;button mx-get="api/data"
+        mx-target="#user-list"
+        mx-target-loading="cloak"&gt;Fetch Data&lt;/button&gt;
+
+&lt;div id="result"&gt;User list will disappear during loading&lt;/div&gt;
+[/code]
+
+<p>
+ Using <code>cloak</code> temporarily hides the target element while the request is in progress. This is perfect for hiding forms when an HTTP request has been invoked.
+</p>
+
+<h3 class="mt-3">2. Showing a Loading Message</h3>
+
+[code=vf]&amp;lt;!-- Hidden placeholder --&amp;gt;
+&amp;lt;div id="loading-message" style="display: none;"&amp;gt;
+   &amp;lt;div class="blink"&amp;gt;Loading your data...&amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;
+
+&amp;lt;?php
+$attributes = [
+   'mx-get' =&gt; 'api/data',
+   'mx-target' =&gt; '#content',
+   'mx-target-loading' =&gt; '#loading-message'
+];
+
+echo form_button('load_btn', 'Load Content', $attributes);
+?&amp;gt;
+
+&lt;div id="content"&gt;Original content here&lt;/div&gt;[/code]
+
+<p>
+ This approach replaces the target's content with a loading message during the request. Once the request completes, the new content replaces the loading message.
+</p>
+
+<p class="mt-3 mb-0">Here's a pure HTML example that accomplishes the same goal:</p>
+
+[code=html]
+&lt;!-- Hidden placeholder --&gt;
+&lt;div id="loading-message" style="display: none;"&gt;
+   &lt;div class="blink"&gt;Loading your data...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;button mx-get="api/data"
+        mx-target="#content"
+        mx-target-loading="#loading-message"&gt;Load Content&lt;/button&gt;
+
+&lt;div id="content"&gt;Original content here&lt;/div&gt;
+[/code]
+
+<div class="alert alert-success">
+   <p>PHP is extremely fast!  When testing this kind of functionality, it's advisable to use PHP's in-built <code>sleep()</code> function - on your API endpoints.   Doing so, provides an opportunity to clearly see if your application is behaving as expected during HTTP requests.</p>
+   <p>Here's an example of how you could use PHP's <code>sleep()</code> function to force an API endpoint to wait two seconds before responding to a request:</p>
+
+[code=php]
+function test() {
+   sleep(2); // wait for two seconds!
+   echo 'Hello!';
+}
+[/code]
+</div>
+
+<h2>Important Implementation Notes</h2>
+
+<h3>1. Hiding Placeholders</h3>
+<p>Always hide placeholder elements using <code>style="display: none"</code>:</p>
+
+<p class="correct"><i class="fa fa-check"></i> Correct:</p>
+[code=html]&amp;lt;div id="loading" style="display: none;"&amp;gt;Loading...&amp;lt;/div&amp;gt;[/code]
+
+<p class="incorrect"><i class="fa fa-warning"></i> Incorrect:</p>
+[code=html]&amp;lt;div id="loading"&amp;gt;Loading...&amp;lt;/div&amp;gt;[/code]
+
+<h3>2. Placeholder Content Structure</h3>
+<p>When using placeholders, remember that only the inner HTML is transferred:</p>
+
+<p class="correct"><i class="fa fa-check"></i> Correct:</p>
+[code=html]&amp;lt;div id="loading" style="display: none"&amp;gt;
+   &amp;lt;div class="blink"&amp;gt;*** PLEASE WAIT ***&amp;lt;/div&amp;gt;
+&amp;lt;/div&amp;gt;[/code]
+
+<p class="incorrect"><i class="fa fa-warning"></i> Incorrect:</p>
+[code=html]&amp;lt;div id="loading" class="blink" style="display: none"&amp;gt;
+   *** PLEASE WAIT ***
+&amp;lt;/div&amp;gt;[/code]
+
+<div class="alert alert-info">
+<p>When using Trongate CSS, any content that is contained within an element with a class of 'blink' will alternately fade in and out with a smooth easing effect, creating a blinking animation that repeats infinitely.  Here's an example of a paragraph that has a class of 'blink' applied:</p>
+
+<p class="text-center blink">I'm having a blinking good time!</p>  
+
+<p><b>Understanding The CSS</b></p>
+<p>The above is achieved with the following code:</p>
+[code=html]
+&lt;p class="text-center blink"&gt;I'm having a blinking good time!&lt;/p&gt;
+[/code]
+
+<p>The CSS class of 'text-center' aligns the text to the center of the containing element.   The CSS class of 'blink' makes the text fade in and out infinitely.</p>
+
+<p><b>IMPORTANT NOTE: </b>In HTML, it's perfectly acceptable to stack multiplate CSS class names on <i>one</i> element like so;</p>
+[code=html]&lt;p class="class1 class2 class3"&gt;Ahoy!&lt;/p&gt;[/code]
+</div>
+
+
+<style>
+.incorrect {
+  color: #cc0000;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.correct {
+  color: #007700;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+</style>
+
+<h2>Using Target Control with Out-of-Band Swaps</h2>
+
+<p>
+  When you combine <code>mx-target-loading</code> with <code>mx-select-oob</code> and <code>mx-target="none"</code>, you can create sophisticated loading patterns that update multiple elements while providing visual feedback.
+</p>
+
+[code=html]
+&lt;div id="dashboard-container" 
+     mx-get="api/dashboard_data" 
+     mx-target="none" 
+     mx-select-oob='[
+         {"select": ".visitors-data", "target": "#visitors-panel"},
+         {"select": ".revenue-data", "target": "#revenue-panel"}
+     ]'&gt;
+    
+    &lt;div id="visitors-panel"&gt;
+        &lt;div class="spinner"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;div id="revenue-panel"&gt;
+        &lt;div class="spinner"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;button onclick="window.TrongateMX.startPolling(document.querySelector('#dashboard-container'), '10s')"&gt;
+    Start Auto-Refresh
+&lt;/button&gt;
+[/code]
+
+<p>
+  In this example, the container element uses <code>mx-target="none"</code> to indicate that it shouldn't be updated directly. Instead, the OOB swaps update the individual panels while each panel displays a spinner until its content loads.
+</p>
+
+<p>
+  This pattern is particularly useful for dashboards, real-time updates, and polling scenarios where you need to update multiple elements independently while maintaining a clean user experience.
+</p>
+
+<h2>Conclusion</h2>
+
+<p>
+  The <code>mx-target-loading</code> attribute in Trongate MX provides a means of controlling the target element <i>during</i> an HTTP request.  During an HTTP request, the <code>mx-target-loading</code> attribute can:
+</p>
+<ol>
+  <li><b>Swap</b> in the inner contents of the target element.</li>
+  <li><b>Hide</b> the target element entirely.</li>
+</ol>
+
+<p>
+  Since the attribute has a <i>swapping</i> capability, it has been added onto this chapter which has the title, '<b>Swapping Content</b>'.  However, it's worth noting that Trongate MX has a variety of other attributes that can be used to control application appearance <i>during</i> HTTP requests.  More details regarding those <i>other</i> attributes can be found in  <a href="documentation/display/trongate_mx/events-and-responses">this chapter</a> and also in the <a href="documentation/display/trongate_mx/reference/trongate-mx-attributes">Trongate MX Attribute Reference</a>.
+</p>
+
+

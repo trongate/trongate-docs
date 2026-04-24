@@ -1,0 +1,89 @@
+[meta-description]Learn how to enable and use the built - in debug mode in Trongate's db module to display raw SQL queries directly on the screen for easy development and troubleshooting.[/meta-description]
+<h1>Using Debug Mode</h1>
+
+<p>The <code>db</code> module ships with a built-in <b>Debug Mode</b>.</p>
+
+<p>Flip one switch → raw SQL dumps straight to your screen. No logs. No var_dump hell. Just the truth.</p>
+
+<h2>Enable It. Own It.</h2>
+
+<ol>
+    <li>Open <code>modules/db/Db.php</code></li>
+    <li>Find <code>private $debug = false;</code></li>
+    <li>Make it <code>true</code></li>
+</ol>
+
+[code=php]
+private $debug = true;
+[/code]
+
+<p>Done. Every query now screams at you.</p>
+
+<h2>What You’ll See</h2>
+
+<p>Run any <code>$this->db</code> method → a big yellow box appears <b>before</b> your normal output, showing the exact SQL <b>before</b> PDO binds the parameters.</p>
+
+<div class="text-center">
+    <figure>
+        <img src="https://trongate.io/images/debug_mode.webp" alt="Debug mode in action – raw SQL on screen" style="max-width: 600px;">
+        <figcaption>Zero guesswork. Pure SQL.</figcaption>
+    </figure>
+</div>
+
+<h2>Real Example</h2>
+
+<p>Let’s say you have this controller method:</p>
+
+[code=php]
+public function test() {
+    $rows = $this->db->get('id', 'users');
+    json($rows); // pretty-print the result as JSON
+}
+[/code]
+
+<p>Visit the URL → here’s what happens:</p>
+
+<h3>Debug OFF</h3>
+
+<p>You only see the nicely formatted JSON (thanks to Trongate's <span class="feature-ref">json()</span> function)</p>
+
+[code=json]
+[
+    { "id": 1, "first_name": "Alice", "email_address": "alice@example.com" },
+    { "id": 2, "first_name": "Brian", "email_address": "brian@example.com" }
+]
+[/code]
+
+<h3>Debug ON</h3>
+
+<p>First you get the yellow debug box:</p>
+
+<div class="tg-rprt" style="color:#383623;background:#efe79e;font-family:monospace;padding:1em;border:1px solid #383623;margin:1em 0;">
+    <b>QUERY TO BE EXECUTED:</b><br><br>
+    -> SELECT * FROM users ORDER BY id<br>
+    <hr>
+    <div style="font-size:0.8em;">
+        <b>PLEASE NOTE:</b> The query shown above is how the query would look <i>before</i> binding.
+    </div>
+</div>
+
+<p>…then, immediately after, the exact same pretty JSON as before.</p>
+
+<p><span class="feature-ref">json()</span> doesn’t care that Debug Mode is on - it still outputs the data perfectly.</p>
+
+<div class="alert alert-success">
+    <p><strong>Pro tip:</strong> In API methods, use <code>json($data, true)</code> to dump the JSON and stop the script instantly. Debug Mode will still show the SQL first - perfect for troubleshooting.</p>
+</div>
+
+<h2>Why This Rules</h2>
+
+<ul>
+    <li>See <b>every query</b> before it runs.</li>
+    <li>No log files. No external tools. No nonsense.</li>
+    <li>Works with <b>all</b> db methods.</li>
+    <li>Turn it off in production → one line → gone.</li>
+</ul>
+
+<div class="alert alert-danger">
+    <p><strong>Never</strong> ship with <code>$debug = true</code> unless you enjoy giving away your schema for free.</p>
+</div>

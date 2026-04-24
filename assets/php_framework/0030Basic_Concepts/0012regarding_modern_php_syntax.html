@@ -1,0 +1,89 @@
+[meta-description]Trongate fully supports modern PHP syntax - type hints, return types, doc blocks & constructor promotion - but keeps docs simple so you learn the framework faster. Use strict typing in production![/meta-description]
+<h1>Modern PHP Syntax in Trongate</h1>
+
+<p>In recent years, PHP has evolved rapidly, introducing features like type hints, return types, doc blocks, and constructor property promotion. When used thoughtfully, these can improve code quality and help prevent bugs.</p>
+
+<p>Trongate fully supports all modern PHP syntax. However, you’ll notice that the examples in this documentation keep things deliberately simple. This is intentional.</p>
+
+<h2>Why This Documentation Uses Simple Syntax</h2>
+
+<p>Trongate’s documentation focuses on teaching framework concepts, not PHP language features. For that reason, examples are often simplified for brevity. For example:</p>
+
+[code=php]
+function get_user($id) {
+    $user_obj = $this->db->get_where($id, 'users');
+    return $user_obj();
+}
+[/code]
+
+<p>...instead of:</p>
+
+[code=php]
+/**
+ * Retrieve a user record by ID.
+ *
+ * @param int $id The unique identifier of the user.
+ * @return object|bool Returns a user object if found, or false on failure.
+ */
+public function get_user(int $id): object|bool {
+    $user_obj = $this->db->get_where($id, 'users');
+    return $user_obj();
+}
+[/code]
+
+<p>Both versions are valid. The simpler one helps readers focus on how Trongate works rather than PHP syntax. In your production code, however, you’re encouraged to use the modern version.</p>
+
+<h2>Modern PHP Features at a Glance</h2>
+
+<table class="table sm">
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>Purpose</th>
+      <th>Recommendation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Access Modifiers</strong></td>
+      <td>Control visibility (<code>public</code>, <code>protected</code>, <code>private</code>)</td>
+      <td>Use in all class methods for clarity</td>
+    </tr>
+    <tr>
+      <td><strong>Type Hints</strong></td>
+      <td>Define parameter types</td>
+      <td>Use when arguments are expected to be of pre-defined types</td>
+    </tr>
+    <tr>
+      <td><strong>Return Types</strong></td>
+      <td>Define what a method returns</td>
+      <td>Use to ensure methods return values of expected types</td>
+    </tr>
+    <tr>
+      <td><strong>Doc Blocks</strong></td>
+      <td>Describe methods, parameters, and return values</td>
+      <td>Use for complex or public-facing methods</td>
+    </tr>
+    <tr>
+      <td><strong>Constructor Property Promotion</strong></td>
+      <td>Declare and assign class properties directly in the constructor</td>
+      <td>Use in custom classes where suitable</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>When to Use Modern Syntax</h2>
+
+<ul>
+  <li><strong>Public-facing APIs:</strong> Always use type hints, return types, and doc blocks.</li>
+  <li><strong>Shared or complex logic:</strong> Add documentation and strict typing.</li>
+  <li><strong>Critical systems:</strong> Security, payments, and data handling benefit from strict typing.</li>
+</ul>
+
+<h2>When Simplicity Wins</h2>
+
+<ul>
+  <li><strong>Quick prototypes</strong> and early-stage development</li>
+  <li><strong>Internal helpers</strong> with clear intent</li>
+  <li><strong>One-off scripts</strong> or debugging tasks</li>
+</ul>

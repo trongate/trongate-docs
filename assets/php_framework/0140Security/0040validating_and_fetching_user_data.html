@@ -1,0 +1,370 @@
+[meta-description]Validate Trongate tokens with attempt_get_valid_token() for any level, specific level, or multiple levels. Fetch user data with get_user_id(), get_user_obj(), and get_user_level().[/meta-description]
+
+<h1>Validating and Fetching User Data</h1>
+
+<p>Once a token is generated, you need to validate it on protected pages and fetch information about the authenticated user. This page covers token validation and data retrieval.</p>
+
+<h2>Validating Tokens</h2>
+
+<p>Use the <span class="feature-ref">attempt_get_valid_token()</span> method to check if a user has a valid token.</p>
+
+<h3>Method Signature</h3>
+
+[code=php]
+public function attempt_get_valid_token(int|array|null $user_levels = null): string|bool
+[/code]
+
+<h3>Parameters</h3>
+
+<ul>
+    <li><strong>$user_levels</strong> (optional) - Filter by user level:
+        <ul>
+            <li><code>null</code> - Accept any user level (default)</li>
+            <li><code>int</code> - Accept only one specific user level</li>
+            <li><code>array</code> - Accept multiple user levels</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>Return Value</h3>
+
+<p>Returns the token string if valid, or <code>false</code> if no valid token is found.</p>
+
+<h3>How It Works</h3>
+
+<p>The method searches for tokens in this order:</p>
+
+<ol>
+    <li><strong>Cookies</strong> - <code>$_COOKIE['trongatetoken']</code></li>
+    <li><strong>Session</strong> - <code>$_SESSION['trongatetoken']</code></li>
+</ol>
+
+<p>The first valid token found is returned. A token is considered valid if:</p>
+
+<ul>
+    <li>It exists in the <code>trongate_tokens</code> database table</li>
+    <li>Its <code>expiry_date</code> is greater than the current time</li>
+    <li>The user's level matches the specified <code>$user_levels</code> (if provided)</li>
+</ul>
+
+<h2>Example 1: Any User Level</h2>
+
+<p>Accept any authenticated user, regardless of their level:</p>
+
+[code=php]
+public function dashboard(): void {
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token();
+    
+    if ($token === false) {
+        redirect('login');
+    }
+    
+    // User is authenticated
+    $data['view_file'] = 'dashboard';
+    $this-&gt;templates-&gt;members_area($data);
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This example assumes you have a <code>members_area</code> template created.</p>
+</div>
+
+<h2>Example 2: Specific User Level</h2>
+
+<p>Only allow users with a specific user level (e.g., admin only):</p>
+
+[code=php]
+public function manage_users(): void {
+    // Only allow admin (user level 1)
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(1);
+    
+    if ($token === false) {
+        redirect('login');
+    }
+    
+    // User is admin
+    $data['view_file'] = 'manage_users';
+    $this-&gt;templates-&gt;admin($data);
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This example assumes you have an <code>admin</code> template created.</p>
+</div>
+
+<h2>Example 3: Multiple User Levels</h2>
+
+<p>Allow multiple user levels (e.g., admin or moderator):</p>
+
+[code=php]
+public function moderate_content(): void {
+    // Allow admin (1) or moderator (3)
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token([1, 3]);
+    
+    if ($token === false) {
+        redirect('login');
+    }
+    
+    // User is admin or moderator
+    $data['view_file'] = 'moderate_content';
+    $this-&gt;templates-&gt;admin($data);
+}
+[/code]
+
+<h2>Fetching User Data</h2>
+
+<p>Once you've validated a token, you often need information about the user. The <code>Trongate_tokens</code> module provides three methods for this.</p>
+
+<h3>Method 1: get_user_id()</h3>
+
+<p>Retrieve the Trongate User ID (the <code>id</code> from the <code>trongate_users</code> table):</p>
+
+[code=php]
+public function get_user_id(?string $token = null): int|false
+[/code]
+
+<p><strong>Example:</strong></p>
+
+[code=php]
+$user_id = $this-&gt;trongate_tokens-&gt;get_user_id();
+
+if ($user_id === false) {
+    redirect('login');
+}
+
+echo "Trongate User ID: " . $user_id;
+[/code]
+
+<p>If no token parameter is provided, the method automatically searches cookies and session for a token.</p>
+
+<h3>Method 2: get_user_obj()</h3>
+
+<p>Retrieve a complete user object with all token and user level information:</p>
+
+[code=php]
+public function get_user_obj(?string $token = null): object|false
+[/code]
+
+<p>The returned object contains:</p>
+
+<ul>
+    <li><strong>trongate_user_code</strong> - The <code>code</code> from <code>trongate_users</code></li>
+    <li><strong>user_level_id</strong> - The numeric user level ID</li>
+    <li><strong>user_level</strong> - The user level title (e.g., "admin", "member")</li>
+    <li><strong>token</strong> - The validated token string</li>
+    <li><strong>trongate_user_id</strong> - The user's ID from <code>trongate_users</code></li>
+    <li><strong>expiry_date</strong> - Unix timestamp of token expiration</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+[code=php]
+$user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+
+if ($user === false) {
+    redirect('login');
+}
+
+echo "Welcome, User #" . $user-&gt;trongate_user_id;
+echo "Your level: " . $user-&gt;user_level;
+echo "Token expires: " . date('Y-m-d H:i:s', $user-&gt;expiry_date);
+[/code]
+
+<h3>Method 3: get_user_level()</h3>
+
+<p>Retrieve just the user level title:</p>
+
+[code=php]
+public function get_user_level(?string $token = null): string|bool
+[/code]
+
+<p><strong>Example:</strong></p>
+
+[code=php]
+$level = $this-&gt;trongate_tokens-&gt;get_user_level();
+
+if ($level === false) {
+    redirect('login');
+}
+
+if ($level === 'admin') {
+    echo "You have admin privileges";
+} else {
+    echo "You are a: " . $level;
+}
+[/code]
+
+<h2>Practical Example: Displaying User Info</h2>
+
+<p>Here's a complete example showing how to fetch and display user information:</p>
+
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    public function profile(): void {
+        // Validate token (any level)
+        $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token();
+        
+        if ($token === false) {
+            redirect('login');
+        }
+
+        // Get complete user object
+        $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+
+        // Fetch member details from members table
+        $sql = 'SELECT * FROM members WHERE trongate_user_id = ?';
+        $member = $this-&gt;db-&gt;query_bind($sql, [$user-&gt;trongate_user_id], 'object');
+        $member = $member[0] ?? null;
+
+        if (!$member) {
+            redirect('login');
+        }
+
+        // Pass data to view
+        $data['first_name'] = $member-&gt;first_name;
+        $data['last_name'] = $member-&gt;last_name;
+        $data['username'] = $member-&gt;username;
+        $data['user_level'] = $user-&gt;user_level;
+        $data['view_file'] = 'profile';
+        
+        $this-&gt;templates-&gt;members_area($data);
+    }
+
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This example assumes you have a <code>members</code> table with columns: <code>id</code>, <code>username</code>, <code>first_name</code>, <code>last_name</code>, and <code>trongate_user_id</code>.</p>
+</div>
+
+<h2>Using Constructor for Protection</h2>
+
+<p>If you want to protect an entire controller, add validation in the constructor:</p>
+
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);
+        
+        // Require valid token for ALL methods
+        $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);  // level 2 = member
+        
+        if ($token === false) {
+            redirect('login');
+        }
+    }
+
+    public function dashboard(): void {
+        // Already protected by constructor
+        $data['view_file'] = 'dashboard';
+        $this-&gt;templates-&gt;members_area($data);
+    }
+
+    public function profile(): void {
+        // Already protected by constructor
+        $data['view_file'] = 'profile';
+        $this-&gt;templates-&gt;members_area($data);
+    }
+
+}
+[/code]
+
+<p>Now every method in the controller requires a valid member token.</p>
+
+<h2>When to Use Each Method</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Use Case</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>attempt_get_valid_token()</code></td>
+            <td>Quick validation - just checking if user is authenticated</td>
+        </tr>
+        <tr>
+            <td><code>get_user_id()</code></td>
+            <td>Need to link to application tables (e.g., fetch from <code>members</code> table)</td>
+        </tr>
+        <tr>
+            <td><code>get_user_obj()</code></td>
+            <td>Need multiple pieces of user info (level, code, expiry, etc.)</td>
+        </tr>
+        <tr>
+            <td><code>get_user_level()</code></td>
+            <td>Need to check or display user's role/level only</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: Simple Protection</h3>
+
+[code=php]
+public function dashboard(): void {
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token();
+    
+    if ($token === false) {
+        redirect('login');
+    }
+    
+    // Show page
+}
+[/code]
+
+<h3>Pattern 2: Admin-Only Page</h3>
+
+[code=php]
+public function admin_panel(): void {
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(1);  // admin only
+    
+    if ($token === false) {
+        redirect('login');
+    }
+    
+    // Show admin page
+}
+[/code]
+
+<h3>Pattern 3: Fetch and Display User Info</h3>
+
+[code=php]
+public function profile(): void {
+    $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
+    
+    if ($user === false) {
+        redirect('login');
+    }
+    
+    $data['user'] = $user;
+    $data['view_file'] = 'profile';
+    $this-&gt;templates-&gt;members_area($data);
+}
+[/code]
+
+<h2>Security Notes</h2>
+
+<ul>
+    <li><strong>Always validate on protected pages</strong> - Never assume a user is authenticated</li>
+    <li><strong>Use specific user levels when needed</strong> - Don't allow admin pages to accept any user level</li>
+    <li><strong>Redirect on failure</strong> - Always redirect to login when validation fails</li>
+    <li><strong>Check token expiry</strong> - The framework handles this automatically, but be aware tokens can expire mid-session</li>
+</ul>
+
+<h2>What's Next</h2>
+
+<p>The final page in this chapter covers:</p>
+
+<ul>
+    <li>Destroying tokens on logout</li>
+    <li>Cleaning up expired tokens</li>
+    <li>Complete logout workflow</li>
+</ul>

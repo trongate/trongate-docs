@@ -1,0 +1,113 @@
+<h1>Pre-Launch Checklist</h1>
+<p>Please forgive the slightly overwhelming quantity of red (danger!) alerts on this page. Those alerts were added because some of the information below pertains to security and is of critical importance. That being said, here’s a little checklist that you are encouraged to go through before launching your next Trongate web app.</p>
+
+<h2>Check 1</h2>
+<p>When you launch your web app, make sure your main config file (<code>config.php</code>) does <em>not</em> have <code>ENV</code> set to 'dev'. The recommendation is to change the <code>ENV</code> setting to 'live', 'production', or <em>any</em> word that is not 'DEV' or 'dev'.</p>
+
+<p>Therefore, inside your <code>config.php</code> file, you should <b>not</b> have code like this:</p>
+
+[code=php]
+define('ENV', 'dev'); // AVOID!!!
+[/code]
+
+<p>Instead, you should use something like this:</p>
+[code=php]
+define('ENV', 'live'); // This is okay.
+[/code]
+
+<div class="alert alert-danger">
+  <p>Never launch a Trongate web app with the environment set to 'dev'.</p>
+</div>
+
+<h2>Check 2</h2>
+<p>Change the password to your admin panel to something that is difficult or impossible to guess.</p>
+<div class="alert alert-danger">
+  <p>The admin panel that comes with the Trongate framework has a default username of 'admin' and a default password of 'admin'. <strong>Change them!</strong> Above all, it’s really important to make sure you don’t have 'admin' as your password.</p>
+</div>
+
+<h2>Check 3</h2>
+<p>Improve your site security by hiding your main admin login URL. Not sure how to do that? No problem: <a href="https://trongate.io/documentation/display/php_framework/best-practices/hiding-the-admin-login-url">here’s a guide on how to hide the admin login URL</a>.</p>
+<div class="alert alert-danger">
+  <p>Leaving your admin login URL unchanged makes it easier for bots and bad actors to find and target your site. Obscuring the login URL adds an important extra layer of protection. Don’t skip this step!</p>
+</div>
+
+<h2>Check 4</h2>
+<p>Make sure your <code>BASE_URL</code> is set to the full base URL that corresponds with your live website homepage. For example, <code>https://trongate.io/</code>.</p>
+<p>Your <code>BASE_URL</code> should <em>always</em> end with a forward slash. For example:</p>
+
+[code=php]define('BASE_URL', 'https://trongate.io/');[/code]
+
+<div class="alert alert-danger">
+  <p>An incorrect <code>BASE_URL</code> can cause broken links, missing assets, and malfunctioning redirects.</p>
+</div>
+
+<h2>Check 5</h2>
+<p>Make sure your <code>database.php</code> file contains database settings that relate to your <em>live</em> database and not your localhost.</p>
+<div class="alert alert-danger">
+  <p>Accidentally pushing your local database settings to production can crash your live app instantly. Always confirm you’re pointing to your live database before launch.</p>
+</div>
+
+<h2>Check 6</h2>
+<p>Ensure your website template includes a <code>&lt;base&gt;</code> tag in the <code>&lt;head&gt;</code> section. This tag sets the base URL for all relative links, making sure your internal links, images, and scripts work correctly regardless of the page’s location.</p>
+<p>You can easily set a <code>&lt;base&gt;</code> tag by adding the following line of code within the <code>&lt;head&gt;</code> section of your HTML template(s):</p>
+
+[code=vf]&lt;base href="&lt;?= BASE_URL ?&gt;"&gt;[/code]
+
+<div class="alert alert-info">
+  <p>Strictly speaking, there’s no obligation to include <code>&lt;base&gt;</code> tags in your HTML templates. However, if your site uses <a href="https://trongate.io/documentation/display/trongate_mx" target="_blank">Trongate MX</a>, then it <em>is</em> an essential requirement. All things considered, it’s a good practice to get into the habit of using the <code>&lt;base&gt;</code> tag within your HTML templates.</p>
+</div>
+
+<h2>Check 7</h2>
+<p>Make sure the site owner configuration file has been populated correctly.</p>
+<p>The <code>config/site_owner.php</code> file is where you define information relating to things like the website name and who owns the website. On a fresh Trongate installation, it has the following contents:</p>
+
+[code=php]&lt;?php
+// Settings to do with the identification of the site owner
+define('WEBSITE_NAME', '');
+define('OUR_NAME', 'Your Company Name');
+define('OUR_TELNUM', '');
+define('OUR_ADDRESS', '');
+define('OUR_EMAIL_ADDRESS', '');
+[/code]
+
+<p>These placeholder values ship with Trongate by default and serve as a reminder to personalize the file. While they won’t break your site or expose a direct security risk, there’s zero benefit in uploading them unchanged. Worse, it may reflect poorly on the professionalism of your deployment.</p>
+
+<div class="alert alert-warning">
+  <p>Leaving the default placeholders untouched is a missed opportunity to properly represent your site’s identity.</p>
+</div>
+
+<div class="alert alert-success">
+  <p>Please <em>do</em> feel free to add additional owner-related settings to this file as you see fit. Remember, all of the constants that are set can be referenced from any <a href="https://trongate.io/documentation/display/php_framework/controllers/introduction-to-controllers" target="_blank">controller files</a> or <a href="https://trongate.io/documentation/display/php_framework/views/understanding-view-files" target="_blank">view files</a> within your Trongate application. For example:</p>
+
+[code=vf]&lt;h2&gt;How To Get In Touch&lt;/h2&gt;
+
+&lt;p&gt;Call us on &lt;?= OUR_TELNUM ?&gt;.&lt;/p&gt;
+
+&lt;h2&gt;Check Out Our YouTube Channel&lt;/h2&gt;
+
+&lt;p&gt;URL: &lt;?= YOUTUBE_CHANNEL_URL ?&gt;&lt;/p&gt;
+[/code]
+</div>
+
+<h2>Check 8</h2>
+<p>Before you declare your site ready for the world, set up at least one live email account linked to your domain and perform thorough two-way testing. This means sending and receiving emails to ensure everything works smoothly.</p>
+<p>While the specifics of email setup can vary widely depending on your hosting provider, it’s always wise to consult their documentation or support team for recommended settings and best practices.</p>
+
+<div class="alert alert-warning">
+  <p>Neglecting email setup can cause missed notifications, lost user communications, and a generally poor user experience  -  so don’t skip this step.</p>
+</div>
+
+<h2>Check 9</h2>
+<p>Once your site is live, be sure to test it thoroughly on a mobile device  -  such as a smartphone or tablet. The majority of visitors will access your website via mobile, and it’s crucial to ensure your design, functionality, and performance translate seamlessly.</p>
+<p>Testing on mobile devices helps you uncover issues that desktop browsers might not reveal, such as touch responsiveness, layout breaks, font sizes, and loading speeds. It also gives you insight into the user experience on smaller screens, enabling you to make necessary adjustments that improve accessibility and engagement.</p>
+
+<div class="alert alert-warning">
+  <p>Ignoring mobile testing can lead to frustrated users, higher bounce rates, and lost opportunities  -  so don’t launch without this vital check.</p>
+</div>
+
+<h2>Check 10</h2>
+<p>Set up regular backups for your website and database. Having a reliable backup system ensures that if anything goes wrong  -  such as a hack, server failure, or accidental deletion  -  you can restore your site quickly and avoid costly downtime or data loss.</p>
+
+<div class="alert alert-info">
+  <p>Trongate is hosted with Cynderhost, who handle automatic backups with no fuss and no setup required. <a href="https://cynderhost.com/">Check them out if you’re looking for fast and affordable hosting!</a></p>
+</div>

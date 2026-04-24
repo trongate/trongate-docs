@@ -1,0 +1,40 @@
+[meta-description]Manage application languages in Trongate v2 using the Language module. Set, get, and reset the current language with zero abstraction and maximum performance.[/meta-description]
+<h1>The Language Module</h1>
+<p>Trongate v2 provides a simple, powerful way to manage application language preferences.</p>
+<p>No middleware. No service containers. No abstraction layers.</p>
+<p><strong>Just Native PHP.</strong></p>
+<hr>
+<h2 class="mt-0">What It Does</h2>
+<p>The Language module answers one question:</p>
+<p><strong>"What language is the user currently using?"</strong></p>
+<p>The module contains four methods that are designed to assist with the following tasks:</p>
+<ol>
+    <li>Setting the current language</li>
+    <li>Getting the current language</li>
+    <li>Resetting to default language</li>
+    <li>Loading language configuration files</li>
+</ol>
+<hr>
+<h2 class="mt-0">Basic Usage</h2>
+<p>Set the language:</p>
+[code=php]
+$this-&gt;language-&gt;set_language('fr');
+[/code]
+<p>Get the current language:</p>
+[code=php]
+$lang = $this-&gt;language-&gt;get_language();
+[/code]
+<p>Reset to default:</p>
+[code=php]
+$this-&gt;language-&gt;reset_language();
+[/code]
+<hr>
+<h2 class="mt-0">How It Works</h2>
+<p>The current language is resolved using a simple priority system:</p>
+<ol>
+    <li>Session value</li>
+    <li>Cookie value</li>
+    <li>Application constant (<code>APP_LANG</code>)</li>
+    <li>Default fallback</li>
+</ol>
+<p>No hidden behaviour. No surprises.</p>

@@ -1,0 +1,244 @@
+ <div class="container">
+    <h1>get_height()</h1>
+    <p class="signature">public function get_height(): int</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Returns the height in pixels of the currently loaded image. This method uses PHP's GD library imagesy() function to retrieve the height of the image resource.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Image Must Be Loaded:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>get_height()</code> without a loaded image will throw an Exception with the message "No image is loaded."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <p>This method takes no parameters.</p>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>int</td>
+                <td>The height of the loaded image in pixels.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of get_height().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Get the height
+$height = $this-&gt;image-&gt;get_height();
+
+echo $height; // Outputs: 1200 (for example)
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Common Use Cases:</strong> The <code>get_height()</code> method is typically used to determine aspect ratios, validate image dimensions, calculate resize operations, or make decisions about how to process an image based on its dimensions.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to use get_height() to calculate and display image dimensions.</p>
+[code=php]
+public function display_image_info(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $image_path = 'modules/gallery/photos/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($image_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load the image
+    $this-&gt;image-&gt;load($image_path);
+    
+    // Get dimensions
+    $width = $this-&gt;image-&gt;get_width();
+    $height = $this-&gt;image-&gt;get_height();
+    
+    // Calculate aspect ratio
+    $aspect_ratio = round($width / $height, 2);
+    
+    // Determine orientation
+    if ($width &gt; $height) {
+        $orientation = 'Landscape';
+    } elseif ($height &gt; $width) {
+        $orientation = 'Portrait';
+    } else {
+        $orientation = 'Square';
+    }
+    
+    // Pass data to view
+    $data = [
+        'photo' =&gt; $photo,
+        'width' =&gt; $width,
+        'height' =&gt; $height,
+        'aspect_ratio' =&gt; $aspect_ratio,
+        'orientation' =&gt; $orientation
+    ];
+    
+    $this-&gt;image-&gt;destroy();
+    $this-&gt;view('photo_info', $data);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Dimension Analysis Pattern:</strong> Combining <code>get_width()</code> and <code>get_height()</code> allows you to analyse image characteristics before processing. This is useful for determining appropriate resize operations, validating uploads, or displaying metadata to users.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates using get_height() to intelligently resize images based on their orientation.</p>
+[code=php]
+public function smart_resize(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load the image
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Get current dimensions
+    $width = $this-&gt;image-&gt;get_width();
+    $height = $this-&gt;image-&gt;get_height();
+    
+    // Define maximum dimensions
+    $max_dimension = 800;
+    
+    // Resize based on orientation
+    if ($width &gt; $height) {
+        // Landscape: constrain by width
+        if ($width &gt; $max_dimension) {
+            $this-&gt;image-&gt;resize_to_width($max_dimension);
+        }
+    } else {
+        // Portrait or square: constrain by height
+        if ($height &gt; $max_dimension) {
+            $this-&gt;image-&gt;resize_to_height($max_dimension);
+        }
+    }
+    
+    // Save the resized version
+    $output_path = 'modules/gallery/resized/' . $photo-&gt;filename;
+    
+    // Ensure directory exists
+    if (!$this-&gt;file-&gt;exists('modules/gallery/resized')) {
+        $this-&gt;file-&gt;create_directory('modules/gallery/resized', 0755);
+    }
+    
+    $this-&gt;image-&gt;save($output_path, 85);
+    $this-&gt;image-&gt;destroy();
+    
+    set_flashdata('Image resized intelligently based on orientation');
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Orientation-Aware Processing:</strong> By checking dimensions with <code>get_width()</code> and <code>get_height()</code>, you can apply different processing strategies for landscape vs. portrait images. This ensures optimal results regardless of the original image orientation.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows using get_height() to validate image dimensions before allowing upload.</p>
+[code=php]
+public function process_banner_upload(): void {
+    // Validate file upload
+    $this-&gt;validation-&gt;set_rules('userfile', 'Banner Image', 'required|allowed_types[jpg,png]|max_size[5000]');
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Configure temporary upload
+        $config = [
+            'destination' =&gt; 'temp',
+            'upload_to_module' =&gt; true,
+            'target_module' =&gt; 'banners',
+            'make_rand_name' =&gt; true
+        ];
+        
+        // Ensure temp directory exists
+        $temp_dir = 'modules/banners/temp';
+        if (!$this-&gt;file-&gt;exists($temp_dir)) {
+            $this-&gt;file-&gt;create_directory($temp_dir, 0755);
+        }
+        
+        // Upload to temporary location
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Load the uploaded image to check dimensions
+        $this-&gt;image-&gt;load($file_info['file_path']);
+        
+        // Get dimensions
+        $width = $this-&gt;image-&gt;get_width();
+        $height = $this-&gt;image-&gt;get_height();
+        
+        // Validate banner dimensions (must be 1200x400)
+        if ($width !== 1200 || $height !== 400) {
+            // Delete the invalid upload
+            $this-&gt;file-&gt;delete($file_info['file_path']);
+            $this-&gt;image-&gt;destroy();
+            
+            set_flashdata('Banner must be exactly 1200x400 pixels. Your image was ' . $width . 'x' . $height);
+            redirect('banners/upload_form');
+        }
+        
+        // Dimensions are valid - move to permanent location
+        $permanent_path = 'modules/banners/images/' . $file_info['file_name'];
+        
+        // Ensure permanent directory exists
+        if (!$this-&gt;file-&gt;exists('modules/banners/images')) {
+            $this-&gt;file-&gt;create_directory('modules/banners/images', 0755);
+        }
+        
+        // Copy to permanent location
+        $this-&gt;file-&gt;copy($file_info['file_path'], $permanent_path);
+        
+        // Delete temp file
+        $this-&gt;file-&gt;delete($file_info['file_path']);
+        $this-&gt;image-&gt;destroy();
+        
+        // Store in database
+        $data = [
+            'filename' =&gt; $file_info['file_name'],
+            'file_path' =&gt; $permanent_path,
+            'uploaded_at' =&gt; date('Y-m-d H:i:s')
+        ];
+        $this-&gt;model-&gt;insert($data, 'banners');
+        
+        set_flashdata('Banner uploaded successfully');
+        redirect('banners/manage');
+    } else {
+        $this-&gt;upload_form();
+    }
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Dimension Validation Pattern:</strong> For images that require exact dimensions (banners, headers, thumbnails), upload to a temporary location first, then use <code>get_width()</code> and <code>get_height()</code> to validate dimensions before moving to permanent storage. This prevents invalid images from entering your system while providing clear feedback to users.</p>
+    </div>
+
+</div>

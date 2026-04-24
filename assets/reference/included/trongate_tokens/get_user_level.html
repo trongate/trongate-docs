@@ -1,0 +1,101 @@
+<div class="container">
+  <h1>get_user_level()</h1>
+  <p class="signature">public function get_user_level(?string $token = null): string|bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Retrieves the user level (title) associated with a token. If no token is provided, checks session, cookie, and HTTP headers automatically.</p>
+    <p>User levels are string values stored in the <code>user_level</code> column of the user table (e.g., 'admin', 'member', 'guest').</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$token</td>
+        <td>string|null</td>
+        <td>A 64‑character hexadecimal token. If null, the method searches session, cookie, and HTTP headers.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|bool</td>
+        <td>
+          <ul>
+            <li><strong>string</strong> – User level title (e.g., 'admin', 'member', 'guest')</li>
+            <li><strong>false</strong> – Token not found or invalid</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Get current user's level
+$level = $this->trongate_tokens->get_user_level();
+if ($level !== false) {
+    echo "User level: " . $level;
+}
+
+// Check if user is admin
+public function admin_area() {
+    $level = $this->trongate_tokens->get_user_level();
+    if ($level !== 'admin') {
+        redirect('members/not_allowed');
+    }
+    // Show admin content...
+}
+
+// Role‑based access control
+public function edit_post(int $post_id) {
+    $level = $this->trongate_tokens->get_user_level();
+    $post = $this->model->get_post($post_id);
+    
+    if ($level === 'admin' || ($level === 'editor' && $post->author_id === $this->trongate_tokens->get_user_id())) {
+        // Allow edit
+    } else {
+        redirect('posts/view/' . $post_id);
+    }
+}
+
+// API endpoint for admins only
+public function delete_user(int $user_id) {
+    if ($this->trongate_tokens->get_user_level() !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Forbidden']);
+        die();
+    }
+    // Delete user...
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Internally calls <code>get_user_obj()</code> to retrieve the full user object, then extracts the <code>user_level</code> property.</li>
+    <li>Token search order when <code>$token</code> is null: HTTP header → cookie → session.</li>
+    <li>Returns <code>false</code> if token is expired, invalid, or not found.</li>
+    <li>User level is a string; for integer‑based levels, you may need to cast or use a different approach.</li>
+    <li>The <code>user_level</code> column must exist in your user table (default: <code>trongate_users</code>).</li>
+  </ul>
+</div>

@@ -1,0 +1,94 @@
+[meta-description]Technical reference for the Trongate v2 Language module. Detailed guide for set_language(), get_language(), reset_language(), and the load() method.[/meta-description]
+
+<h1>Language Module Reference</h1>
+
+<p>The Language module is a core framework service designed to manage the application's linguistic state. It provides a reliable way to persist user preferences across sessions and retrieve localized content.</p>
+
+<hr>
+
+<h2 class="mt-0">Core Methods</h2>
+
+<p>These methods are available within the Language module and are accessed via the <code>$this->language</code> property available throughout your application.</p>
+
+<h3>set_language(string $lang)</h3>
+<p>Sets the current language for the application. This preference is persisted in both the <strong>Session</strong> and a <strong>Cookie</strong> (valid for 30 days).</p>
+<ul>
+    <li><strong>$lang:</strong> A string representing the language code (e.g., 'en', 'fr', 'es').</li>
+</ul>
+
+<h3>get_language()</h3>
+<p>Returns the current active language code as a string. The method determines the language based on the following priority:</p>
+<ol>
+    <li>Active Session (<code>$_SESSION['app_lang']</code>)</li>
+    <li>Persistent Cookie (<code>app_lang</code>)</li>
+    <li>The <code>APP_LANG</code> constant (if defined in config)</li>
+    <li>The module's default fallback (usually 'en')</li>
+</ol>
+
+<h3>reset_language()</h3>
+<p>Clears the language preference from both the Session and the Cookie, effectively reverting the application to its default language state.</p>
+
+<hr>
+
+<h2 class="mt-0">Accessing the Module</h2>
+
+<p>The Language module is available throughout your application (Controllers, Models, or Views) via the <code>$this->language</code> property. No manual instantiation is required.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>$this->language->set_language($lang)</code></td>
+            <td>Sets the global language state.</td>
+        </tr>
+        <tr>
+            <td><code>$this->language->get_language()</code></td>
+            <td>Returns the current language code (e.g., "en").</td>
+        </tr>
+        <tr>
+            <td><code>$this->language->load($path)</code></td>
+            <td>Loads a language file and returns the <code>$phrases</code> array.</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Note for Model Classes:</strong> While controllers can access the Language module directly via <code>$this->language</code>, model classes must first load the module explicitly using <code>$this->module('language')</code> before accessing its methods. This is because the Model base class does not auto-load non-database modules.</p>
+</div>
+
+<hr>
+
+<h2 class="mt-0">The load() Pathing</h2>
+
+<p>When using <code>load()</code>, the <code>{lang}</code> placeholder is mandatory for dynamic multi-lingual support. The method performs an internal <code>str_replace()</code> before attempting to require the file.</p>
+
+[code=php]
+// Recommended path structure
+$path = 'modules/your_module/language/{lang}/phrases.php';
+$phrases = $this->language->load($path);
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Note on Missing Files:</strong></p>
+    <p class="mb-0">If the file specified in the path does not exist, <code>load()</code> will return an <strong>empty array</strong>. It will not trigger a PHP error or halt execution.</p>
+</div>
+
+<hr>
+
+<h2 class="mt-0">Summary of Constants and Settings</h2>
+
+<p>While the Language module works out-of-the-box, you can influence its behavior via your application's configuration.</p>
+
+<ul>
+    <li><strong>APP_LANG:</strong> Define this constant in your <code>config.php</code> to set a site-wide default language that overrides the module's internal default.</li>
+    <li><strong>Cookie Lifetime:</strong> The default persistence for the language cookie is 2,592,000 seconds (30 days).</li>
+</ul>
+
+<div class="alert alert-success">
+    <p class="mb-0">Always use <code>$this->language->get_language()</code> in your controllers to pass the <code>$lang</code> variable to your views. This ensures your <code>&lt;html lang=""&gt;</code> attribute always remains in sync with the framework's state.</p>
+</div>

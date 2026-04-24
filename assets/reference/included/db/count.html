@@ -1,0 +1,100 @@
+<div class="container">
+  <h1>count()</h1>
+  <p class="signature">public function count(string $table): int</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Counts the total number of records in a specified database table. This method validates table existence, executes a COUNT(*) query, and returns the result as an integer. It provides a simple way to get the total record count from any table.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table to count records from.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>int</td>
+        <td>The total number of records in the specified table, cast to integer.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+    <li><strong>PDOException</strong> - If there's a database error during query execution.</li>
+  </ul>
+  
+  <h2>Example #1: Counting Users</h2>
+  <p>The code sample below demonstrates how to count the total number of users in the 'users' table.</p>
+[code=php]
+$total_users = $this-&gt;db-&gt;count('users');
+echo "Total users in the system: " . $total_users;
+[/code]
+
+  <h2>Example #2: Counting Products with Conditional Logic</h2>
+  <p>The code sample below demonstrates how to use the count result in conditional logic.</p>
+[code=php]
+$product_count = $this-&gt;db-&gt;count('products');
+
+if ($product_count &gt; 0) {
+    echo "There are " . $product_count . " products available.";
+} else {
+    echo "No products found in the catalog.";
+}
+[/code]
+
+  <h2>Example #3: Comparing Counts Across Multiple Tables</h2>
+  <p>The code sample below demonstrates how to count records from different tables for comparison.</p>
+[code=php]
+$active_users = $this-&gt;db-&gt;count('users');
+$pending_orders = $this-&gt;db-&gt;count('orders');
+$total_products = $this-&gt;db-&gt;count('products');
+
+echo "System Statistics:&lt;br&gt;";
+echo "- Active Users: " . $active_users . "&lt;br&gt;";
+echo "- Pending Orders: " . $pending_orders . "&lt;br&gt;";
+echo "- Available Products: " . $total_products;
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>The <code>$table</code> parameter is <strong>required</strong>.</li>
+    <li>The method validates that the table exists before executing the COUNT query.</li>
+    <li>Returns the count of ALL records in the table (no WHERE clause is applied).</li>
+    <li>The result is cast to integer using <code>(int)</code> type casting.</li>
+    <li>Uses <code>COUNT(*)</code> which counts all rows including those with NULL values.</li>
+    <li>The SQL query uses <code>AS total</code> alias for the count result.</li>
+    <li>If debug mode is enabled, the generated SQL query will be displayed before execution.</li>
+    <li>For large tables, this operation can be resource-intensive; consider caching the result if counting frequently.</li>
+    <li>To count with conditions, use <code>query_bind()</code> with a custom COUNT query containing WHERE clauses.</li>
+  </ul>
+</div>

@@ -1,0 +1,250 @@
+ <div class="container">
+    <h1>resize_to_height()</h1>
+    <p class="signature">public function resize_to_height(int $height): void</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Resizes a loaded image to the specified height whilst automatically calculating and maintaining the correct width to preserve the original aspect ratio. This method ensures proportional scaling with no distortion.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Load First, Then Resize:</strong> This method requires an image to be loaded first using <code>load()</code> or <code>upload()</code>. Calling <code>resize_to_height()</code> without a loaded image will throw an Exception with the message "No image is loaded to resize."</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Default</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$height</td>
+                <td>int</td>
+                <td>The target height in pixels. Must be greater than zero.</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>void</td>
+                <td>This method does not return a value. It modifies the loaded image resource in place.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1</h2>
+    <p>The code sample below demonstrates the most basic use of resize_to_height().</p>
+[code=php]
+// Load an image
+$this-&gt;image-&gt;load('modules/gallery/photos/photo.jpg');
+
+// Resize to 600 pixels tall (width calculated automatically)
+$this-&gt;image-&gt;resize_to_height(600);
+
+// Save the resized image
+$this-&gt;image-&gt;save('modules/gallery/photos/photo_resized.jpg');
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Aspect Ratio Preservation:</strong> The <code>resize_to_height()</code> method automatically calculates the proportional width needed to maintain the original aspect ratio. You only specify the height - the width adjusts accordingly, ensuring no distortion or stretching of the image.</p>
+    </div>
+
+    <h2>Example #2</h2>
+    <p>The example above shows how to create uniform height images for a horizontal gallery.</p>
+[code=php]
+public function normalise_gallery_heights(): void {
+    $gallery_id = segment(3, 'int');
+    
+    // Get all images in the gallery
+    $images = $this-&gt;model-&gt;get_many_where("gallery_id = {$gallery_id}", 'gallery_images');
+    
+    if ($images === false) {
+        redirect('gallery/view/' . $gallery_id);
+    }
+    
+    $target_height = 400;
+    $processed = 0;
+    
+    foreach ($images as $image) {
+        $source_path = 'modules/gallery/images/' . $image-&gt;filename;
+        
+        if ($this-&gt;file-&gt;exists($source_path)) {
+            // Load the image
+            $this-&gt;image-&gt;load($source_path);
+            
+            // Only resize if taller than target
+            if ($this-&gt;image-&gt;get_height() &gt; $target_height) {
+                $this-&gt;image-&gt;resize_to_height($target_height);
+                
+                // Save the normalised version
+                $output_path = 'modules/gallery/normalised/' . $image-&gt;filename;
+                
+                // Ensure directory exists
+                if (!$this-&gt;file-&gt;exists('modules/gallery/normalised')) {
+                    $this-&gt;file-&gt;create_directory('modules/gallery/normalised', 0755);
+                }
+                
+                $this-&gt;image-&gt;save($output_path, 85);
+                $processed++;
+            }
+            
+            $this-&gt;image-&gt;destroy();
+        }
+    }
+    
+    set_flashdata("Normalised {$processed} gallery images to {$target_height}px height");
+    redirect('gallery/view/' . $gallery_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Horizontal Gallery Pattern:</strong> When creating horizontal galleries or sliders, using <code>resize_to_height()</code> ensures all images have the same height whilst allowing widths to vary naturally. This creates a clean, aligned presentation without forcing images into unnatural aspect ratios.</p>
+    </div>
+
+    <h2>Example #3</h2>
+    <p>The example above demonstrates processing portrait images for a consistent display height.</p>
+[code=php]
+public function create_portrait_preview(): void {
+    $photo_id = segment(3, 'int');
+    
+    // Get photo record
+    $photo = $this-&gt;db-&gt;get_where($photo_id, 'photos');
+    
+    if ($photo === false) {
+        redirect('photos/not_found');
+    }
+    
+    $source_path = 'modules/gallery/originals/' . $photo-&gt;filename;
+    
+    if (!$this-&gt;file-&gt;exists($source_path)) {
+        redirect('photos/file_missing');
+    }
+    
+    // Load the image
+    $this-&gt;image-&gt;load($source_path);
+    
+    // Get current dimensions
+    $width = $this-&gt;image-&gt;get_width();
+    $height = $this-&gt;image-&gt;get_height();
+    
+    // Determine if portrait orientation
+    if ($height &gt; $width) {
+        // Portrait: resize to standard preview height
+        $preview_height = 800;
+        
+        if ($height &gt; $preview_height) {
+            $this-&gt;image-&gt;resize_to_height($preview_height);
+            
+            // Save portrait preview
+            $preview_dir = 'modules/gallery/previews/portrait';
+            if (!$this-&gt;file-&gt;exists($preview_dir)) {
+                $this-&gt;file-&gt;create_directory($preview_dir, 0755);
+            }
+            
+            $output_path = $preview_dir . '/' . $photo-&gt;filename;
+            $this-&gt;image-&gt;save($output_path, 85);
+            
+            // Update photo record
+            $update_data = [
+                'preview_path' =&gt; $output_path,
+                'preview_created_at' =&gt; date('Y-m-d H:i:s')
+            ];
+            $this-&gt;model-&gt;update($photo_id, $update_data, 'photos');
+            
+            set_flashdata('Portrait preview created successfully');
+        } else {
+            set_flashdata('Image already smaller than preview size');
+        }
+    } else {
+        set_flashdata('Image is not portrait orientation');
+    }
+    
+    $this-&gt;image-&gt;destroy();
+    redirect('gallery/view/' . $photo_id);
+}
+[/code]
+
+    <div class="alert alert-success">
+        <p><strong>Orientation-Specific Processing:</strong> Use <code>resize_to_height()</code> for portrait images and <code>resize_to_width()</code> for landscape images to ensure optimal scaling. Check orientation with <code>get_width()</code> and <code>get_height()</code>, then apply the appropriate resize method.</p>
+    </div>
+
+    <h2>Example #4</h2>
+    <p>The example above shows creating multiple height variations for responsive delivery.</p>
+[code=php]
+public function generate_responsive_heights(): void {
+    $article_id = segment(3, 'int');
+    
+    // Get article record
+    $article = $this-&gt;db-&gt;get_where($article_id, 'articles');
+    
+    if ($article === false) {
+        redirect('articles/not_found');
+    }
+    
+    $hero_image = 'modules/articles/images/' . $article-&gt;hero_image;
+    
+    if (!$this-&gt;file-&gt;exists($hero_image)) {
+        redirect('articles/image_missing');
+    }
+    
+    // Define height breakpoints for different devices
+    $height_breakpoints = [
+        'mobile' =&gt; 400,
+        'tablet' =&gt; 600,
+        'desktop' =&gt; 800,
+        'large' =&gt; 1200
+    ];
+    
+    // Load source to check if it's tall enough
+    $this-&gt;image-&gt;load($hero_image);
+    $source_height = $this-&gt;image-&gt;get_height();
+    $this-&gt;image-&gt;destroy();
+    
+    foreach ($height_breakpoints as $device =&gt; $target_height) {
+        // Only create this size if source is taller
+        if ($source_height &gt; $target_height) {
+            // Load source fresh for each size
+            $this-&gt;image-&gt;load($hero_image);
+            
+            // Resize to target height
+            $this-&gt;image-&gt;resize_to_height($target_height);
+            
+            // Save the device-specific version
+            $output_dir = 'modules/articles/responsive/' . $device;
+            if (!$this-&gt;file-&gt;exists($output_dir)) {
+                $this-&gt;file-&gt;create_directory($output_dir, 0755);
+            }
+            
+            $output_path = $output_dir . '/' . $article-&gt;hero_image;
+            $this-&gt;image-&gt;save($output_path, 85);
+            $this-&gt;image-&gt;destroy();
+        }
+    }
+    
+    set_flashdata('Responsive height variations generated');
+    redirect('articles/edit/' . $article_id);
+}
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Responsive Height Strategy:</strong> For vertically scrolling content or mobile-first designs, creating height-based responsive images can be more appropriate than width-based variations. This approach ensures images fit within viewport heights whilst maintaining aspect ratios, improving the mobile reading experience.</p>
+    </div>
+
+</div>

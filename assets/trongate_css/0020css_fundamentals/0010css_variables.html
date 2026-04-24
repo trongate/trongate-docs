@@ -1,0 +1,212 @@
+<h1>CSS Variables</h1>
+<p>Trongate CSS uses CSS custom properties (variables) to maintain consistent styling across your website. These variables control colors, borders, and other visual properties throughout the framework.</p>
+<h2>Default Variables</h2>
+<p>The following variables are defined in Trongate CSS:</p>
+
+[code=css]
+:root {
+  --primary: #4682b4;
+  --primary-dark: #38678f;
+  --primary-darker: #294d6b;
+  --primary-color: #fff;
+  --secondary: #af46b4;
+  --border: #c5c5c5;
+  --alt: #fff;
+  --modal-margin-top: 12vh;
+  --success: #4bb446;
+  --success-dark: #368532;
+  --info: #b2cce1;
+  --warning: #b47846;
+  --danger: #b4464b;
+  --danger-dark: #8f383b;
+  --inverse: #333;
+  --secondary-dark: #943f99;
+  --secondary-darker: #77337a;
+  --neutral: #f5f5f5;
+}[/code] 
+
+<div class="alert alert-info">
+  <p>The variable of <code>--modal-margin-top</code> is different from the other CSS variables.  It gets used to declare the top margin of modal windows whereas all of the other variables are used to set color values.</p>
+</div>
+
+<h2>Default Color Palette</h2>
+<p>Here are the default color variables that are set within Trongate CSS:</p>
+<div class="trongate-css-demo">
+  <div class="color-samples">
+    <div class="color-sample text-light" style="background-color: var(--primary)">
+      <div>--primary</div>
+      <div>#4682b4</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--primary-dark)">
+      <div>--primary-dark</div>
+      <div>#38678f</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--primary-darker)">
+      <div>--primary-darker</div>
+      <div>#294d6b</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--secondary)">
+      <div>--secondary</div>
+      <div>#af46b4</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--secondary-dark)">
+      <div>--secondary-dark</div>
+      <div>#943f99</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--secondary-darker)">
+      <div>--secondary-darker</div>
+      <div>#77337a</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--success)">
+      <div>--success</div>
+      <div>#4bb446</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--success-dark)">
+      <div>--success-dark</div>
+      <div>#368532</div>
+    </div>
+    <div class="color-sample text-dark" style="background-color: var(--info)">
+      <div>--info</div>
+      <div>#b2cce1</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--warning)">
+      <div>--warning</div>
+      <div>#b47846</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--danger)">
+      <div>--danger</div>
+      <div>#b4464b</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--danger-dark)">
+      <div>--danger-dark</div>
+      <div>#8f383b</div>
+    </div>
+    <div class="color-sample text-light" style="background-color: var(--inverse)">
+      <div>--inverse</div>
+      <div>#333</div>
+    </div>
+    <div class="color-sample text-dark silver">
+      <div>--silver</div>
+      <div>gradient</div>
+    </div>
+    <div class="color-sample gold">
+      <div>--gold</div>
+      <div>gradient</div>
+    </div>
+    <div class="color-sample text-dark" style="background-color: var(--neutral); border: 1px solid var(--border)">
+      <div>--neutral</div>
+      <div>#f5f5f5</div>
+    </div>
+    <div class="color-sample text-dark" style="background-color: var(--alt); border: 1px solid var(--border)">
+      <div>--alt</div>
+      <div>#fff</div>
+    </div>
+    <div class="color-sample text-dark" style="background-color: var(--border)">
+      <div>--border</div>
+      <div>#c5c5c5</div>
+    </div>
+  </div>
+</div>
+
+
+<h2>Understanding the Variables</h2>
+<ul>
+  <li>
+    <code>--primary</code>: Main theme color, typically used for header backgrounds, buttons and interactive elements.</li>
+  <li>
+    <code>--primary-dark</code>: Slightly darker version of the primary color, used for hover states.</li>
+  <li>
+    <code>--primary-darker</code>: Darkest version, used for borders and active states.</li>
+  <li>
+    <code>--secondary</code>: Secondary color for accents and complementary elements.</li>
+  <li>
+    <code>--secondary-dark</code>: Darker version of the secondary color, used for hover states.</li>
+  <li>
+    <code>--secondary-darker</code>: Darkest version of secondary color, used for active states.</li>
+  <li>
+    <code>--success</code>: Green color used to indicate successful actions or positive status.</li>
+  <li>
+    <code>--success-dark</code>: Darker green for hover states on success elements.</li>
+  <li>
+    <code>--info</code>: Light blue color used for informational messages.</li>
+  <li>
+    <code>--warning</code>: Orange color used for warning messages and alerts.</li>
+  <li>
+    <code>--danger</code>: Red color used for error states and destructive actions.</li>
+  <li>
+    <code>--danger-dark</code>: Darker red used for hover states on danger elements.</li>
+  <li>
+    <code>--inverse</code>: Dark contrast color for reversed color schemes.</li>
+  <li>
+    <code>--silver</code>: Metallic silver color for decorative elements.</li>
+  <li>
+    <code>--gold</code>: Metallic gold color for premium or featured elements.</li>
+  <li>
+    <code>--neutral</code>: Base neutral color for backgrounds and default states.</li>
+  <li>
+    <code>--alt</code>: Alternative neutral color for secondary backgrounds.</li>
+  <li>
+    <code>--border</code>: Default color for borders and dividers.</li>
+</ul>
+
+<h2>The Primary Color</h2>
+<p>In addition to the above colors, Trongate CSS has a class named as '.primary-color'.  This class is intened to provide the default font color for a variety of elements including buttons and elements that use the '.primary' background color.</p>
+
+<div class="trongate-css-demo">
+  <div class="color-samples-alt">
+    <div class="color-sample text-light" style="color: (var--primary); background-color: grey; color: var(--primary-color)">
+      <div class="blink">--primary-color (#fff)</div>
+    </div>
+  </div>
+</div>
+
+<p>The code sample below demonstrates an element that uses the <code>--primary-color</code> CSS variable to set the font color of an element.</p>
+
+[code=html]
+&lt;div style="padding: 5em; 
+     background-color: navy; 
+     color: var(--primary-color);"&gt;
+     The quick brown fox jumps over the lazy dog
+&lt;/div&gt;
+[/code]
+
+<p>And, here's the result:</p>
+
+<div class="trongate-css-demo">
+    <div>
+      <div style="padding: 5em; background-color: navy; color: var(--primary-color);">
+           The quick brown fox jumps over the lazy dog
+      </div>
+    </div>
+</div>
+
+
+
+<h2>Customizing Variables</h2>
+<p>To override these variables, add your own <code>:root</code> declaration after loading Trongate CSS: </p>
+
+[code=html]
+&lt;link rel="stylesheet" href="css/trongate.css"&gt;
+
+&lt;style&gt;
+  :root {
+    --primary: #2ecc71;
+    --primary-dark: #27ae60;
+  }
+&lt;/style&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p class="mt-0">Only override the variables you want to change. The others will keep their default values.</p>
+</div>
+
+
+<h2>How To Use CSS Variables</h2> 
+
+<p>Once you've defined your CSS variables, you can use them anywhere within your CSS.  For example, here's how you could apply the <code>.primary</code> background color to a footer element.
+
+[code=css]
+.footer {
+  background-color: var(--primary);
+}
+[/code]

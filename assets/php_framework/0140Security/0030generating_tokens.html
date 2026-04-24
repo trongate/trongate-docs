@@ -1,0 +1,279 @@
+[meta-description]Generate Trongate tokens with generate_token(). Pass user_id, optional expiry_date and set_cookie. Default: 24-hour session tokens. No module loading required in v2.[/meta-description]
+
+<h1>Generating Tokens</h1>
+
+<p>Token generation is handled by the <code>Trongate_tokens</code> module. This page shows you how to access it and create tokens for authenticated users.</p>
+
+<h2>No Module Loading Required</h2>
+
+<p>In Trongate v2, you don't need to explicitly load modules before using them.</p>
+
+<p>Just call the module directly:</p>
+
+[code=php]
+$token = $this-&gt;trongate_tokens-&gt;generate_token($data);
+[/code]
+
+<p>The framework's magic <code>__get()</code> method handles module loading automatically.</p>
+
+<div class="alert alert-info">
+    <p><strong>Trongate v1 users:</strong> The old <code>$this-&gt;module('trongate_tokens')</code> pattern is gone. Just use <code>$this-&gt;trongate_tokens</code> directly.</p>
+</div>
+
+<h2>Method Name Changes from v1</h2>
+
+<p>All methods in the <code>Trongate_tokens</code> module have been renamed in v2. The underscore prefix is gone.</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>v1 Method Name</th>
+            <th>v2 Method Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>_generate_token()</code></td>
+            <td><code>generate_token()</code></td>
+        </tr>
+        <tr>
+            <td><code>_attempt_get_valid_token()</code></td>
+            <td><code>attempt_get_valid_token()</code></td>
+        </tr>
+        <tr>
+            <td><code>_get_user_id()</code></td>
+            <td><code>get_user_id()</code></td>
+        </tr>
+        <tr>
+            <td><code>get_user_obj()</code></td>
+            <td><code>get_user_obj()</code></td>
+        </tr>
+        <tr>
+            <td><code>_get_user_level()</code></td>
+            <td><code>get_user_level()</code></td>
+        </tr>
+        <tr>
+            <td><code>_destroy()</code></td>
+            <td><code>destroy()</code></td>
+        </tr>
+        <tr>
+            <td><code>_delete_old_tokens()</code></td>
+            <td><code>delete_old_tokens()</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-warning">
+    <p>All methods are still <code>public</code> but are protected from direct URL access via <code>block_url()</code>.</p>
+    <p>This means you can call them from your code, but visiting <code>/trongate_tokens/generate_token</code> in a browser returns 403 Forbidden.</p>
+</div>
+
+<h2>Generating Tokens</h2>
+
+<p>Use the <span class="feature-ref">generate_token()</span> method to create authentication tokens.</p>
+
+<h3>Method Signature</h3>
+
+[code=php]
+public function generate_token(array $data): string
+[/code]
+
+<h3>Required Parameters</h3>
+
+<p>The <code>$data</code> array must contain:</p>
+
+<ul>
+    <li><strong>user_id</strong> (int) - The <code>id</code> from the <code>trongate_users</code> table</li>
+</ul>
+
+<h3>Optional Parameters</h3>
+
+<ul>
+    <li><strong>expiry_date</strong> (int) - Unix timestamp for when the token expires. Default: current time + 86400 seconds (24 hours)</li>
+    <li><strong>set_cookie</strong> (bool) - If <code>true</code>, store token in a cookie. If <code>false</code> or omitted, store in session</li>
+    <li><strong>code</strong> (string) - Internal code for special use cases (rarely used)</li>
+</ul>
+
+<h3>Return Value</h3>
+
+<p>Returns a string containing the generated 32-character token.</p>
+
+<h2>Basic Example: Session Token</h2>
+
+<p>Generate a token that lasts 24 hours and stores in the session:</p>
+
+[code=php]
+$token_data = [
+    'user_id' =&gt; $trongate_user_id
+];
+
+$token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+[/code]
+
+<p>This is the most common pattern. The token:</p>
+
+<ul>
+    <li>Expires in 24 hours (default)</li>
+    <li>Stores in <code>$_SESSION['trongatetoken']</code></li>
+    <li>Stores in the <code>trongate_tokens</code> database table</li>
+</ul>
+
+<h2>Custom Expiry: 30-Day Token</h2>
+
+<p>For "remember me" functionality, create a longer-lived token:</p>
+
+[code=php]
+$token_data = [
+    'user_id' =&gt; $trongate_user_id,
+    'expiry_date' =&gt; time() + (86400 * 30)  // 30 days
+];
+
+$token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+[/code]
+
+<p>Still stores in session by default.</p>
+
+<h2>Cookie Storage: Persistent Login</h2>
+
+<p>Store the token in a cookie so it persists across browser sessions:</p>
+
+[code=php]
+$token_data = [
+    'user_id' =&gt; $trongate_user_id,
+    'expiry_date' =&gt; time() + (86400 * 30),  // 30 days
+    'set_cookie' =&gt; true
+];
+
+$token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+[/code]
+
+<p>The token now stores in <code>$_COOKIE['trongatetoken']</code> and persists even after the browser closes.</p>
+
+<h2>Complete Login Example</h2>
+
+<p>Here's a realistic login controller that validates credentials and generates a token:</p>
+
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    public function submit_login(): void {
+        // Get posted credentials
+        $username = post('username');
+        $password = post('password');
+        $remember_me = post('remember_me');
+
+        // Fetch member by username
+        $member = $this-&gt;db-&gt;get_where_custom('username', $username, 'members');
+
+        // Validate credentials
+        if (!$member || !password_verify($password, $member-&gt;password)) {
+            // Invalid login
+            set_flashdata('Invalid username or password');
+            redirect('members/login');
+        }
+
+        // Credentials valid - generate token
+        $token_data = ['user_id' =&gt; $member-&gt;trongate_user_id];
+
+        // If "remember me" checked, use cookie with 30-day expiry
+        if ($remember_me === '1') {
+            $token_data['expiry_date'] = time() + (86400 * 30);
+            $token_data['set_cookie'] = true;
+        }
+
+        $token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
+
+        // Redirect to members area
+        redirect('members/dashboard');
+    }
+
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This example assumes you have a <code>members</code> table with columns: <code>id</code>, <code>username</code>, <code>password</code>, <code>first_name</code>, <code>last_name</code>, and <code>trongate_user_id</code>.</p>
+</div>
+
+<h2>What Happens Behind the Scenes</h2>
+
+<p>When you call <span class="feature-ref">generate_token()</span>, the framework:</p>
+
+<ol>
+    <li>Generates a random 32-character string using <span class="feature-ref">make_rand_str()</span></li>
+    <li>Sets the expiry date (either your custom value or default 86400 seconds)</li>
+    <li>Inserts a row into the <code>trongate_tokens</code> table with:
+        <ul>
+            <li><code>token</code> - The random string</li>
+            <li><code>user_id</code> - From your <code>$data</code> array</li>
+            <li><code>expiry_date</code> - Unix timestamp</li>
+        </ul>
+    </li>
+    <li>Stores the token on the user's device:
+        <ul>
+            <li>If <code>set_cookie</code> is <code>true</code> → stores in <code>$_COOKIE['trongatetoken']</code></li>
+            <li>Otherwise → stores in <code>$_SESSION['trongatetoken']</code></li>
+        </ul>
+    </li>
+    <li>Returns the token string</li>
+</ol>
+
+<h2>Default Token Lifespan</h2>
+
+<p>If you don't specify an <code>expiry_date</code>, tokens default to 86400 seconds (24 hours).</p>
+
+<p>This default is defined in the <code>Trongate_tokens_model</code> class:</p>
+
+[code=php]
+private int $default_token_lifespan = 86400; // one day
+[/code]
+
+<p>You can modify this value if you want different default behavior.</p>
+
+<h2>Security Notes</h2>
+
+<ul>
+    <li><strong>Never expose tokens in URLs</strong> - Always use sessions or cookies</li>
+    <li><strong>Use HTTPS</strong> - Tokens are random strings but not encrypted</li>
+    <li><strong>Set appropriate expiry dates</strong> - Shorter for sensitive operations, longer for convenience</li>
+    <li><strong>Hash passwords</strong> - Always use <code>password_hash()</code> before storing passwords in your database</li>
+</ul>
+
+<h2>Common Patterns</h2>
+
+<h3>Standard Login (Session, 24 Hours)</h3>
+
+[code=php]
+$token = $this-&gt;trongate_tokens-&gt;generate_token([
+    'user_id' =&gt; $member-&gt;trongate_user_id
+]);
+[/code]
+
+<h3>Remember Me (Cookie, 30 Days)</h3>
+
+[code=php]
+$token = $this-&gt;trongate_tokens-&gt;generate_token([
+    'user_id' =&gt; $member-&gt;trongate_user_id,
+    'expiry_date' =&gt; time() + (86400 * 30),
+    'set_cookie' =&gt; true
+]);
+[/code]
+
+<h3>Short-Lived Token (1 Hour)</h3>
+
+[code=php]
+$token = $this-&gt;trongate_tokens-&gt;generate_token([
+    'user_id' =&gt; $member-&gt;trongate_user_id,
+    'expiry_date' =&gt; time() + 3600  // 1 hour
+]);
+[/code]
+
+<h2>What's Next</h2>
+
+<p>Now that you know how to generate tokens, the next page covers:</p>
+
+<ul>
+    <li>Validating tokens with <span class="feature-ref">attempt_get_valid_token()</span></li>
+    <li>Fetching user data from tokens</li>
+    <li>Checking user levels</li>
+</ul>

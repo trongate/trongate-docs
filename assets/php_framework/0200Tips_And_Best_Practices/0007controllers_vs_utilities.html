@@ -1,0 +1,625 @@
+[meta-description]Learn when to extend Trongate vs creating standalone utilities. Discover how Trongate v2 intelligently handles both controllers and utility classes for maximum performance and clarity.[/meta-description]
+
+<h1>Building Modules: Controllers vs Utilities</h1>
+
+<p>One of Trongate v2's most powerful features is its ability to intelligently handle both framework-dependent controllers and standalone utility classes. This page explains when to use each pattern and how the framework automatically adapts.</p>
+
+<h2>The Two Types of Modules</h2>
+
+<p>In Trongate v2, modules fall into two categories:</p>
+
+<h3>Controllers (Extend Trongate)</h3>
+
+<p>Controllers are modules that need framework features like database access, view rendering, or loading other modules.</p>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function index() {
+        $data = $this-&gt;model-&gt;get_all();      // Database access
+        $this-&gt;view('list', $data);           // View rendering
+        $this-&gt;module('auth');                // Module loading
+    }
+}
+[/code]
+
+<h3>Utilities (Standalone Classes)</h3>
+
+<p>Utilities are self-contained classes that perform specific tasks without needing any framework features.</p>
+
+[code=php]
+&lt;?php
+class Image {  // No extends Trongate
+    
+    public function resize($width, $height) {
+        // Pure image processing using GD library
+        // No database, no views, no framework dependencies
+    }
+}
+[/code]
+
+<h2>When to Extend Trongate</h2>
+
+<p>Your module should extend Trongate if it needs <strong>any</strong> of these features:</p>
+
+<ul>
+    <li><strong>Database operations</strong> - <code>$this-&gt;model</code></li>
+    <li><strong>View rendering</strong> - <code>$this-&gt;view()</code></li>
+    <li><strong>Loading other modules</strong> - <code>$this-&gt;module('name')</code> or <code>$this-&gt;modulename</code></li>
+    <li><strong>Module name tracking</strong> - <code>$this-&gt;module_name</code></li>
+</ul>
+
+<h3>Common Controller Examples</h3>
+
+<ul>
+    <li><strong>Products</strong> - manages product data, displays views</li>
+    <li><strong>Users</strong> - handles user accounts, authentication</li>
+    <li><strong>Orders</strong> - processes orders, generates invoices</li>
+    <li><strong>Admin</strong> - dashboard, reports, management interface</li>
+    <li><strong>Api</strong> - endpoints that query databases and return JSON</li>
+</ul>
+
+[code=php]
+&lt;?php
+class Users extends Trongate {
+    
+    public function create() {
+        // Uses validation (framework feature)
+        $this-&gt;validation-&gt;set_rules('email', 'Email', 'required|valid_email');
+        
+        if ($this-&gt;validation-&gt;run()) {
+            // Uses model (framework feature)
+            $data = $this-&gt;_get_data_from_post();
+            $this-&gt;model-&gt;insert($data);
+            
+            redirect('users/manage');
+        } else {
+            // Uses view rendering (framework feature)
+            $this-&gt;view('create_form');
+        }
+    }
+}
+[/code]
+
+<h2>When NOT to Extend Trongate</h2>
+
+<p>Create a standalone utility class if your module:</p>
+
+<ul>
+    <li><strong>Performs pure computation</strong> - math, string manipulation, data formatting</li>
+    <li><strong>Wraps external libraries</strong> - image processing (GD), PDFs, email</li>
+    <li><strong>Has no database needs</strong> - doesn't read or write data</li>
+    <li><strong>Has no view rendering</strong> - doesn't display HTML</li>
+    <li><strong>Could be used outside Trongate</strong> - framework-agnostic functionality</li>
+</ul>
+
+<h3>Common Utility Examples</h3>
+
+<ul>
+    <li><strong>Image</strong> - resize, crop, manipulate images with GD</li>
+    <li><strong>Pdf</strong> - generate or manipulate PDF documents</li>
+    <li><strong>Calculator</strong> - perform complex calculations</li>
+    <li><strong>Converter</strong> - convert between units, formats, currencies</li>
+    <li><strong>Validator</strong> - custom validation logic (credit cards, phone numbers)</li>
+    <li><strong>Encryptor</strong> - encryption/decryption utilities</li>
+</ul>
+
+[code=php]
+&lt;?php
+class Calculator {  // Standalone utility - no extends
+    
+    public function compound_interest($principal, $rate, $time) {
+        return $principal * pow((1 + $rate / 100), $time);
+    }
+    
+    public function mortgage_payment($principal, $rate, $years) {
+        $monthly_rate = $rate / 100 / 12;
+        $num_payments = $years * 12;
+        return $principal * ($monthly_rate * pow(1 + $monthly_rate, $num_payments)) 
+               / (pow(1 + $monthly_rate, $num_payments) - 1);
+    }
+}
+[/code]
+
+<h2>How Trongate Handles Both Types</h2>
+
+<p>Here's the brilliant part: <strong>you can use both types of modules exactly the same way</strong> in your controllers.</p>
+
+<h3>Using a Controller Module</h3>
+
+[code=php]
+&lt;?php
+class Dashboard extends Trongate {
+    
+    public function index() {
+        // Load the 'users' controller module (extends Trongate)
+        $this-&gt;module('users');
+        $user_count = $this-&gt;users-&gt;get_count();
+    }
+}
+[/code]
+
+<h3>Using a Utility Module</h3>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function upload_image() {
+        // Load the 'image' utility (does NOT extend Trongate)
+        $config = ['max_width' =&gt; 800];
+        $file_info = $this-&gt;image-&gt;upload($config);
+    }
+}
+[/code]
+
+<p>Notice: <strong>The syntax is identical!</strong> You don't need to know or care whether a module extends Trongate or not.</p>
+
+<h2>The Framework's Intelligence</h2>
+
+<p>When you access <code>$this-&gt;image</code>, here's what happens behind the scenes:</p>
+
+[code=php]
+// Inside Trongate base class:
+protected function module(string $target_module): void {
+    // Load the module file
+    require_once $controller_path;
+    
+    // Check: Does this class extend Trongate?
+    if (is_subclass_of($controller_class, 'Trongate')) {
+        // Yes - pass module name to constructor
+        $module_instance = new $controller_class($target_module);
+    } else {
+        // No - it's a standalone utility
+        $module_instance = new $controller_class();
+    }
+    
+    // Cache it for future use
+    $this-&gt;loaded_modules[$target_module] = $module_instance;
+}
+[/code]
+
+<p>The framework <strong>automatically detects</strong> whether a module extends Trongate and instantiates it correctly.</p>
+
+<div class="alert alert-success">
+    <p><strong>Zero Configuration:</strong> You don't register modules as "controllers" or "utilities". The framework figures it out automatically by checking the class inheritance.</p>
+</div>
+
+<h2>Real-World Example: Image Utility</h2>
+
+<p>Let's look at a complete example of a standalone utility class:</p>
+
+[code=php]
+&lt;?php
+/**
+ * Image manipulation utility
+ * Standalone class - no framework dependencies
+ */
+class Image {
+    
+    private $image;
+    private $image_type;
+    
+    public function __construct(?string $filename = null) {
+        // Block direct URL access
+        block_url('image');
+        
+        // Check for GD library
+        if (!extension_loaded('gd')) {
+            die('GD library required');
+        }
+        
+        // Optionally load an image
+        if ($filename) {
+            $this-&gt;load($filename);
+        }
+    }
+    
+    public function load($filename) {
+        $image_info = getimagesize($filename);
+        $this-&gt;image_type = $image_info[2];
+        
+        switch($this-&gt;image_type) {
+            case IMAGETYPE_JPEG:
+                $this-&gt;image = imagecreatefromjpeg($filename);
+                break;
+            case IMAGETYPE_PNG:
+                $this-&gt;image = imagecreatefrompng($filename);
+                break;
+            // ... other formats
+        }
+    }
+    
+    public function resize($width, $height) {
+        $new_image = imagecreatetruecolor($width, $height);
+        imagecopyresampled(
+            $new_image, $this-&gt;image,
+            0, 0, 0, 0,
+            $width, $height,
+            imagesx($this-&gt;image), imagesy($this-&gt;image)
+        );
+        $this-&gt;image = $new_image;
+    }
+    
+    public function save($filename, $quality = 90) {
+        switch($this-&gt;image_type) {
+            case IMAGETYPE_JPEG:
+                imagejpeg($this-&gt;image, $filename, $quality);
+                break;
+            case IMAGETYPE_PNG:
+                imagepng($this-&gt;image, $filename);
+                break;
+        }
+    }
+}
+[/code]
+
+<p>Notice what this class <strong>doesn't</strong> have:</p>
+
+<ul>
+    <li>No <code>extends Trongate</code></li>
+    <li>No <code>$this-&gt;model</code> usage</li>
+    <li>No <code>$this-&gt;view()</code> calls</li>
+    <li>No framework dependencies at all</li>
+</ul>
+
+<p>It's pure functionality. And it works perfectly when loaded via <code>$this-&gt;image</code> in any controller.</p>
+
+<h2>Using the Image Utility in a Controller</h2>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function upload_product_image() {
+        // Configure upload
+        $config = [
+            'destination' =&gt; 'uploads/products',
+            'max_width' =&gt; 800,
+            'max_height' =&gt; 800
+        ];
+        
+        // Upload and resize automatically
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Save to database
+        $data = [
+            'product_id' =&gt; segment(3),
+            'image_path' =&gt; $file_info['file_path']
+        ];
+        
+        $this-&gt;model-&gt;insert($data, 'product_images');
+        
+        set_flashdata('Image uploaded successfully!');
+        redirect('products/manage');
+    }
+}
+[/code]
+
+<p>See how natural it is? The Image utility handles image processing, while the Products controller handles business logic, database, and views.</p>
+
+<h2>Constructor Differences</h2>
+
+<h3>Controllers (Extending Trongate)</h3>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    // If you need a constructor:
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name); // REQUIRED!
+        // Your initialization
+    }
+    
+    // Most controllers don't need a constructor at all
+}
+[/code]
+
+<h3>Utilities (Standalone)</h3>
+
+[code=php]
+&lt;?php
+class Image {
+    
+    // Constructor accepts whatever parameters make sense
+    public function __construct(?string $filename = null) {
+        // No parent::__construct() needed
+        // No module_name parameter needed
+        // Just your logic
+    }
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Standalone utilities should NOT accept <code>$module_name</code> as a parameter. The framework instantiates them without parameters.</p>
+</div>
+
+<h2>Performance Benefits of Standalone Utilities</h2>
+
+<p>Creating standalone utilities has real performance advantages:</p>
+
+<h3>Lower Memory Usage</h3>
+
+<p>Standalone classes don't carry the framework's base class overhead:</p>
+
+<ul>
+    <li>No <code>$instances</code> cache array</li>
+    <li>No <code>$loaded_modules</code> cache array</li>
+    <li>No <code>$module_name</code>, <code>$parent_module</code>, <code>$child_module</code> properties</li>
+</ul>
+
+<h3>Faster Instantiation</h3>
+
+<p>The framework doesn't need to:</p>
+
+<ul>
+    <li>Call <code>parent::__construct()</code></li>
+    <li>Set module name properties</li>
+    <li>Initialize framework features</li>
+</ul>
+
+<h3>Framework-Agnostic</h3>
+
+<p>Standalone utilities can be:</p>
+
+<ul>
+    <li>Reused in other projects</li>
+    <li>Tested independently</li>
+    <li>Shared as libraries</li>
+    <li>Used outside of Trongate entirely</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Speed Priority:</strong> For Trongate v2's goal of being the fastest PHP framework, creating standalone utilities for pure functionality eliminates unnecessary overhead.</p>
+</div>
+
+<h2>Migration Decision Tree</h2>
+
+<p>When creating a new module, ask yourself:</p>
+
+[code]
+Does this module need to:
+├─ Query the database?
+│  └─ YES → Extend Trongate
+│
+├─ Render views?
+│  └─ YES → Extend Trongate
+│
+├─ Load other modules?
+│  └─ YES → Extend Trongate
+│
+└─ Just perform calculations/processing?
+   └─ NO to all above → Standalone utility
+[/code]
+
+<h2>Converting Between Types</h2>
+
+<p>You can easily convert between controller and utility if you change your mind:</p>
+
+<h3>From Controller to Utility</h3>
+
+[code=php]
+// Before: Controller
+&lt;?php
+class Calculator extends Trongate {
+    
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);
+    }
+    
+    public function add($a, $b) {
+        return $a + $b;
+    }
+}
+
+// After: Utility (remove extends, remove constructor)
+&lt;?php
+class Calculator {
+    
+    public function add($a, $b) {
+        return $a + $b;
+    }
+}
+[/code]
+
+<h3>From Utility to Controller</h3>
+
+[code=php]
+// Before: Utility
+&lt;?php
+class Reports {
+    
+    public function generate($type) {
+        // Just generates data
+        return $data;
+    }
+}
+
+// After: Controller (add extends, add constructor if needed)
+&lt;?php
+class Reports extends Trongate {
+    
+    public function generate($type) {
+        $data = $this-&gt;calculate_data($type);
+        
+        // Now can use framework features
+        $this-&gt;view('report', $data);
+    }
+}
+[/code]
+
+<h2>Common Patterns</h2>
+
+<h3>Pattern 1: Controller Uses Multiple Utilities</h3>
+
+[code=php]
+&lt;?php
+class Invoices extends Trongate {
+    
+    public function generate($order_id) {
+        // Load data from database
+        $order = $this-&gt;model-&gt;get_where($order_id, 'orders');
+        
+        // Use calculator utility
+        $total = $this-&gt;calculator-&gt;apply_tax($order['subtotal']);
+        
+        // Use PDF utility
+        $pdf_path = $this-&gt;pdf-&gt;generate_invoice($order, $total);
+        
+        // Return result
+        echo json_encode(['pdf_url' =&gt; $pdf_path]);
+    }
+}
+[/code]
+
+<h3>Pattern 2: Utility Uses Another Utility</h3>
+
+<p>Utilities can use other utilities, but they load them differently (no <code>$this-&gt;</code> magic):</p>
+
+[code=php]
+&lt;?php
+class Pdf {
+    
+    private $image;
+    
+    public function __construct() {
+        // Manually instantiate utilities
+        require_once '../modules/image/Image.php';
+        $this-&gt;image = new Image();
+    }
+    
+    public function add_logo() {
+        // Use the image utility
+        $this-&gt;image-&gt;load('logo.png');
+        $this-&gt;image-&gt;resize(200, 100);
+    }
+}
+[/code]
+
+<p>Or, convert Pdf to extend Trongate if it needs multiple utilities:</p>
+
+[code=php]
+&lt;?php
+class Pdf extends Trongate {
+    
+    public function add_logo() {
+        // Now can use automatic loading
+        $this-&gt;image-&gt;load('logo.png');
+        $this-&gt;image-&gt;resize(200, 100);
+    }
+}
+[/code]
+
+<h2>Testing Your Module Type</h2>
+
+<p>To verify you've chosen the right pattern:</p>
+
+<h3>Test 1: Can it work standalone?</h3>
+
+[code=php]
+// Try instantiating directly
+$calc = new Calculator();
+$result = $calc-&gt;add(5, 3);
+
+// If this works, it's a good utility candidate
+[/code]
+
+<h3>Test 2: Does it need framework features?</h3>
+
+[code=php]
+// If you see any of these in your class:
+$this-&gt;model-&gt;...
+$this-&gt;view(...)
+$this-&gt;module(...)
+
+// Then it MUST extend Trongate
+[/code]
+
+<h2>Best Practices Summary</h2>
+
+<div class="alert alert-info">
+    <p><strong>Controllers (extend Trongate):</strong></p>
+    <ul>
+        <li>Handle business logic and user interactions</li>
+        <li>Need database, views, or other modules</li>
+        <li>Must call <code>parent::__construct($module_name)</code> if they have a constructor</li>
+        <li>Examples: Products, Users, Admin, Orders</li>
+    </ul>
+</div>
+
+<div class="alert alert-success">
+    <p><strong>Utilities (standalone):</strong></p>
+    <ul>
+        <li>Perform specific, self-contained tasks</li>
+        <li>No database, views, or framework dependencies</li>
+        <li>Constructor accepts task-specific parameters only</li>
+        <li>Examples: Image, Calculator, Pdf, Validator</li>
+    </ul>
+</div>
+
+<h2>Advanced: Hybrid Approach</h2>
+
+<p>Some modules might need BOTH a controller interface AND utility functions:</p>
+
+[code=php]
+// products/Products.php - Controller for web interface
+&lt;?php
+class Products extends Trongate {
+    
+    public function create() {
+        $this-&gt;view('create_form');
+    }
+}
+
+// products/products_helper.php - Utility functions
+&lt;?php
+function calculate_price_with_tax($price, $tax_rate) {
+    return $price * (1 + $tax_rate);
+}
+
+function format_price($price) {
+    return '$' . number_format($price, 2);
+}
+[/code]
+
+<p>Load the helper in your controller:</p>
+
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    
+    public function __construct(?string $module_name = null) {
+        parent::__construct($module_name);
+        require_once 'products_helper.php';
+    }
+    
+    public function display($id) {
+        $product = $this-&gt;model-&gt;get_where($id);
+        
+        // Use helper function
+        $price = calculate_price_with_tax($product['price'], 0.08);
+        
+        $data['formatted_price'] = format_price($price);
+        $this-&gt;view('details', $data);
+    }
+}
+[/code]
+
+<h2>Conclusion</h2>
+
+<p>Trongate v2's dual module system gives you:</p>
+
+<ul>
+    <li><strong>Flexibility</strong> - Choose the right pattern for each module</li>
+    <li><strong>Performance</strong> - Zero framework overhead for utilities</li>
+    <li><strong>Simplicity</strong> - Use both types identically in controllers</li>
+    <li><strong>Intelligence</strong> - Framework auto-detects and adapts</li>
+</ul>
+
+<p>Understanding when to extend Trongate vs creating standalone utilities is key to building fast, maintainable applications.</p>
+
+<div class="alert alert-success">
+    <p><strong>Remember:</strong> When in doubt, start with a standalone utility. You can always add <code>extends Trongate</code> later if you need framework features. It's easier to add framework capabilities than remove them.</p>
+</div>

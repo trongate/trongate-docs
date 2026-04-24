@@ -1,0 +1,108 @@
+[meta-description]Learn Trongate's Validation class: set rules with set_rules(), run validation with run(), and use built-in rules like required, min_length, max_length, valid_email, numeric, and checkbox patterns.[/meta-description]
+<h1>Form Validation Basics</h1>
+
+<p>In Trongate v2, validation is handled by the <strong>validation module</strong> located at <code>modules/validation/</code>. Like all modules, it loads automatically when you reference it:</p>
+
+<h2>The Pattern</h2>
+
+<ol>
+    <li>Set validation rules</li>
+    <li>Run validation</li>
+    <li>Handle result</li>
+</ol>
+
+<h2>Two Syntax Options</h2>
+
+<h3>Option 1: Pipe Syntax (Simple)</h3>
+[code=php]
+$this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[3]');
+$this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+$result = $this-&gt;validation-&gt;run();
+[/code]
+
+<h3>Option 2: Array Syntax (Organized)</h3>
+[code=php]
+$rules = [
+    'username' =&gt; ['label' =&gt; 'username', 'required' =&gt; true, 'min_length' =&gt; 3],
+    'email' =&gt; ['label' =&gt; 'email address', 'required' =&gt; true, 'valid_email' =&gt; true]
+];
+$result = $this-&gt;validation-&gt;run($rules);
+[/code]
+
+<h2>Built-In Rules</h2>
+
+<table class="table sm">
+    <tbody>
+        <tr><td><code>required</code></td><td>Field cannot be empty</td></tr>
+        <tr><td><code>min_length[n]</code></td><td>Minimum character length</td></tr>
+        <tr><td><code>max_length[n]</code></td><td>Maximum character length</td></tr>
+        <tr><td><code>valid_email</code></td><td>Valid email format</td></tr>
+        <tr><td><code>numeric</code></td><td>Must be a number</td></tr>
+        <tr><td><code>integer</code></td><td>Must be an integer</td></tr>
+        <tr><td><code>matches[field]</code></td><td>Must match another field</td></tr>
+    </tbody>
+</table>
+
+<h2>Checkbox Validation: Special Consideration</h2>
+
+<p>Checkboxes behave differently because unchecked checkboxes don't submit data. An unchecked checkbox returns `''` (empty string) from <span class="feature-ref">post()</span>.</p>
+
+<div class="alert alert-info">
+    <p><strong>Important:</strong> If a checkbox is optional (not required), don't add <code>required</code> rule to it. The validation will correctly handle the empty string.</p>
+</div>
+
+[code=php]
+// For REQUIRED checkbox (must be checked):
+$this-&gt;validation-&gt;set_rules('terms', 'terms and conditions', 'required');
+// User must check the box
+
+// For OPTIONAL checkbox:
+// No validation rule needed
+// Unchecked = '', Checked = '1'
+$data['newsletter'] = (int) (bool) post('newsletter', true); // 0 or 1
+[/code]
+
+<h2>Complete Example with Checkbox</h2>
+
+[code=php]
+public function submit(): void {
+    // Set rules
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+    $this-&gt;validation-&gt;set_rules('password', 'password', 'required|min_length[8]');
+    $this-&gt;validation-&gt;set_rules('terms', 'terms and conditions', 'required'); // Required checkbox
+    
+    // Run validation
+    if ($this-&gt;validation-&gt;run() === true) {
+        // Success: save data
+        $data['email'] = post('email', true);
+        $data['password'] = post('password', true);
+        
+        // Convert checkbox for database
+        $data['terms_accepted'] = (int) (bool) post('terms', true); // 1 if checked
+        $data['newsletter'] = (int) (bool) post('newsletter', true); // Optional: 0 or 1
+        
+        $this-&gt;db-&gt;insert($data, 'users');
+        redirect('users/manage');
+    } else {
+        // Failure: redisplay form
+        $this-&gt;create();
+    }
+}
+[/code]
+
+<h2>Key Points</h2>
+
+<ul>
+    <li>Use lowercase field labels in <code>set_rules()</code> for natural error messages</li>
+    <li>Use <code>post('field', true)</code> for consistency with cleaning</li>
+    <li>CSRF protection is automatic</li>
+    <li>Errors store in session, display with <code>validation_errors()</code></li>
+    <li>Optional fields skip validation when empty</li>
+    <li>Checkboxes: Use <code>required</code> only if user must check the box</li>
+    <li>For optional checkboxes, no validation rule is needed</li>
+</ul>
+
+<div class="alert alert-info">
+    <p>Validation fails → form redisplays with errors.<br>
+    Validation passes → data saves, user redirects.</p>
+</div>

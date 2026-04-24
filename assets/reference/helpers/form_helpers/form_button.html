@@ -1,0 +1,151 @@
+<div class="container">
+    <h1>form_button()</h1>
+    <p class="signature">function form_button(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML button element with <code>type="button"</code>. These buttons require JavaScript for interactivity and do not submit forms.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the button element.</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>(optional) The button's visible text. Defaults to "Submit".</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes for the button element. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>An HTML button element with type="button".</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Button</h2>
+[code=php]
+echo form_button('action-btn');
+
+// Output:
+// &lt;button type="button" name="action-btn"&gt;Submit&lt;/button&gt;
+[/code]
+
+    <h2>Example #2: JavaScript Action Button</h2>
+[code=php]
+$attributes = [
+    'onclick' =&gt; 'showDetails()'
+];
+echo form_button('details-btn', 'View Details', $attributes);
+
+// Output:
+// &lt;button type="button" name="details-btn" onclick="showDetails()"&gt;View Details&lt;/button&gt;
+[/code]
+
+    <h2>Example #3: Reset Button for Forms</h2>
+[code=php]
+$attributes = [
+    'type' =&gt; 'reset'
+];
+echo form_button('reset-btn', 'Clear Form', $attributes);
+
+// Output:
+// &lt;button type="reset" name="reset-btn"&gt;Clear Form&lt;/button&gt;
+[/code]
+
+    <h2>Example #4: Button with Data Attributes</h2>
+[code=php]
+$attributes = [
+    'data-id' =&gt; '123',
+    'data-action' =&gt; 'delete',
+    'onclick' =&gt; 'confirmAction(this)'
+];
+echo form_button('item-action', 'Delete Item', $attributes);
+
+// Output:
+// &lt;button type="button" name="item-action" data-id="123" data-action="delete" onclick="confirmAction(this)"&gt;Delete Item&lt;/button&gt;
+[/code]
+
+    <h2>Button Styling</h2>
+    
+    <div class="card mb-2">
+        <div class="card-heading">Available CSS Classes</div>
+        <div class="card-body">
+            <button type="button" class="mr-1">Default</button>
+            <button type="button" class="success mr-1">Success</button>
+            <button type="button" class="danger mr-1">Danger</button>
+            <button type="button" class="warning mr-1">Warning</button>
+            <button type="button" class="inverse mr-1">Inverse</button>
+            <button type="button" class="alt mr-1">Alt</button>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <p>Your buttons may have different colors than those displayed above. The actual appearance depends on your Trongate CSS theme.</p>
+    </div>
+
+    <h3>Try It Yourself</h3>
+    <p>Test different CSS classes with your buttons. This code assumes Trongate CSS is loaded on your webpage:</p>
+
+[code=vf]
+&lt;?php
+echo form_button('btn1', 'Default Button');
+echo form_button('btn2', 'Success Button', ['class' =&gt; 'success']);
+echo form_button('btn3', 'Danger Button', ['class' =&gt; 'danger']);
+echo form_button('btn4', 'Warning Button', ['class' =&gt; 'warning']);
+echo form_button('btn5', 'Inverse Button', ['class' =&gt; 'inverse']);
+echo form_button('btn6', 'Alt Button', ['class' =&gt; 'alt']);
+?&gt;
+[/code]
+
+    <div class="alert alert-info">
+        <p><strong>Button vs Submit:</strong> This creates <code>&lt;button type="button"&gt;</code> elements. For form submission, use <code>form_submit()</code> instead.</p>
+    </div>
+
+    <div class="alert alert-success">
+        <ul>
+            <li>Type="button" buttons require JavaScript for functionality</li>
+            <li>Can be used as reset buttons with <code>type="reset"</code> attribute</li>
+            <li>Use data attributes (<code>data-*</code>) to store custom information</li>
+            <li>Available CSS classes: <code>success</code>, <code>danger</code>, <code>warning</code>, <code>inverse</code>, <code>alt</code></li>
+            <li>Buttons are not included in form submission data</li>
+        </ul>
+    </div>
+
+    <h2>Common Use Cases</h2>
+    <ul>
+        <li>Modal triggers and dialog openers</li>
+        <li>Form reset/clear functionality</li>
+        <li>JavaScript-powered actions (show/hide, filtering, sorting)</li>
+        <li>Cancel buttons that navigate away without submitting</li>
+        <li>Interactive elements that trigger AJAX requests</li>
+    </ul>
+</div>

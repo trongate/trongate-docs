@@ -1,0 +1,85 @@
+[meta-description]Learn how to add CSS files, JavaScript files and other assets to your Trongate templates using the 'additional_includes_top' and 'additional_includes_btm' arrays for optimal page loading.[/meta-description]
+<h1>Additional Includes</h1>
+
+<p>Every page has its own toys. A dashboard wants charts. A profile page wants an image cropper. A blog post wants syntax highlighting.  
+With <strong>additional includes</strong> you give each page exactly what it needs – nothing more, nothing less.</p>
+
+<h2>From Any Controller</h2>
+
+<p>Just add two optional arrays to your <code>$data</code>:</p>
+
+[code=php]
+public function dashboard(): void {
+    $data['page_title'] = 'Sales Dashboard';
+
+    // Things to add inside &lt;head&gt;
+    $data['additional_includes_top'][] = 'css/dashboard.css';
+    $data['additional_includes_top'][] = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+
+    // Things to add just before &lt;/body&gt;
+    $data['additional_includes_btm'][] = 'js/dashboard-charts.js';
+    $data['additional_includes_btm'][] = 'js/realtime-updates.js';
+
+    $this->templates->admin($data);
+}
+[/code]
+
+<h2>What Happens Behind the Scenes</h2>
+<p>The <code>Templates</code> module automatically turns those arrays into proper HTML:</p>
+<p class="mt-1">Anything ending in <code>.css</code> becomes →</p>
+[code=html]
+&lt;link rel="stylesheet" href="..."&gt;
+[/code]
+<p class="mt-1">Anything ending in <code>.js</code> becomes →</p>
+[code=html]
+&lt;script src="..."&gt;&lt;/script&gt;
+[/code]
+<p class="mt-1">Full URLs or raw HTML strings → inserted exactly as written</p>
+
+<p>Here are the two lines you will find in every template file:</p>
+
+[code=php]
+&lt;?= $additional_includes_top ?? '' ?&gt;
+...
+&lt;?= $additional_includes_btm ?? '' ?&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p class="mt-0">The <code>?? ''</code> simply prevents errors when no extra files are declared.</p>
+</div>
+
+<h2>Real-World Examples</h2>
+
+<h4>Loading from a CDN</h4>
+[code=php]
+$data['additional_includes_top'][] = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+$data['additional_includes_btm'][] = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+[/code]
+
+<h4>Loading assets from any module (using the <a href="documentation/trongate_php_framework/module-fundamentals/module-assets" target="_blank">module assets trigger</a>)</h4>
+[code=php]
+$data['additional_includes_top'][] = 'gallery_module/css/lightbox.css';
+$data['additional_includes_btm'][] = 'gallery_module/js/lightbox-init.js';
+[/code]
+
+<h4>Passing raw HTML when you need special attributes</h4>
+[code=php]
+$data['additional_includes_top'][] = '&lt;meta name="robots" content="noindex"&gt;';
+$data['additional_includes_btm'][] = '&lt;script&gt;console.log("Welcome!");&lt;/script&gt;';
+[/code]
+
+<h4>Conditional loading</h4>
+[code=php]
+if ($product->has_gallery) {
+    $data['additional_includes_top'][] = 'css/lightbox.css';
+    $data['additional_includes_btm'][] = 'js/lightbox.js';
+}
+[/code]
+
+<h2>Why This Rules</h2>
+
+<ul>
+  <li>Only the pages that <i>need</i> the assets actually <i>load</i> them.</li>
+  <li>No more 2 MB of JavaScript on the login screen.</li>
+  <li>No more unused CSS slowing down your site.</li>
+</ul>

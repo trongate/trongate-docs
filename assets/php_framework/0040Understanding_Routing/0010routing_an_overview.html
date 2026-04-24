@@ -1,0 +1,122 @@
+[meta-description]Trongate routing: clean URLs with zero config. Automatic module/method mapping, simple custom routes, plus clear breakdown of routing vs rewriting vs redirecting. No YAML, no ceremony.[/meta-description]
+<h1>Routing: An Overview</h1>
+
+<p>URLs should be clean. Code should be simple. Trongate delivers both  -  no config files, no YAML, no <code>Route::get()</code> ceremonies.</p>
+
+<p>Old-school PHP:</p>
+[code]
+https://example.com/store_items.php?id=35&category=12&sort=price
+[/code]
+
+<p>Trongate:</p>
+[code]
+https://example.com/lenovo-thinkpad
+[/code]
+
+<p>That’s it. No question marks. No cat-on-keyboard URLs. Just URLs that humans trust and Google rewards.</p>
+
+<h2>Three Types of Routing</h2>
+<p>Trongate offers the following three types of routing, all of which will be covered in this chapter:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>What Happens</th>
+            <th>Ceremony Required</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Homepage</strong></td><td>Hit root → <code>welcome</code> module loads automatically</td><td class="text-center">None</td></tr>
+        <tr><td><strong>Automatic</strong></td><td><code>/users/profile/88</code> → <code>Users->profile(88)</code></td><td class="text-center">None</td></tr>
+        <tr><td><strong>Custom</strong></td><td>You define the rule in one line of PHP</td><td class="text-center">One line</td></tr>
+    </tbody>
+</table>
+
+<h2 class="mt-2">Routing vs URL Rewriting vs Redirecting</h2>
+<p>These three concepts often get mixed up. Let's settle it, once and for all. Here’s the definitive, no-BS breakdown:</p>
+
+<div class="alert alert-info">
+    <p><strong>At a glance:</strong></p>
+    <ul>
+        <li><strong>Rewriting</strong> – web server (Apache/Nginx)</li>
+        <li><strong>Routing</strong> – Trongate framework</li>
+        <li><strong>Redirecting</strong> – browser (after HTTP response)</li>
+    </ul>
+</div>
+
+<h2>1. Routing (with Trongate)</h2>
+<p><strong>What it does:</strong> Tells Trongate which controller/method to run.</p>
+<p><strong>Where:</strong> <code>config/custom_routing.php</code> or via automatic URL routing</p>
+<p><strong>Address bar changes?</strong> No.</p>
+<p><strong>Example:</strong></p>
+<pre><code>/blog/old-slug → Posts->show(123)</code></pre>
+<div class="alert alert-success">
+    <p><strong>Think of it like this:</strong> Routing changes <em>what</em> loads, not the <em>address</em> bar.</p>
+</div>
+
+<hr>
+
+<h2>2. URL Rewriting (Server)</h2>
+<p><strong>What it does:</strong> Secretly funnels all requests to <code>index.php</code> so pretty URLs work.</p>
+<p><strong>Where:</strong> <code>.htaccess</code> (Apache) or Nginx config.</p>
+<p><strong>Address bar changes?</strong> No.</p>
+<p><strong>Example (Apache):</strong></p>
+[code]
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
+[/code]
+<div class="alert alert-success">
+    <p><strong>Think of it like this:</strong> Rewriting is a backstage pass that sneaks every URL into <code>index.php</code>.</p>
+</div>
+
+<hr>
+
+<h2>3. Redirecting (HTTP)</h2>
+<p><strong>What it does:</strong> Tells the browser “go somewhere else”.</p>
+<p><strong>Where:</strong> Server sends response → browser navigates to another URL.</p>
+<p><strong>Address bar changes?</strong> Yes.</p>
+<p><strong>Example:</strong></p>
+<pre><code>/old-page → /new-page</code></pre>
+<p><strong>Trongate helper example:</strong></p>
+[code=php]
+redirect('new_page');
+[/code]
+
+<p><b>NOTE:</b> <span class="feature-ref">redirect()</span> is a helper function that's built into Trongate.  Use it to perform an HTTP redirect.</p>
+
+<div class="alert alert-success">
+    <p><strong>Think of it like this:</strong> Redirecting says, “Wrong door, mate. Try next door.” User sees the new URL.</p>
+</div>
+
+<hr>
+
+<h2>Quick Summary Table (Tattoo This)</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Routing</th>
+            <th>Rewriting</th>
+            <th>Redirecting</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><strong>Changes address bar?</strong></td><td>No</td><td>No</td><td><strong>Yes</strong></td></tr>
+        <tr><td><strong>Handled by</strong></td><td>Trongate</td><td>Web server</td><td>Browser</td></tr>
+        <tr><td><strong>File</strong></td><td><code>custom_routing.php</code></td><td><code>.htaccess</code></td><td><code>header()</code></td></tr>
+    </tbody>
+</table>
+
+<div class="alert alert-warning">
+    <p><strong>Never forget:</strong></p>
+    <ul>
+        <li><strong>Routing</strong> = different content, same URL.</li>
+        <li><strong>Rewriting</strong> = sneak into <code>index.php</code>.</li>
+        <li><strong>Redirecting</strong> = new address, new page.</li>
+    </ul>
+    <p class="sm">PS – You forgot already, didn’t you?</p>
+</div>

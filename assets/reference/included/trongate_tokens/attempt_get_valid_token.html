@@ -1,0 +1,98 @@
+<div class="container">
+  <h1>attempt_get_valid_token()</h1>
+  <p class="signature">public function attempt_get_valid_token(int|array|null $user_levels = null): string|bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Attempts to validate and return a valid token from HTTP headers, cookies, or session. Optionally filters tokens by user level(s).</p>
+    <p>Checks for tokens in this order of priority:</p>
+    <ol>
+      <li>HTTP header <code>$_SERVER['HTTP_TRONGATETOKEN']</code></li>
+      <li>Cookie <code>$_COOKIE['trongatetoken']</code></li>
+      <li>Session <code>$_SESSION['trongatetoken']</code></li>
+    </ol>
+    <p>If <code>$user_levels</code> is provided, only tokens belonging to users with those levels are considered valid.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$user_levels</td>
+        <td>int|array|null</td>
+        <td>
+          <ul>
+            <li><strong>int</strong> – Single user level (e.g., 1 for admin)</li>
+            <li><strong>array</strong> – Multiple user levels (e.g., [1, 2])</li>
+            <li><strong>null</strong> – Any user level (default)</li>
+          </ul>
+        </td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string|bool</td>
+        <td>
+          <ul>
+            <li><strong>string</strong> – Valid token (64‑character hex string)</li>
+            <li><strong>false</strong> – No valid token found</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Get any valid token (any user level)
+$token = $this->trongate_tokens->attempt_get_valid_token();
+if ($token !== false) {
+    echo "Valid token: " . $token;
+}
+
+// Get token only if user level is 1 (admin)
+$admin_token = $this->trongate_tokens->attempt_get_valid_token(1);
+
+// Get token for either level 1 or 2
+$staff_token = $this->trongate_tokens->attempt_get_valid_token([1, 2]);
+
+// API endpoint protection
+public function api_endpoint() {
+    $token = $this->trongate_tokens->attempt_get_valid_token();
+    if ($token === false) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        die();
+    }
+    // Process request with valid token...
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Tokens are 64‑character hexadecimal strings.</li>
+    <li>User levels are integer values stored in the <code>trongate_tokens</code> database table.</li>
+    <li>The method calls the model to validate token expiration and user‑level matching.</li>
+    <li>Use <code>get_user_id()</code>, <code>get_user_obj()</code>, or <code>get_user_level()</code> to extract user information from a valid token.</li>
+  </ul>
+</div>

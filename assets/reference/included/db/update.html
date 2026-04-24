@@ -1,0 +1,134 @@
+<div class="container">
+  <h1>update()</h1>
+  <p class="signature">public function update(int $id, array $data, string $table): bool</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Updates a specific record in a database table identified by its ID. This method validates table existence, constructs a parameterized UPDATE query from an associative array of column-value pairs, and uses prepared statements to prevent SQL injection. Returns true if the update operation was successful.
+   </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>id</td>
+        <td>int</td>
+        <td>The ID of the record to update.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>Associative array where keys are column names and values are the new data to update.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>table</td>
+        <td>string</td>
+        <td>The name of the database table containing the record to update.</td>
+        <td>-</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>Returns true if the update query executed successfully, false otherwise.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>RuntimeException</strong> - If the specified table does not exist in the database.</li>
+    <li><strong>PDOException</strong> - If there's a database error during query execution.</li>
+  </ul>
+  
+  <h2>Example #1: Updating a User Record</h2>
+  <p>The code sample below demonstrates how to update a user record with ID 15 in the 'users' table.</p>
+[code=php]
+$user_id = 15;
+$update_data = [
+    'name' =&gt; 'John Smith',
+    'email' =&gt; 'john.smith@example.com',
+    'updated_at' =&gt; date('Y-m-d H:i:s')
+];
+
+$success = $this-&gt;db-&gt;update($user_id, $update_data, 'users');
+
+if ($success) {
+    echo "User record updated successfully!";
+} else {
+    echo "Failed to update user record.";
+}
+[/code]
+
+  <h2>Example #2: Updating a Product Record</h2>
+  <p>The code sample below demonstrates how to update a product's price and stock quantity.</p>
+[code=php]
+$product_id = 42;
+$product_data = [
+    'price' =&gt; 89.99,
+    'stock_quantity' =&gt; 150,
+    'last_updated' =&gt; date('Y-m-d H:i:s')
+];
+
+$success = $this-&gt;db-&gt;update($product_id, $product_data, 'products');
+
+if ($success) {
+    echo "Product #" . $product_id . " has been updated.";
+}
+[/code]
+
+  <h2>Example #3: Updating with Different Data Types</h2>
+  <p>The code sample below demonstrates updating a record with various data types including null values.</p>
+[code=php]
+$order_id = 1001;
+$order_updates = [
+    'status' =&gt; 'shipped',          // string
+    'shipping_date' =&gt; date('Y-m-d'), // date string
+    'notes' =&gt; null,                // null value
+    'priority' =&gt; 1,                // integer
+    'discount_applied' =&gt; 15.50     // float
+];
+
+$result = $this-&gt;db-&gt;update($order_id, $order_updates, 'orders');
+echo $result ? "Order updated." : "Update failed.";
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>All three parameters (<code>$id</code>, <code>$data</code>, and <code>$table</code>) are <strong>required</strong>.</li>
+    <li>The method validates that the table exists before executing the UPDATE query.</li>
+    <li>Column names from the <code>$data</code> array are automatically escaped with backticks in the SQL query.</li>
+    <li>The ID value is automatically added to the data array with key 'id' for parameter binding.</li>
+    <li>Uses prepared statements with named parameters for security against SQL injection.</li>
+    <li>Returns true if the query executes successfully, even if no rows were actually changed (e.g., if data is identical).</li>
+    <li>Data types are automatically handled (strings, integers, floats, booleans, null values).</li>
+    <li>If debug mode is enabled, the generated SQL query will be displayed before execution.</li>
+    <li>Only updates records where the primary key column is named 'id'.</li>
+  </ul>
+</div>

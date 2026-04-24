@@ -1,0 +1,149 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct(?string $module_name = null, ?string $db_group = null)</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Initializes a database connection using PDO with configuration from config/database.php. Supports multiple database groups and provides environment‑aware error handling (detailed errors in development, generic errors in production). The constructor also blocks direct URL access to the Db module for security.
+   </p>
+    <p>
+      <strong>IMPORTANT:</strong> The framework automatically passes the module name as the first parameter when instantiating Db via <code>$this->db</code>. When creating Db instances manually, you can omit the module name.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>module_name</td>
+        <td>string|null</td>
+        <td>The module name (passed by framework for integration with Trongate module system). Can be null for manual instantiation.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>db_group</td>
+        <td>string|null</td>
+        <td>Database group name from config/database.php (defaults to 'default').</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>No return value.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Exceptions</h2>
+  <ul>
+    <li><strong>Exception</strong> - If the specified database group is not configured in /config/database.php.</li>
+    <li><strong>Exception</strong> - If the database connection fails.</li>
+  </ul>
+
+  <h2>Example #1: Framework Instantiation (Typical Usage)</h2>
+  <p>In controllers and models, Db is automatically available via <code>$this->db</code>:</p>
+[code=php]
+&lt;?php
+class Products extends Trongate {
+    public function index() {
+        // $this->db is already instantiated by the framework
+        $products = $this->db->get('id', 'products');
+        // ...
+    }
+}
+[/code]
+
+  <h2>Example #2: Manual Instantiation with Default Database</h2>
+  <p>Creating a Db instance manually (outside framework context):</p>
+[code=php]
+// Uses 'default' database group from config/database.php
+$db = new Db();
+
+// Now use like any Db instance
+$users = $db->get('id', 'users');
+[/code]
+
+  <h2>Example #3: Manual Instantiation with Specific Database Group</h2>
+  <p>Connecting to an alternative database defined in config/database.php:</p>
+[code=php]
+// Connect to 'analytics' database group
+$analytics_db = new Db(null, 'analytics');
+
+// Query the analytics database
+$stats = $analytics_db->get('date', 'page_views');
+[/code]
+
+  <h2>Example #4: Framework Instantiation with Custom Database Group</h2>
+  <p>Within a module, you can load Db with a specific database group:</p>
+[code=php]
+&lt;?php
+class Reports extends Trongate {
+    public function __construct() {
+        parent::__construct();
+        // Load Db with 'analytics' database group
+        $this->module('db', 'analytics');
+        // Now $this->db points to the analytics database
+    }
+    
+    public function index() {
+        $data = $this->db->get('id', 'analytics_data');
+        // ...
+    }
+}
+[/code]
+
+  <h2>Configuration Example (config/database.php)</h2>
+[code=php]
+$databases['default'] = [
+    'host' => 'localhost',
+    'port' => '3306',
+    'user' => 'root',
+    'password' => 'secret',
+    'database' => 'myapp'
+];
+
+$databases['analytics'] = [
+    'host' => 'analytics.db.example.com',
+    'port' => '3306',
+    'user' => 'analytics_user',
+    'password' => 'analytics_pass',
+    'database' => 'analytics_db'
+];
+[/code]
+
+  <h2>Important Notes</h2>
+  <ul>
+    <li>Always calls <code>parent::__construct($module_name)</code> first (required by framework).</li>
+    <li>Blocks URL access to the Db module via <code>block_url('db')</code> for security.</li>
+    <li>Determines environment mode (dev/prod) from the <code>ENV</code> constant.</li>
+    <li>Uses persistent PDO connections by default (<code>PDO::ATTR_PERSISTENT => true</code>).</li>
+    <li>Sets error mode to <code>PDO::ERRMODE_EXCEPTION</code>.</li>
+    <li>If the database name is empty in configuration, returns without connecting (useful for tests).</li>
+    <li>In development mode (<code>ENV === 'dev'</code>), errors include detailed messages.</li>
+    <li>In production mode, errors are generic to avoid leaking sensitive information.</li>
+    <li>The <code>$module_name</code> parameter is primarily for framework integration; you can ignore it when creating instances manually.</li>
+  </ul>
+</div>

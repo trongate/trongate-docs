@@ -1,0 +1,113 @@
+<h1>Horizontal Rules</h1>
+<p>Horizontal rules (<code>&lt;hr&gt;</code>) in Trongate CSS provide clean dividing lines to separate content sections. They're styled minimally by default but can be easily customized.</p>
+
+<h2>Default Styling</h2>
+<p>The basic horizontal rule is styled as a subtle gray line with consistent spacing:</p>
+[code=css]
+hr {
+    border: 0;
+    height: 1px;
+    background: var(--border);
+    margin: 2em 0;
+}
+[/code]
+
+<div class="alert alert-info">
+  <p class="mt-0">Note that the <code>border: 0</code> is used in combination with <code>height</code> and <code>background</code> to ensure consistent rendering across browsers.</p>
+</div>
+
+<h2>Basic Usage</h2>
+<p>The code below demonstrates how to add a horizontal rule to your page:</p>
+[code=html]
+&lt;p class="text-center"&gt;Some content above the line&lt;/p&gt;
+&lt;hr&gt;
+&lt;p class="text-center"&gt;Some content below the line&lt;/p&gt;
+[/code]
+
+<p>Here's how it looks:</p>
+<div class="trongate-css-demo">
+  <p class="text-center">This is some content above the horizontal rule.</p>
+  <hr>
+  <p class="text-center">This is some content below the horizontal rule.</p>
+</div>
+
+<h2>Customization Examples</h2>
+<p>Here are some common ways to customize horizontal rules:</p>
+
+<h3>Colored Rule Example</h3>
+[code=html]
+&lt;hr style="background: var(--secondary);"&gt;
+[/code]
+
+<p>Here's the result (look closely and you'll notice it's using the <code>--secondary</code> color).</p>
+<div class="trongate-css-demo">
+  <hr style="background: var(--secondary);">
+</div>
+
+<h3 class="mt-3">Thicker Rule Example</h3>
+[code=html]
+&lt;hr style="height: 3px;"&gt;
+[/code]
+
+<div class="trongate-css-demo">
+  <hr style="height: 3px;">
+</div>
+
+<h3 class="mt-3">Shorter Rule with Center Alignment</h3>
+[code=html]
+&lt;hr style="width: 50%; margin: 2em auto;"&gt;
+[/code]
+
+<div class="trongate-css-demo">
+  <hr style="width: 50%; margin: 2em auto;">
+</div>
+
+<h3 class="mt-3">Dotted Rule</h3>
+[code=html]
+&lt;hr style="background: none; border: none; border-top: 2px dotted var(--border); height: 0;"&gt;
+[/code]
+
+<div class="trongate-css-demo">
+  <hr style="background: none; border: none; border-top: 2px dotted var(--border); height: 0;">
+</div>
+
+<h2>Spacing Considerations</h2>
+<p>By default, horizontal rules include:</p>
+<ul>
+  <li>2em margin above and below</li>
+  <li>1px height for the line itself</li>
+  <li>Full width of the container</li>
+</ul>
+
+<div class="alert alert-success">
+  <p class="mt-0">You can adjust the margins using Trongate's margin utility classes like <code>mt-1</code> or <code>mb-2</code> if needed.</p>
+</div>
+
+<p class="mt-3">Here's an example of some code that use margin utilities:</p>
+<div class="trongate-css-demo">
+  <p class="text-center">Default spacing:</p>
+  <hr>
+  <p class="text-center">Reduced top margin (mt-1):</p>
+  <hr class="mt-1">
+  <p class="text-center">Increased bottom margin (mb-3):</p>
+  <hr class="mb-3">
+</div>
+
+[code=html]
+&lt;p class="text-center"&gt;Default spacing:&lt;/p&gt;
+&lt;hr&gt;
+&lt;p class="text-center"&gt;Reduced top margin (mt-1):&lt;/p&gt;
+&lt;hr class="mt-1"&gt;
+&lt;p class="text-center"&gt;Increased bottom margin (mb-3):&lt;/p&gt;
+&lt;hr class="mb-3"&gt;
+[/code]
+
+<h2>Summary</h2>
+<p>Trongate CSS horizontal rules provide:</p>
+<ul>
+  <li>Clean, minimal default styling</li>
+  <li>Consistent cross-browser rendering</li>
+  <li>Easy customization options</li>
+  <li>Proper vertical spacing</li>
+</ul>
+<p>Use horizontal rules to create visual breaks between content sections while maintaining your site's design aesthetics.</p>

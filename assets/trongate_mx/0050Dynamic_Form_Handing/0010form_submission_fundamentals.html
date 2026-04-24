@@ -1,0 +1,96 @@
+<h1>Form Submission Fundamentals</h1>
+
+<p>If you're already familiar with Trongate's <a href="documentation/display/php_framework/form-handling">traditional form handling</a>, you'll find that Trongate MX enhances the patterns you already know without replacing them. This page shows how to transform your existing Trongate forms into dynamic, single-page application experiences with minimal changes.</p>
+
+<h2>From Traditional to Dynamic Forms</h2>
+
+<p>Let's start with a familiar Trongate form and see how Trongate MX enhances it. Here's a traditional form you might already be using:</p>
+
+[code=vf]
+&lt;?php
+// Traditional Trongate form
+$data['form_location'] = 'tasks/submit';
+
+echo form_open($form_location);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<p>This form works perfectly - it submits to <code>tasks/submit</code> and causes a page reload. Now, let's see how Trongate MX enhances this with just one small change:</p>
+
+[code=vf]
+&lt;?php
+// Enhanced with Trongate MX
+$form_attr = [
+   'mx-post' =&gt; 'tasks/submit'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Task Title');
+echo form_input('task_title', '');
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<p>The key difference is the <code>mx-post</code> attribute, which transforms your application into a single-page application (SPA) experience. Your server-side code remains exactly the same!</p>
+
+<h2>Single Page Application Benefits</h2>
+
+<p>When you add <code>mx-post</code> to a form, you're transforming your application from traditional page-based navigation to a modern SPA experience. Trongate MX automatically:</p>
+
+<ul>
+   <li>Eliminates page reloads and the jarring "white flash" between pages</li>
+   <li>Maintains application state and scroll position</li>
+   <li>Disables all form fields at the point of form submission</li>
+   <li>Provides instant user feedback without navigation delays</li>
+   <li>Creates a more responsive, app-like user experience</li>
+   <li>Preserves all security features (CSRF protection, validation, etc.)</li>
+</ul>
+
+<h2>Server-Side Integration with Validation</h2>
+
+<p>Your existing controller methods can continue using Trongate's validation patterns that you're already familiar with:</p>
+
+[code=php]
+public function submit() {
+
+   $this-&gt;validation-&gt;set_rules('task_title', 'Task Title', 'required|min_length[2]');
+   $result = $this-&gt;validation-&gt;run();
+   
+   if ($result === false) {
+       // Handle validation errors
+   } else {
+       // Process successful submission
+   }
+}
+[/code]
+
+<div class="alert alert-success">
+ <p><strong>Note:</strong> This is a foundational example to demonstrate basic concepts. In real-world applications, you'll likely use more sophisticated response handling such as <code>mx-on-success</code>, <code>mx-redirect-on-success</code>, or modal-based workflows, which we'll cover in later sections.</p>
+</div>
+
+<h2>HTTP Methods in Trongate MX</h2>
+
+<p>Trongate MX supports <a href="documentation/display/trongate_mx/core-http-operations/http-methods-in-trongate-mx">various HTTP methods</a>, though for most applications, <code>mx-post</code> will handle all your form submission needs:</p>
+
+[code=vf]
+&lt;?php
+// Standard form submission (recommended for most use cases)
+$form_attr = ['mx-post' =&gt; 'tasks/create'];
+echo form_open('#', $form_attr);
+
+// Alternative HTTP methods are available if needed
+$form_attr = ['mx-get' =&gt; 'tasks/search'];
+echo form_open('#', $form_attr);
+?&gt;
+[/code]
+
+<h2>Summary</h2>
+
+<p>Trongate MX transforms your existing forms into modern, single-page application experiences with minimal changes. By simply adding <code>mx-post</code> to your forms, you gain dynamic functionality while preserving all the Trongate patterns and security features you already know and trust.</p>
+
+<p>In the next section, we'll explore how to add visual feedback like loading indicators to make your enhanced forms even more polished and professional.</p>

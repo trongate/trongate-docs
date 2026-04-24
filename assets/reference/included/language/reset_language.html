@@ -1,0 +1,54 @@
+<div class="container">
+  <h1>reset_language()</h1>
+  <p class="signature">public function reset_language(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Resets the language setting to the system default. Removes the language from session and deletes the language cookie.</p>
+    <p>After calling this method, <code>get_language()</code> will return either the <code>APP_LANG</code> constant (if defined) or the hard‑coded default <code>'en'</code>.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Reset language to default
+$this->language->reset_language();
+
+// Reset and redirect to home page
+public function logout() {
+    $this->language->reset_language();
+    redirect('welcome');
+}
+
+// Conditional reset based on user action
+if (post('reset_lang') === 'true') {
+    $this->language->reset_language();
+    set_flashdata('Language reset to default.');
+    redirect('settings');
+}[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Clears <code>$_SESSION['app_lang']</code> if set.</li>
+    <li>Deletes the <code>app_lang</code> cookie by setting its expiration to a past time.</li>
+    <li>Does not affect the <code>APP_LANG</code> constant – that remains as a fallback.</li>
+  </ul>
+</div>

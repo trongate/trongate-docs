@@ -1,0 +1,152 @@
+<div class="container">
+  <h1>run()</h1>
+  <p class="signature">public function run(?array $rules = null): bool</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Executes form validation and returns the result. This method performs automatic CSRF protection, runs validation tests, and stores errors in session for display.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$rules</td>
+        <td>array|null</td>
+        <td>(optional) An array containing validation rules in array syntax format. If not provided, uses rules set via <code>set_rules()</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bool</td>
+        <td>
+          <strong><code>true</code></strong> - Validation passed<br>
+          <strong><code>false</code></strong> - Validation failed
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-info">
+    <p><strong>Important:</strong> The <code>run()</code> method automatically performs CSRF validation. If CSRF validation fails, the script may terminate with a redirect or 403 response.</p>
+  </div>
+
+  <h2>Example #1: Using set_rules() First</h2>
+  <p>Set rules with <code>set_rules()</code> then call <code>run()</code>:</p>
+[code=php]
+public function submit(): void {
+    // Set rules using set_rules()
+    $this-&gt;validation-&gt;set_rules('username', 'Username', 'required|min_length[2]|max_length[255]');
+    $this-&gt;validation-&gt;set_rules('email', 'Email Address', 'required|valid_email');
+    
+    // Run validation
+    $result = $this-&gt;validation-&gt;run();
+
+    if ($result === true) {
+        // Success: save data
+        $data['username'] = post('username', true);
+        $data['email'] = post('email', true);
+        $this-&gt;db-&gt;insert($data, 'users');
+        redirect('users/manage');
+    } else {
+        // Failure: redisplay form with errors
+        $this-&gt;create();
+    }
+}
+[/code]
+
+  <h2>Example #2: Passing Rules Array Directly</h2>
+  <p>Pass validation rules as an array to <code>run()</code>:</p>
+[code=php]
+public function submit(): void {
+    // Define rules as array
+    $validation_rules = [
+        'username' =&gt; [
+            'label' =&gt; 'Username',
+            'required' =&gt; true,
+            'min_length' =&gt; 2,
+            'max_length' =&gt; 255
+        ],
+        'email' =&gt; [
+            'label' =&gt; 'Email Address',
+            'required' =&gt; true,
+            'valid_email' =&gt; true
+        ]
+    ];
+    
+    // Run validation with array
+    $result = $this-&gt;validation-&gt;run($validation_rules);
+
+    if ($result === true) {
+        // Success logic
+        $data['username'] = post('username', true);
+        $data['email'] = post('email', true);
+        $this-&gt;db-&gt;insert($data, 'users');
+        redirect('users/manage');
+    } else {
+        // Failure logic
+        $this-&gt;create();
+    }
+}
+[/code]
+
+  <h2>What Happens When run() is Called</h2>
+  <ol>
+    <li><strong>CSRF Validation:</strong> Automatically validates CSRF token (unless <code>API_SKIP_CSRF</code> is true)</li>
+    <li><strong>Clear Previous Errors:</strong> Removes any existing validation errors from session</li>
+    <li><strong>Process Rules:</strong> Runs validation tests for each field</li>
+    <li><strong>Store Errors:</strong> If errors exist, stores them in <code>$_SESSION['form_submission_errors']</code></li>
+    <li><strong>Return Result:</strong> Returns <code>true</code> (success) or <code>false</code> (failure)</li>
+  </ol>
+
+  <h2>Checkbox Validation Example</h2>
+  <p>For checkboxes, use <code>required</code> only if the checkbox must be checked:</p>
+[code=php]
+public function submit(): void {
+    // Required checkbox (must be checked)
+    $this-&gt;validation-&gt;set_rules('terms', 'Terms and Conditions', 'required');
+    
+    // Optional checkbox (no validation rule needed)
+    // $this-&gt;validation-&gt;set_rules('newsletter', 'Newsletter', ''); // Don't do this!
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        $data['terms_accepted'] = (int) (bool) post('terms', true); // 1 if checked
+        $data['newsletter'] = (int) (bool) post('newsletter', true); // 0 or 1
+        $this-&gt;db-&gt;insert($data, 'users');
+        redirect('users/manage');
+    } else {
+        $this-&gt;create();
+    }
+}
+[/code]
+
+  <h2>Notes</h2>
+  <ul>
+    <li>Always compare result with <code>=== true</code> (strict comparison) as <code>run()</code> returns <code>?bool</code></li>
+    <li>Errors are automatically stored in session and can be displayed with <code>validation_errors()</code></li>
+    <li>For API endpoints where CSRF should be skipped, define <code>define('API_SKIP_CSRF', true);</code></li>
+    <li>Empty fields skip validation for most rules (except <code>required</code>)</li>
+    <li>The method clears previous errors from session before running new validation</li>
+  </ul>
+
+  <div class="alert alert-warning">
+    <p><strong>CSRF Blocking:</strong> If CSRF validation fails and the request is not from Trongate MX, the user is redirected to <code>BASE_URL</code>. If it's from Trongate MX with <code>ENV='dev'</code>, a 403 response is sent with debug information.</p>
+  </div>
+</div>

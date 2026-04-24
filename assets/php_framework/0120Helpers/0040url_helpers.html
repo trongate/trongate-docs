@@ -1,0 +1,147 @@
+[meta-description]URL Helpers: navigate, redirect, and build links with current_url(), segment(), redirect(), anchor() and more. No routing library required - just Native PHP that works.[/meta-description]
+<h1>URL Helpers</h1>
+
+<p>URL helpers handle everything related to URLs: getting segments, building links, redirecting users and reading the current page address.</p>
+
+<p>Zero config. Just call them:</p>
+
+<ul id="feature-ref-list" class="mt-2">
+    <li><span class="feature-ref">current_url()</span> <span class="sm">returns the full URL</span></li>
+    <li><span class="feature-ref">segment()</span> <span class="sm">extracts URL segments</span></li>
+    <li><span class="feature-ref">get_num_segments()</span> <span class="sm">counts segments</span></li>
+    <li><span class="feature-ref">get_last_segment()</span> <span class="sm">returns the final segment</span></li>
+    <li><span class="feature-ref">redirect()</span> <span class="sm">sends users elsewhere</span></li>
+    <li><span class="feature-ref">previous_url()</span> <span class="sm">gets the referrer</span></li>
+    <li><span class="feature-ref">anchor()</span> <span class="sm">builds HTML links</span></li>
+    <li><span class="feature-ref">remove_query_string()</span> <span class="sm">strips query params</span></li>
+</ul>
+
+<hr>
+
+<h2>Get the Current URL</h2>
+
+<p>The <span class="feature-ref">current_url()</span> function returns the full URL of the page you're on.</p>
+
+[code=php]
+echo current_url();
+// https://example.com/products/view/42
+[/code]
+
+<hr>
+
+<h2>Extract URL Segments</h2>
+
+<p>The <span class="feature-ref">segment()</span> function grabs a specific part of the URL. Segments are numbered starting from 1.</p>
+
+<p>For the URL <code>https://example.com/products/view/42</code>:</p>
+
+[code=php]
+echo segment(1);  // products
+echo segment(2);  // view
+echo segment(3);  // 42
+[/code]
+
+<h3>Type Casting</h3>
+
+<p>Pass a second argument to force the segment into a specific type:</p>
+
+[code=php]
+$id = segment(3, 'int');  // Forces segment to integer
+[/code]
+
+<hr>
+
+<h2>Count and Read Segments</h2>
+
+<p>The <span class="feature-ref">get_num_segments()</span> function counts how many segments exist after the base URL.</p>
+
+[code=php]
+$count = get_num_segments();  // 3 (for /products/view/42)
+[/code]
+
+<p>The <span class="feature-ref">get_last_segment()</span> function returns the final segment.</p>
+
+[code=php]
+echo get_last_segment();  // 42
+[/code]
+
+<hr>
+
+<h2>Redirect Users</h2>
+
+<p>The <span class="feature-ref">redirect()</span> function sends users to another page and stops execution immediately.</p>
+
+<h3>Relative Redirect</h3>
+
+[code=php]
+redirect('dashboard');
+// Redirects to https://example.com/dashboard
+[/code]
+
+<h3>Absolute Redirect</h3>
+
+[code=php]
+redirect('https://google.com');
+[/code]
+
+<div class="alert alert-info">
+    <p>The <span class="feature-ref">redirect()</span> function calls <code>die()</code> automatically. Nothing after it executes.</p>
+</div>
+
+<hr>
+
+<h2>Get the Previous URL</h2>
+
+<p>The <span class="feature-ref">previous_url()</span> function returns the referrer (the page the user came from).</p>
+
+[code=php]
+$referer = previous_url();
+
+if ($referer !== '') {
+    redirect($referer);
+}
+[/code]
+
+<hr>
+
+<h2>Build Links</h2>
+
+<p>The <span class="feature-ref">anchor()</span> function generates HTML anchor tags with automatic URL handling and XSS protection.</p>
+
+<h3>Basic Link</h3>
+
+[code=php]
+echo anchor('about', 'About Us');
+// <a href="https://example.com/about">About Us</a>
+[/code]
+
+<h3>External Link</h3>
+
+[code=php]
+echo anchor('https://google.com', 'Search');
+// <a href="https://google.com">Search</a>
+[/code]
+
+<h3>Link with Attributes</h3>
+
+[code=php]
+$attr = ['class' => 'btn', 'target' => '_blank'];
+echo anchor('contact', 'Get in Touch', $attr);
+// <a href="https://example.com/contact" class="btn" target="_blank">Get in Touch</a>
+[/code]
+
+<div class="alert alert-success">
+    <p>The <span class="feature-ref">anchor()</span> function escapes URLs and attributes automatically. You don't have to.</p>
+</div>
+
+<hr>
+
+<h2>Remove Query Strings</h2>
+
+<p>The <span class="feature-ref">remove_query_string()</span> function strips everything after the <code>?</code> in a URL.</p>
+
+[code=php]
+$url = 'https://example.com/search?q=test&page=2';
+echo remove_query_string($url);
+// https://example.com/search
+[/code]

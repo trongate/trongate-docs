@@ -1,0 +1,233 @@
+<h1>Posting Data Without Forms</h1>
+
+<p>One of the key strengths of Trongate MX is that it allows you to post values using mechanisms that don’t require rendering traditional HTML forms. Whether you’re triggering an HTTP request from a button, link, or another interactive element, you can still submit structured data directly to your server. This opens the door to a more dynamic and modular approach to building interfaces, especially in situations where full form markup would be overkill.</p>
+
+<p>To support this flexibility, Trongate MX introduces two special attributes: <code>mx-vals</code> and <code>mx-dom-vals</code>. These attributes give you precise control over what data is included in your HTTP requests  -  whether it's predefined static values or dynamic content captured directly from the DOM. You can use them on forms, buttons, links, or any element that initiates an HTTP request via Trongate MX.</p>
+
+<p><code>mx-vals</code> is used to inject static key-value pairs into your request, while <code>mx-dom-vals</code> dynamically extracts values from the page at the moment of submission. Both attributes eliminate the need for hidden inputs or custom JavaScript, keeping your HTML clean and your UX responsive.</p>
+
+<h2>Adding Static Values with mx-vals</h2>
+
+<p>The <code>mx-vals</code> attribute allows you to attach additional values to your HTTP requests as if they were submitted as part of an ordinary HTML form.</p>
+
+<h3>Basic Button Example</h3>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+    'mx-post' =&gt; 'cart/add_item',
+    'mx-vals' =&gt; json_encode(['item_id' =&gt; 123, 'quantity' =&gt; 2])
+];
+echo form_button('add_to_cart_btn', 'Add to Cart', $btn_attr);
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+
+[code=html]
+&lt;button mx-post="cart/add_item"
+        mx-vals='{"item_id": 123, "quantity": 2}'&gt;
+    Add to Cart
+&lt;/button&gt;
+[/code]
+
+<h3>Using Predefined Arrays (Recommended)</h3>
+
+[code=vf]
+&lt;?php
+$mx_vals = [
+    'item_id' =&gt; 123,
+    'quantity' =&gt; 2,
+    'timestamp' =&gt; time()
+];
+
+$btn_attr = [
+    'mx-post' =&gt; 'cart/add_item',
+    'mx-vals' =&gt; json_encode($mx_vals)
+];
+echo form_button('add_to_cart_btn', 'Add to Cart', $btn_attr);
+?&gt;
+[/code]
+
+<h3>Usage with Forms</h3>
+
+[code=vf]
+&lt;?php
+// Define additional values to be sent with the form
+$mx_vals = [
+    'last_name' =&gt; 'Doe',
+    'age' =&gt; 30
+];
+
+// Create form attributes
+$form_attr = [
+    'mx-post' =&gt; 'test/submit',
+    'mx-vals' =&gt; json_encode($mx_vals)
+];
+
+// Build the form
+echo form_open('#', $form_attr);
+echo form_input('first_name', 'David', array('placeholder' =&gt; 'Enter your first name here....'));
+echo form_submit('submit_btn', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+
+[code=html]
+&lt;form mx-post="test/submit"
+      mx-vals='{"last_name": "Doe", "age": 30}'&gt;
+    &lt;input type="text" 
+           name="first_name" 
+           value="David" 
+           placeholder="Enter your first name here...."&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<p>When this form is submitted, it will send:</p>
+<ul>
+    <li>The visible form field (<code>first_name</code>)</li>
+    <li>The additional values defined in <code>mx-vals</code> (<code>last_name</code> and <code>age</code>)</li>
+</ul>
+
+<h2>Capturing Dynamic Content with mx-dom-vals</h2>
+
+<p>The <code>mx-dom-vals</code> attribute enables you to dynamically attach values from DOM elements to your HTTP requests. This powerful feature allows you to capture and transmit information from specific elements on your page, such as text content or input values.</p>
+
+<h3>Basic Example</h3>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+    'mx-post' =&gt; 'api/submit',
+    'mx-dom-vals' =&gt; '{
+        "headline": {
+            "selector": "h1",
+            "property": "innerText"
+        }
+    }'
+];
+echo form_button('submit_btn', 'Submit Headline', $btn_attr);
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Pure HTML equivalent:</p>
+
+[code=html]
+&lt;button mx-post="api/submit"
+        mx-dom-vals='{
+            "headline": {
+                "selector": "h1",
+                "property": "innerText"
+            }
+        }'&gt;Submit Headline&lt;/button&gt;
+[/code]
+
+<p>When clicked, this button will:</p>
+<ul>
+    <li>Find the first <code>&lt;h1&gt;</code> element on the page</li>
+    <li>Capture its text content</li>
+    <li>Send this value to the server as a parameter named "headline"</li>
+</ul>
+
+<h3>Using json_encode with PHP Arrays</h3>
+
+[code=vf]
+&lt;?php
+$dom_vals = [
+    'user_input' =&gt; [
+        'selector' =&gt; 'input[name="username"]',
+        'property' =&gt; 'value'
+    ]
+];
+
+$btn_attr = [
+    'mx-post' =&gt; 'api/submit',
+    'mx-dom-vals' =&gt; json_encode($dom_vals)
+];
+echo form_button('submit_btn', 'Submit Input', $btn_attr);
+?&gt;
+[/code]
+
+<h3>Capturing Multiple Elements</h3>
+
+[code=vf]
+&lt;?php
+$dom_vals = [
+    'headline' =&gt; [
+        'selector' =&gt; 'h1',
+        'property' =&gt; 'innerText'
+    ],
+    'summary' =&gt; [
+        'selector' =&gt; 'p.intro',
+        'property' =&gt; 'innerText'
+    ],
+    'selected_value' =&gt; [
+        'selector' =&gt; '#options',
+        'property' =&gt; 'value'
+    ]
+];
+
+$form_attr = [
+    'mx-post' =&gt; 'articles/submit',
+    'mx-dom-vals' =&gt; json_encode($dom_vals)
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit_btn', 'Submit Article');
+echo form_close();
+?&gt;
+[/code]
+
+<h2>Server-Side Handling</h2>
+
+<p>Here's how to handle the submitted data in your PHP endpoint:</p>
+
+[code=php]
+public function submit() {
+    $first_name = post('first_name');  // From visible form field
+    $last_name = post('last_name');    // From mx-vals
+    $age = post('age');                // From mx-vals
+    
+    // Process the data...
+}
+[/code]
+
+<p>The captured values are accessible in your controller using the post() function:</p>
+
+[code=php]
+public function submit() {
+    $headline = post('headline');         // From mx-dom-vals
+    $summary = post('summary');           // From mx-dom-vals
+    $selected_value = post('selected_value'); // From mx-dom-vals
+    
+    // Process the values...
+}
+[/code]
+
+<h2>Available Properties</h2>
+
+<p>You can use any of these properties in your mx-dom-vals:</p>
+<ul>
+    <li><code>value</code>: Gets the current value (best for form inputs)</li>
+    <li><code>innerText</code>: Gets the text content only</li>
+    <li><code>innerHTML</code>: Gets the HTML content inside the element</li>
+    <li><code>outerHTML</code>: Gets the entire element including its HTML tags</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Best Practices:</strong></p>
+    <ul>
+        <li>Always use <code>json_encode()</code> when creating <code>mx-vals</code> and <code>mx-dom-vals</code> data</li>
+        <li>Use specific selectors for <code>mx-dom-vals</code> (prefer IDs and unique class names)</li>
+        <li>Always validate captured data server-side</li>
+        <li>These attributes work with buttons, links, forms, or any element that can trigger HTTP requests</li>
+    </ul>
+</div>
+
+<h2>Summary</h2>
+
+<p>The <code>mx-vals</code> and <code>mx-dom-vals</code> attributes provide powerful ways to include additional data with your HTTP requests in Trongate MX. Whether you're adding static parameters to a button click or capturing dynamic content from the page, these attributes offer flexibility and convenience while keeping your HTML clean and eliminating the need for custom JavaScript.</p>
+
+<p>In the next section, we'll explore the crown jewel of Trongate MX form handling: modal form workflows.  This elegant approach combines; dynamic modal creation, form validation, loading states, and success feedback.</p>

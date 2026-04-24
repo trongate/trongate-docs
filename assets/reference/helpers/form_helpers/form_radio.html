@@ -1,0 +1,283 @@
+<div class="container">
+    <h1>form_radio()</h1>
+    <p class="signature">function form_radio(string $name, string|bool|int $value = '', mixed $checked = false, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML radio button input element. Radio buttons allow users to select exactly one option from a group of choices.</p>
+    </div>
+
+<div class="alert alert-info">
+    <p>Unlike checkboxes, radio buttons always submit a value to the server, provided one in the group is selected.</p>
+</div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the radio button element. All radio buttons in a group must share the same name.</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|bool|int</td>
+                <td>(optional) The value submitted when this radio button is selected. Defaults to empty string.</td>
+            </tr>
+            <tr>
+                <td>$checked</td>
+                <td>mixed</td>
+                <td>(optional) Whether this radio button should be checked. Default is false. Accepts true, false, 'true', 'false', 1, 0, '1', '0', 'yes', 'no', 'on', 'off'.</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>(optional) HTML attributes like class, id, etc. Defaults to an empty array ([]).</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>string</td>
+                <td>HTML radio button input element.</td>
+            </tr>
+        </tbody>
+    </table>
+
+<h2>Example Usage</h2>
+
+<p>Imagine you're building a task manager where users can select a priority level. Here's how radio buttons work in Trongate:</p>
+
+<h3>1. Creating a Radio Button Group</h3>
+<p>In your view, you typically create multiple radio buttons with the same name:</p>
+
+[code=vf]
+&lt;?php
+echo form_label('Priority Level:');
+echo '&lt;div class="radio-group"&gt;';
+
+echo '&lt;div&gt;';
+echo form_radio('priority', 'low', $priority === 'low');
+echo form_label('Low Priority', ['for' => 'priority_low']);
+echo '&lt;/div&gt;';
+
+echo '&lt;div&gt;';
+echo form_radio('priority', 'medium', $priority === 'medium');
+echo form_label('Medium Priority', ['for' => 'priority_medium']);
+echo '&lt;/div&gt;';
+
+echo '&lt;div&gt;';
+echo form_radio('priority', 'high', $priority === 'high');
+echo form_label('High Priority', ['for' => 'priority_high']);
+echo '&lt;/div&gt;';
+
+echo '&lt;/div&gt;';
+?&gt;
+[/code]
+
+<h3>2. In Your Controller</h3>
+<p>The controller handles both displaying and processing radio buttons:</p>
+
+[code=php]
+&lt;?php
+class Tasks extends Trongate {
+    
+    public function create(): void {
+        $update_id = segment(3, 'int');
+        
+        if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+            // Editing existing task
+            $task = $this->db->get_where($update_id, 'tasks');
+            $data['priority'] = $task->priority; // e.g., 'medium'
+        } else {
+            // New task or redisplay after validation error
+            $data['priority'] = post('priority', true);
+        }
+        
+        $this->view('task_form', $data);
+    }
+    
+    public function submit(): void {
+        $this->validation->set_rules('priority', 'priority level', 'required');
+        
+        if ($this->validation->run() === true) {
+            $data['task_title'] = post('task_title', true);
+            $data['priority'] = post('priority', true); // Simple - no conversion needed
+            
+            $this->db->insert($data, 'tasks');
+        }
+    }
+}
+[/code]
+
+<h2>Flexible Checked Parameter</h2>
+
+<p>The <code>$checked</code> parameter accepts various truthy/falsy values, making comparisons easy:</p>
+
+[code=php]
+// All of these produce a checked radio button:
+echo form_radio('option', 'yes', true);
+echo form_radio('option', 'yes', 'true');
+echo form_radio('option', 'yes', 'yes');
+echo form_radio('option', 'yes', 'on');
+echo form_radio('option', 'yes', '1');
+echo form_radio('option', 'yes', 1);
+
+// All of these produce an unchecked radio button:
+echo form_radio('option', 'yes', false);
+echo form_radio('option', 'yes', 'false');
+echo form_radio('option', 'yes', 'no');
+echo form_radio('option', 'yes', 'off');
+echo form_radio('option', 'yes', '0');
+echo form_radio('option', 'yes', 0);
+[/code]
+
+<h2>Key Differences from Checkboxes</h2>
+
+<div class="alert alert-info">
+    <p>Radio buttons don't need the complex conversion patterns that checkboxes require.</p>
+</div>
+
+[code=php]
+// Radio buttons - simple string values
+$selected_value = post('priority', true); // Returns 'low', 'medium', 'high', or '' (if not set in POST data)
+
+// Checkboxes - require conversion
+$checkbox_value = (int) (bool) post('complete', true); // Returns 1 or 0
+[/code]
+
+<h3>Simple Examples</h3>
+
+<p>Basic radio button (unchecked):</p>
+[code=php]
+echo form_radio('color', 'red');
+// Output: &lt;input type="radio" name="color" value="red"&gt;
+[/code]
+
+<p>Checked radio button:</p>
+[code=php]
+echo form_radio('color', 'blue', true);
+// Output: &lt;input type="radio" name="color" value="blue" checked="checked"&gt;
+[/code]
+
+<p>With comparison logic (common pattern):</p>
+[code=php]
+$selected_color = 'blue';
+echo form_radio('color', 'red', $selected_color === 'red');
+echo form_radio('color', 'blue', $selected_color === 'blue');
+echo form_radio('color', 'green', $selected_color === 'green');
+[/code]
+
+<h2>Working with Radio Button Groups</h2>
+
+<p>Radio buttons work in groups where only one can be selected. Here's a complete example:</p>
+
+[code=php]
+// Define options
+$status_options = [
+    'pending' => 'Pending',
+    'in_progress' => 'In Progress', 
+    'completed' => 'Completed'
+];
+
+$selected_status = post('status', true) ?? 'pending';
+
+foreach ($status_options as $value => $label) {
+    echo '&lt;div&gt;';
+    echo form_radio('status', $value, $selected_status === $value);
+    echo ' ' . $label;
+    echo '&lt;/div&gt;';
+}
+[/code]
+
+<h2>Common Attributes</h2>
+<p>Add HTML attributes as needed:</p>
+[code=php]
+$attributes = [
+    'class' => 'form-radio',
+    'id' => 'option-premium',
+    'data-price' => '99.99'
+];
+echo form_radio('plan', 'premium', $selected_plan === 'premium', $attributes);
+[/code]
+
+<h2>Form Submission Behavior</h2>
+
+<p>When a form with radio buttons submits:</p>
+
+[code=php]
+// If a radio button is selected:
+$value = post('priority', true); // Returns the selected value, e.g., 'high'
+
+// If NO radio button is selected:
+$value = post('priority', true); // Returns '' (empty string)
+[/code]
+
+<div class="alert alert-warning">
+    <p>**Important:** If none of the radio buttons in a group are checked, the field will not be present in the `$_POST` array. The <code>post()</code> function with the second parameter set to `true` (XSS cleaning) handles this gracefully by returning an empty string (<code>''</code>).</p>
+</div>
+
+<h2>Database Schema</h2>
+<p>Store radio button values as strings or enums in your database:</p>
+[code=sql]
+CREATE TABLE tasks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    task_title VARCHAR(255),
+    priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+    status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending'
+);
+[/code]
+
+<h2>Quick Reference</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>View Code</th>
+            <th>To View (Re-population)</th>
+            <th>To Database (Processing)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Radio Button</td>
+            <td><code>form_radio('field', 'value', $selected === 'value')</code></td>
+            <td><code>post('field', true)</code></td>
+            <td><code>post('field', true)</code></td>
+        </tr>
+        <tr>
+            <td>Checkbox</td>
+            <td><code>form_checkbox('field', 1, (bool) $checked)</code></td>
+            <td><code>(bool) post('field', true)</code></td>
+            <td><code>(int) (bool) post('field', true)</code></td>
+        </tr>
+        <tr>
+            <td>Text Input</td>
+            <td><code>form_input('field', $value)</code></td>
+            <td><code>post('field', true)</code></td>
+            <td><code>post('field', true)</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p><strong>Remember:</strong> Radio buttons use the same string value for both views and databases. The main challenge is determining which radio button should be checked when displaying the form.</p>
+</div>
+</div>

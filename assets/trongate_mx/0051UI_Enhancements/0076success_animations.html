@@ -1,0 +1,153 @@
+<h1>Success Animations</h1>
+
+<p>The <code>mx-animate-success</code> attribute triggers a checkmark animation when an API endpoint returns an HTTP success status code that's in the 'success' range (i.e., 200 - 299).</p>
+
+
+<h2>Demonstration</h2>
+<p>Click the button below to see an example of a 'success' animation:</p>
+
+<div class="code-demo">
+  <form class="flex-to-center" mx-post="documentation-demo/submit_simulate_success" mx-target=".code-demo" mx-animate-success="true">
+      <button type="submit">Submit</button>  
+  </form>
+</div>
+
+<style>
+.flex-to-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.flex-to-center button {
+  margin-top: 0;
+}
+</style>
+
+<h2>How It Works</h2>
+
+<p>The <code>mx-animate-success</code> attribute attaches a success animation to <b>elements initiating HTTP requests</b>, such as buttons or forms. When the request succeeds, users see a checkmark animation, giving immediate feedback that the operation was successful.</p>
+
+<h3>Example</h3>
+
+<p>Here's how you can implement <code>mx-animate-success</code>:</p>
+
+[code=vf]&lt;?php
+$form_attr = [
+    'mx-post' => 'endpoint/submit',
+    'mx-animate-success' => 'true'
+];
+echo form_open('#', $form_attr);
+echo form_submit('save_btn', 'Save Changes');
+echo form_close();
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">For an HTML-only approach, here's the corresponding code:</p>
+
+[code=html]
+&lt;form mx-post="endpoint/submit" mx-animate-success="true"&gt;
+    &lt;button type="submit"&gt;Save Changes&lt;/button&gt;
+&lt;/form&gt;[/code]
+
+
+<p>Clicking the submit button sends a POST request to <code>endpoint/submit</code>. If the request succeeds (HTTP status 200-299), the checkmark animation is displayed over the form.</p>
+
+<div class="alert alert-warning">
+  <p><strong>Important:</strong> The <code>mx-animate-success</code> attribute must be added to the element initiating the HTTP request. Adding it to unrelated elements will not trigger the animation.</p>
+</div>
+
+<h2>Syntax</h2>
+
+<p>The syntax for <code>mx-animate-success</code> is simple:</p>
+
+[code=html]&lt;element mx-animate-success="true"&gt;[/code]
+
+<p>Setting the attribute value to "true" activates the animation.</p>
+
+<h2>Placement Rules</h2>
+
+<p>The placement of the success animation depends on the context:</p>
+
+<ul>
+  <li><strong>Default:</strong> The animation appears inside the element that contains the <code>mx-animate-success</code> attribute.</li>
+  <li><strong>Modals:</strong> If the element that contains the <code>mx-animate-success</code> attribute is inside a modal, the animation will be rendered within the containing modal body - temporarily hiding the entire contents of the modal body.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p><strong>Tip:</strong> Use <code>mx-animate-success</code> alongside <code>mx-post</code> for a seamless combination of server-side operations and client-side feedback.</p>
+</div>
+
+<h2>Advanced Example</h2>
+
+<p>Here's a practical example combining <code>mx-animate-success</code> with other MX attributes:</p>
+
+[code=vf]&lt;?php
+$form_attr = [
+    'mx-post' =&gt; 'submit_data',
+    'mx-target' =&gt; '#response',
+    'mx-animate-success' =&gt; 'true',
+    'autocomplete' =&gt; 'off'
+];
+
+echo form_open('#', $form_attr);
+echo form_label('Name');
+echo form_input('name', '');
+echo form_submit('submit_btn', 'Submit');
+echo form_close();
+?&gt;
+
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">If you'd rather work with pure HTML, here's the code:</p>
+
+[code=html]
+&lt;form mx-post="submit_data"
+      mx-target="#response"
+      mx-animate-success="true"
+      autocomplete="off"&gt;
+  &lt;label&gt;Name&lt;/label&gt;         
+  &lt;input type="text" name="name"&gt;
+  &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;div id="response"&gt;&lt;/div&gt;
+[/code]
+
+<p>In this example:</p>
+<ol>
+  <li>The form submits data to <code>submit_data</code> via AJAX.</li>
+  <li>Upon success, a checkmark animation appears within the form.</li>
+  <li>After a second or two, the animation disappears.</li>
+  <li>The response text, from the API, is then inserted inside the <code>#response</code> element.</li>
+</ol>
+
+<div class="alert alert-info">
+  <p>The '<b>autocomplete</b>' attribute, when set to 'off' on a form's opening tag, prevents the browser from suggesting or automatically filling in previously entered values for any of the form fields. This is especially useful for forms that collect sensitive or unique information, as it ensures the browser won't try to pre-fill fields with stored data.</p>
+</div>
+
+
+
+<h2>Things To Keep In Mind</h2>
+
+<ul>
+  <li>The animation is purely client-side and does not confirm server-side changes.</li>
+  <li>It works with clickable elements such as buttons and form elements.</li>
+  <li>For advanced error handling, consider pairing with attributes like <code>mx-redirect-on-error</code>.</li>
+</ul>
+
+<h2>Summary</h2>
+
+<p>The <code>mx-animate-success</code> attribute provides immediate feedback for successful operations. It can be used with buttons, forms, or modals, and works alongside other Trongate MX attributes to create interactive experiences.</p>
+
+
+<div class="alert alert-success">
+  <p><strong>Best Practices:</strong></p>
+  <ul>
+    <li>Add <code>mx-animate-success="true"</code> to elements initiating HTTP requests.</li>
+    <li>Combine with <code>mx-post</code> for AJAX-driven forms or buttons.</li>
+  </ul>
+</div>

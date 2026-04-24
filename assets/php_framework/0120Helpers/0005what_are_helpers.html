@@ -1,0 +1,48 @@
+[meta-description]Learn what helper functions are and how Trongate v2 handles them with thin dispatchers and service modules to keep bootstrap lean and the framework fast.[/meta-description]
+<h1>What Are Helpers?</h1>
+
+<p>A <strong>helper function</strong> is a standalone PHP function that performs a specific task. It lives outside any class or module. No instantiation. No dependency injection. You call it, it works, you move on.</p>
+
+<p>Trongate v2 comes with dozens of them &mdash; for URLs, forms, strings, flashdata, utilities, and more.</p>
+
+<h2>How Trongate Handles Helpers</h2>
+
+<p>Every PHP framework has helpers. The difference is <em>how</em> they load them.</p>
+
+<p><strong>CodeIgniter 3</strong> requires you to declare which helpers to load via a config file or a <code>$this->load->helper()</code> call. Load a helper file and you get every function in that file &mdash; parsed, tokenised, and ready to go, whether you use them all or not.</p>
+
+<p><strong>Trongate v2</strong> takes a different approach. Each helper function is a thin dispatcher that forwards the call to a dedicated service module. The real logic lives in <code>modules/</code>, not in the helper file.</p>
+
+[code=php]
+// The helper file keeps it lean:
+function some_heavy_helper(string $input): string {
+    return Modules::run('string_service/some_heavy_helper', $input);
+}
+[/code]
+
+<p>The helper file stays small and fast to parse. The heavy lifting happens inside a service module &mdash; loaded only when the function is actually called.</p>
+
+<div class="alert alert-info">
+    <p>Trongate's unique approach to loading of helpers reduced source, within the <code>engine</code> directory, from ~80 KB to ~10 KB. 
+        That's roughly 87.5% less code for PHP to lex and parse before your application code runs.  It's one of the key ingredients that gives Trongate such fast <a href="https://trongate.io/benchmarks">benchmarks</a>.</p>
+</div>
+
+<hr>
+
+<h2>Why This Matters</h2>
+
+<p>The approach delivers two practical wins:</p>
+
+<h3>1. Faster Bootstrap</h3>
+<p>PHP must lex, tokenise, and parse every included file before any application code runs. Smaller helper files mean less work per request and measurable throughput gains, particularly on simple endpoints.</p>
+
+<h3>2. Easy Customization</h3>
+<p>Want <span class="feature-ref">form_button()</span> to emit Tailwind classes? Or <span class="feature-ref">anchor()</span> to add a <code>data-</code> attribute? The logic lives in service modules, not in <code>engine/</code>. Change the module method, and the helper follows. No forking. No core modifications. No hassle.</p>
+
+<hr>
+
+<h2>The Bottom Line</h2>
+
+<p>Most frameworks require you to load helpers explicitly and pay the cost upfront. Trongate loads helper definitions eagerly but defers the actual logic until it's needed.</p>
+
+<p>Next: the <a href="0010helpers_overview.html">Helpers Overview</a> for a practical look at each helper file.</p>

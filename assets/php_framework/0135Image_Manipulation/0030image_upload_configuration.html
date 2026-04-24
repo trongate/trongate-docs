@@ -1,0 +1,447 @@
+ [meta-description]Master the configuration options for Trongate's image upload method. Learn how to manage destinations, automatic resizing, thumbnail generation, module-specific uploads, and filename randomization.[/meta-description]
+
+<h1>Image Upload Configuration</h1>
+
+<p>Building on the <a href="documentation/trongate_php_framework/image-manipulation/basic-image-uploading" target="_blank">basic upload pattern</a>, the <span class="feature-ref">included-image-upload()</span> method offers several configuration options that allow you to customize how and where your images are stored, and how they're processed during upload.</p>
+
+<p>All customization happens within the <code>$config</code> array that is passed to the method.</p>
+
+<h2>The Configuration Array</h2>
+
+<p>The following eight keys allow you to control the behavior of your image uploads:</p>
+
+<table class="table sm config-tbl">
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>destination</code></td>
+<td>string</td>
+<td>yes</td>
+<td>N/A</td>
+<td>The path to the target directory.</td>
+</tr>
+<tr>
+<td><code>upload_to_module</code></td>
+<td>bool</td>
+<td>no</td>
+<td>false</td>
+<td>If true, the destination is relative to the module folder.</td>
+</tr>
+<tr>
+<td><code>target_module</code></td>
+<td>string</td>
+<td>no</td>
+<td>current</td>
+<td>The module directory to be used for the upload.</td>
+</tr>
+<tr>
+<td><code>make_rand_name</code></td>
+<td>bool</td>
+<td>no</td>
+<td>false</td>
+<td>If true, generates a random filename.</td>
+</tr>
+<tr>
+<td><code>max_width</code></td>
+<td>int</td>
+<td>no</td>
+<td>450</td>
+<td>Maximum width in pixels. Images exceeding this are resized.</td>
+</tr>
+<tr>
+<td><code>max_height</code></td>
+<td>int</td>
+<td>no</td>
+<td>450</td>
+<td>Maximum height in pixels. Images exceeding this are resized.</td>
+</tr>
+<tr>
+<td><code>thumbnail_dir</code></td>
+<td>string</td>
+<td>no</td>
+<td>''</td>
+<td>Directory for thumbnail generation (empty disables thumbnails).</td>
+</tr>
+<tr>
+<td><code>thumbnail_max_width</code></td>
+<td>int</td>
+<td>no</td>
+<td>0</td>
+<td>Maximum thumbnail width (0 disables thumbnails).</td>
+</tr>
+<tr>
+<td><code>thumbnail_max_height</code></td>
+<td>int</td>
+<td>no</td>
+<td>0</td>
+<td>Maximum thumbnail height (0 disables thumbnails).</td>
+</tr>
+</tbody>
+</table>
+
+<style>
+.config-tbl {
+    tr > td:nth-child(2),
+    tr > td:nth-child(3),
+    tr > td:nth-child(4) {
+        text-align: center;
+    }
+}
+
+.config-tbl {
+    tr:nth-child(1) > td:nth-child(4) {
+        color: silver;
+    }
+}
+</style>
+
+<h2>1. Choosing a Destination</h2>
+
+<p>The <code>destination</code> key determines where your uploaded images are stored. The behavior depends on whether you're uploading to the public directory or to a module directory.</p>
+
+<h3>Public Directory Uploads</h3>
+
+<p>By default (when <code>upload_to_module</code> is <code>false</code> or not set), images are uploaded to a directory within your <code>public</code> folder. This is ideal for publicly accessible images that don't require access control.</p>
+
+[code=php]
+$config['destination'] = 'gallery';
+
+// Result: gallery/image.jpg
+$file_info = $this-&gt;image-&gt;upload($config);
+[/code]
+
+<div class="alert alert-warning">
+    <p><strong>Important:</strong> Before uploading to the public directory, ensure the target directory exists and has the correct permissions (typically 755).</p>
+</div>
+
+<h3>Module-Based Uploads</h3>
+
+<p>Setting <code>upload_to_module</code> to <code>true</code> keeps your images contained within your module directory.</p>
+
+[code=php]
+$config['destination'] = 'avatars';
+$config['upload_to_module'] = true;
+
+// Result: modules/your_module/avatars/image.jpg
+$file_info = $this-&gt;image-&gt;upload($config);
+[/code]
+
+<h3>External Module Uploads</h3>
+
+<p>If you are in one module (e.g., 'admin') but want to save images into another module (e.g., 'products'), you can use the <code>target_module</code> key. This is useful for centralized admin interfaces that manage content across multiple modules. The <code>target_module</code> key is also useful for scenarios where <a href="documentation/trongate_php_framework/understanding-routing/custom-routing" target="_blank">custom routing</a> is being applied.</p>
+
+[code=php]
+$config['destination'] = 'product_images';
+$config['upload_to_module'] = true;
+$config['target_module'] = 'products';
+
+// Result: modules/products/product_images/image.jpg
+$file_info = $this-&gt;image-&gt;upload($config);
+[/code]
+
+<h2>2. Automatic Resizing</h2>
+
+<p>One of the Image module's most powerful features is automatic resizing during upload. If an uploaded image exceeds your specified maximum dimensions, it's automatically resized while preserving the aspect ratio.</p>
+
+<h3>Setting Maximum Dimensions</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'uploads',
+    'upload_to_module' =&gt; true,
+    'max_width' =&gt; 1200,
+    'max_height' =&gt; 800
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+[/code]
+
+<h3>How Automatic Resizing Works</h3>
+
+<p>The Image module intelligently resizes images based on which dimension exceeds the limit by the greatest factor:</p>
+
+<ul>
+    <li>If the image is <strong>2000x1000</strong> with limits of <strong>1200x800</strong>:
+        <ul>
+            <li>Width factor: 2000 ÷ 1200 = 1.67</li>
+            <li>Height factor: 1000 ÷ 800 = 1.25</li>
+            <li>Width exceeds more, so resize to width → Result: <strong>1200x600</strong></li>
+        </ul>
+    </li>
+    <li>If the image is <strong>1000x2000</strong> with limits of <strong>1200x800</strong>:
+        <ul>
+            <li>Width factor: 1000 ÷ 1200 = 0.83 (within limit)</li>
+            <li>Height factor: 2000 ÷ 800 = 2.5</li>
+            <li>Height exceeds more, so resize to height → Result: <strong>400x800</strong></li>
+        </ul>
+    </li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Pro Tip:</strong> Set <code>max_width</code> and <code>max_height</code> to <code>0</code> to disable automatic resizing entirely. This is useful when you need to preserve original image dimensions.</p>
+</div>
+
+<div class="alert alert-info">
+    <p><strong>Memory Management:</strong> The Image module automatically calculates whether your server has enough memory to process an image before attempting resizing. If an image would require more memory than available, the upload is rejected with a clear error message. This prevents server crashes from processing extremely large images.</p>
+</div>
+
+<h2>3. Thumbnail Generation</h2>
+
+<p>The Image module can automatically generate thumbnails during upload. This happens in addition to the main image upload and uses the same intelligent resizing logic.</p>
+
+<h3>Basic Thumbnail Configuration</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'uploads',
+    'upload_to_module' =&gt; true,
+    'max_width' =&gt; 1200,
+    'max_height' =&gt; 800,
+    'thumbnail_dir' =&gt; 'uploads/thumbs',
+    'thumbnail_max_width' =&gt; 200,
+    'thumbnail_max_height' =&gt; 200
+];
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+/*
+Result:
+- Main image: modules/your_module/uploads/image.jpg (max 1200x800)
+- Thumbnail: modules/your_module/uploads/thumbs/image.jpg (max 200x200)
+*/
+[/code]
+
+<h3>Thumbnail Requirements</h3>
+
+<p>For thumbnails to be generated, <strong>all three</strong> thumbnail parameters must be set:</p>
+
+<ul>
+    <li><code>thumbnail_dir</code> must be a non-empty string</li>
+    <li><code>thumbnail_max_width</code> must be greater than 0</li>
+    <li><code>thumbnail_max_height</code> must be greater than 0</li>
+</ul>
+
+<p>If any of these conditions are not met, thumbnail generation is skipped.</p>
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The <code>thumbnail_dir</code> path follows the same <code>upload_to_module</code> rules as <code>destination</code>. If <code>upload_to_module</code> is true, the thumbnail directory is relative to the target module. The thumbnail directory is created automatically if it doesn't exist.</p>
+</div>
+
+<h2>4. Handling Filenames</h2>
+
+<p>Trongate gives you two ways to handle the naming of uploaded images.</p>
+
+<h3>Original Filenames</h3>
+
+<p>By default, the original filename is preserved (after sanitization). If an image with the same name already exists in the destination folder, Trongate will automatically append a numeric suffix (e.g., <em>photo_2.jpg</em>) to prevent overwriting.</p>
+
+[code=php]
+$config['destination'] = 'uploads';
+$config['upload_to_module'] = true;
+$config['make_rand_name'] = false;  // Default behavior
+
+$file_info = $this-&gt;image-&gt;upload($config);
+
+// If 'sunset.jpg' already exists:
+// First upload: sunset.jpg
+// Second upload: sunset_2.jpg
+// Third upload: sunset_3.jpg
+[/code]
+
+<h3>Random Filenames</h3>
+
+<p>For improved security and to prevent users from guessing image URLs, you can generate a random filename. The original file extension is always preserved.</p>
+
+[code=php]
+$config['destination'] = 'avatars';
+$config['upload_to_module'] = true;
+$config['make_rand_name'] = true;
+
+// Original: profile-photo.jpg
+// Result: img_6756d8e9a2b4f3.21.jpg
+$file_info = $this-&gt;image-&gt;upload($config);
+[/code]
+
+<div class="alert alert-info">
+    <p>The Image module uses Trongate's built-in <span class="feature-ref">sanitize_filename()</span> function to ensure all uploaded images have safe, URL-friendly names. This function automatically handles international characters, removes special characters, replaces spaces with hyphens, and prevents security issues like null byte attacks - all without any configuration required.</p>
+</div>
+
+<h2>5. Processing the Return Data</h2>
+
+<p>Once <span class="feature-ref">included-image-upload()</span> has executed successfully, it returns an array containing metadata about the image. This is useful for displaying information to the user or preparing data for a database entry.</p>
+
+[code=php]
+$file_info = $this-&gt;image-&gt;upload($config);
+
+/*
+$file_info contains:
+[
+    'file_name' =&gt; 'beach_2.jpg',
+    'file_path' =&gt; 'modules/gallery/uploads/beach_2.jpg',
+    'file_type' =&gt; 'image/jpeg',
+    'file_size' =&gt; 245760,
+    'thumbnail_path' =&gt; 'modules/gallery/uploads/thumbs/beach_2.jpg' // Only if thumbnail was generated
+]
+*/
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Note:</strong> The <code>file_size</code> is returned in bytes. The <code>thumbnail_path</code> key is only present if thumbnail generation was requested and successful.</p>
+</div>
+
+<h2>Real-World Example: User Avatar Upload with Database Integration</h2>
+
+<p>Let's combine what we've learned with a practical scenario: allowing users to upload avatar images with automatic resizing and thumbnail generation. This example demonstrates how to store image references in your database for later retrieval.</p>
+
+<h3>Why Database Integration Matters</h3>
+
+<p>When you use random filenames for security, you need a way to retrieve those images later. Storing image metadata in your database allows you to:</p>
+
+<ul>
+    <li><strong>Associate images with users:</strong> Track who uploaded what and when</li>
+    <li><strong>Retrieve images reliably:</strong> Find images using database queries instead of guessing filenames</li>
+    <li><strong>Display image information:</strong> Show upload dates, file sizes, and dimensions to users</li>
+    <li><strong>Manage images programmatically:</strong> Build delete, update, and replacement features</li>
+</ul>
+
+<h3>The Complete Implementation</h3>
+
+[code=php]
+public function submit_avatar(): void {
+    $this-&gt;validation-&gt;set_rules(
+        'avatar', 
+        'Avatar', 
+        'required|max_size[5000]|max_width[4000]|max_height[4000]'
+    );
+    
+    if ($this-&gt;validation-&gt;run() === true) {
+        $user_id = segment(3);
+        
+        // Configure upload with automatic processing
+        $config = [
+            'destination' =&gt; 'avatars',
+            'upload_to_module' =&gt; true,
+            'make_rand_name' =&gt; true,
+            'max_width' =&gt; 800,
+            'max_height' =&gt; 800,
+            'thumbnail_dir' =&gt; 'avatars/thumbs',
+            'thumbnail_max_width' =&gt; 150,
+            'thumbnail_max_height' =&gt; 150
+        ];
+        
+        $file_info = $this-&gt;image-&gt;upload($config);
+        
+        // Store image reference in database
+        $data = [
+            'avatar_filename' =&gt; $file_info['file_name'],
+            'avatar_path' =&gt; $file_info['file_path'],
+            'thumbnail_path' =&gt; $file_info['thumbnail_path'],
+            'file_size' =&gt; $file_info['file_size'],
+            'upload_date' =&gt; date('Y-m-d H:i:s')
+        ];
+        
+        $this-&gt;model-&gt;update($user_id, $data, 'users');
+        
+        set_flashdata('Avatar uploaded successfully!');
+        redirect('users/profile/' . $user_id);
+    } else {
+        redirect('users/avatar_upload/' . $user_id);
+    }
+}
+[/code]
+
+<h3>Understanding the Pattern</h3>
+
+<p>This example follows the same clean pattern from the <a href="https://github.com/trongate/Trongate-v2---Simple-Image-Uploader" target="_blank">basic uploader</a>:</p>
+
+<ol>
+    <li><strong>Validate first:</strong> Check file type, size, and dimensions before uploading</li>
+    <li><strong>Configure the upload:</strong> Set dimensions for both main image and thumbnail</li>
+    <li><strong>Upload the image:</strong> The Image module handles all processing automatically</li>
+    <li><strong>Store the references:</strong> Save both the main image path and thumbnail path to your database</li>
+    <li><strong>Redirect on success:</strong> Use the POST-Redirect-GET pattern</li>
+</ol>
+
+<h2>Configuration Combinations</h2>
+
+<p>Here are some common configuration patterns for different use cases:</p>
+
+<h3>Product Gallery (High Quality, Multiple Sizes)</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'products',
+    'upload_to_module' =&gt; true,
+    'make_rand_name' =&gt; true,
+    'max_width' =&gt; 2000,
+    'max_height' =&gt; 2000,
+    'thumbnail_dir' =&gt; 'products/thumbs',
+    'thumbnail_max_width' =&gt; 300,
+    'thumbnail_max_height' =&gt; 300
+];
+[/code]
+
+<h3>User Profile Pictures (Square Thumbnails)</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'avatars',
+    'upload_to_module' =&gt; true,
+    'make_rand_name' =&gt; true,
+    'max_width' =&gt; 800,
+    'max_height' =&gt; 800,
+    'thumbnail_dir' =&gt; 'avatars/thumbs',
+    'thumbnail_max_width' =&gt; 150,
+    'thumbnail_max_height' =&gt; 150
+];
+[/code]
+
+<h3>Blog Post Images (No Thumbnails)</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'blog_images',
+    'upload_to_module' =&gt; true,
+    'make_rand_name' =&gt; false,
+    'max_width' =&gt; 1200,
+    'max_height' =&gt; 0  // No height restriction
+];
+// Note: Omitting thumbnail settings disables thumbnail generation
+[/code]
+
+<h3>Original Quality Preservation</h3>
+
+[code=php]
+$config = [
+    'destination' =&gt; 'originals',
+    'upload_to_module' =&gt; true,
+    'make_rand_name' =&gt; true,
+    'max_width' =&gt; 0,  // No resizing
+    'max_height' =&gt; 0  // No resizing
+];
+// Note: Set both to 0 to preserve original dimensions
+[/code]
+
+<h2>Key Takeaways</h2>
+
+<div class="alert alert-success">
+    <p><strong>Remember these essentials:</strong></p>
+    <ul>
+        <li>The <code>destination</code> key is <strong>required</strong> - all other keys have sensible defaults</li>
+        <li>Automatic resizing preserves aspect ratios and only triggers when images exceed limits</li>
+        <li>Thumbnail generation requires all three thumbnail parameters to be set</li>
+        <li>Use <code>make_rand_name</code> for security when storing user-uploaded images</li>
+        <li>The Image module creates directories automatically if they don't exist</li>
+        <li>Store the complete <code>$file_info</code> array in your database for easy retrieval</li>
+        <li>Set max dimensions to <code>0</code> to disable automatic resizing</li>
+        <li>The <code>thumbnail_path</code> key is only present when thumbnails are generated</li>
+    </ul>
+</div>

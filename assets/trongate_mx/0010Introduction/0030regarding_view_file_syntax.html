@@ -1,0 +1,107 @@
+<h1>Regarding View File Syntax</h1>
+
+<p>In Trongate MX, there are two main ways to create form elements and other HTML content. This section will guide you through both approaches:</p>
+
+<ol>
+   <li>Using Trongate's Form Helper Functions</li>
+   <li>Writing Plain HTML</li>
+</ol>
+
+<p>Let's explore both approaches.</p>
+
+<hr>
+
+<h2>1) Using Trongate's Form Helper Functions</h2>
+
+<p>Trongate's form helper functions provide a clean and consistent way to generate HTML elements. These functions are designed to streamline your code and ensure it follows best practices.</p>
+
+<p>For example, here's how to create a form button using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
+
+[code=vf]
+&lt;?php
+echo form_button('my_btn', 'Click Me');
+?&gt;
+[/code]
+
+<p>This generates the following HTML:</p>
+
+[code=html]&lt;button type="button" name="my_btn" value="Click Me"&gt;Click Me&lt;/button&gt;[/code]
+
+<p>Now, let's look at how to add attributes to create more complex elements.  This can be achieved by passing in an array of key-value pairs.  For example, a button that triggers an API call (with Trongate MX) could be rendered using the following syntax:</p>
+
+[code=vf]
+&lt;?php
+$attributes = [
+   'mx-get' =&gt; 'store/fetch_items',
+   'mx-target' =&gt; '#items-target'
+];
+echo form_button('fetch_items_btn', 'Load Items', $attributes);
+?&gt;
+[/code]
+
+<p>This generates the following HTML:</p>
+
+[code=html]&lt;button type="button" name="fetch_items_btn" value="Load Items" mx-get="store/fetch_items" mx-target="#items-target"&gt;Load Items&lt;/button&gt;[/code]
+
+<div class="alert alert-info">
+   <p>When using form helpers like <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span>, certain attributes, such as the 'name' attribute, are rendered by default. However, not <i>all</i> of these attributes are essential for Trongate MX to function properly.</p>
+</div>
+
+<hr>
+
+<h2>2) Writing Pure HTML</h2>
+
+<p>While Trongate's form helpers are recommended, you can <i>still</i> write pure HTML for form elements, if you prefer. Here's an alternative syntax the produces the same result as the example shown above:</p>
+
+[code=html]
+&lt;button mx-get="store/fetch_items" 
+        mx-target="#items-target"&gt;Load Items&lt;/button&gt;
+[/code]
+
+<p class="mt-1"><b>Both approaches are fully supported and will function correctly with Trongate MX.</b></p>
+
+<hr>
+
+<h2>The Pros And Cons Of These Approaches</h2>
+
+<p>The choice between using form helpers or writing plain HTML is entirely up to you. Both methods will work seamlessly with Trongate MX.</p>
+
+<div class="side-by-side">
+   <div class="card">
+      <div class="card-heading">Form Helpers</div>
+       <div class="card-body">
+           <h3 class="mt-0 mb-2 ">Pros</h3>
+           <ul class="sm">
+               <li>Consistent code structure across your application.</li>
+               <li>Built-in security features and sanitization.</li>
+               <li>Shorter, more readable code in complex scenarios.</li>
+           </ul>
+           <h3 class="mb-2 ">Cons</h3>
+           <ul class="sm">
+               <li>Requires learning the helper function syntax.</li>
+               <li>Slightly more typing required for very simple elements.</li>
+               <li>May generate additional attributes you don't need.</li>
+           </ul>
+       </div>
+   </div>
+
+   <div class="card">
+      <div class="card-heading">Plain HTML</div>
+       <div class="card-body">
+           <h3 class="mt-0 mb-2 ">Pros</h3>
+           <ul class="sm">
+               <li>Complete control over the output HTML.</li>
+               <li>No learning curve for developers familiar with HTML.</li>
+               <li>Familiar syntax for developers experienced with libraries like HTMX.</li>
+           </ul>
+           <h3 class="mb-2 ">Cons</h3>
+           <ul class="sm">
+               <li>No built-in security features.</li>
+               <li>May require excessive code for complex forms.</li>
+           </ul>
+       </div>
+   </div>  
+</div>
+
+<p>Regardless of the method you choose, Trongate MX's attributes (such as <code>mx-get</code>, <code>mx-target</code>, etc.) will function the same way in both scenarios. The underlying functionality remains consistent.</p>
+

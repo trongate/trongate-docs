@@ -1,0 +1,86 @@
+<div class="container">
+    <h1>form_dropdown()</h1>
+    <p class="signature">function form_dropdown(string $name, array $options, string|int|null $selected_key = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+    <p>Generates an HTML select menu (dropdown). Creates a list of options where users can select one or multiple values.</p>
+    </div>
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$name</td><td>string</td><td>The name attribute for the select element.</td></tr>
+            <tr><td>$options</td><td>array&lt;string|int,string&gt;</td><td>Associative array where keys are option values and values are display text.</td></tr>
+            <tr><td>$selected_key</td><td>string|int|null</td><td>(optional) The key of the option that should be selected.</td></tr>
+            <tr><td>$attributes</td><td>array</td><td>(optional) HTML attributes for the select element. Defaults to an empty array ([]).</td></tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The generated HTML select menu with options.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Dropdown</h2>
+[code=php]
+$options = [
+    'small' => 'Small',
+    'medium' => 'Medium', 
+    'large' => 'Large'
+];
+echo form_dropdown('size', $options);
+[/code]
+
+    <h2>Example #2: Dropdown with Selected Value</h2>
+[code=php]
+$options = [
+    'pending' => 'Pending',
+    'in_progress' => 'In Progress',
+    'completed' => 'Completed'
+];
+echo form_dropdown('status', $options, 'in_progress');
+[/code]
+
+    <h2>Example #3: Dropdown with Placeholder Option</h2>
+[code=php]
+$options = [
+    '' => '-- Select Country --',
+    'us' => 'United States',
+    'ca' => 'Canada'
+];
+$attributes = ['required' => 'required'];
+echo form_dropdown('country', $options, '', $attributes);
+[/code]
+
+    <h2>Example #4: Multiple Selection Dropdown</h2>
+[code=php]
+$options = [
+    'php' => 'PHP',
+    'js' => 'JavaScript', 
+    'python' => 'Python'
+];
+$attributes = [
+    'multiple' => 'multiple',
+    'size' => '3'
+];
+echo form_dropdown('languages[]', $options, ['php', 'python'], $attributes);
+[/code]
+
+    <h2>Notes</h2>
+    
+    <ul>
+        <li>For multiple select dropdowns, append <code>[]</code> to the field name and pass selected values as an array.</li>
+        <li>Option values and display text are automatically HTML-escaped for security.</li>
+        <li>Selection uses string comparison, so <code>'1'</code> matches <code>1</code>.</li>
+        <li>Use <code>post('field_name')</code> for single selections and <code>post('field_name[]')</code> for multiple selections.</li>
+        <li>Empty string keys create placeholder options useful for required fields.</li>
+    </ul>
+</div>

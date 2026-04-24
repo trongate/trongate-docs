@@ -1,0 +1,429 @@
+[meta-description]Complete reference for Trongate form helper functions: form_open(), form_close(), form_input(), form_checkbox(), form_dropdown(), date/time inputs, and more. Quick lookup with parameters and examples.[/meta-description]
+<h1>Form Helper Reference</h1>
+
+<p>Quick reference for all form helper functions in Trongate.</p>
+
+<h2>Form Tags</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_open()</span></td>
+            <td><code>$location, $attributes</code></td>
+            <td>Opening <code>&lt;form&gt;</code> tag</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_open_upload()</span></td>
+            <td><code>$location, $attributes</code></td>
+            <td>Opening <code>&lt;form enctype="multipart/form-data"&gt;</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_close()</span></td>
+            <td>None</td>
+            <td>CSRF token + <code>&lt;/form&gt;</code> tag</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=vf]
+echo form_open('users/submit');
+echo form_open('users/submit', ['id' =&gt; 'user-form']);
+echo form_open_upload('products/upload');
+echo form_close();
+[/code]
+
+<h2>Text Input Fields</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Type</th>
+            <th>Parameters</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_input()</span></td>
+            <td><code>text</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_email()</span></td>
+            <td><code>email</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_password()</span></td>
+            <td><code>password</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_number()</span></td>
+            <td><code>number</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_search()</span></td>
+            <td><code>search</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_hidden()</span></td>
+            <td><code>hidden</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_file_select()</span></td>
+            <td><code>file</code></td>
+            <td><code>$name, $attributes</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=vf]
+echo form_input('username', $username);
+echo form_email('email', $email, ['placeholder' =&gt; 'you@example.com']);
+echo form_password('password');
+echo form_number('quantity', $quantity, ['min' =&gt; '1', 'max' =&gt; '100']);
+echo form_search('q', $q, ['placeholder' =&gt; 'Search...']);
+echo form_hidden('user_id', $user_id);
+echo form_file_select('document', ['accept' =&gt; '.pdf']);
+[/code]
+
+<h2>Date and Time Input Fields</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Type</th>
+            <th>Format</th>
+            <th>Parameters</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_date()</span></td>
+            <td><code>date</code></td>
+            <td><code>YYYY-MM-DD</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_time()</span></td>
+            <td><code>time</code></td>
+            <td><code>HH:MM</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_datetime_local()</span></td>
+            <td><code>datetime-local</code></td>
+            <td><code>YYYY-MM-DDTHH:MM</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_month()</span></td>
+            <td><code>month</code></td>
+            <td><code>YYYY-MM</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_week()</span></td>
+            <td><code>week</code></td>
+            <td><code>YYYY-W##</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="alert alert-info">
+    <p>For additional guidance, check out the chapter on <a href="documentation/trongate_php_framework/working-with-dates-and-times">Working With Dates &amp; Times</a></p>
+</div>
+
+<h3>Examples</h3>
+
+[code=vf]
+echo form_date('due_date', $due_date);
+echo form_date('birth_date', $birth_date, ['max' =&gt; date('Y-m-d')]);
+
+echo form_time('start_time', $start_time);
+echo form_time('appointment', $appointment, ['step' =&gt; '900']); // 15-min intervals
+
+echo form_datetime_local('event_start', $event_start);
+echo form_datetime_local('deadline', $deadline, ['required' =&gt; 'required']);
+
+echo form_month('billing_month', $billing_month);
+echo form_month('report_month', $report_month, ['max' =&gt; date('Y-m')]);
+
+echo form_week('work_week', $work_week);
+echo form_week('schedule_week', $schedule_week, ['required' =&gt; 'required']);
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Native HTML5 Inputs:</strong> Date and time functions use browser-native pickers. Values are always submitted in ISO 8601 format regardless of how the browser displays them to the user.</p>
+</div>
+
+<h2>Textarea and Dropdown</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_textarea()</span></td>
+            <td><code>$name, $value, $attributes</code></td>
+            <td><code>&lt;textarea&gt;</code> element</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_dropdown()</span></td>
+            <td><code>$name, $options, $selected, $attributes</code></td>
+            <td><code>&lt;select&gt;</code> element</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=vf]
+echo form_textarea('bio', $bio);
+echo form_textarea('description', $description, ['rows' =&gt; '10']);
+
+$options = ['1' =&gt; 'Option One', '2' =&gt; 'Option Two'];
+echo form_dropdown('choice', $options, $selected_choice);
+[/code]
+
+<h2>Checkboxes and Radio Buttons</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_checkbox()</span></td>
+            <td><code>$name, $value, $checked, $attributes</code></td>
+            <td><code>&lt;input type="checkbox"&gt;</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_radio()</span></td>
+            <td><code>$name, $value, $checked, $attributes</code></td>
+            <td><code>&lt;input type="radio"&gt;</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=vf]
+echo form_checkbox('subscribe', 1, $subscribe);
+echo form_checkbox('active', 1, $active, ['id' =&gt; 'active-checkbox']);
+
+echo form_radio('status', 'active', $status_active);
+echo form_radio('status', 'inactive', $status_inactive);
+[/code]
+
+<h2>Labels and Buttons</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">form_label()</span></td>
+            <td><code>$label_text, $attributes</code></td>
+            <td><code>&lt;label&gt;</code> element</td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_submit()</span></td>
+            <td><code>$name, $value, $attributes</code></td>
+            <td><code>&lt;button type="submit"&gt;</code></td>
+        </tr>
+        <tr>
+            <td><span class="feature-ref">form_button()</span></td>
+            <td><code>$name, $value, $attributes</code></td>
+            <td><code>&lt;button&gt;</code> element</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=vf]
+echo form_label('Email Address');
+echo form_label('Username', ['for' =&gt; 'username-field']);
+
+echo form_submit('submit', 'Save');
+echo form_submit('submit', 'Delete', ['class' =&gt; 'danger']);
+
+echo form_button('action', 'Click Me');
+[/code]
+
+<h2>Data Retrieval</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">post()</span></td>
+            <td><code>$field, $clean_up, $cast_numeric</code></td>
+            <td>Field value, array, or empty string</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=php]
+$username = post('username');
+$email = post('email', true);
+$quantity = post('quantity', true, true);
+$all_data = post();
+$all_clean = post(true);
+[/code]
+
+<h2>Validation Error Display</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Function</th>
+            <th>Parameters</th>
+            <th>Returns</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="feature-ref">validation_errors()</span></td>
+            <td><code>$first_arg, $closing_html</code></td>
+            <td>HTML error messages or JSON</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Examples</h3>
+
+[code=vf]
+&lt;?= validation_errors() ?&gt;
+&lt;?= validation_errors('&lt;div class="error"&gt;', '&lt;/div&gt;') ?&gt;
+&lt;?= validation_errors('email') ?&gt;
+[/code]
+
+[code=php]
+// In API controller
+validation_errors(422); // Returns JSON with 422 status code
+[/code]
+
+<h2>Common Attribute Examples</h2>
+
+<h3>All Input Types</h3>
+
+[code]
+['placeholder' =&gt; 'Enter text...']
+['required' =&gt; 'required']
+['maxlength' =&gt; '100']
+['autocomplete' =&gt; 'off']
+['id' =&gt; 'field-id']
+['readonly' =&gt; 'readonly']
+['disabled' =&gt; 'disabled']
+[/code]
+
+<h3>Number Inputs</h3>
+
+[code]
+['min' =&gt; '1', 'max' =&gt; '100', 'step' =&gt; '1']
+[/code]
+
+<h3>Date and Time Inputs</h3>
+
+[code]
+// Date constraints
+['min' =&gt; '2025-01-01', 'max' =&gt; '2025-12-31']
+
+// Time intervals (step in seconds)
+['step' =&gt; '900'] // 15 minutes
+['step' =&gt; '1800'] // 30 minutes
+['step' =&gt; '3600'] // 1 hour
+
+// DateTime constraints
+['min' =&gt; '2025-12-27T09:00', 'max' =&gt; '2025-12-27T17:00']
+[/code]
+
+<h3>Textareas</h3>
+
+[code]
+['rows' =&gt; '10', 'cols' =&gt; '50']
+[/code]
+
+<h3>Forms</h3>
+
+[code]
+['method' =&gt; 'get']
+['class' =&gt; 'highlight-errors']
+['data-validate' =&gt; 'true']
+[/code]
+
+<h2>Complete Form Example</h2>
+
+[code=vf]
+&lt;?php
+echo form_open('users/submit');
+
+echo form_label('Full Name');
+echo form_input('full_name', $full_name, ['placeholder' =&gt; 'John Smith']);
+
+echo form_label('Email Address');
+echo form_email('email', $email, ['required' =&gt; 'required']);
+
+echo form_label('Birth Date');
+echo form_date('birth_date', $birth_date, ['max' =&gt; date('Y-m-d')]);
+
+echo form_label('Bio');
+echo form_textarea('bio', $bio, ['rows' =&gt; '5']);
+
+echo form_label('Country');
+echo form_dropdown('country', $country_options, $selected_country);
+
+echo '&lt;label&gt;';
+echo form_checkbox('subscribe', 1, $subscribe);
+echo ' Subscribe to newsletter';
+echo '&lt;/label&gt;';
+
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>All form helpers automatically escape attribute values for XSS protection.</p>
+</div>

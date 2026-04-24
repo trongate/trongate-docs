@@ -1,0 +1,246 @@
+<h1>Automatically Closing Modals</h1>
+<p>Trongate MX has two attributes for closing dynamic modals: <code>mx-close-on-success</code> and <code>mx-close-on-error</code>. These attributes work in conjunction with dynamically created modals to provide enhanced modal control.</p>
+
+<h2>Demonstration</h2>
+<p>Click on the 'Create Modal' button to see a demonstration of automatic modal closing.</p>
+<style>
+.code-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.code-demo button {
+    margin-top: 0;
+}
+</style>
+
+
+<div class="code-demo text-center">
+
+<button mx-get="documentation-demo/get_test_close_modal" 
+        mx-build-modal='{
+            "id": "demo-modal",
+            "width": "460px",
+            "modalHeading": "Demonstration",
+            "showCloseButton": "true"
+        }'>
+    Create Modal
+</button>
+
+</div>
+
+<h2>Basic Modal Creation and Closure</h2>
+<p>Let's start by creating a module that we can use for testing purposes.</p>
+<p>We'll call the module '<b>test</b>' and the URL for displaying your basic 'Create Modal' button will be:</p>
+[code]&lt;base-url&gt;test/demo1[/code]
+
+<div class="alert alert-info">
+    <p>The <code>&lt;base-url&gt;</code> string is a placeholder for your website's base URL. </p>
+</div>
+
+<p>The controller file for your 'test' module should be named as '<b>Test.php</b>'.  In addition, the name of the method that will be used for rendering your test page will be '<b>demo1</b>'. Here's the starter code for the 'Test.php' controller file:</p>
+
+[code=php]&lt;?php
+class Test extends Trongate {
+
+    function demo1() {
+        $data['view_file'] = 'demo1';
+        $this->template('public', $data);
+    }
+
+}[/code]
+
+<p>And here's the corresponding view file (demo1.php):</p>
+
+[code=vf]&lt;h1 class="text-center"&gt;Basic Modal Creation and Closure&lt;/h1&gt;
+&lt;p class="text-center"&gt;Click on the 'Create Modal' button.&lt;/p&gt;
+&lt;p class="text-center"&gt;
+    &lt;?php
+    // Define the button attributes
+    $btn_attr = [
+        'mx-get' =&gt; 'test/simple_modal_content',
+        'mx-build-modal' =&gt; 'demo-modal'
+    ];
+
+    // Create the button using Trongate's form_button function
+    echo form_button('create_modal_btn', 'Create Modal', $btn_attr);
+    ?&gt;
+&lt;/p&gt;[/code]
+
+<p class="mt-3 mb-0">Here's a pure HTML example that accomplishes the same goal:</p>
+
+[code=html]
+&lt;h1 class="text-center"&gt;Basic Modal Creation and Closure&lt;/h1&gt;
+&lt;p class="text-center"&gt;Click on the 'Create Modal' button.&lt;/p&gt;
+&lt;p class="text-center"&gt;
+    &lt;button mx-get="test/simple_modal_content"
+            mx-build-modal="demo-modal"&gt;Create Modal&lt;/button&gt;
+&lt;/p&gt;
+[/code]
+
+<h3>Setting Up the Modal Content Endpoint</h3>
+<p>Now, let's create an endpoint that serves the modal content.  This endpoint should return the HTML for your modal body.  For this example, let's create a method named '<b>simple_modal_content</b>'.  Below is the code for this method and please <i>do</i> add this to your 'Test.php' controller file:</p>
+
+[code=php]// This method returns the HTML content that will populate the modal
+function simple_modal_content() {
+    $data['form_location'] = 'test/simulate_form_success';
+
+    // Load a view containing your form
+    $this->view('simple_modal_content', $data);
+}[/code]
+
+Here's the corresponding view file content (simple_modal_content.php):
+
+[code=vf]&lt;p&gt;Click the 'Submit' button to simulate a successful form submission.&lt;/p&gt;
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; $form_location,
+    'mx-close-on-success' =&gt; 'true'
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit', 'Submit');
+echo form_close();[/code]
+
+<p class="mt-3 mb-0">If you'd rather <b>not</b> using Trongate's form helper functions, here's an alternative syntax that could be used:</p>
+
+[code=vf]
+&lt;p&gt;Click the 'Submit' button to simulate a successful form submission.&lt;/p&gt;
+&lt;form mx-post="&lt;?= $form_location; ?&gt;" mx-close-on-success="true"&gt;
+    &lt;button type="submit" name="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-danger">
+    <p>Building applications with pure HTML forms can create potential security risks. See our <a href="CSRF Protection">CSRF Protection</a> documentation for details.</p>
+</div>
+
+
+<div class="alert alert-info"><p>There are no form fields in the code above since the goal is to produce the most basic example possible.  After the 'Submit' button is pressed, the goal is to return a 'success' response from the API, regardless of what has been posted to the endpoint.</p></div>
+
+<h3>Handling Form Submission</h3>
+<p>The endpoint that handles the form submission is going to be really simple.  It will return an HTTP response status code of 200, indicating form submission success.</p>
+
+<p>Our endpoint will be served via a method named as '<b>simulate_form_success</b>'.</p>
+
+[code=php]function simulate_form_success() {
+    http_response_code(200);
+}[/code]
+
+<h3 class="mt-3">Complete Controller File Code</h3>
+
+<p>If you've been following along, your controller file - for this first demonstration - should be as follows:</p>
+
+[code=php]&lt;?php
+class Test extends Trongate {
+
+    function demo1() {
+        $data['view_file'] = 'demo1';
+        $this-&gt;template('public', $data);
+    }
+
+    // This method returns the HTML content that will populate the modal
+    function simple_modal_content() {
+        $data['form_location'] = 'test/simulate_form_success';
+        
+        // Load a view containing your form
+        $this-&gt;view('simple_modal_content', $data);
+    }
+
+    function simulate_form_success() {
+        http_response_code(200);
+    }
+
+}[/code]
+
+<h2>Adding Visual Feedback</h2>
+<p>For a better user experience, we can add animations to provide visual feedback.  This can be achieved by adding the <code>mx-animate-success</code> attribute to the form and giving it a value of 'true':</p>
+
+[code=vf]&lt;p&gt;Click the 'Submit' button to simulate a successful form submission.&lt;/p&gt;
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; $form_location,
+    'mx-close-on-success' =&gt; 'true',
+    'mx-animate-success' =&gt; 'true'
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit', 'Submit');
+echo form_close();[/code]
+
+<p class="mt-3 mb-0">For an alternative HTML-centered approach, here's the corresponding code:</p>
+
+[code=vf]
+&lt;p&gt;Click the 'Submit' button to simulate a successful form submission.&lt;/p&gt;
+&lt;form mx-post="&lt;?= $form_location; ?&gt;" 
+      mx-close-on-success="true" 
+      mx-animate-success="true"&gt;
+    &lt;button type="submit" name="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>This page covers how to <b>automatically</b> close modal windows after an HTTP request has been executed using Trongate MX.</p>
+    <p>Whilst this feature may be useful (and we hope it is!), don't forget that you can make manual closing of modal elements possible by usage of the JavaScript function <code>closeModal()</code>.</p>
+    <p>Below is an example of a simple button that - when clicked - will close any modal windows that are currently visible:</p>
+[code=html]
+&lt;button onclick="closeModal()"&gt;Close Window&lt;/button&gt;
+[/code]
+</div>
+
+<h2>Handling Error Responses</h2>
+<p>While the previous example demonstrated closing modals on successful API responses, Trongate MX also supports automatic modal closure when receiving error responses (HTTP status codes outside 200-299).</p>
+
+<p>To implement this, modify two key attributes in your form:</p>
+
+[code=vf]&lt;p&gt;Click the 'Submit' button to simulate an error response.&lt;/p&gt;
+&lt;?php
+$form_attr = [
+    'mx-post' =&gt; $form_location,
+    'mx-close-on-error' =&gt; 'true',
+    'mx-animate-error' =&gt; 'true'
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit', 'Submit');
+echo form_close();
+?&gt;
+[/code]
+
+<p class="mt-3 mb-0">Here's an alternative syntax for developers who prefer to work with pure HTML:</p>
+[code=vf]
+&lt;p&gt;Click the 'Submit' button to simulate an error response.&lt;/p&gt;
+&lt;form mx-post="&lt;?= $form_location; ?&gt;" 
+        mx-close-on-error="true" 
+        mx-animate-error="true"&gt;
+    &lt;button type="submit" name="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>For this to work, your API endpoint should return an appropriate <b>error</b> status code.  For example:</p>
+
+[code=php]function simulate_form_error() {
+    http_response_code(400);
+}[/code]
+
+</div>
+
+<p>The key changes from the success example are the introduction of; <code>mx-close-on-error="true"</code> (which triggers modal closure when receiving error responses) and <code>mx-animate-error="true"</code> (which displays a red cross animation before the modal closes).</p>
+
+<div class="alert alert-info">
+    <p>When the form submission results in an error response, Trongate MX will draw a red cross animation before closing the modal.</p>
+</div>
+
+<h2>Summary</h2>
+<p>Trongate MX provides two specialized 'mx' attributes for automatic closing of modal elements:</p>
+<ul>
+    <li><code>mx-close-on-success</code></li>
+    <li><code>mx-close-on-error</code></li>
+</ul>
+<p>These can be enhanced with animation attributes that render 'success' or 'error' animations immediately before modal closure:</p>
+<ul>
+    <li><code>mx-animate-success</code></li>
+    <li><code>mx-animate-error</code></li>
+</ul>
+<p>These attributes, alongside other Trongate MX features, can be combined to create highly responsive, interactive user interfaces while minimizing JavaScript dependencies.</p>
+<p>Don't forget, you can also add <code>onclick="closeModal()"</code> to elements, like buttons, to have modal windows close with user interaction such as clicks.</p>
+

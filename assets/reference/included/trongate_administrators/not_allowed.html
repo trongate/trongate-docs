@@ -1,0 +1,31 @@
+<div class="container">
+  <h1>not_allowed()</h1>
+  <p class="signature">public function not_allowed(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Renders a "Access Temporarily Blocked" page when a user has exceeded the maximum number of login attempts. If the referring page was the login submission, a login link is provided.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Output rendered via the view template.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Called automatically on excessive failed login attempts
+$should_block = $this->model->increment_failed_login_attempts($username);
+if ($should_block) {
+    unset($_SESSION['form_submission_errors']);
+    redirect($this->module_name . '/not_allowed');
+}
+
+// The page displays:
+// "Access Temporarily Blocked" message
+// Optionally a "Try Again" login link if coming from submit_login
+[/code]
+</div>

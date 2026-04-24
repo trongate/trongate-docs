@@ -1,0 +1,91 @@
+<h1>Triggering Multiple Elements</h1>
+<p>The <a href="documentation/display/trongate_mx/events-and-responses/handling-successful-requests">previous page</a> covered how to update/trigger <b>one element</b> after a successful HTTP request has been made.   This was achieved by using the <code>mx-on-success</code> attribute.</p>
+
+<p>With <code>mx-on-success</code> it's also possible to trigger <i>multiple</i> elements by separating their selectors with spaces. Here's an example:</p>
+
+[code=vf]
+$form_attr = [
+    'mx-post' =&gt; 'api/submit_order',
+    'mx-target' =&gt; '#order-confirmation',
+    'mx-on-success' =&gt; '#order-summary #customer-balance #recent-orders'
+];
+echo form_open('#', $form_attr);
+echo form_submit('submit', 'Place Order');
+echo form_close();
+?&gt;
+
+&lt;div id="order-confirmation"&gt;&lt;/div&gt;
+
+&lt;div id="order-summary" mx-get="api/get_order_summary" mx-trigger="activate"&gt;
+    &lt;!-- Order summary content --&gt;
+&lt;/div&gt;
+
+&lt;div id="customer-balance" mx-get="api/get_balance" mx-trigger="activate"&gt;
+    &lt;!-- Customer balance content --&gt;
+&lt;/div&gt;
+
+&lt;div id="recent-orders" mx-get="api/get_recent_orders" mx-trigger="activate"&gt;
+    &lt;!-- Recent orders content --&gt;
+&lt;/div&gt;
+[/code]
+
+<p class="mt-3 mb-0">For those who prefer to work with pure HTML, here's an alternative syntax that produces the same result:</p>
+
+[code=vf]
+&lt;form mx-post="api/submit_order"
+        mx-target="#order-confirmation"
+        mx-on-success="#order-summary #customer-balance #recent-orders"&gt;
+    &lt;button type="submit"&gt;Place Order&lt;/button&gt;           
+&lt;/form&gt;
+
+&lt;div id="order-confirmation"&gt;&lt;/div&gt;
+
+&lt;div id="order-summary" mx-get="api/get_order_summary" mx-trigger="activate"&gt;
+    &lt;!-- Order summary content --&gt;
+&lt;/div&gt;
+
+&lt;div id="customer-balance" mx-get="api/get_balance" mx-trigger="activate"&gt;
+    &lt;!-- Customer balance content --&gt;
+&lt;/div&gt;
+
+&lt;div id="recent-orders" mx-get="api/get_recent_orders" mx-trigger="activate"&gt;
+    &lt;!-- Recent orders content --&gt;
+&lt;/div&gt;
+[/code]
+
+<div class="alert alert-success">
+  <p>You may have noticed that in the examples shown, the elements to be <a href="documentation/display/trongate_mx/events-and-responses/triggers-in-trongate-mx">triggered</a>  have all been given the attribute, <code>mx-trigger="activate"</code>.</p>
+
+  <p>The reason for this is to prevent default trigger behaviour from activating the target elements. By adding <code>mx-trigger="activate"</code>, we are effectively saying, "This element should <i>only</i> be activated when it is programmatically triggered by another element."</p>
+
+  <p>If we did <i>not</i> include <code>mx-trigger="activate"</code> on the elements, they could potentially be triggered by clicks, which is - of course - not desirable.</p>
+</div>
+
+
+<h3 class="mt-3">Understanding The Code</h3>
+<p>In this example, when the form submission is successful:</p>
+
+<ol>
+    <li>The order confirmation message appears in the target div.</li>
+    <li>The order summary gets refreshed.</li>
+    <li>The customer's balance is updated.</li>
+    <li>The recent orders list is refreshed.</li>
+</ol>
+
+<p>All of these updates happen simultaneously, making it perfect for situations where you need to refresh multiple pieces of information after a successful operation.</p>
+
+<h2>Conclusion</h2>
+
+<p>Fully appreciating the power of <code>mx-on-success</code> requires a touch of imagination.</p>
+
+<p>Picture an exceptionally sophisticated admin panel for a powerful web application.</p>
+
+<p>Now, imagine a demanding client requesting a feature that updates multiple sections of a page <i>entirely independently of one another</i>.</p>
+
+<p>For instance, one part of the page could display a live stock market chart, another part of the page could display real-time enquiries, a third part of the page might track the price of Bitcoin, and yet another part of the page could display internal messages sent by logged-in users.</p>
+
+<p><b>Building such a dynamic application <i>without</i> Trongate MX would be an immense challenge! Even for a JavaScript guru, it would involve wrangling with observables, subscriptions, and multiple layers of complex, esoteric code.</b></p>
+
+<p>Fortunately, Trongate MX simplifies this process. Now, you can effortlessly declare and activate the components you need, making even the most demanding applications easy to build.</p>
+
+<p>This is why the <code>mx-on-success</code> attribute is arguably one of the most important features in Trongate MX.</p>

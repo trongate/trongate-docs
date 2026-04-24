@@ -1,0 +1,332 @@
+<h1>Modal Form Workflows</h1>
+
+<p>Modal form workflows represent the pinnacle of Trongate MX's capabilities, combining dynamic modal creation, form validation, loading states, and success feedback into seamless user experiences. This page demonstrates how to create sophisticated modal-based interfaces that feel professional and responsive.</p>
+
+<h2>The Complete Modal Form Pattern</h2>
+
+<p>The most elegant pattern in Trongate MX combines all the features we've learned into a single, cohesive workflow. Here's a complete example that showcases this integration:</p>
+
+<h3>Modal Trigger Button</h3>
+
+<p>The code below could be added to any view file. It will produce a button that, when clicked, will render a dynamic modal element. Have a click and try it for yourself!</p>
+
+<div class="code-demo text-center">
+<button class="mt-0"  
+  type="button" 
+  name="settings_btn" 
+  mx-get="documentation-demo/long_delay" 
+  mx-build-modal='{
+    "id":"settings-modal",
+    "width":"640px",
+    "modalHeading":"<i class=\"fa fa-gears\"></i> Settings",
+    "modalFooter":"<button class=\"alt\" onclick=\"closeModal()\">Cancel</button><button form=\"settings-form\">Submit</button>"
+  }'
+>
+  <i class="fa fa-gears"></i> Settings
+</button>
+<p class="text-center xs" style="padding: 1em;">NOTE:  The modal body will contain a spinner element.</p>
+</div>
+
+[code=vf]
+&lt;?php
+$btn_attr = [
+    'mx-get' =&gt; 'settings/draw_form',
+    'mx-build-modal' =&gt; json_encode([
+        'id' =&gt; 'settings-modal',
+        'width' =&gt; '640px',
+        'modalHeading' =&gt; '&lt;i class="fa fa-gears"&gt;&lt;/i&gt; Settings',
+        'modalFooter' =&gt; '&lt;button class="alt" onclick="closeModal()"&gt;Cancel&lt;/button&gt;&lt;button form="settings-form"&gt;Submit&lt;/button&gt;'
+    ])
+];
+echo form_button('settings_btn', '&lt;i class="fa fa-gears"&gt;&lt;/i&gt; Settings', $btn_attr);
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>This example uses Font Awesome 4 to render a 'settings' icon.  Obviously, you don't <i>need</i> to use Font Awesome 4.  However, if you would like to try using Font Awesome 4, including the following code within the 'HEAD' section of your webpage:</p>
+
+    [code=html]&lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"&gt;[/code]
+</div>
+
+<p>Clicking the button dynamically generates a modal element. However, the contents of the modal body initially contain a spinner element while the form content is being loaded.</p>
+[code=html]&lt;div class="spinner mt-3 mb-3"&gt;&lt;/div&gt;[/code]
+<p>The spinner element provides immediate visual feedback - even before the form content arrives from the server.</p>
+
+<h3 class="mt-3">Controller Method for Form Content</h3>
+
+<p>The button's <code>mx-get</code> attribute sends a request to <code>settings/draw_form</code>. This controller method is responsible for gathering the necessary data and rendering the form that will appear inside the modal body:</p>
+
+[code=php]
+public function draw_form(): void {
+    // Fetch data for the form
+    $settings = $this-&gt;model-&gt;get_where(1, 'app_settings');
+    
+    $data['notification_email'] = $settings-&gt;notification_email;
+    $data['theme_preference'] = $settings-&gt;theme_preference;
+    $data['form_location'] = 'settings/submit';
+    
+    $this-&gt;view('settings_form', $data);
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>Notice how this method follows <a href="https://trongate.io/documentation/display/php_framework/understanding-routing/automatic-url-routing">standard Trongate automatic routing patterns</a> - it fetches data from <a href="https://trongate.io/documentation/display/php_framework/database-operations/introducing-the-model-class">the model</a>, prepares it for the view, and then loads a <a href="https://trongate.io/documentation/display/php_framework/views/understanding-view-files">view file</a>. The only difference is that the rendered HTML will appear inside a modal instead of a full page.</p>
+</div>
+
+<h3 class="mt-3">Modal Form View</h3>
+
+<p>The <code>settings_form</code> view file contains the actual form that users will interact with. This form includes all the Trongate MX attributes needed for validation, success animations, and automatic modal closing:</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+    'id' =&gt; 'settings-form',
+    'class' =&gt; 'highlight-errors',
+    'mx-post' =&gt; $form_location,
+    'mx-animate-success' =&gt; 'true',
+    'mx-close-on-success' =&gt; 'true'
+];
+echo form_open('#', $form_attr);
+
+echo form_label('Notification Email');
+echo form_email('notification_email', $notification_email);
+
+echo form_label('Theme Preference');
+$theme_options = [
+    'light' =&gt; 'Light Theme',
+    'dark' =&gt; 'Dark Theme',
+    'auto' =&gt; 'Auto (System Default)'
+];
+echo form_dropdown('theme_preference', $theme_options, $theme_preference);
+
+echo form_close();
+?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p>Key features of this form:</p>
+    <ul>
+        <li><code>id="settings-form"</code> allows the footer submit button to control this form</li>
+        <li><code>class="highlight-errors"</code> enables automatic validation error display</li>
+        <li><code>mx-animate-success="true"</code> shows a green checkmark on successful submission</li>
+        <li><code>mx-close-on-success="true"</code> automatically closes the modal after the success animation</li>
+    </ul>
+</div>
+
+<p>By adding a valid endpoint URL with a corresponding view file content, your dynamically generated modal should now contain a form (or whatever you'd like to have contained inside the modal body).</p>
+
+<p>Here's an example and please <i>do</i> have a click to see the kind of result you can expect to see...</p>
+
+<div class="code-demo text-center">
+<button class="mt-0"  
+  type="button" 
+  name="settings_btn" 
+  mx-get="documentation-demo/draw_settings_form" 
+  mx-build-modal='{
+    "id": "settings-modal",
+    "width": "640px",
+    "modalHeading": "<i class=\"fa fa-gears\"></i> Settings",
+    "modalFooter": "<button class=\"alt\" onclick=\"closeModal()\">Cancel</button><button onclick=\"alert(&#39;Nice!  So, now you know how to build a modal that contains an attractive form.  Keep reading and discover how to handle form submission, form validation and more!&#39;);\">Submit</button>"
+  }'>
+  <i class="fa fa-gears"></i> Settings
+</button>
+
+</div>
+
+<h3 class="mt-3">Form Submission Handler</h3>
+
+<p>When the form is submitted, a POST request gets sent the endpoint specified by <code>$form_location</code>. This invokes a controller method that handles validation and processing using familiar <a href="https://trongate.io/documentation/display/php_framework/form-handling">Trongate form handling patterns</a>:</p>
+
+[code=php]
+public function submit(): void {
+    $this-&gt;module('trongate_security');
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    // Validate the form
+    $this-&gt;validation-&gt;set_rules('notification_email', 'Notification Email', 'required|valid_email');
+    $this-&gt;validation-&gt;set_rules('theme_preference', 'Theme Preference', 'required');
+    
+    $result = $this-&gt;validation-&gt;run();
+    
+    if ($result === false) {
+        validation_errors(400);
+    } else {
+        // Process successful submission
+        $data['notification_email'] = post('notification_email', true);
+        $data['theme_preference'] = post('theme_preference', true);
+        
+        $this-&gt;model-&gt;update(1, $data, 'app_settings');
+        
+        http_response_code(200);
+        echo 'Settings updated successfully!';
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p>This controller method demonstrates the two-path approach:</p>
+    <ul>
+        <li><strong>Validation fails:</strong> <code>validation_errors(400)</code> sends error details back to the modal, which displays them inline</li>
+        <li><strong>Validation succeeds:</strong> Data is processed and a success message is returned, triggering the success animation and modal closure</li>
+    </ul>
+</div>
+
+<p class="mt-3">Here's a fully working example:</p>
+
+<div class="code-demo text-center">
+<button class="mt-0"  
+  type="button" 
+  name="settings_btn" 
+  mx-get="documentation-demo/draw_settings_form_real" 
+  mx-build-modal='{
+    "id": "settings-modal-real",
+    "width": "640px",
+    "modalHeading": "<i class=\"fa fa-gears\"></i> Settings",
+    "modalFooter": "<button class=\"alt\" onclick=\"closeModal()\">Cancel</button><button form=\"settings-form-real\">Submit</button>"
+  }'
+>
+  <i class="fa fa-gears"></i> Settings
+</button>
+</div>
+
+<div class="alert alert-success">
+    <p><b>Top tip!</b>  When you test the button above, try submitting the form with an empty 'Notification Email' field, so that you can see how validation errors are handled.</p>
+</div>
+
+<h2>How This Pattern Works</h2>
+
+<p>This complete workflow demonstrates several key features working together in perfect harmony:</p>
+
+<ol>
+    <li><strong>Modal Creation:</strong> The button uses <code>mx-build-modal</code> to create a modal with custom header and footer</li>
+    <li><strong>Content Loading:</strong> The modal body is populated via <code>mx-get</code> request to load the form, with a spinner shown during loading</li>
+    <li><strong>Form Integration:</strong> The form includes validation, success animation, and automatic modal closing</li>
+    <li><strong>User Experience:</strong> Success animations provide feedback before the modal closes automatically, while validation errors keep the modal open for corrections</li>
+</ol>
+
+<div class="alert alert-info">
+    <p><strong>The Beauty of This Pattern:</strong> Users get immediate feedback at every step - a loading spinner while content loads, inline validation errors if something's wrong, a success animation when everything works, and automatic cleanup when done. All of this happens without a single page reload or custom JavaScript!</p>
+</div>
+
+<h2>Validation Error Handling in Modals</h2>
+
+<p>When validation errors occur, the modal remains open and displays errors inline, allowing users to correct their input without losing context.  The rendering of validation errors is automatic and the entire process will work with any normal and valid form.  For example:</p>
+
+[code=vf]
+&lt;?php
+$form_attr = [
+    'id' =&gt; 'user-form',
+    'class' =&gt; 'highlight-errors',
+    'mx-post' =&gt; 'users/create',
+    'mx-animate-success' =&gt; 'true',
+    'mx-close-on-success' =&gt; 'true',
+    'mx-indicator' =&gt; '#form-spinner'
+];
+echo form_open('#', $form_attr);
+
+echo form_label('Username (3-20 characters)');
+echo form_input('username', '');
+
+echo form_label('Email Address');
+echo form_email('email', '');
+
+echo form_label('Password (minimum 8 characters)');
+echo form_password('password', '');
+
+echo form_close();
+?&gt;
+
+&lt;div id="form-spinner" class="spinner mx-indicator"&gt;&lt;/div&gt;
+[/code]
+
+<p>The corresponding validation handler follows the same pattern:</p>
+
+[code=php]
+public function create(): void {
+    $this-&gt;module('trongate_security');
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    $this-&gt;validation-&gt;set_rules('username', 'Username', 'required|min_length[3]|max_length[20]');
+    $this-&gt;validation-&gt;set_rules('email', 'Email', 'required|valid_email');
+    $this-&gt;validation-&gt;set_rules('password', 'Password', 'required|min_length[8]');
+    
+    $result = $this-&gt;validation-&gt;run();
+    
+    if ($result === false) {
+        validation_errors(400);
+    } else {
+        $data = [
+            'username' =&gt; post('username', true),
+            'email' =&gt; post('email', true),
+            'password' =&gt; password_hash(post('password', true), PASSWORD_DEFAULT)
+        ];
+        
+        $this-&gt;model-&gt;insert($data, 'users');
+        
+        http_response_code(200);
+        echo 'User created successfully!';
+    }
+}
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Modal Footer Integration:</strong> Notice how the modal footer contains a submit button with a <code>form</code> property that has been assigned with the same value as the form <code>id</code> property. This associates the button with the form inside the modal body, allowing the submit button to be outside the actual form element. This pattern provides maximum flexibility in modal design while maintaining clean separation between the modal structure and form content.</p>
+</div>
+
+<div class="alert alert-success">
+    <p><strong>Modal Form Best Practices:</strong></p>
+    <ul>
+        <li>Always include <code>mx-close-on-success="true"</code> for successful form submissions</li>
+        <li>Use <code>mx-animate-success="true"</code> to provide visual feedback before closing</li>
+        <li>Include the <code>highlight-errors</code> class for automatic validation error display</li>
+        <li>Use modal footers to keep important actions visible and accessible</li>
+        <li>Combine loading indicators with modal forms for professional user experiences</li>
+        <li>Always validate form data server-side using Trongate's validation class</li>
+        <li>To dynamically update page content <i>after</i> successful form submission, consider using the <a href="documentation/display/trongate_mx/events-and-responses/handling-successful-requests">mx-on-success</a> attribute or  the <a href="documentation/display/trongate_mx/swapping-content/after-swap-operations">mx-after-swap</a> attribute.</li>
+    </ul>
+</div>
+
+<h2>Alternative Form Handling Strategies</h2>
+
+<p>While the complete modal form pattern demonstrated above represents the most comprehensive approach, Trongate MX provides several additional attributes that can enhance form handling workflows in different scenarios. These attributes offer alternative strategies for managing form validation feedback, error handling, and post-submission workflows.</p>
+
+<h3>Enhanced Validation and Error Handling</h3>
+
+<ul>
+    <li><strong><a href="documentation/display/trongate_mx/form-handling/after-validation-operations">mx-after-validation</a></strong> - Executes custom JavaScript functions immediately after form validation errors are displayed, allowing you to implement custom error handling logic, focus management, or additional user interface updates.</li>
+    
+    <li><strong><a href="documentation/display/trongate_mx/ui-enhancements/error-animations">mx-animate-error</a></strong> - Triggers visual error animations when form submissions fail (HTTP response codes 400-599), providing immediate visual feedback to users without requiring custom JavaScript.</li>
+    
+    <li><strong><a href="documentation/display/trongate_mx/ui-enhancements/automatically-closing-modals">mx-close-on-error</a></strong> - Automatically closes modal dialogs when form submissions encounter errors, useful for scenarios where you want to redirect users away from the modal context on validation failures.</li>
+    
+    <li><strong><a href="documentation/display/trongate_mx/events-and-responses/handling-request-errors">mx-on-error</a></strong> - Specifies elements to initialize or update after failed form submissions, enabling you to display error messages in specific page locations or trigger error-specific workflows.</li>
+</ul>
+
+<h3>Alternative Success Workflows</h3>
+
+<ul>
+    <li><strong><a href="documentation/display/trongate_mx/events-and-responses/redirect-on-success">mx-redirect-on-success</a></strong> - Automatically redirects users to different URLs after successful form submissions, perfect for multi-step workflows or when you need to navigate users to confirmation pages instead of staying in the current context.</li>
+    
+    <li><strong><a href="documentation/display/trongate_mx/events-and-responses/redirect-on-error">mx-redirect-on-error</a></strong> - Redirects users to error-specific pages when form submissions fail, useful for handling authentication errors, permission issues, or other scenarios requiring full page navigation.</li>
+</ul>
+
+<h3>Combining Strategies</h3>
+
+<p>These attributes can be mixed and matched to create sophisticated form handling workflows:</p>
+
+[code=html]
+&lt;form class="highlight-errors"
+    mx-post="orders/create"
+    mx-animate-success="true"
+    mx-redirect-on-success="true"
+    mx-after-validation="handleCustomValidation"
+    mx-on-error="#error-summary"&gt;
+    &lt;!-- Form fields here --&gt;
+&lt;/form&gt;
+[/code]
+
+<p>This approach provides multiple fallback strategies: inline validation errors with custom handling, success animations followed by redirection, and specific error content updates - all without writing complex JavaScript event handlers.</p>
+
+<h2>Summary</h2>
+
+<p>Modal form workflows represent the sophisticated culmination of Trongate MX's capabilities. By combining dynamic modal creation, form validation, loading states, and success feedback, you can create professional user interfaces that feel responsive and polished. These patterns eliminate the need for complex JavaScript while providing users with modern, intuitive experiences that rival any contemporary web application.</p>

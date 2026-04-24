@@ -1,0 +1,404 @@
+[meta-description]Master the Trongate create/update pattern: one form for both new and existing records, simple data loading with get_data_from_post() and get_data_from_db(), and the Post-Redirect-Get flow with flashdata.[/meta-description]
+
+<h1>The Create/Update Pattern</h1>
+
+<p>Building forms for creating and editing records is a universal requirement in web applications. Trongate v2 encourages an elegant pattern that handles both operations with a single form, single set of validation rules, and minimal code duplication.</p>
+
+<h2>Why This Pattern Works</h2>
+
+<ul>
+    <li><b>DRY (Don't Repeat Yourself)</b>  -  One form, one view, one set of validation rules</li>
+    <li><b>Simple Logic</b>  -  A single conditional determines data source</li>
+    <li><b>Maintainable</b>  -  Change fields in one place, not two</li>
+    <li><b>User-Friendly</b>  -  Consistent interface for creation and editing</li>
+</ul>
+
+<h2>The Three Components</h2>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Component</th>
+            <th>Purpose</th>
+            <th>Key Responsibility</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>create()</code></td>
+            <td>Display the form</td>
+            <td>Decide whether to load data from POST or database</td>
+        </tr>
+        <tr>
+            <td><code>submit()</code></td>
+            <td>Process submission</td>
+            <td>Validate, save, redirect on success or redisplay on failure</td>
+        </tr>
+        <tr>
+            <td>Model helpers</td>
+            <td>Data preparation</td>
+            <td><code>get_data_from_post()</code> and <code>get_data_from_db()</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Complete Working Example</h2>
+
+<p>Here's a complete Members module demonstrating the pattern:</p>
+
+<h3>The Controller (Members.php)</h3>
+
+[code=php]
+&lt;?php
+class Members extends Trongate {
+
+    /**
+     * Display a list of members.
+     */
+    public function manage(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $data = [
+            'members' =&gt; $this-&gt;model-&gt;fetch_members(),
+            'view_module' =&gt; 'members',
+            'view_file' =&gt; 'manage'
+        ];
+
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Display the create or update member form.
+     */
+    public function create(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $update_id = segment(3, 'int');
+        $submit = post('submit');
+
+        // Load data from POST if creating new OR if validation failed
+        // Otherwise load from database for editing
+        if (($update_id === 0) || ($submit === 'Submit')) {
+            $data = $this-&gt;model-&gt;get_data_from_post();
+        } else {
+            $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+        }
+
+        $data['headline'] = ($update_id === 0) ? 'Create Member' : 'Update Member';
+        $data['update_id'] = $update_id;
+        $data['form_location'] = str_replace('/create', '/submit', current_url());
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'create';
+
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Handle form submission for creating or updating a member.
+     */
+    public function submit(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        // Validate the submitted data
+        $this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[3]|max_length[30]');
+        $this-&gt;validation-&gt;set_rules('email_address', 'email address', 'required|valid_email');
+
+        $result = $this-&gt;validation-&gt;run();
+
+        if ($result === true) {
+            // Validation passed - save data and redirect
+            $data = $this-&gt;model-&gt;get_data_from_post();
+            $update_id = segment(3, 'int');
+
+            if ($update_id === 0) {
+                $this-&gt;db-&gt;insert($data, 'members');
+                set_flashdata('The new member was successfully created.');
+            } else {
+                $this-&gt;db-&gt;update($update_id, $data, 'members');
+                set_flashdata('The member was successfully updated.');
+            }
+
+            redirect('members/manage');
+        } else {
+            // Validation failed - redisplay form with errors
+            $this-&gt;create();
+        }
+    }
+
+    /**
+     * Display the delete confirmation screen.
+     */
+    public function confirm_delete(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $update_id = segment(3, 'int');
+        $this-&gt;model-&gt;get_data_from_db($update_id);
+
+        $data = [
+            'form_location' =&gt; str_replace('/confirm_delete', '/submit_confirm_delete', current_url()),
+            'update_id' =&gt; $update_id,
+            'view_module' =&gt; 'members',
+            'view_file' =&gt; 'confirm_delete'
+        ];
+
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Handle confirmed deletion of a member.
+     */
+    public function submit_confirm_delete(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $update_id = (int) post('update_id', true);
+        $this-&gt;db-&gt;delete($update_id, 'members');
+        set_flashdata('The member record was successfully deleted.');
+        redirect('members/manage');
+    }
+}
+[/code]
+
+<h3>The Model (Members_model.php)</h3>
+
+[code=php]
+&lt;?php
+class Members_model extends Model {
+
+    /**
+     * Retrieve and sanitise member data from POST.
+     * 
+     * Used for both saving to database and redisplaying form after validation errors.
+     * 
+     * @return array
+     */
+    public function get_data_from_post(): array {
+        $data = [
+            'username' =&gt; post('username', true),
+            'email_address' =&gt; post('email_address', true),
+            'active' =&gt; (int) (bool) post('active', true)
+        ];
+
+        return $data;
+    }
+
+    /**
+     * Retrieve a single member record from the database.
+     * 
+     * Used when editing an existing member.
+     * 
+     * @param int $update_id
+     * @return array
+     */
+    public function get_data_from_db(int $update_id): array {
+        $record_obj = $this-&gt;db-&gt;get_where($update_id, 'members');
+
+        if ($record_obj === false) {
+            http_response_code(404);
+            echo 'Member not found';
+            die();
+        }
+
+        $member = (array) $record_obj;
+        return $member;
+    }
+
+    /**
+     * Fetch all members and append a human-readable status.
+     * 
+     * @return array
+     */
+    public function fetch_members(): array {
+        $members = $this-&gt;db-&gt;get('id', 'members');
+
+        foreach ($members as $key =&gt; $member) {
+            $active = (int) $member-&gt;active;
+            $members[$key]-&gt;status = ($active === 1) ? 'active' : 'inactive';
+        }
+
+        return $members;
+    }
+}
+[/code]
+
+<h3>The View (create.php)</h3>
+
+[code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;Member Details&lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;?php
+        echo form_open($form_location, array('class' =&gt; 'highlight-errors'));
+        
+        echo form_label('Username');
+        echo validation_errors('username');
+        echo form_input('username', $username, array('placeholder' =&gt; 'Username...', 'autocomplete' =&gt; 'off'));
+
+        echo form_label('Email Address');
+        echo validation_errors('email_address');
+        echo form_email('email_address', $email_address, array('placeholder' =&gt; 'email@example.com'));
+
+        echo '&lt;label&gt;';
+        echo form_checkbox('active', 1, $active);
+        echo ' Active member';
+        echo '&lt;/label&gt;';
+
+        echo '&lt;div class="text-center"&gt;';
+        echo anchor('members/manage', 'Cancel', array('class' =&gt; 'button alt'));
+
+        if ($update_id &gt; 0) {
+            echo anchor('members/confirm_delete/'.$update_id, 'Delete Member', array('class' =&gt; 'button danger'));
+        }
+
+        echo form_submit('submit', 'Submit');
+        echo '&lt;/div&gt;';
+
+        echo form_close();
+        ?&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>How It Works: The Four Scenarios</h2>
+
+<p>The key to this pattern is the conditional in <code>create()</code>:</p>
+
+[code=php]
+if (($update_id === 0) || ($submit === 'Submit')) {
+    $data = $this-&gt;model-&gt;get_data_from_post();
+} else {
+    $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+}
+[/code]
+
+<p><b>Translation:</b> "If we're creating a new record OR if the form was just submitted (validation error), get data from POST. Otherwise, we're editing an existing record, so get data from the database."</p>
+
+<h3>Scenario 1: Creating a New Record</h3>
+<table class="scenario-table table sm">
+    <tr><td><b>URL</b></td><td><code>/members/create</code></td></tr>
+    <tr><td><b>Condition</b></td><td><code>$update_id === 0</code> is true</td></tr>
+    <tr><td><b>Data Source</b></td><td><code>get_data_from_post()</code> returns empty strings</td></tr>
+    <tr><td><b>Result</b></td><td>Empty form displays</td></tr>
+</table>
+
+<h3>Scenario 2: Editing an Existing Record</h3>
+<table class="scenario-table table sm">
+    <tr><td><b>URL</b></td><td><code>/members/create/5</code></td></tr>
+    <tr><td><b>Condition</b></td><td><code>$submit</code> is empty (GET request)</td></tr>
+    <tr><td><b>Data Source</b></td><td><code>get_data_from_db(5)</code></td></tr>
+    <tr><td><b>Result</b></td><td>Form displays with existing data</td></tr>
+</table>
+
+<h3>Scenario 3: Validation Error</h3>
+<table class="scenario-table table sm">
+    <tr><td><b>Trigger</b></td><td>User submits form with invalid data</td></tr>
+    <tr><td><b>Flow</b></td><td><code>submit()</code> calls <code>create()</code> on failure</td></tr>
+    <tr><td><b>Condition</b></td><td><code>$submit === 'Submit'</code> is true</td></tr>
+    <tr><td><b>Data Source</b></td><td><code>get_data_from_post()</code> with submitted values</td></tr>
+    <tr><td><b>Result</b></td><td>Form redisplays with user's values and error messages</td></tr>
+</table>
+
+<h3>Scenario 4: Successful Submission</h3>
+<table class="scenario-table table sm">
+    <tr><td><b>Trigger</b></td><td>User submits valid form</td></tr>
+    <tr><td><b>Validation</b></td><td>Passes in <code>submit()</code></td></tr>
+    <tr><td><b>Database</b></td><td>Insert or update via <code>get_data_from_post()</code></td></tr>
+    <tr><td><b>Feedback</b></td><td><code>set_flashdata()</code> stores success message</td></tr>
+    <tr><td><b>Result</b></td><td>Redirect to manage page (PRG pattern)</td></tr>
+</table>
+
+<h2>Validation Flow</h2>
+
+<p>Validation happens in <code>submit()</code>, not <code>create()</code>:</p>
+
+<ol>
+    <li>User submits form to <code>submit()</code></li>
+    <li><span class="feature-ref">set_rules()</span> defines validation requirements</li>
+    <li><span class="feature-ref">included-validation-run()</span> executes validation</li>
+    <li><b>If valid:</b> Save data, then invoke <span class="feature-ref">set_flashdata()</span>, followed by <span class="feature-ref">redirect()</span></li>
+    <li><b>If invalid:</b> Errors stored in session, <code>create()</code> gets called to redisplay form</li>
+</ol>
+
+<div class="alert alert-info">
+    <p><b>Key Point:</b> The <code>create()</code> method never validates. It only decides where to get data from (POST or database) and displays the form. Validation is exclusively the responsibility of <code>submit()</code>.</p>
+</div>
+
+<h2>Checkbox Handling</h2>
+
+<p>Checkboxes require special attention because unchecked boxes submit nothing. The following model code demonstrates a robust and consistent way to handle checkboxes:</p>
+
+[code=php]
+public function get_data_from_post(): array {
+    $data = [
+        'username' =&gt; post('username', true),
+        'email_address' =&gt; post('email_address', true),
+        'active' =&gt; (int) (bool) post('active', true)  // 0 or 1
+    ];
+    return $data;
+}
+[/code]
+
+<p>This conversion works for both:</p>
+<ul>
+    <li><b>Database storage:</b> Stores <code>0</code> or <code>1</code> in the database</li>
+    <li><b>Form redisplay:</b> Returns <code>0</code> or <code>1</code>, which <code>form_checkbox()</code> interprets correctly</li>
+</ul>
+
+<h2>The Post-Redirect-Get (PRG) Pattern</h2>
+
+<p>After successful submission, Trongate uses PRG to prevent duplicate submissions:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Step</th>
+            <th>Action</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>POST</td><td>Form submits to <code>submit()</code></td><td>Data received</td></tr>
+        <tr><td>Validate</td><td><code>run()</code> checks data</td><td>Pass or fail</td></tr>
+        <tr><td>Save</td><td>Database insert or update</td><td>Record stored</td></tr>
+        <tr><td>Flashdata</td><td><code>set_flashdata()</code></td><td>Message stored in session</td></tr>
+        <tr><td>Redirect</td><td><code>redirect('members/manage')</code></td><td>Browser receives 302</td></tr>
+        <tr><td>GET</td><td>Browser requests manage page</td><td>Success message displays</td></tr>
+    </tbody>
+</table>
+
+<p>If the user refreshes, they see the manage page (GET)  -  no resubmission warning.</p>
+
+<h2>URL Structure</h2>
+
+<table class="table sm">
+    <thead>
+        <tr><th>URL</th><th>Method</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><code>/members/manage</code></td><td><code>manage()</code></td><td>List all records</td></tr>
+        <tr><td><code>/members/create</code></td><td><code>create()</code></td><td>New record form (empty)</td></tr>
+        <tr><td><code>/members/create/5</code></td><td><code>create()</code></td><td>Edit record form (ID 5)</td></tr>
+        <tr><td><code>/members/submit</code></td><td><code>submit()</code></td><td>Create new record</td></tr>
+        <tr><td><code>/members/submit/5</code></td><td><code>submit()</code></td><td>Update record ID 5</td></tr>
+        <tr><td><code>/members/confirm_delete/5</code></td><td><code>confirm_delete()</code></td><td>Confirm delete ID 5</td></tr>
+    </tbody>
+</table>
+
+<div class="alert alert-success">
+    <ul>
+        <li><b>Two model methods only:</b> <code>get_data_from_post()</code> and <code>get_data_from_db()</code> handle all data loading</li>
+        <li class="mt-1"><b>Single validation location:</b> Always validate in <code>submit()</code>, never in <code>create()</code></li>
+        <li class="mt-1"><b>Consistent checkbox handling:</b> Use <code>(int) (bool) post('field', true)</code> for all checkboxes</li>
+        <li class="mt-1"><b>Flashdata for success:</b> Always use <code>set_flashdata()</code> before redirecting</li>
+        <li class="mt-1"><b>Always redirect after POST:</b> Prevents duplicate submissions on refresh</li>
+        <li class="mt-1"><b>URL conventions:</b> Use <code>/create</code> for forms, <code>/submit</code> for processing</li>
+    </ul>
+</div>
+
+<style>
+.scenario-table {
+    tr > td:nth-child(1) {
+        width: 7em;
+    }
+}
+</style>

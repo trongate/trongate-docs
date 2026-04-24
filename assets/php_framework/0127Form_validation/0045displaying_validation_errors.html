@@ -1,0 +1,176 @@
+[meta-description]Learn the three core ways to display validation errors in Trongate: general errors with validation_errors(), inline field-specific errors, and JSON responses for APIs, with automatic error highlighting and clear usage patterns.[/meta-description]
+
+<h1>Displaying Validation Errors</h1>
+
+<p>When validation fails, Trongate stores errors in <code>$_SESSION['form_submission_errors']</code> and provides three simple ways to display them.</p>
+
+<h2>The Three Display Methods</h2>
+
+<table class="table sm">
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>How to Use</th>
+      <th>Best For</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>General Errors</strong></td>
+      <td><code>validation_errors()</code></td>
+      <td>Simple forms, login pages, admin panels</td>
+    </tr>
+    <tr>
+      <td><strong>Inline Errors</strong></td>
+      <td><code>validation_errors('field_name')</code></td>
+      <td>Long forms, multi-step forms, better UX</td>
+    </tr>
+    <tr>
+      <td><strong>JSON Errors</strong></td>
+      <td><code>validation_errors(422)</code></td>
+      <td>API endpoints, AJAX forms, mobile apps</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Method 1: General Errors (Display All)</h2>
+
+<p>Use <span class="feature-ref">validation_errors()</span> with no arguments to display all validation errors at once, typically at the top of your form.</p>
+
+[code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+
+&lt;?php
+echo form_open($form_location);
+echo form_label('Email');
+echo form_input('email', $email);
+echo form_label('Password');
+echo form_password('password');
+echo form_submit('submit', 'Save');
+echo form_close();
+?&gt;
+[/code]
+
+<p>This approach is ideal for short forms where a single error summary is sufficient.</p>
+
+<h3>Customising Output</h3>
+
+<ul>
+  <li><strong>Wrap each error:</strong>
+    [code=vf]&lt;?= validation_errors('&lt;div class="error"&gt;', '&lt;/div&gt;') ?&gt;[/code]
+  </li>
+  <li><strong>Set global defaults:</strong>
+    [code=php]
+define('ERROR_OPEN', '&lt;div class="alert alert-danger"&gt;');
+define('ERROR_CLOSE', '&lt;/div&gt;');
+    [/code]
+  </li>
+  <li><strong>Wrap the full block:</strong>
+    [code=vf]
+&lt;div class="error-container"&gt;
+  &lt;?= validation_errors() ?&gt;
+&lt;/div&gt;
+    [/code]
+  </li>
+</ul>
+
+<h2>Method 2: Inline Errors (Field-Specific)</h2>
+
+<p>Pass a field name to display errors next to the relevant input. This provides a more precise and user-friendly experience.</p>
+
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Email Address');
+echo validation_errors('email');
+echo form_input('email', $email);
+
+echo form_label('Password');
+echo validation_errors('password');
+echo form_password('password');
+
+echo form_submit('submit', 'Register');
+echo form_close();
+?&gt;
+[/code]
+
+<p>This method is ideal for longer or more complex forms where users benefit from seeing exactly where problems occur.</p>
+
+<h2>Method 3: JSON Errors (APIs and AJAX)</h2>
+
+<p>Pass an HTTP status code (400–499) to return validation errors as JSON and immediately terminate execution.</p>
+
+[code=php]
+public function api_create(): void {
+    $this-&gt;validation-&gt;set_rules('email', 'email address', 'required|valid_email');
+    $this-&gt;validation-&gt;set_rules('password', 'password', 'required|min_length[8]');
+ 
+    if ($this-&gt;validation-&gt;run() === false) {
+        validation_errors(422);
+    }
+    
+    echo json_encode(['success' =&gt; true]);
+}
+[/code]
+
+<p>Example JSON response:</p>
+
+[code=json]
+[
+  {
+    "field": "email",
+    "messages": ["The email address field is required."]
+  }
+]
+[/code]
+
+<div class="alert alert-warning">
+  <p><strong>Important:</strong> The JSON method terminates execution using <code>exit()</code>. No code after <code>validation_errors(422)</code> will run.</p>
+</div>
+
+<h2>Automatic Error Highlighting</h2>
+
+<p>Add the <code>highlight-errors</code> class to your form to automatically highlight fields that failed validation.</p>
+
+[code=vf]
+&lt;?php
+echo form_open($form_location, ['class' =&gt; 'highlight-errors']);
+echo form_label('Email');
+echo form_input('email', $email);
+echo form_label('Password');
+echo form_password('password');
+echo form_submit('submit', 'Login');
+echo form_close();
+?&gt;
+[/code]
+
+<p>When validation errors exist, <span class="feature-ref">form_close()</span> injects JavaScript that applies the <code>form-field-validation-error</code> class to affected fields.</p>
+
+<h2>Choosing the Right Approach</h2>
+
+<ul>
+  <li><strong>Simple forms:</strong> Use general errors</li>
+  <li><strong>Complex forms:</strong> Use inline errors</li>
+  <li><strong>APIs:</strong> Use JSON responses</li>
+</ul>
+
+<div class="alert alert-success">
+  <p><strong>Best Practice:</strong> Choose one primary display method per form. Mixing approaches can lead to a confusing user experience.</p>
+</div>
+
+<h2>Session Behaviour (Advanced)</h2>
+
+<div class="alert alert-info">
+  <p><strong>Good to know:</strong> Validation errors are automatically cleared from the session after they are displayed.</p>
+
+  <p>In most cases, you don’t need to think about this - but for completeness:</p>
+
+  <ul>
+    <li><code>validation_errors()</code> displays all errors and clears them</li>
+    <li><code>validation_errors('field')</code> displays errors for one field and clears only that field’s errors</li>
+    <li><code>validation_errors(422)</code> returns JSON, clears all errors, and terminates execution</li>
+    <li><code>$this-&gt;validation-&gt;run()</code> clears previous errors before running validation again</li>
+  </ul>
+</div>

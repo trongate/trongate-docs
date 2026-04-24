@@ -1,0 +1,235 @@
+[meta-description]Learn how to load and use modules from within model files in Trongate v2 for edge cases requiring non-database functionality like email sending, file processing, or API calls.[/meta-description]
+<h1>Loading Modules From Models</h1>
+
+<p>Most of the time, model files only need database access. That's their job.</p>
+
+<p>But sometimes you need a model to use another module - email sending, file processing, API calls, payment gateways, etc.</p>
+
+<p>Trongate v2 lets you do this explicitly with <code>$this-&gt;module()</code>.</p>
+
+<div class="alert alert-info">
+    <p><strong>Heads up:</strong> This is an edge case. Most models won't need to load and use other modules. If you're just using using your model files for database queries, you can skip this page entirely.</p>
+</div>
+
+<hr>
+
+<h2>The Syntax</h2>
+
+<p>To use a module from within a model file, explicitly load it first:</p>
+
+[code=php]
+&lt;?php
+// In Users_model.php
+class Users_model extends Model {
+    
+    public function send_welcome_email($user) {
+        // Load the email module
+        $this-&gt;module('email_sender');
+        
+        // Now use it
+        $this-&gt;email_sender-&gt;send(
+            $user-&gt;email, 
+            'Welcome to Our Site!', 
+            $this-&gt;build_message($user)
+        );
+    }
+    
+    private function build_message($user) {
+        return "Hello {$user-&gt;name}, welcome aboard!";
+    }
+}
+[/code]
+
+<p>That's it. Call <code>$this-&gt;module('whatever')</code> before using <code>$this-&gt;whatever</code>.</p>
+
+<hr>
+
+<h2>Database vs. Module: The Key Difference</h2>
+
+<p>There's an important distinction to understand:</p>
+
+<h3>Database Access (No module() call needed)</h3>
+
+[code=php]
+// These work automatically - no module() call required
+$users = $this-&gt;db-&gt;get('id', 'users');              // default database
+$stats = $this-&gt;analytics-&gt;get('page_views');        // analytics database
+$stock = $this-&gt;warehouse-&gt;get_where(42, 'items');   // warehouse database
+[/code]
+
+<h3>Module Usage (Requires explicit loading)</h3>
+
+[code=php]
+// Must call module() first
+$this-&gt;module('tax');
+$total = $this-&gt;tax-&gt;calculate($amount);
+
+$this-&gt;module('payment_processor');
+$this-&gt;payment_processor-&gt;charge($customer, $amount);
+[/code]
+
+<div class="alert alert-success">
+    <p><strong>Why the difference?</strong> Database groups are defined in <code>config/database.php</code>, so Trongate knows they're databases. Modules must be explicitly loaded to signal your intent to use a module rather than access a database.</p>
+</div>
+
+<hr>
+
+<h2>Complete Example</h2>
+
+<p>Here's a realistic scenario: processing an order that requires database queries, tax calculation, and email sending.</p>
+
+[code=php]
+&lt;?php
+class Orders_model extends Model {
+    
+    public function process_order($order_id) {
+        // 1. Fetch order from database (automatic)
+        $order = $this-&gt;db-&gt;get_where($order_id, 'orders');
+        
+        if (!$order) {
+            return false;
+        }
+        
+        // 2. Calculate tax using Tax module (requires loading)
+        $this-&gt;module('tax');
+        $tax_amount = $this-&gt;tax-&gt;calculate($order-&gt;subtotal, $order-&gt;state);
+        
+        // 3. Update order total in database (automatic)
+        $update_data = [
+            'tax_amount' =&gt; $tax_amount,
+            'total' =&gt; $order-&gt;subtotal + $tax_amount,
+            'processed_at' =&gt; time()
+        ];
+        $this-&gt;db-&gt;update($order_id, $update_data, 'orders');
+        
+        // 4. Send confirmation email (requires loading)
+        $this-&gt;module('email_sender');
+        $this-&gt;email_sender-&gt;send(
+            $order-&gt;customer_email,
+            'Order Confirmation',
+            $this-&gt;build_confirmation_email($order, $tax_amount)
+        );
+        
+        // 5. Log to analytics database (automatic)
+        $analytics_data = [
+            'order_id' =&gt; $order_id,
+            'amount' =&gt; $update_data['total'],
+            'timestamp' =&gt; time()
+        ];
+        $this-&gt;analytics-&gt;insert($analytics_data, 'order_events');
+        
+        return true;
+    }
+    
+    private function build_confirmation_email($order, $tax_amount) {
+        $message = "Thank you for your order #" . $order-&gt;id . "\n\n";
+        $message .= "Subtotal: $" . number_format($order-&gt;subtotal, 2) . "\n";
+        $message .= "Tax: $" . number_format($tax_amount, 2) . "\n";
+        $message .= "Total: $" . number_format($order-&gt;subtotal + $tax_amount, 2);
+        return $message;
+    }
+}
+[/code]
+
+<p>In this example:</p>
+<ul>
+    <li><code>$this-&gt;db</code> works automatically (default database)</li>
+    <li><code>$this-&gt;analytics</code> works automatically (configured database group)</li>
+    <li><code>$this-&gt;tax</code> requires <code>$this-&gt;module('tax')</code> first</li>
+    <li><code>$this-&gt;email_sender</code> requires <code>$this-&gt;module('email_sender')</code> first</li>
+</ul>
+
+<hr>
+
+<h2>Loading Multiple Modules</h2>
+
+<p>If you need several modules, load them all at the start of your method for clarity:</p>
+
+[code=php]
+public function complex_operation($data) {
+    // Load all required modules upfront
+    $this-&gt;module('tax');
+    $this-&gt;module('email_sender');
+    $this-&gt;module('payment_processor');
+    $this-&gt;module('inventory');
+    
+    // Now use them
+    $tax = $this-&gt;tax-&gt;calculate($data['amount']);
+    $this-&gt;payment_processor-&gt;charge($data['customer'], $tax);
+    // ... etc
+}
+[/code]
+
+<hr>
+
+<h2>Common Use Cases</h2>
+
+<p>You'll typically need <code>$this-&gt;module()</code> in models when:</p>
+
+<ul>
+    <li><strong>Sending emails</strong> after database operations</li>
+    <li><strong>Processing payments</strong> and updating order records</li>
+    <li><strong>Calling external APIs</strong> based on database data</li>
+    <li><strong>Generating PDFs or files</strong> from database content</li>
+    <li><strong>Complex calculations</strong> that live in separate modules (tax, shipping, discounts)</li>
+    <li><strong>Logging or notifications</strong> after data changes</li>
+</ul>
+
+<div class="alert alert-success">
+    <p><strong>Keep it simple:</strong> If your model is loading 5+ modules, consider whether some logic belongs in the controller instead. Models should focus on data operations.</p>
+</div>
+
+<hr>
+
+<h2>What About Controllers?</h2>
+
+<p>Controllers work differently. They support both explicit and automatic module loading:</p>
+
+[code=php]
+// In a controller - both styles work:
+
+// Style 1: Explicit (optional)
+$this-&gt;module('tax');
+$total = $this-&gt;tax-&gt;calculate($amount);
+
+// Style 2: Automatic (recommended in v2)
+$total = $this-&gt;tax-&gt;calculate($amount);  // loads automatically
+[/code]
+
+<p>In models, you must use explicit <code>$this-&gt;module()</code> calls. This keeps the distinction clear: databases are automatic, modules are explicit.</p>
+
+<hr>
+
+<h2>Troubleshooting</h2>
+
+<h3>Error: "Undefined property: Model::$something"</h3>
+
+<p>You tried to use a module without loading it first.</p>
+
+<p><strong>Fix:</strong> Add <code>$this-&gt;module('something')</code> before using <code>$this-&gt;something</code>.</p>
+
+<h3>Error: "Module controller not found"</h3>
+
+<p>The module doesn't exist or isn't named correctly.</p>
+
+<p><strong>Check:</strong></p>
+<ul>
+    <li>Module directory exists: <code>modules/whatever/</code></li>
+    <li>Controller file exists: <code>modules/whatever/Whatever.php</code></li>
+    <li>Class name matches: <code>class Whatever extends Trongate</code></li>
+</ul>
+
+<hr>
+
+<h2>Best Practices</h2>
+
+<div class="alert alert-success">
+    <ul>
+        <li>Load modules at the <strong>start</strong> of your method for clarity</li>
+        <li>Database access <strong>never</strong> needs <code>module()</code> calls</li>
+        <li>If you forget to load a module, the error message will remind you</li>
+        <li>Keep models focused on data - don't turn them into mini-applications</li>
+        <li>When in doubt, put complex orchestration in the controller</li>
+    </ul>
+</div>
+

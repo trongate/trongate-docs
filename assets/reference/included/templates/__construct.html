@@ -1,0 +1,67 @@
+<div class="container">
+  <h1>__construct()</h1>
+  <p class="signature">public function __construct(?string $module_name = null)</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Constructor for the Templates module. Calls parent constructor and blocks direct URL access.
+   </p>
+    <p>
+      <strong>Note:</strong> The framework automatically instantiates Templates via <code>$this->templates</code>. You rarely need to call this constructor manually.
+   </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>module_name</td>
+        <td>string|null</td>
+        <td>The module name (passed by framework for integration with Trongate module system).</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>Constructor does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Automatic instantiation by framework (inside a controller)
+class Products extends Trongate {
+    public function index() {
+        // $this->templates is automatically a Templates instance
+        $this->templates->admin($data);
+    }
+}
+
+// Manual instantiation (rare)
+$templates = new Templates('products');
+[/code]
+</div>

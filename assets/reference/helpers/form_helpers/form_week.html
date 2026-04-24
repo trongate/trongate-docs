@@ -1,0 +1,278 @@
+<div class="container">
+    <h1>form_week()</h1>
+    <p class="signature">function form_week(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+        <p>Generates an HTML week input field with a native browser week picker. The input allows users to select a week and year, submitting data in YYYY-W## format (ISO 8601 week numbering).</p>
+    </div>
+
+    <div class="alert alert-info">
+        <p><strong>Browser Display vs Submitted Format:</strong> Browsers display weeks according to user locale, but always submit in consistent ISO 8601 format (YYYY-W##) that your PHP code can rely on.</p>
+    </div>
+
+    <h2>Demonstration</h2>
+    <p>Below is the native HTML5 week input rendered by <code>form_week()</code>:</p>
+    <div class="code-demo text-center">
+        <p><input type="week" name="work_week"></p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$name</td>
+                <td>string</td>
+                <td>The name attribute for the input element</td>
+                <td>N/A</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>$value</td>
+                <td>string|null</td>
+                <td>The week value in YYYY-W## format (zero-padded)</td>
+                <td>null</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>$attributes</td>
+                <td>array</td>
+                <td>Additional HTML attributes as key-value pairs</td>
+                <td>[]</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>The generated HTML week input element</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Understanding the Attributes Array</h2>
+    <p>The <code>$attributes</code> array accepts standard HTML input attributes. For week inputs, these are particularly useful:</p>
+    <table>
+        <thead>
+            <tr><th>Attribute</th><th>Description</th><th>Example Value</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>min</code></td>
+                <td>Earliest selectable week (YYYY-W##)</td>
+                <td><code>'2025-W01'</code></td>
+            </tr>
+            <tr>
+                <td><code>max</code></td>
+                <td>Latest selectable week (YYYY-W##)</td>
+                <td><code>'2025-W52'</code></td>
+            </tr>
+            <tr>
+                <td><code>required</code></td>
+                <td>Field must have a value</td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td><code>readonly</code></td>
+                <td>Prevent user editing</td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td><code>disabled</code></td>
+                <td>Disable the input</td>
+                <td><code>true</code></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="alert alert-success">
+        <p><strong>Boolean Attributes:</strong> Pass <code>true</code> for boolean attributes like <code>required</code>, <code>readonly</code>, or <code>disabled</code>. This generates clean HTML5 syntax: <code>&lt;input required&gt;</code></p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Week Format:</strong> Week numbers must be zero-padded: <code>W01</code> not <code>W1</code>. January 1st might be in week 52 or 53 of the previous year according to ISO 8601 rules.</p>
+    </div>
+
+    <h2>Example #1: Basic Week Input</h2>
+[code=php]
+echo form_week('work_week');
+[/code]
+
+[code=html]
+Output: &lt;input type="week" name="work_week"&gt;
+[/code]
+
+    <p>The example above shows the simplest usage. This generates a week input where users can select any week using their browser's native week picker.</p>
+
+    <h2>Example #2: Week Input with Default Current Week</h2>
+[code=php]
+public function create(): void {
+    $data['work_week'] = post('work_week', true);
+    
+    // Default to current week if not submitted
+    if ($data['work_week'] === '') {
+        $data['work_week'] = date('Y') . '-W' . str_pad(date('W'), 2, '0', STR_PAD_LEFT);
+    }
+    
+    $data['form_location'] = BASE_URL . 'timesheets/submit';
+    $this->view('timesheet_form', $data);
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+echo form_label('Work Week');
+echo form_week('work_week', $work_week);
+echo form_submit('submit', 'Submit Timesheet');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above shows setting the current week as a default value. Note the use of <code>str_pad()</code> to ensure week numbers are zero-padded (W05 not W5).</p>
+
+    <div class="alert alert-info">
+        <p><strong>Form Repopulation:</strong> After validation errors, use <code>post('field_name', true)</code> in the controller to fetch the submitted value. This returns an empty string if no value was submitted.</p>
+    </div>
+
+    <h2>Example #3: Timesheet System with Constraints</h2>
+[code=php]
+public function timesheet(): void {
+    $data['work_week'] = post('work_week', true);
+    
+    // Set constraints: can only submit timesheets for past 4 weeks
+    $current_year = date('Y');
+    $current_week = date('W');
+    
+    $data['min_week'] = $current_year . '-W' . str_pad(max(1, $current_week - 4), 2, '0', STR_PAD_LEFT);
+    $data['max_week'] = $current_year . '-W' . str_pad($current_week, 2, '0', STR_PAD_LEFT);
+    
+    $data['form_location'] = BASE_URL . 'timesheets/submit';
+    $this->view('timesheet_form', $data);
+}
+
+public function submit(): void {
+    $this->validation->set_rules('work_week', 'work week', 'required|valid_week');
+    $this->validation->set_rules('hours_worked', 'hours worked', 'required|numeric|greater_than[0]');
+    
+    if ($this->validation->run() === true) {
+        $data['work_week'] = post('work_week', true);
+        $data['hours_worked'] = post('hours_worked', true);
+        $data['user_id'] = $_SESSION['user_id'];
+        
+        $this->db->insert($data, 'timesheets');
+        set_flashdata('Timesheet submitted successfully');
+        redirect('timesheets/manage');
+    } else {
+        $this->timesheet();
+    }
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Work Week');
+$week_attrs = [
+    'min' => $min_week,
+    'max' => $max_week,
+    'required' => true
+];
+echo form_week('work_week', $work_week, $week_attrs);
+
+echo form_label('Hours Worked');
+echo form_number('hours_worked', $hours_worked, ['required' => true, 'step' => 0.5, 'min' => 0]);
+
+echo form_submit('submit', 'Submit Timesheet');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates a weekly timesheet system with business constraints. Users can only submit timesheets for the past 4 weeks, preventing submissions for future or very old weeks.</p>
+
+    <div class="alert alert-info">
+        <p><strong>ISO 8601 Week Numbering:</strong> Week numbers follow the ISO 8601 standard where weeks start on Monday. Week 1 is the first week with a Thursday in the new year. This means January 1st might be in week 52 or 53 of the previous year.</p>
+    </div>
+
+    <h2>Example #4: Complete Create/Update Pattern</h2>
+[code=php]
+public function create(): void {
+    $update_id = segment(3, 'int');
+    
+    if ($update_id > 0 && REQUEST_TYPE === 'GET') {
+        // Editing existing record
+        $record = $this->db->get_where($update_id, 'schedules');
+        $data['task_name'] = $record->task_name;
+        $data['schedule_week'] = $record->schedule_week; // Already in YYYY-W## format
+    } else {
+        // New record or validation error
+        $data['task_name'] = post('task_name', true);
+        $data['schedule_week'] = post('schedule_week', true);
+    }
+    
+    $data['form_location'] = BASE_URL . 'schedules/submit/' . $update_id;
+    $this->view('schedule_form', $data);
+}
+
+public function submit(): void {
+    $update_id = segment(3, 'int');
+    
+    $this->validation->set_rules('task_name', 'task name', 'required');
+    $this->validation->set_rules('schedule_week', 'schedule week', 'required|valid_week');
+    
+    if ($this->validation->run() === true) {
+        $data['task_name'] = post('task_name', true);
+        $data['schedule_week'] = post('schedule_week', true);
+        
+        if ($update_id > 0) {
+            $this->db->update($update_id, $data, 'schedules');
+            set_flashdata('Schedule updated successfully');
+        } else {
+            $this->db->insert($data, 'schedules');
+            set_flashdata('Schedule created successfully');
+        }
+        
+        redirect('schedules/manage');
+    } else {
+        $this->create();
+    }
+}
+[/code]
+
+    <p><strong>View file:</strong></p>
+[code=vf]
+&lt;?php
+echo form_open($form_location);
+
+echo form_label('Task Name');
+echo form_input('task_name', $task_name, ['required' => true]);
+
+echo form_label('Schedule Week');
+echo form_week('schedule_week', $schedule_week, ['required' => true]);
+
+echo form_submit('submit', 'Save Schedule');
+echo form_close();
+?&gt;
+[/code]
+
+    <p>The example above demonstrates the standard create/update pattern with a week field. No conversion is needed between the form and database because the YYYY-W## format can be stored directly in a VARCHAR column.</p>
+
+
+    <div class="alert alert-success">
+        <p><strong>Database Storage:</strong> Store week values in a <code>VARCHAR(8)</code> column in YYYY-W## format. This keeps the data human-readable and makes it straightforward to query and filter by specific weeks.</p>
+        <p>Below is an example of a sample value that could be stored in a database column, representing week 51 of the year 2026:</p>
+        [code]2026-W51[/code]
+        <p>Once again, the database column type - in this instance - would be <code>VARCHAR(8)</code>.  The database column name could be something like '<b>target_week</b>' (or whatever you feel is appropriate for your use case).</p>
+
+    </div>
+</div>

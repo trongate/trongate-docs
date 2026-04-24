@@ -1,0 +1,32 @@
+<div class="container">
+  <h1>set_per_page()</h1>
+  <p class="signature">public function set_per_page(): void</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Sets the number of records to display per page in the admin management view. Reads the selected index from URL segment 3, validates it against the available options, stores the preference in the session, and redirects to the manage page.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters (uses URL segment 3 for the per‑page option index). The per‑page options array is defined in the controller (typically: 5, 10, 25, 50).</p>
+  
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+    <tbody><tr><td>void</td><td>Redirects to the manage page.</td></tr></tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// URL: /trongate_administrators/set_per_page/2
+// Index 2 selects the 3rd option (0‑based) from per_page_options array
+// e.g., per_page_options = [5, 10, 25, 50] → index 2 = 25 records per page
+
+// In the manage view (per‑page dropdown)
+&lt;select onchange="window.location.href='&lt;?= BASE_URL ?&gt;trongate_administrators/set_per_page/' + this.value"&gt;
+    &lt;option value="0"&gt;5 per page&lt;/option&gt;
+    &lt;option value="1"&gt;10 per page&lt;/option&gt;
+    &lt;option value="2"&gt;25 per page&lt;/option&gt;
+    &lt;option value="3"&gt;50 per page&lt;/option&gt;
+&lt;/select&gt;
+[/code]
+</div>

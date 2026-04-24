@@ -1,0 +1,65 @@
+<div class="container">
+  <h1>get_js_injection()</h1>
+  <p class="signature">public function get_js_injection(): string</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>Returns JavaScript code that injects validation errors into the page for client‑side highlighting. Includes two parts:</p>
+    <ol>
+      <li>A <code>&lt;script&gt;</code> tag that sets <code>window.trongateValidationErrors</code> to a JSON representation of the errors.</li>
+      <li>A <code>&lt;script src="..."&gt;</code> tag that loads the framework's built‑in error‑highlighting JavaScript.</li>
+    </ol>
+    <p>This method enables automatic field highlighting without additional developer JavaScript.</p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <p>This method accepts no parameters.</p>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>HTML script tags (or empty string if no validation errors exist).</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+// Automatic injection in view template
+&lt;?php
+if (isset($validation_errors)) {
+    echo $this->validation->get_js_injection();
+}
+?&gt;
+
+// Manual injection after failed validation
+public function submit() {
+    $this->validation->set_rules('email', 'Email', 'required|valid_email');
+    if (!$this->validation->run()) {
+        $data['js_injection'] = $this->validation->get_js_injection();
+        $this->view('form', $data);
+        return;
+    }
+}
+
+// The injected JavaScript looks like:
+// &lt;script&gt;window.trongateValidationErrors = {"email":["The Email field is required."]};&lt;/script&gt;
+// &lt;script src="http://localhost/myapp/validation_module/js/highlight_validation_errors.js"&gt;&lt;/script&gt;[/code]
+  
+  <h2>Notes</h2>
+  <ul>
+    <li>Returns an empty string if <code>$_SESSION['form_submission_errors']</code> is not set.</li>
+    <li>The JavaScript file <code>highlight_validation_errors.js</code> is part of the Validation module's assets.</li>
+    <li>JSON is sanitized with <code>JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT</code> flags for safe embedding.</li>
+    <li>The highlighting script automatically finds fields with errors and adds CSS classes (typically <code>validation-error</code>).</li>
+    <li>For custom highlighting, you can read <code>window.trongateValidationErrors</code> in your own JavaScript.</li>
+  </ul>
+</div>
