@@ -1,0 +1,180 @@
+<div class="container">
+  <h1>display()</h1>
+  <p class="signature">public function display(array $pagination_data): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Renders pagination navigation controls with optional "Showing" statement. This method processes the pagination configuration through the model layer for validation, then outputs the complete pagination HTML. The method handles all link types — First, Previous, numbered pages, Next, and Last — with automatically detected or explicitly specified URL roots.
+    </p>
+    <p>
+      If the total number of records does not exceed the limit per page, the method returns early without rendering any output — no unnecessary markup.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$pagination_data</td>
+        <td>array</td>
+        <td colspan="3">An associative array of pagination configuration (see below).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>$pagination_data Keys</h3>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>total_rows</td>
+        <td>int</td>
+        <td>The total number of records being paginated.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>limit</td>
+        <td>int</td>
+        <td>The number of records to display per page.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>record_name_plural</td>
+        <td>string</td>
+        <td>The plural name for the records (e.g., 'products', 'articles') used in the showing statement.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>include_showing_statement</td>
+        <td>bool</td>
+        <td>Whether to display a "Showing X to Y of Z records" statement above the pagination links.</td>
+        <td>false</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>page_num_segment</td>
+        <td>int|null</td>
+        <td>The URL segment containing the current page number. When <code>null</code>, the module auto-detects by checking if the last URL segment is numeric.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>pagination_root</td>
+        <td>string|null</td>
+        <td>The base URL path for pagination links. When <code>null</code>, the module auto-detects from the current URL.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>settings</td>
+        <td>array</td>
+        <td>Custom HTML wrapping for pagination links. Accepts keys such as <code>pagination_open</code>, <code>pagination_close</code>, <code>cur_link_open</code>, <code>cur_link_close</code>, <code>num_link_open</code>, <code>num_link_close</code>, <code>first_link</code>, <code>last_link</code>, <code>prev_link</code>, <code>next_link</code>, and their corresponding <code>*_aria_label</code> keys.</td>
+        <td>[]</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>include_css</td>
+        <td>bool</td>
+        <td>Whether to include default pagination CSS styling.</td>
+        <td>false</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>showing_statement</td>
+        <td>string|null</td>
+        <td>A custom showing statement template. Use <code>{start}</code>, <code>{end}</code>, and <code>{total}</code> as placeholders for dynamic values.</td>
+        <td>null</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>num_links_per_page</td>
+        <td>int</td>
+        <td>The maximum number of page number links to display at once.</td>
+        <td>7</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value. It outputs the pagination HTML directly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1</h2>
+  <p>Basic usage — paginate blog posts with 10 per page and display a showing statement.</p>
+[code=php]public function index(): void {
+    $sql = 'SELECT * FROM blog_posts ORDER BY date_created DESC';
+    $total_rows = $this-&gt;db-&gt;query($sql, ['count'])-&gt;total;
+    $limit = 10;
+    $offset = (segment(2, 'int') - 1) * $limit;
+
+    $data['body'] = $this-&gt;db-&gt;query($sql . " LIMIT $limit OFFSET $offset", ['result']);
+
+    $pagination_data['total_rows'] = $total_rows;
+    $pagination_data['limit'] = $limit;
+    $pagination_data['record_name_plural'] = 'blog posts';
+    $pagination_data['include_showing_statement'] = true;
+
+    $data['pagination'] = $this-&gt;pagination-&gt;display($pagination_data);
+
+    $this-&gt;templates-&gt;public($data);
+}[/code]
+
+  <h2>Example #2</h2>
+  <p>Using a custom showing statement with placeholders and custom HTML settings for styling.</p>
+[code=php]$pagination_data['total_rows'] = 256;
+$pagination_data['limit'] = 20;
+$pagination_data['record_name_plural'] = 'products';
+$pagination_data['include_showing_statement'] = true;
+$pagination_data['showing_statement'] = 'Viewing {start}-{end} of {total} products';
+$pagination_data['num_links_per_page'] = 5;
+$pagination_data['settings']['pagination_open'] = '&lt;nav class="my-pagination"&gt;';
+$pagination_data['settings']['pagination_close'] = '&lt;/nav&gt;';
+$pagination_data['settings']['cur_link_open'] = '&lt;span class="active"&gt;';
+$pagination_data['settings']['cur_link_close'] = '&lt;/span&gt;';
+$pagination_data['settings']['first_link'] = '« First';
+$pagination_data['settings']['last_link'] = 'Last »';
+$this-&gt;pagination-&gt;display($pagination_data);[/code]
+
+  <h2>Example #3</h2>
+  <p>Auto-detected pagination — the module determines the current page and pagination root from the URL automatically.</p>
+[code=php]$pagination_data['total_rows'] = 1200;
+$pagination_data['limit'] = 15;
+$pagination_data['record_name_plural'] = 'images';
+$pagination_data['include_showing_statement'] = true;
+$this-&gt;pagination-&gt;display($pagination_data);[/code]
+
+</div>
