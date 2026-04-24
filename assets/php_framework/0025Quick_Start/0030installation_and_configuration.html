@@ -1,0 +1,55 @@
+[meta-description]Install Trongate in minutes: upload files, configure BASE_URL, set up your database. Never launch with ENV set to dev.[/meta-description]
+<h1>Installation &amp; Configuration</h1>
+
+<p>After downloading Trongate, installation takes only a few minutes. There are no dependency managers, no build steps, and no scaffolding commands. Just upload and configure.</p>
+
+<h2>1. Place the Files on Your Server</h2>
+<p>Upload the contents of the Trongate ZIP file to your web server's document root. On many shared hosts this is a directory called <code>public_html</code> or <code>www</code>. The resulting structure should look like this:</p>
+
+[code]
+your-site.com/
+├── config/
+├── engine/
+├── modules/
+├── public/
+├── uploads/
+├── .htaccess
+└── index.php
+[/code]
+
+<p>The <code>public/</code> directory is the web root. Point your domain to <code>public/</code> if possible &mdash; this keeps the framework files one level above public access for better security.</p>
+
+<h2>2. Configure Your Base URL</h2>
+<p>Open <code>config/config.php</code> and set the <code>BASE_URL</code> constant to the URL where your application will be accessed. Also, set <code>ENV</code> to <code>'dev'</code> for development or <code>'prod'</code> (or <code>'live'</code>) for production:</p>
+
+[code=php]
+define('BASE_URL', 'http://localhost/trongate/');
+define('ENV', 'dev');
+[/code]
+
+<div class="alert alert-danger">
+    <p><strong>Warning:</strong> Never launch a Trongate application into a live or production environment with the ENV constant set to <code>'dev'</code> or <code>'DEV'</code>.</p>
+    <p>When ENV is set to <code>'dev'</code>, the framework may display detailed error messages and debugging information that could expose sensitive details about your application. For production, always set ENV to <code>'prod'</code>, <code>'live'</code>, or any value other than <code>'dev'</code>.</p>
+</div>
+
+<h2>3. Configure Your Database</h2>
+<p>Open <code>config/database.php</code> and enter your database connection details:</p>
+
+[code=php]
+&lt;?php
+$databases = [
+    'default' => [
+        'host' => '127.0.0.1',
+        'port' => '3306',
+        'user' => 'root',
+        'password' => '',
+        'database' => 'trongate'
+    ]
+];[/code]
+
+<p>You can define multiple database groups by adding more entries to the <code>$databases</code> array. Each group can then be accessed from your models using the group name as a property (e.g., <code>$this-&gt;analytics</code>).</p>
+
+<h2>4. Verify the Installation</h2>
+<p>Navigate to the URL you set in <code>BASE_URL</code>. You should see the default Trongate welcome page. If you see a blank page or an error, check that PHP 8.0+ is installed and that your <code>BASE_URL</code> is correct.</p>
+
+<p>That&rsquo;s it. You&rsquo;re ready to build.</p>
