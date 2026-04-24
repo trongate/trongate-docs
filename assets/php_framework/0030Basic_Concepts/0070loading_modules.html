@@ -36,7 +36,7 @@ class Members extends Trongate {
 $vat = $this-&gt;tax-&gt;calculate($amount);
 [/code]
 
-<p>Inside any view:</p>
+<p>Inside any view, use <span class="feature-ref">Modules::run()</span>:</p>
 [code=php]
 &lt;div&gt;&lt;?= Modules::run('users/stats', $user_data) ?&gt;&lt;/div&gt;
 [/code]
