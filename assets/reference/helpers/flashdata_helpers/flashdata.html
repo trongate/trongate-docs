@@ -1,56 +1,102 @@
 <div class="container">
-  <h1>flashdata()</h1>
-  <p class="signature">function flashdata(?string $opening_html = null, ?string $closing_html = null): ?string</p>
-  <h2>Description</h2>
-  <div class="description">
-    <p>Outputs a flash message stored in the session, wrapped in specified HTML tags.</p>
-    <p>If no HTML tags are provided, it defaults to displaying the message within a paragraph tag with green color.</p>
-  </div>
-  <h2>Parameters</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Parameter</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>$opening_html</td>
-        <td>?string</td>
-        <td>Optional. HTML tag(s) to wrap the flash message. If not provided, defaults to `&lt;p style="color: green;"&gt;`.</td>
-        <td>null</td>
-      </tr>
-      <tr>
-        <td>$closing_html</td>
-        <td>?string</td>
-        <td>Optional. Closing HTML tag(s) if opening tag(s) are provided. If not provided, defaults to `&lt;/p&gt;`.</td>
-        <td>null</td>
-      </tr>
-    </tbody>
-  </table>
-  <h2>Return Value</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>?string</td>
-        <td>Returns the flash message string if set, null otherwise.</td>
-      </tr>
-    </tbody>
-  </table>
-  <h2>Example Usage</h2>
-[code=php]
-// Output flash message wrapped in custom HTML tags
-flashdata('&lt;div class="alert alert-success"&gt;', '&lt;/div&gt;');
+    <h1>flashdata()</h1>
+    <p class="signature">function flashdata(?string $opening_html = null, ?string $closing_html = null): ?string</p>
 
-// Output flash message with default paragraph tags
-flashdata();[/code]
+    <h2>Description</h2>
+    <div class="description">
+    <p>Retrieves and returns a one-time flash message from the session, wrapped in configurable HTML. If a message was previously stored via <code>set_flashdata()</code>, this function returns it and immediately clears the session variable so the message is never displayed again. If no message exists, <code>null</code> is returned.</p>
+    <p>The function wraps <code>Modules::run('flashdata/flashdata', [...])</code> internally, converting the two parameters into the associative array expected by the module.</p>
+    <p>The method handles the following behaviour:</p>
+    <ul>
+        <li>If no flash message exists in the session, <code>null</code> is returned — no output is generated.</li>
+        <li>The message is automatically cleared from the session upon retrieval, ensuring it displays only once.</li>
+        <li>Custom HTML wrapping can be provided via the <code>$opening_html</code> and <code>$closing_html</code> parameters for one-off overrides.</li>
+        <li>If no custom wrapping is provided, the function checks for globally defined <code>FLASHDATA_OPEN</code> and <code>FLASHDATA_CLOSE</code> constants.</li>
+        <li>If no constants are defined either, a default green <code>&lt;p&gt;</code> tag is used as a fallback.</li>
+    </ul>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$opening_html</td>
+                <td>?string</td>
+                <td>Optional HTML opening tag(s) to wrap the message. For example: <code>'&lt;div class="alert alert-success"&gt;'</code>. When <code>null</code>, the function falls back to the <code>FLASHDATA_OPEN</code> constant, or a default <code>'&lt;p style="color: green;"&gt;'</code> tag.</td>
+                <td>null</td>
+            </tr>
+            <tr>
+                <td>$closing_html</td>
+                <td>?string</td>
+                <td>Optional HTML closing tag(s) to wrap the message. For example: <code>'&lt;/div&gt;'</code>. When <code>null</code>, the function falls back to the <code>FLASHDATA_CLOSE</code> constant, or a default <code>'&lt;/p&gt;'</code> tag.</td>
+                <td>null</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>?string</td><td>The formatted flash message string wrapped in HTML, or <code>null</code> if no flash message exists in the session.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Usage</h2>
+    <p>Simply call <code>flashdata()</code> with no arguments to display the message with default formatting.</p>
+[code=php]
+// In your view file
+echo flashdata();
+[/code]
+    <p>If a message was set via <code>set_flashdata('Record created successfully')</code>, this outputs something like:</p>
+    <pre>&lt;p style="color: green;"&gt;Record created successfully&lt;/p&gt;</pre>
+
+    <h2>Example #2: Custom HTML Wrapping</h2>
+    <p>Pass custom opening and closing HTML to match your application's design system.</p>
+[code=php]
+echo flashdata(
+    '&lt;div class="alert alert-success" role="alert"&gt;',
+    '&lt;/div&gt;'
+);
+[/code]
+
+    <h2>Example #3: With an Error Alert</h2>
+    <p>Different wrapping for different message types.</p>
+[code=php]
+// In your controller
+set_flashdata('Please check your input and try again.');
+
+// In your view
+echo flashdata(
+    '&lt;div class="alert alert-danger" role="alert"&gt;',
+    '&lt;/div&gt;'
+);
+[/code]
+
+    <h2>Example #4: Using Global Defaults via Config Constants</h2>
+    <p>Define <code>FLASHDATA_OPEN</code> and <code>FLASHDATA_CLOSE</code> in your <code>config/config.php</code> file to set a global default style for all flash messages across your application.</p>
+[code=php]
+// In config/config.php
+define('FLASHDATA_OPEN', '&lt;div class="toast toast-success"&gt;');
+define('FLASHDATA_CLOSE', '&lt;/div&gt;');
+[/code]
+    <p>With these constants defined, calls to <code>flashdata()</code> with no arguments will automatically use your custom wrapping.</p>
+
+    <h2>Notes</h2>
+    <div class="alert alert-success">
+        <ul>
+            <li><strong>One-time only:</strong> The message is automatically removed from the session after retrieval. Refreshing the page will not show the message again.</li>
+            <li><strong>Customisation hierarchy:</strong> Function arguments take precedence over config constants (<code>FLASHDATA_OPEN</code> / <code>FLASHDATA_CLOSE</code>), which take precedence over the default green <code>&lt;p&gt;</code> tag.</li>
+            <li><strong>Null-safe:</strong> It is safe to call <code>flashdata()</code> at any time — whether or not a message exists. If no message is present, <code>null</code> is returned and no output is generated.</li>
+            <li><strong>Paired with set_flashdata():</strong> This function is designed to work with <code>set_flashdata()</code>. Call <code>set_flashdata()</code> before a redirect, then call <code>flashdata()</code> in the destination view.</li>
+            <li><strong>Module equivalent:</strong> <code>flashdata($open, $close)</code> is shorthand for <code>Modules::run('flashdata/flashdata', ['opening_html' =&gt; $open, 'closing_html' =&gt; $close])</code>.</li>
+            <li><strong>Signature difference:</strong> Unlike the module method which accepts an associative array, this helper accepts two distinct string parameters for convenience and readability.</li>
+        </ul>
+    </div>
+
 </div>

@@ -1,46 +1,74 @@
 <div class="container">
-  <h1>set_flashdata()</h1>
-  <p class="signature">function set_flashdata(string $msg): void</p>
-  <h2>Description</h2>
-  <div class="description">
-    <p>Sets a flash message in the session.</p>
-  </div>
-  <h2>Parameters</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Parameter</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>$msg</td>
-        <td>string</td>
-        <td>The message to be set as flash data.</td>
-        <td>N/A</td>
-      </tr>
-    </tbody>
-  </table>
-  <h2>Return Value</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>void</td>
-        <td>This function does not return anything.</td>
-      </tr>
-    </tbody>
-  </table>
-  <h2>Example Usage</h2>
+    <h1>set_flashdata()</h1>
+    <p class="signature">function set_flashdata(string $msg): void</p>
+
+    <h2>Description</h2>
+    <div class="description">
+    <p>Stores a one-time flash message into the session. This is the first half of the flash data pattern — call this function before a redirect, and the message persists in the session until it is retrieved by <code>flashdata()</code> on the next page load.</p>
+    <p>The function wraps <code>Modules::run('flashdata/set_flashdata', $msg)</code> internally, providing a convenient shorthand.</p>
+    </div>
+
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>$msg</td>
+                <td>string</td>
+                <td>The message text to store. This is typically a human-readable notification such as <code>'Record created successfully'</code> or <code>'Changes saved'</code>. The string is stored as-is without any escaping or transformation.</td>
+                <td>N/A</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>void</td><td>This function does not return a value. It stores the message directly in the PHP session via the flashdata module.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic Usage After Form Submission</h2>
+    <p>The most common pattern is to call <code>set_flashdata()</code> after a successful form submission, then redirect to another page where the message will be displayed.</p>
 [code=php]
-set_flashdata("Your data has been saved successfully.");
+public function submit(): void {
+    if (post('submit', true) === 'Submit') {
+        $data = $this-&gt;model-&gt;get_post_data_for_database();
+        $this-&gt;model-&gt;create_new_record($data);
+        set_flashdata('Record created successfully');
+        redirect('tasks/manage');
+    }
+}
 [/code]
+
+    <h2>Example #2: Error Notification</h2>
+    <p>Flash messages are also useful for failure notifications.</p>
+[code=php]
+public function delete(int $id): void {
+    $result = $this-&gt;model-&gt;delete_record($id);
+    if ($result === false) {
+        set_flashdata('Unable to delete record - it may be linked to other data');
+    } else {
+        set_flashdata('Record deleted successfully');
+    }
+    redirect('tasks/manage');
+}
+[/code]
+
+    <h2>Notes</h2>
+    <div class="alert alert-success">
+        <ul>
+            <li><strong>One at a time:</strong> Only a single flash message can be stored. A subsequent call overwrites any existing message.</li>
+            <li><strong>Redirect-friendly:</strong> Flash data survives redirects because it is stored in the session, not in request data.</li>
+            <li><strong>No formatting:</strong> The message is stored as plain text. Use the <code>flashdata()</code> helper to apply HTML wrapping when displaying.</li>
+            <li><strong>Paired with flashdata():</strong> This function is designed to work with <code>flashdata()</code> — call <code>set_flashdata()</code> before a redirect, then call <code>flashdata()</code> in the destination view.</li>
+            <li><strong>Module equivalent:</strong> <code>set_flashdata('message')</code> is shorthand for <code>Modules::run('flashdata/set_flashdata', 'message')</code>.</li>
+        </ul>
+    </div>
+
 </div>
