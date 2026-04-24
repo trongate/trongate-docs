@@ -1,180 +1,49 @@
 <div class="container">
-    <h1>block_url()</h1>
-    <p class="signature">function block_url(string $block_path = ''): void</p>
+  <h1>block_url()</h1>
+  <p class="signature">function block_url(string $block_path = ''): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Blocks direct browser access to a module or a specific module-method combination. This helper prevents certain code from being invoked via URL access while allowing unrestricted internal PHP calls. It compares the current URL segments against the supplied target path and returns a 403 Forbidden response if a match is found.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$block_path</td>
+        <td>string</td>
+        <td>The module or module/method string to block. Use <code>'module'</code> to block all methods, or <code>'module/method'</code> to block a specific method.</td>
+        <td>''</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This function does not return a value; it terminates execution after issuing a 403 Forbidden response if the path matches.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+[code=php]
+// Block all methods in the 'payment' module
+block_url('payment');
 
-    <h2>Description</h2>
-    <div class="description">
-        <p>
-            Blocks direct browser access to a module or a specific module-method combination,
-            while allowing unrestricted internal access from PHP code. 
-            This function provides fine-grained control over URL access, allowing you to protect
-            entire modules or individual methods depending on where you call it.
-       </p>
-        <p>
-            When invoked, the function inspects the current URL segments and compares them 
-            against the supplied module or module/method string in <code>$block_path</code>. 
-            If a match is detected, the request is immediately terminated with a <strong>403 Forbidden</strong> response.
-       </p>
-    </div>
-
-    <div class="alert alert-info">
-        <p>
-            <strong>Performance Note:</strong>
-            This function performs a lightweight string comparison and exits early, making it fast
-            and safe for preventing direct URL invocation.
-       </p>
-    </div>
-
-    <h2>Parameters</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Parameter</th>
-                <th>Type</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>$block_path</td>
-                <td>string</td>
-                <td>
-                    The module name or module/method combination to block.
-                    Examples: <code>'reports'</code> to block all methods in the module,
-                    or <code>'reports/generate_pdf'</code> to block a specific method.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h2>Return Value</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Type</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>void</td>
-                <td>
-                    Does not return a value. If the URL matches the blocked target in <code>$block_path</code>, 
-                    execution stops immediately and a 403 response is sent.
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h2>Example 1: Blocking an Individual Method</h2>
-    <p>
-        Call <code>block_url()</code> at the start of any method to protect just that method
-        while leaving others accessible via URL:
-   </p>
-[code=php]&lt;?php
-class Reports extends Trongate {
-
-    public function dashboard(): void {
-        echo 'Public dashboard';
-    }
-
-    public function generate_pdf(): void {
-        block_url('reports/generate_pdf');
-        // PDF generation logic here
-    }
-
-}[/code]
-    <p>The result:</p>
-    <ul>
-        <li><code>/reports/dashboard</code> → ✓ Works</li>
-        <li><code>/reports/generate_pdf</code> → ✗ Returns 403 Forbidden</li>
-        <li><code>$this-&gt;reports-&gt;generate_pdf()</code> → ✓ Works from code</li>
-    </ul>
-
-    <h2>Example 2: Blocking an Entire Module</h2>
-    <p>
-        Call <code>block_url()</code> inside a constructor to block all methods in the module
-        from being accessed via URL. Ideal for utility modules like payment processors,
-        email handlers, or background workers:
-   </p>
-[code=php]&lt;?php
-class Payment extends Trongate {
-
-    public function __construct() {
-        parent::__construct();
-        block_url('payment');
-    }
-
-    public function process_charge(int $amount): void {
-        // Accessible from code only
-    }
-
-    public function refund(string $transaction_id): void {
-        // Also blocked from URL access
-    }
-
-}[/code]
-    <p>The result:</p>
-    <ul>
-        <li><code>/payment/process_charge</code> → ✗ Returns 403 Forbidden</li>
-        <li><code>/payment/refund</code> → ✗ Returns 403 Forbidden</li>
-        <li><code>$this-&gt;payment-&gt;process_charge(100)</code> → ✓ Works from code</li>
-        <li><code>$this-&gt;payment-&gt;refund('txn_123')</code> → ✓ Works from code</li>
-    </ul>
-
-    <h2>Example 3: Child Module</h2>
-    <p>
-        For modules nested inside other modules, the pattern is identical:
-   </p>
-[code=php]&lt;?php
-// File: modules/shop/shipping/Shipping.php
-class Shipping extends Trongate {
-
-    public function __construct() {
-        parent::__construct();
-        block_url('shop-shipping');
-    }
-
-    public function calculate(float $weight): float {
-        return $weight * 1.2;
-    }
-
-}[/code]
-
-    <h2>Example 4: Standalone Utility Class</h2>
-    <p>
-        If your class does <strong>not</strong> extend <code>Trongate</code>, pass a hard-coded module name:
-   </p>
-[code=php]&lt;?php
-class Image {
-
-    public function __construct() {
-        block_url('image');
-    }
-
-    public function resize(string $path, int $width): void {
-        // Resize logic
-    }
-
-}[/code]
-
-    <div class="alert alert-warning">
-        <p class="mb-0"><strong>Warning:</strong> Do not use <code>block_url()</code> on modules that appear
-        in your <a href="documentation/trongate_php_framework/understanding-routing/custom-routing">custom routing</a>
-        configuration. Mixing the two creates complex behaviour and hard-to-debug issues.</p>
-    </div>
-
-    <div class="alert alert-success">
-        <p><strong>When to Use block_url()</strong></p>
-        <h5>In a method:</h5>
-        <ul>
-            <li>Protect a specific method from direct URL access while allowing other methods to remain public</li>
-        </ul>
-        <h5>In a constructor:</h5>
-        <ul class="mb-0">
-            <li>Block the entire module from URL access</li>
-            <li>All methods remain callable from internal code</li>
-            <li>Provides blanket protection with a single call</li>
-        </ul>
-    </div>
+// Block only the 'process' method in 'payment'
+block_url('payment/process');[/code]
 </div>

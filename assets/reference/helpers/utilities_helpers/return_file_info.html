@@ -3,7 +3,7 @@
   <p class="signature">function return_file_info(string $file_string): array</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Extracts file name and extension from a given file path.</p>
+    <p>Extracts the file name and file extension from a given file path string, returning both as an associative array.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -35,18 +35,13 @@
     <tbody>
       <tr>
         <td>array</td>
-        <td>An associative array containing the 'file_name' and 'file_extension'.</td>
+        <td>An associative array containing <code>file_name</code> and <code>file_extension</code> keys.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-$file_info = return_file_info("/path/to/your/file.jpg");
-echo "File Name: " . $file_info['file_name'] . "\n";
-echo "File Extension: " . $file_info['file_extension'] . "\n";
-// Output:
-// File Name: file
-// File Extension: .jpg[/code]
-  </div>
+[code=php]
+$info = return_file_info('/var/www/uploads/photo.jpg');
+echo $info['file_name'];      // "photo"
+echo $info['file_extension']; // "jpg"[/code]
 </div>

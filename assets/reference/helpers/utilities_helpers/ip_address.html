@@ -3,7 +3,7 @@
   <p class="signature">function ip_address(): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Retrieves the client's IP address.</p>
+    <p>Returns the IP address of the client making the current HTTP request.</p>
   </div>
   <h2>Return Value</h2>
   <table>
@@ -16,14 +16,12 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>Returns the client's IP address.</td>
+        <td>The client's IP address.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-echo ip_address();
-// Output: Client's IP address.[/code]
-  </div>
+[code=php]
+$client_ip = ip_address();
+echo $client_ip; // e.g., "192.168.1.100"[/code]
 </div>
