@@ -73,11 +73,11 @@
 <p>Note that <b>&lt;b&gt;Macbeth&lt;/b&gt;</b> appears more than once in the <code>$haystack</code> variable. However, only the first instance of a matching substring is being removed.</p> 
 
   <div>
-    <pre>$start = '&lt;b&gt;';
+    [code=php]$start = '&lt;b&gt;';
 $end = '&lt;/b&gt;';
 $haystack = 'When &lt;b&gt;Macbeth&lt;/b&gt; speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.';
 echo remove_substr_between($start, $end, $haystack);
-// Output:   When  speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.</pre>
+// Output:   When  speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.[/code]
   </div>
 
 <h2>Example #2</h2>
@@ -85,11 +85,11 @@ echo remove_substr_between($start, $end, $haystack);
 
 
   <div>
-    <pre>$start = '&lt;b&gt;';
+    [code=php]$start = '&lt;b&gt;';
 $end = '&lt;/b&gt;';
 $haystack = 'When &lt;b&gt;Macbeth&lt;/b&gt; speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.';
 echo remove_substr_between($start, $end, $haystack, true);
-// Output:   When  speaks, all listen.  is a forbidden word.</pre>
+// Output:   When  speaks, all listen.  is a forbidden word.[/code]
   </div>
 
 

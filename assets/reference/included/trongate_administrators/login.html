@@ -11,7 +11,7 @@
 <h2>Accessing The Login Page</h2>
   <p>The default administration login page is accessible by navigating to a Trongate application's base URL followed by <b>tg-admin</b>. However, this URL can be customized to a preferred secret login URL by adjusting the 'Trongate_administrators.php' class.</p>
   <p>To set a secret login URL, uncomment the line:</p>
-  <pre>// private $secret_login_segment = 'tg-admin';</pre>
+  [code=php]// private $secret_login_segment = 'tg-admin';[/code]
   <p>Subsequently, update the <b>$secret_login_segment</b> variable with the desired URL segment to set an alternative login URL.</p>
 
   <h2>Parameters</h2>
@@ -51,13 +51,13 @@
   <h2>Example #1</h2>
   <p>The code below illustrates how to create a hyperlink that redirects users to the admin login page upon clicking.  The assumption, for this example, is that the code would be added inside a view file or an HTML template:</p>
   <div>
-    <pre>&lt;?= anchor('tg-admin', 'Admin Login') ?&gt;</pre>
+    [code=php]&lt;?= anchor('tg-admin', 'Admin Login') ?&gt;[/code]
   </div>
 
   <h2>Example #2</h2>
   <p>In this alternative example, a CSS class, named as 'button', is added to a <b>login</b> hyperlink.  This gives the hyperlink the appearance and behaviour of a button:</p>
   <div>
-    <pre>&lt;?= anchor('tg-admin', 'Admin Login', array('class' => 'button')) ?&gt;</pre>
+    [code=php]&lt;?= anchor('tg-admin', 'Admin Login', array('class' => 'button')) ?&gt;[/code]
   </div>
 
 </div>
