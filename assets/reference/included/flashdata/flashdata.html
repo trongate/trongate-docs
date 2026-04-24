@@ -87,42 +87,33 @@
 
  <h2>Example #1: Basic Usage with Helper Function</h2>
  <p>In your view file, simply call <code>flashdata()</code> with no arguments to display the message with default formatting.</p>
- <pre><code>&lt;?php
-// In your view file
-flashdata();
-?&gt;</code></pre>
+ [code=php]flashdata();[/code]
  <p>This outputs something like <code>&lt;p style="color: green;"&gt;Record created successfully&lt;/p&gt;</code> if a message exists, or nothing if there is no message.</p>
 
  <h2>Example #2: Custom HTML Wrapping</h2>
  <p>Pass custom opening and closing HTML to match your application's design system.</p>
- <pre><code>&lt;?php
-flashdata([
-    'opening_html' => '&lt;div class="alert alert-success" role="alert"&gt;',
-    'closing_html' => '&lt;/div&gt;'
-]);
-?&gt;</code></pre>
+ [code=php]flashdata([
+    'opening_html' =&gt; '&lt;div class="alert alert-success" role="alert"&gt;',
+    'closing_html' =&gt; '&lt;/div&gt;'
+]);[/code]
 
  <h2>Example #3: Using Global Defaults via Config Constants</h2>
  <p>Define <code>FLASHDATA_OPEN</code> and <code>FLASHDATA_CLOSE</code> in your <code>config/config.php</code> file to set a global default style for all flash messages across your application.</p>
- <pre><code>&lt;?php
-// In config/config.php
+ [code=php]// In config/config.php
 define('FLASHDATA_OPEN', '&lt;div class="toast toast-success"&gt;');
-define('FLASHDATA_CLOSE', '&lt;/div&gt;');
-?&gt;</code></pre>
+define('FLASHDATA_CLOSE', '&lt;/div&gt;');[/code]
  <p>With these constants defined, calls to <code>flashdata()</code> with no arguments will automatically use your custom wrapping.</p>
 
  <h2>Example #4: Using the Module Directly</h2>
  <p>For explicit routing, call the module method via <code>Modules::run()</code>. This is equivalent to the helper function but gives you direct access to the module method.</p>
- <pre><code>&lt;?php
-$message = Modules::run('flashdata/flashdata', [
-    'opening_html' => '&lt;div class="custom-notification"&gt;',
-    'closing_html' => '&lt;/div&gt;'
+ [code=php]$message = Modules::run('flashdata/flashdata', [
+    'opening_html' =&gt; '&lt;div class="custom-notification"&gt;',
+    'closing_html' =&gt; '&lt;/div&gt;'
 ]);
 
 if ($message !== null) {
     echo $message;
-}
-?&gt;</code></pre>
+}[/code]
 
  <h2>Notes</h2>
  <ul>
