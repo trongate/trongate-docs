@@ -1,0 +1,55 @@
+[meta-description]Create your first Trongate module in minutes. A step-by-step guide to building a Hello World module — no configuration, no scaffolding, just pure PHP.[/meta-description]
+<h1>Your First Module</h1>
+
+<p>In Trongate, everything is a module. Your first module will be a simple page that says hello.</p>
+
+<h2>1. Create the Module Directory</h2>
+<p>Inside your <code>modules/</code> directory, create a folder called <code>hello/</code>:</p>
+
+[code]
+modules/
+└── hello/
+    ├── Hello.php
+    └── views/
+[/code]
+
+<h2>2. Create the Controller</h2>
+<p>Create a file called <code>Hello.php</code> inside the <code>hello/</code> directory:</p>
+
+[code=php]
+class Hello extends Trongate {
+
+    public function index(): void {
+        $data['message'] = 'Hello, world!';
+        $this-&gt;view('greeting', $data);
+    }
+
+}
+[/code]
+
+<h2>3. Create the View</h2>
+<p>Inside <code>hello/views/</code>, create a file called <code>greeting.html</code>:</p>
+
+[code]
+&lt;h1&gt;&lt;?= $message ?&gt;&lt;/h1&gt;
+[/code]
+
+<h2>4. View It in Your Browser</h2>
+<p>Navigate to:</p>
+
+[code]
+http://localhost/trongate/hello
+[/code]
+
+<p>You should see <strong>"Hello, world!"</strong> displayed on the page.</p>
+
+<p>That&rsquo;s all there is to it. Module controllers extend the <code>Trongate</code> class, views are plain PHP files, and URLs map directly to your module and method names. No configuration, no routing setup, no scaffolding commands.</p>
+
+<h2>Next Steps</h2>
+<p>Now that you have a working module, explore the rest of the documentation to learn about:</p>
+<ul>
+    <li><a href="documentation/trongate_php_framework/introduction/the-reason-why-trongate-v2-was-built">The philosophy behind Trongate v2</a></li>
+    <li><a href="documentation/trongate_php_framework/module-fundamentals/modules-ahoy">Modular MVC architecture</a></li>
+    <li><a href="documentation/trongate_php_framework/database-operations/getting-connected">Database interaction</a></li>
+    <li><a href="documentation/trongate_php_framework/form-handling/form-handling-fundamentals">Form handling</a></li>
+</ul>
