@@ -3,7 +3,7 @@
   <p class="signature">function get_last_part(string $str, string $delimiter = '-'): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Retrieves the last part of a string based on a delimiter.</p>
+    <p>Retrieves the last part of a string after splitting it on a given delimiter. This is useful for extracting slugs, IDs, or file extensions from structured strings.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -25,8 +25,8 @@
       <tr>
         <td>$delimiter</td>
         <td>string</td>
-        <td>Optional. The delimiter used to split the string (default: '-').</td>
-        <td>-</td>
+        <td>The delimiter used to split the string.</td>
+        <td>'-'</td>
       </tr>
     </tbody>
   </table>
@@ -46,12 +46,10 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-echo get_last_part("example-string-123");
-// Output: '123'
+[code=php]
+echo get_last_part('category-widget-42');
+// "42"
 
-echo get_last_part("example string", ' ');
-// Output: 'string'[/code]
-  </div>
+echo get_last_part('image.jpg', '.');
+// "jpg"[/code]
 </div>

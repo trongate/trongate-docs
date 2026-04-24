@@ -3,7 +3,7 @@
   <p class="signature">function truncate_words(string $value, int $max_words): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Truncates a string to a specified maximum number of words. If the number of words in the string exceeds the maximum, the string is shortened to the maximum number of words and an ellipsis (...) is appended.</p>
+    <p>Truncates a string to a specified maximum number of words. An ellipsis (<code>...</code>) is appended to indicate that the string has been shortened. This is useful for creating excerpts or previews of longer content.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -25,7 +25,7 @@
       <tr>
         <td>$max_words</td>
         <td>int</td>
-        <td>The maximum number of words allowed in the truncated string.</td>
+        <td>The maximum number of words in the truncated string.</td>
         <td>N/A</td>
       </tr>
     </tbody>
@@ -41,14 +41,14 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>Returns the truncated string with an ellipsis (...) if the original string's word count exceeds the maximum allowed.</td>
+        <td>The truncated string with an ellipsis if truncated.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-echo truncate_words("Hello World! This is a Test String for example purposes.", 5);
-// Output: Hello World! This is a...[/code]
-  </div>
+[code=php]
+$text = "The quick brown fox jumps over the lazy dog.";
+
+echo truncate_words($text, 4);
+// "The quick brown fox..."[/code]
 </div>

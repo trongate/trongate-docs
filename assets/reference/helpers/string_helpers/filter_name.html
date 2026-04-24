@@ -1,9 +1,9 @@
 <div class="container">
   <h1>filter_name()</h1>
-  <p class="signature">function filter_name(string $name, array $allowed_chars = [])</p>
+  <p class="signature">function filter_name(string $name, array $allowed_chars = []): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Filters and sanitizes a name, typically used for usernames.</p>
+    <p>Filters and sanitizes a name string by removing characters that are not typically valid in personal or business names. An optional array of additional allowed characters can be specified to accommodate edge cases.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -12,6 +12,7 @@
         <th>Parameter</th>
         <th>Type</th>
         <th>Description</th>
+        <th>Default</th>
       </tr>
     </thead>
     <tbody>
@@ -19,11 +20,13 @@
         <td>$name</td>
         <td>string</td>
         <td>The input name to be filtered and sanitized.</td>
+        <td>N/A</td>
       </tr>
       <tr>
         <td>$allowed_chars</td>
-        <td>array</td>
-        <td>Optional. An array of allowed characters.</td>
+        <td>string[]</td>
+        <td>An optional array of additional allowed characters beyond the default set.</td>
+        <td>[]</td>
       </tr>
     </tbody>
   </table>
@@ -37,17 +40,16 @@
     </thead>
     <tbody>
       <tr>
-        <td>mixed</td>
-        <td>The filtered and sanitized name (type depends on input).</td>
+        <td>string</td>
+        <td>The filtered and sanitized name string.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-$input_name = '&lt;script&gt;alert("Hello");&lt;/script&gt;';
-$allowed_chars = ['-', '_'];
-echo filter_name($input_name, $allowed_chars);
-// Output: 'alert("Hello");'[/code]
-  </div>
+[code=php]
+echo filter_name("John&lt;script&gt;");
+// "Johnscript"
+
+echo filter_name("O'Brien", ["'", "-"]);
+// "O'Brien"[/code]
 </div>

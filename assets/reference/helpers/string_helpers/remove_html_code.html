@@ -3,7 +3,7 @@
   <p class="signature">function remove_html_code(string $content, string $opening_pattern, string $closing_pattern): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Removes code sections from HTML content based on specified start and end patterns.</p>
+    <p>Removes code sections from HTML content based on specified opening and closing patterns. This is useful for stripping out unwanted markup, comments, or embedded scripts from HTML strings.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -52,11 +52,9 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-$html_content = "&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;?php echo 'This is PHP code'; ?&gt;&lt;/body&gt;&lt;/html&gt;";
-$cleaned_content = remove_html_code($html_content, '&lt;?php', '?&gt;');
-echo $cleaned_content;
-// Output: &lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;/body&gt;&lt;/html&gt;[/code]
-  </div>
+[code=php]
+$html = '&lt;p&gt;Hello&lt;/p&gt;&lt;script&gt;alert("xss")&lt;/script&gt;';
+
+echo remove_html_code($html, '&lt;script&gt;', '&lt;/script&gt;');
+// "&lt;p&gt;Hello&lt;/p&gt;"[/code]
 </div>

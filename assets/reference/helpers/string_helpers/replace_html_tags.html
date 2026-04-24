@@ -3,7 +3,7 @@
   <p class="signature">function replace_html_tags(string $content, array $specifications): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Converts HTML content based on given specifications.</p>
+    <p>Converts HTML content by replacing specified tag patterns with new tags. The specifications array defines the opening and closing strings to find, and what to replace them with.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -25,7 +25,7 @@
       <tr>
         <td>$specifications</td>
         <td>array</td>
-        <td>An array containing specifications for conversion, including opening and closing strings.</td>
+        <td>An associative array with keys: <code>opening_string_before</code>, <code>close_string_before</code>, <code>opening_string_after</code>, <code>close_string_after</code>.</td>
         <td>N/A</td>
       </tr>
     </tbody>
@@ -41,22 +41,21 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>The modified HTML content.</td>
+        <td>The modified HTML content with tags replaced.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-$html_content = "&lt;div class='content'&gt;&lt;p&gt;This is some content.&lt;/p&gt;&lt;/div&gt;";
-$specifications = [
-    'opening_string_before' => '&lt;p&gt;',
-    'close_string_before' => '&lt;/p&gt;',
-    'opening_string_after' => '&lt;div&gt;',
-    'close_string_after' => '&lt;/div&gt;'
+[code=php]
+$html = '&lt;span class="highlight"&gt;Important&lt;/span&gt;';
+
+$specs = [
+    'opening_string_before' => '&lt;span class="highlight"&gt;',
+    'close_string_before' => '&lt;/span&gt;',
+    'opening_string_after' => '&lt;strong&gt;',
+    'close_string_after' => '&lt;/strong&gt;'
 ];
-$modified_content = replace_html_tags($html_content, $specifications);
-echo $modified_content;
-// Output: &lt;div class='content'&gt;&lt;div&gt;This is some content.&lt;/div&gt;&lt;/div&gt;[/code]
-  </div>
+
+echo replace_html_tags($html, $specs);
+// Outputs: &lt;strong&gt;Important&lt;/strong&gt;[/code]
 </div>

@@ -3,8 +3,7 @@
   <p class="signature">function filter_str(string $str, array $allowed_tags = []): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Filters and sanitizes a string, removing any disallowed HTML tags while preserving allowed ones.</p>
-    <p>While similar functionality can be achieved using the <b>out()</b> function, <b>filter_str()</b> offers control over which HTML tags are allowed or removed.</p>
+    <p>Filters and sanitizes a string by removing potentially harmful content while optionally preserving specified HTML tags. This is useful for processing user input that may contain limited HTML formatting.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -13,6 +12,7 @@
         <th>Parameter</th>
         <th>Type</th>
         <th>Description</th>
+        <th>Default</th>
       </tr>
     </thead>
     <tbody>
@@ -20,11 +20,13 @@
         <td>$str</td>
         <td>string</td>
         <td>The input string to be filtered and sanitized.</td>
+        <td>N/A</td>
       </tr>
       <tr>
         <td>$allowed_tags</td>
-        <td>array</td>
-        <td>Optional. An array of allowed HTML tags. Default is an empty array.</td>
+        <td>string[]</td>
+        <td>An optional array of allowed HTML tags, e.g., <code>['p', 'b', 'i']</code>.</td>
+        <td>[]</td>
       </tr>
     </tbody>
   </table>
@@ -44,11 +46,14 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-$input_string = '&lt;script&gt;alert("Hello");&lt;/script&gt;';
-$allowed_tags = ['&lt;p&gt;', '&lt;a&gt;'];
-echo filter_str($input_string, $allowed_tags);
-// Output: 'alert("Hello");'[/code]
-  </div>
+[code=php]
+$input = '&lt;script&gt;alert("xss")&lt;/script&gt;&lt;p&gt;Hello&lt;/p&gt;';
+
+// Strip all tags
+echo filter_str($input);
+// "alert("xss")Hello"
+
+// Allow only <p> tags
+echo filter_str($input, ['p']);
+// "&lt;p&gt;Hello&lt;/p&gt;"[/code]
 </div>

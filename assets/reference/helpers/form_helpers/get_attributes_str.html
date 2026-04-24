@@ -1,0 +1,48 @@
+<div class="container">
+  <h1>get_attributes_str()</h1>
+  <p class="signature">function get_attributes_str(?array $attributes): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Converts an associative array of HTML attributes into a string representation suitable for inclusion in HTML tags. This is used internally by other form helpers to render attributes like <code>class="btn" id="submit-btn"</code> from their array equivalents.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$attributes</td>
+        <td>?array</td>
+        <td>An associative array of HTML attributes where keys are attribute names and values are attribute values.</td>
+        <td>N/A</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>A string representation of HTML attributes, e.g., <code>class="btn" id="submit"</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
+[code=php]
+$attrs = ['class' => 'btn btn-primary', 'id' => 'submit-btn'];
+
+echo get_attributes_str($attrs);
+// 'class="btn btn-primary" id="submit-btn"'[/code]
+</div>

@@ -1,15 +1,12 @@
 <div class="container">
   <h1>filter_string()</h1>
   <p class="signature">function filter_string(string $string, array $allowed_tags = []): string</p>
-  
   <div class="alert alert-warning">
-    <p><strong>Deprecated:</strong> This function is deprecated and will be removed from the Trongate framework on June 3, 2026. Developers are encouraged to globally replace instances of 'filter_string(' with 'filter_str(' throughout their site or application.</p>
+    <p><strong>Deprecated:</strong> This function is deprecated and will be removed from the Trongate framework on June 3, 2026. Developers are encouraged to replace instances of <code>filter_string()</code> with <code>filter_str()</code> throughout their applications.</p>
   </div>
-
   <h2>Description</h2>
   <div class="description">
-    <p>Alias for <code>filter_str()</code> for backward compatibility. Filters and sanitizes a string, removing any disallowed HTML tags while preserving allowed ones.</p>
-    <p>While similar functionality can be achieved using the <b>out()</b> function, <b>filter_string()</b> offers control over which HTML tags are allowed or removed.</p>
+    <p>An alias for <code>filter_str()</code> retained for backward compatibility. Filters and sanitizes a string by removing potentially harmful content while optionally preserving specified HTML tags.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -18,6 +15,7 @@
         <th>Parameter</th>
         <th>Type</th>
         <th>Description</th>
+        <th>Default</th>
       </tr>
     </thead>
     <tbody>
@@ -25,11 +23,13 @@
         <td>$string</td>
         <td>string</td>
         <td>The input string to be filtered and sanitized.</td>
+        <td>N/A</td>
       </tr>
       <tr>
         <td>$allowed_tags</td>
-        <td>array</td>
-        <td>Optional. An array of allowed HTML tags. Default is an empty array.</td>
+        <td>string[]</td>
+        <td>An optional array of allowed HTML tags.</td>
+        <td>[]</td>
       </tr>
     </tbody>
   </table>
@@ -48,12 +48,4 @@
       </tr>
     </tbody>
   </table>
-  <h2>Example Usage</h2>
-  <div>
-    [code=php]
-$input_string = '&lt;script&gt;alert("Hello");&lt;/script&gt;';
-$allowed_tags = ['&lt;p&gt;', '&lt;a&gt;'];
-echo filter_string($input_string, $allowed_tags);
-// Output: 'alert("Hello");'[/code]
-  </div>
 </div>
