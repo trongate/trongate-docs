@@ -3,28 +3,8 @@
   <p class="signature">function get_last_segment(): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>
-      Retrieves the value of the last segment of the current URL. It extracts the last segment by utilizing the 'get_last_part' function, which splits the URL by '/' and returns the last element.
-   </p>
+    <p>Returns the value of the last segment in the current URL.</p>
   </div>
-  <h2>Parameters</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Parameter</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-        <th>Required</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- This method does not accept any parameters -->
-      <tr>
-        <td colspan="5">This method does not accept any parameters.</td>
-      </tr>
-    </tbody>
-  </table>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -36,12 +16,12 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>The last segment of the URL.</td>
+        <td>The last segment of the current URL.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]$invoice_ref = get_last_segment();[/code]
-  </div>
+[code=php]
+// URL: https://example.com/products/view/42
+$last = get_last_segment(); // returns "42"[/code]
 </div>

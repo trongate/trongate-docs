@@ -3,7 +3,7 @@
   <p class="signature">function remove_query_string(string $string): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Remove query string from a URL.</p>
+    <p>Removes the query string from a given URL and returns the clean URL.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -40,9 +40,8 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]
-echo remove_query_string("https://example.com/page?param=value");
-// Output: https://example.com/page[/code]
-  </div>
+[code=php]
+$url = "https://example.com/page?name=test&id=5";
+$clean = remove_query_string($url);
+echo $clean; // "https://example.com/page"[/code]
 </div>

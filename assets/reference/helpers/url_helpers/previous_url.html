@@ -3,7 +3,7 @@
   <p class="signature">function previous_url(): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Retrieves the URL of the previous page, if available.</p>
+    <p>Returns the URL of the previously visited page, if available. This is typically used for "back" links or redirecting users after form submission.</p>
   </div>
   <h2>Return Value</h2>
   <table>
@@ -16,12 +16,12 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>Returns the URL of the previous page as a string.</td>
+        <td>The URL of the previous page, or an empty string if no previous URL is available.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
 [code=php]
-echo previous_url();
-// Output: URL of the previous page if available, otherwise an empty string.[/code]
+$back = previous_url();
+echo $back; // e.g., "https://example.com/products"[/code]
 </div>

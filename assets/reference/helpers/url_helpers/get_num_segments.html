@@ -3,28 +3,8 @@
   <p class="signature">function get_num_segments(): int</p>
   <h2>Description</h2>
   <div class="description">
-    <p>
-      Retrieves the number of segments in the current URL after the base URL. It calculates the number of segments by removing the base URL and then splitting the remaining path into segments using '/' as the delimiter.
-   </p>
+    <p>Returns the number of segments in the current URL after the base URL.</p>
   </div>
-  <h2>Parameters</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Parameter</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-        <th>Required</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- This method does not accept any parameters -->
-      <tr>
-        <td colspan="5">This method does not accept any parameters.</td>
-      </tr>
-    </tbody>
-  </table>
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -41,7 +21,7 @@
     </tbody>
   </table>
   <h2>Example Usage</h2>
-  <div>
-    [code=php]$num_url_segments = get_num_segments();[/code]
-  </div>
+[code=php]
+// URL: https://example.com/products/category/electronics
+$num = get_num_segments(); // returns 3[/code]
 </div>
