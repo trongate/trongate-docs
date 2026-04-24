@@ -47,7 +47,7 @@
   </table>
   <h2>Example Usage</h2>
   <div>
-    <pre>
+    [code=php]
 $html_content = "&lt;div class='content'&gt;&lt;p&gt;This is some content.&lt;/p&gt;&lt;/div&gt;";
 $specifications = [
     'opening_string_before' => '&lt;p&gt;',
@@ -57,6 +57,6 @@ $specifications = [
 ];
 $modified_content = replace_html_tags($html_content, $specifications);
 echo $modified_content;
-// Output: &lt;div class='content'&gt;&lt;div&gt;This is some content.&lt;/div&gt;&lt;/div&gt;</pre>
+// Output: &lt;div class='content'&gt;&lt;div&gt;This is some content.&lt;/div&gt;&lt;/div&gt;[/code]
   </div>
 </div>

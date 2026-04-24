@@ -53,7 +53,7 @@
 
   <h2>Example #1</h2>
   <p>The code sample below demonstrates basic usage of the <code>sort_rows_by_property</code> function with default parameters.</p>
-  <pre>
+  [code=php]
   $data = [
       (object) ['name' => 'John', 'age' => 28],
       (object) ['name' => 'Jane', 'age' => 24],
@@ -67,11 +67,11 @@
   //   (object) ['name' => 'John', 'age' => 28],
   //   (object) ['name' => 'Doe', 'age' => 32],
   // ]
-  </pre>
+  [/code]
 
   <h2>Example #2</h2>
   <p>The code sample below demonstrates a more complex usage of the <code>sort_rows_by_property</code> function, sorting in descending order.</p>
-  <pre>
+  [code=php]
   $data = [
       (object) ['name' => 'Apple', 'price' => 3.5],
       (object) ['name' => 'Orange', 'price' => 2.75],
@@ -85,7 +85,7 @@
   //   (object) ['name' => 'Orange', 'price' => 2.75],
   //   (object) ['name' => 'Banana', 'price' => 1.25],
   // ]
-  </pre>
+  [/code]
 
   <h2>Notes</h2>
   <p>If the specified property does not exist in any of the objects, the behavior of the function may be unpredictable. Ensure that the property exists in each object before calling this function.</p>
