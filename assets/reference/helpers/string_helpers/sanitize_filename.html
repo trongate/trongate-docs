@@ -1,280 +1,67 @@
- <div class="container">
-    <h1>sanitize_filename()</h1>
-    <p class="signature">function sanitize_filename(string $filename, bool $transliteration = true, int $max_length = 200): string</p>
-    
-    <h2>Description</h2>
-    <div class="description">
-        <p>Sanitizes a filename for safe storage and usage on the filesystem and web. This function removes or replaces special characters, handles international characters through transliteration, preserves file extensions, and prevents common security issues.</p>
-        
-        <p>The function leverages <code>url_title()</code> internally to handle the heavy lifting of character conversion and normalization.</p>
-    </div>
-    
-    <div class="alert alert-warning">
-        <p><strong>Security Note:</strong> This function throws an <code>InvalidArgumentException</code> if the filename contains null bytes, which can be used in directory traversal attacks.</p>
-    </div>
-    
-    <h2>Parameters</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Parameter</th>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Default</th>
-                <th>Required</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>$filename</td>
-                <td>string</td>
-                <td>The filename to sanitize (may include file extension).</td>
-                <td>N/A</td>
-                <td>Yes</td>
-            </tr>
-            <tr>
-                <td>$transliteration</td>
-                <td>bool</td>
-                <td>Whether to transliterate international characters to ASCII equivalents. Requires the 'intl' PHP extension.</td>
-                <td>true</td>
-                <td>No</td>
-            </tr>
-            <tr>
-                <td>$max_length</td>
-                <td>int</td>
-                <td>Maximum length for the base filename (excluding extension). Helps prevent filesystem issues.</td>
-                <td>200</td>
-                <td>No</td>
-            </tr>
-        </tbody>
-    </table>
-    
-    <h2>Return Value</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Type</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>string</td>
-                <td>The sanitized filename with preserved and normalized extension.</td>
-            </tr>
-        </tbody>
-    </table>
-    
-    <h2>What Gets Cleaned</h2>
-    <p>The function handles multiple types of problematic characters:</p>
-    <ul>
-        <li><strong>International characters:</strong> Transliterates to ASCII (e.g., "Москва" → "moskva", "café" → "cafe")</li>
-        <li><strong>Special characters:</strong> Removes or converts to dashes (e.g., "@#$%" → "")</li>
-        <li><strong>Whitespace:</strong> Converts to dashes (e.g., "my file.jpg" → "my-file.jpg")</li>
-        <li><strong>Multiple spaces/dashes:</strong> Collapses to single dashes</li>
-        <li><strong>Parentheses and brackets:</strong> Removes them (e.g., "photo (1).jpg" → "photo-1.jpg")</li>
-        <li><strong>File extensions:</strong> Preserves and normalizes to lowercase alphanumeric only</li>
-    </ul>
-    
-    <h2>Example #1</h2>
-    <p>Basic filename sanitization:</p>
+<div class="container">
+  <h1>sanitize_filename()</h1>
+  <p class="signature">function sanitize_filename(string $filename, bool $transliteration = true, int $max_length = 200): string</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Sanitizes a filename for safe storage and usage. This function transliterates international characters, removes or replaces special characters and whitespace, preserves file extensions, prevents null byte attacks, generates fallback names for edge cases, and limits filename length to prevent filesystem issues.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$filename</td>
+        <td>string</td>
+        <td>The filename to sanitize.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>$transliteration</td>
+        <td>bool</td>
+        <td>Whether to transliterate international characters to ASCII.</td>
+        <td>true</td>
+      </tr>
+      <tr>
+        <td>$max_length</td>
+        <td>int</td>
+        <td>Maximum length for the base filename, excluding extension.</td>
+        <td>200</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>string</td>
+        <td>The sanitized filename with preserved extension.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Example Usage</h2>
 [code=php]
-$clean = sanitize_filename('My Photo (1).jpg');
-echo $clean;
-// Output: my-photo-1.jpg
-[/code]
-    
-    <h2>Example #2</h2>
-    <p>The example above shows how to sanitize a user-uploaded filename before storing it on the server.</p>
-[code=php]
-public function upload_document(): void {
-    $user_id = segment(3, 'int');
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' &amp;&amp; isset($_FILES['document'])) {
-        $uploaded_file = $_FILES['document'];
-        
-        // Sanitize the original filename
-        $original_name = $uploaded_file['name'];
-        $safe_filename = sanitize_filename($original_name);
-        
-        // Create user-specific directory if it doesn't exist
-        $upload_dir = 'modules/documents/uploads/' . $user_id;
-        if (!$this-&gt;file-&gt;exists($upload_dir)) {
-            $this-&gt;file-&gt;create_directory($upload_dir, 0755);
-        }
-        
-        $destination = $upload_dir . '/' . $safe_filename;
-        
-        // Move uploaded file
-        if (move_uploaded_file($uploaded_file['tmp_name'], $destination)) {
-            // Store document record in database
-            $data['user_id'] = $user_id;
-            $data['original_filename'] = $original_name;
-            $data['stored_filename'] = $safe_filename;
-            $data['file_path'] = $destination;
-            $data['upload_date'] = time();
-            
-            $this-&gt;model-&gt;insert($data, 'documents');
-            
-            set_flashdata('Document uploaded successfully');
-            redirect('documents/manage/' . $user_id);
-        }
-    }
-}
-[/code]
-    
-    <h2>Example #3</h2>
-    <p>The example above demonstrates handling international filenames with transliteration enabled.</p>
-[code=php]
-public function process_international_upload(): void {
-    $user_id = segment(3, 'int');
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' &amp;&amp; isset($_FILES['document'])) {
-        $uploaded_file = $_FILES['document'];
-        $original_name = $uploaded_file['name'];
-        
-        // Sanitize with transliteration (default behavior)
-        $safe_filename = sanitize_filename($original_name, true);
-        
-        $upload_dir = 'modules/documents/international';
-        if (!$this-&gt;file-&gt;exists($upload_dir)) {
-            $this-&gt;file-&gt;create_directory($upload_dir, 0755);
-        }
-        
-        $destination = $upload_dir . '/' . $safe_filename;
-        
-        if (move_uploaded_file($uploaded_file['tmp_name'], $destination)) {
-            $data['user_id'] = $user_id;
-            $data['original_filename'] = $original_name;
-            $data['stored_filename'] = $safe_filename;
-            $data['file_path'] = $destination;
-            
-            $this-&gt;model-&gt;insert($data, 'documents');
-            
-            set_flashdata('Document uploaded: ' . $original_name);
-            redirect('documents/manage/' . $user_id);
-        }
-    }
-}
-[/code]
-    
-    <div class="alert alert-info">
-        <p><strong>Transliteration Examples:</strong> With transliteration enabled (requires PHP 'intl' extension):
-           </p><ul>
-                <li>"Москва.jpg" becomes "moskva.jpg"</li>
-                <li>"café résumé.pdf" becomes "cafe-resume.pdf"</li>
-                <li>"北京_beijing.jpg" becomes "bei-jing-beijing.jpg"</li>
-            </ul>
-            Without transliteration, international characters are simply removed, which may result in less readable filenames.
-        <p></p>
-    </div>
-    
-    <h2>Example #4</h2>
-    <p>The example above shows handling filenames that may conflict with existing files by adding unique identifiers.</p>
-[code=php]
-public function upload_with_conflict_handling(): void {
-    $user_id = segment(3, 'int');
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' &amp;&amp; isset($_FILES['document'])) {
-        $uploaded_file = $_FILES['document'];
-        $original_name = $uploaded_file['name'];
-        
-        // Sanitize the filename
-        $safe_filename = sanitize_filename($original_name);
-        
-        $upload_dir = 'modules/documents/uploads';
-        if (!$this-&gt;file-&gt;exists($upload_dir)) {
-            $this-&gt;file-&gt;create_directory($upload_dir, 0755);
-        }
-        
-        $destination = $upload_dir . '/' . $safe_filename;
-        
-        // Check if file already exists
-        if ($this-&gt;file-&gt;exists($destination)) {
-            // Extract name and extension
-            $info = pathinfo($safe_filename);
-            $name = $info['filename'];
-            $extension = isset($info['extension']) ? '.' . $info['extension'] : '';
-            
-            // Add timestamp to make filename unique
-            $timestamp = time();
-            $safe_filename = $name . '_' . $timestamp . $extension;
-            $destination = $upload_dir . '/' . $safe_filename;
-        }
-        
-        // Move uploaded file
-        if (move_uploaded_file($uploaded_file['tmp_name'], $destination)) {
-            $data['user_id'] = $user_id;
-            $data['original_filename'] = $original_name;
-            $data['stored_filename'] = $safe_filename;
-            $data['file_path'] = $destination;
-            $data['upload_date'] = time();
-            
-            $this-&gt;model-&gt;insert($data, 'documents');
-            
-            set_flashdata('Document uploaded successfully');
-            redirect('documents/manage/' . $user_id);
-        }
-    }
-}
-[/code]
-    
-    <div class="alert alert-success">
-        <p><strong>Preventing Overwrites:</strong> Always check if a file exists before saving uploads. Add unique identifiers (timestamps, user IDs, or UUIDs) to prevent accidentally overwriting existing files. The <code>sanitize_filename()</code> function doesn't handle conflicts - that's your responsibility.</p>
-    </div>
-    
-    <h2>Example #5</h2>
-    <p>The example above demonstrates using custom length limits for specific use cases.</p>
-[code=php]
-public function create_thumbnail_filename(): void {
-    $document_id = segment(3, 'int');
-    
-    // Get original document
-    $document = $this-&gt;db-&gt;get_where($document_id, 'documents');
-    
-    if ($document === false) {
-        redirect('documents/not_found');
-    }
-    
-    // Create a short thumbnail filename based on original
-    // Use shorter max_length for thumbnail names
-    $original_filename = $document-&gt;original_filename;
-    $safe_name = sanitize_filename($original_filename, true, 50);
-    
-    // Remove extension and add thumbnail suffix
-    $info = pathinfo($safe_name);
-    $base_name = $info['filename'];
-    $thumbnail_filename = $base_name . '_thumb.jpg';
-    
-    // Generate thumbnail (pseudo-code)
-    $source_path = $document-&gt;file_path;
-    $thumb_dir = 'modules/documents/thumbnails';
-    
-    if (!$this-&gt;file-&gt;exists($thumb_dir)) {
-        $this-&gt;file-&gt;create_directory($thumb_dir, 0755);
-    }
-    
-    $thumb_path = $thumb_dir . '/' . $thumbnail_filename;
-    
-    // Create thumbnail image
-    $this-&gt;create_thumbnail_image($source_path, $thumb_path, 150, 150);
-    
-    // Update database record
-    $update_data['thumbnail_path'] = $thumb_path;
-    $this-&gt;model-&gt;update($document_id, $update_data, 'documents');
-    
-    set_flashdata('Thumbnail created successfully');
-    redirect('documents/show/' . $document_id);
-}
+echo sanitize_filename('My Photo (1).jpg');
+// "my-photo-1.jpg"
 
-private function create_thumbnail_image(string $source, string $dest, int $width, int $height): void {
-    // Thumbnail generation logic here
-    // This is a placeholder for the actual implementation
-}
-[/code]
-    
-    <div class="alert alert-info">
-        <p><strong>Length Limits:</strong> Most filesystems support up to 255 bytes for filenames, but the default <code>$max_length</code> of 200 characters leaves room for extensions and gives you flexibility to add suffixes like "_thumb" or timestamps. Adjust this parameter based on your specific needs - shorter for thumbnails, longer for user-facing document names.</p>
-    </div>
+echo sanitize_filename('Москва 2024.png');
+// "moskva-2024.png" (with intl)
 
+echo sanitize_filename('file@#$%.txt');
+// "file.txt"
+
+echo sanitize_filename('my   multiple   spaces.txt');
+// "my-multiple-spaces.txt"[/code]
 </div>

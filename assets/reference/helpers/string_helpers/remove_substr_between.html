@@ -1,14 +1,10 @@
 <div class="container">
   <h1>remove_substr_between()</h1>
   <p class="signature">function remove_substr_between(string $start, string $end, string $haystack, bool $remove_all = false): string</p>
-  
   <h2>Description</h2>
   <div class="description">
-    <p>
-      Removes a portion of a string between two given substrings. If the optional <code>$remove_all</code> parameter is set to <code>true</code>, all matching portions will be removed.
-   </p>
+    <p>Removes a portion of a string between two given substrings. Optionally, all matching portions can be removed rather than just the first occurrence.</p>
   </div>
-  
   <h2>Parameters</h2>
   <table>
     <thead>
@@ -17,41 +13,35 @@
         <th>Type</th>
         <th>Description</th>
         <th>Default</th>
-        <th>Required</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>$start</td>
         <td>string</td>
-        <td>The starting substring.</td>
+        <td>The starting substring marking where removal begins.</td>
         <td>N/A</td>
-        <td>Yes</td>
       </tr>
       <tr>
         <td>$end</td>
         <td>string</td>
-        <td>The ending substring.</td>
+        <td>The ending substring marking where removal ends.</td>
         <td>N/A</td>
-        <td>Yes</td>
       </tr>
       <tr>
         <td>$haystack</td>
         <td>string</td>
         <td>The string from which to remove the substring.</td>
         <td>N/A</td>
-        <td>Yes</td>
       </tr>
       <tr>
         <td>$remove_all</td>
         <td>bool</td>
-        <td>Whether to remove all matching portions.</td>
+        <td>Whether to remove all matching portions. If false, only the first occurrence is removed.</td>
         <td>false</td>
-        <td>No</td>
       </tr>
     </tbody>
   </table>
-  
   <h2>Return Value</h2>
   <table>
     <thead>
@@ -63,34 +53,18 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>The modified string.</td>
+        <td>The modified string with the specified section(s) removed.</td>
       </tr>
     </tbody>
   </table>
-  
-  <h2>Example #1</h2>
-  <p>The code below demonstrates how to remove a portion of text enclosed within HTML bold tags (&lt;b&gt; and &lt;/b&gt;). In this example, the goal is to remove the substring <b>&lt;b&gt;Macbeth&lt;/b&gt;</b> from the <code>$haystack</code> variable.</p>
-<p>Note that <b>&lt;b&gt;Macbeth&lt;/b&gt;</b> appears more than once in the <code>$haystack</code> variable. However, only the first instance of a matching substring is being removed.</p> 
+  <h2>Example Usage</h2>
+[code=php]
+$text = "Hello <!-- comment --> World";
 
-  <div>
-    [code=php]$start = '&lt;b&gt;';
-$end = '&lt;/b&gt;';
-$haystack = 'When &lt;b&gt;Macbeth&lt;/b&gt; speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.';
-echo remove_substr_between($start, $end, $haystack);
-// Output:   When  speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.[/code]
-  </div>
+echo remove_substr_between('<!--', '-->', $text);
+// "Hello  World"
 
-<h2>Example #2</h2>
-<p>In this example, <i>all</i> occurrences of substrings that match the defined conditions are removed by passing a value of <b>true</b> as the optional fourth argument.</p>
-
-
-  <div>
-    [code=php]$start = '&lt;b&gt;';
-$end = '&lt;/b&gt;';
-$haystack = 'When &lt;b&gt;Macbeth&lt;/b&gt; speaks, all listen. &lt;b&gt;Macbeth&lt;/b&gt; is a forbidden word.';
-echo remove_substr_between($start, $end, $haystack, true);
-// Output:   When  speaks, all listen.  is a forbidden word.[/code]
-  </div>
-
-
+$full = "A [note] B [note] C";
+echo remove_substr_between('[', ']', $full, true);
+// "A  B  C"[/code]
 </div>

@@ -3,7 +3,7 @@
   <p class="signature">function truncate_str(string $value, int $max_length): string</p>
   <h2>Description</h2>
   <div class="description">
-    <p>Truncates a string to a specified maximum length. If the string's length exceeds the maximum, it is shortened and an ellipsis (...) is appended.</p>
+    <p>Truncates a string to a specified maximum length. An ellipsis (<code>...</code>) is appended to indicate that the string has been shortened.</p>
   </div>
   <h2>Parameters</h2>
   <table>
@@ -25,7 +25,7 @@
       <tr>
         <td>$max_length</td>
         <td>int</td>
-        <td>The maximum length of the truncated string.</td>
+        <td>The maximum length of the truncated string, including the ellipsis.</td>
         <td>N/A</td>
       </tr>
     </tbody>
@@ -41,12 +41,14 @@
     <tbody>
       <tr>
         <td>string</td>
-        <td>Returns the truncated string with an ellipsis (...) if the original string's length exceeds the maximum length.</td>
+        <td>The truncated string with an ellipsis if truncated.</td>
       </tr>
     </tbody>
   </table>
   <h2>Example Usage</h2>
 [code=php]
-echo truncate_str("Hello World! This is a Test String.", 11);
-// Output: Hello World...[/code]
+$long_text = "This is a very long string that needs to be shortened.";
+
+echo truncate_str($long_text, 20);
+// "This is a very long..."[/code]
 </div>
