@@ -1,4 +1,4 @@
-[meta-description]Discover Trongate v2's Included Modules where core functionality like database interaction, validation, file handling, and security (CSRF, XSS) are now completely open and customisable, living in the modules/ directory. Access them instantly with zero configuration (e.g., $this->db or $this->validation).[/meta-description]
+[meta-description]Discover Trongate v2's Included Modules where core functionality like database interaction, validation, file handling, and security (CSRF, XSS) are now completely open and customisable, living in the modules/ directory. Access them instantly with zero configuration (e.g., $this-&gt;db or $this-&gt;validation).[/meta-description]
 <h1>Introducing Included Modules</h1>
 
 <p>Trongate v1 hid everything in <code>engine/</code>.</p>
@@ -11,13 +11,22 @@
 <p class="sm">Here's all the modules that are included with the Trongate framework.  Click any module name for more details.</p>
 <ul class="modules-list">
     <li><a href="documentation-ref/list_refs/included/db" target="_blank">db</a> ← full database power, no ORM</li>
+    <li><a href="documentation-ref/list_refs/included/endpoint_listener" target="_blank">endpoint_listener</a> ← receive &amp; track API calls</li>
     <li><a href="documentation-ref/list_refs/included/file" target="_blank">file</a> ← upload, download, delete</li>
+    <li><a href="documentation-ref/list_refs/included/flashdata" target="_blank">flashdata</a> ← flash messages for redirects</li>
+    <li><a href="documentation-ref/list_refs/included/form" target="_blank">form</a> ← build &amp; process forms</li>
     <li><a href="documentation-ref/list_refs/included/image" target="_blank">image</a> ← resize, crop, watermark</li>
+    <li><a href="documentation-ref/list_refs/included/language" target="_blank">language</a> ← multi-language support</li>
     <li><a href="documentation-ref/list_refs/included/pagination" target="_blank">pagination</a> ← beautiful links in 3 seconds</li>
-    <li><a href="documentation-ref/list_refs/included/templates" target="_blank">templates</a> ← layouts & partials</li>
+    <li><a href="documentation-ref/list_refs/included/string_service" target="_blank">string_service</a> ← string manipulation made easy</li>
+    <li><a href="documentation-ref/list_refs/included/tasks" target="_blank">tasks</a> ← background job management</li>
+    <li><a href="documentation-ref/list_refs/included/templates" target="_blank">templates</a> ← layouts &amp; partials</li>
     <li><a href="documentation-ref/list_refs/included/trongate_administrators" target="_blank">trongate_administrators</a> ← full admin panel</li>
+    <li><a href="documentation-ref/list_refs/included/trongate_control" target="_blank">trongate_control</a> ← inspect running modules</li>
     <li><a href="documentation-ref/list_refs/included/trongate_security" target="_blank">trongate_security</a> ← CSRF, XSS, headers, the works</li>
     <li><a href="documentation-ref/list_refs/included/trongate_tokens" target="_blank">trongate_tokens</a> ← one-time tokens</li>
+    <li><a href="documentation-ref/list_refs/included/url" target="_blank">url</a> ← URL helper methods</li>
+    <li><a href="documentation-ref/list_refs/included/utilities" target="_blank">utilities</a> ← utility helpers for everyday tasks</li>
     <li><a href="documentation-ref/list_refs/included/validation" target="_blank">validation</a> ← stop bad data, fast</li>
     <li><a href="documentation-ref/list_refs/included/welcome" target="_blank">welcome</a> ← the module that renders your homepage</li>
 </ul>
@@ -40,15 +49,15 @@
 <p>Loading modules from controller files is easy:</p>
 [code=php]
 // From any controller – it just works
-$rows        = $this->db->get('products');
-$is_valid    = $this->validation->run($post);
-$upload_info = $this->file->upload($config);
-$resized     = $this->image->resize('uploads/pic.jpg', 800, 600);
+$rows        = $this-&gt;db->get('products');
+$is_valid    = $this-&gt;validation-&gt;run($post);
+$upload_info = $this-&gt;file-&gt;upload($config);
+$resized     = $this-&gt;image-&gt;resize('uploads/pic.jpg', 800, 600);
 [/code]
 
 <p>You can also call modules from within view files.  For example:</p>
-[code=vf]
-<?= Modules::run('pagination/show', $pagination_data) ?>
+[code=php]
+&lt;?= Modules::run('pagination/show', $pagination_data) ?&gt;
 [/code]
 
 <p>No registration. No config files. No tears.</p>
