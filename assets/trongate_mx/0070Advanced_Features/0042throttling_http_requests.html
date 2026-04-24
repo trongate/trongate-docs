@@ -178,12 +178,12 @@ public function submit_country() {
 <li>Retrieves the posted 'country' value using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">post()</span> helper function.</li>
 <li>If the posted value is empty, it returns a 200 status code with an empty response body, which will clear the suggestions.</li>
 <li>Constructs an SQL query to find countries that start with the posted 'country' value.</li>
-<li>Executes the query using Trongate's Model class <span class="feature-ref" ref-path="class_reference/The_Model_Class">query_bind()</span> method, which handles parameter binding for security.</li>
+<li>Executes the query using Trongate's Model class <span class="feature-ref" ref-path="class_reference/the_model_class">query_bind()</span> method, which handles parameter binding for security.</li>
 <li>Loads a view file ('autocomplete_suggestions.php') to display the results as datalist options.</li>
 </ol>
 
 <h3>View File (autocomplete_suggestions.php):</h3>
-<p>The view file, containing the list of potential matches, is rendered by invoking the <span class="feature-ref" ref-path="class_reference/The_Trongate_Class">view()</span> method.</p>
+<p>The view file, containing the list of potential matches, is rendered by invoking the <span class="feature-ref" ref-path="class_reference/the_trongate_class">view()</span> method.</p>
 
 [code=php]
 $this-&gt;view('autocomplete_suggestions', $data);
