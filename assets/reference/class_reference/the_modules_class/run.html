@@ -1,0 +1,84 @@
+<div class="container">
+  <h1>run()</h1>
+  <p class="signature">public static function run(string $module_method, mixed $data = null): mixed</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Executes a module controller method from anywhere — controllers, views, or models — by passing the module/method string and optional data. Accepts any PHP data type as the second parameter.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$module_method</td>
+        <td>string</td>
+        <td>The target module and method in "Module/Method" format (e.g. <code>'users/stats'</code>)</td>
+      </tr>
+      <tr>
+        <td>$data</td>
+        <td>mixed</td>
+        <td>(optional) Data to pass to the target method. Accepts any PHP type: strings, integers, arrays, objects, booleans, or null.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>Returns whatever the target method returns. No type restriction.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example #1: Passing a String</h2>
+[code=php]
+$result = Modules::run('email/send', 'john@example.com');
+[/code]
+
+  <h2>Example #2: Passing an Integer</h2>
+[code=php]
+$profile = Modules::run('users/get_profile', 88);
+[/code]
+
+  <h2>Example #3: Passing an Array</h2>
+[code=php]
+$order_data = [
+    'order_id' => 12345,
+    'customer' => 'Jane Smith',
+    'items' => [
+        ['id' => 1, 'qty' => 2, 'price' => 19.99]
+    ]
+];
+$invoice = Modules::run('orders/generate_invoice', $order_data);
+[/code]
+
+  <h2>Example #4: Passing null</h2>
+[code=php]
+$default_view = Modules::run('dashboard/load_default', null);
+[/code]
+
+  <h2>Notes</h2>
+  <ul>
+    <li>The <code>Modules::run()</code> method is callable from controllers, views, and models</li>
+    <li>The first parameter must be in <code>Module/Method</code> format — case-insensitive for both segments</li>
+    <li>If the target module is a child module, use hyphenated format: <code>'parent-child/method'</code></li>
+    <li>When <code>$data</code> is null, the target method is called without parameters</li>
+    <li>Throws <code>Exception</code> if the controller or method is not found</li>
+  </ul>
+</div>
