@@ -105,7 +105,7 @@ class Payment extends Trongate {
 <div class="alert alert-info">
     <p><strong>PRO-TIP: Avoiding "Ghost" 403 Errors</strong></p>
     <p>If you are blocking an entire module inside a constructor, it is best practice to use a <b>literal string</b> (e.g., <code>block_url('payment');</code>) rather than a dynamic variable.</p>
-    <p class="mb-0">This ensures that if your module is ever loaded as a service by another controller, you don't accidentally block the caller's URL. For more details on how modules interact, see <a href="documentation/mastering-constructors">Mastering Constructors</a>.</p>
+    <p class="mb-0">This ensures that if your module is ever loaded as a service by another controller, you don't accidentally block the caller's URL. For more details on how modules interact, see <a href="documentation/trongate_php_framework/tips-and-best-practices/mastering-constructors" target="_blank">Mastering Constructors</a>.</p>
 </div>
 
 <p>The result:</p>
