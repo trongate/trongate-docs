@@ -36,7 +36,7 @@ class Members extends Trongate {
 $vat = $this-&gt;tax-&gt;calculate($amount);
 [/code]
 
-<p>Inside any view, use <span class="feature-ref">Modules::run()</span>:</p>
+<p>Inside any view, use <span class="feature-ref">class-modules-run()</span>:</p>
 [code=php]
 &lt;div&gt;&lt;?= Modules::run('users/stats', $user_data) ?&gt;&lt;/div&gt;
 [/code]
@@ -47,7 +47,7 @@ $vat = $this-&gt;tax-&gt;calculate($amount);
     <p>You're <em>very</em> welcome.</p>
 </div>
 
-<h2>Passing Data? Pass <strong>ANYTHING</strong>.</h2>
+<h2><span class="feature-ref">class-modules-run()</span> — Pass <strong>ANYTHING</strong>.</h2>
 
 <div class="alert alert-success">
     <p>The second parameter of <code>Modules::run()</code> accepts <strong>ANY PHP data type</strong>:</p>
