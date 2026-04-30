@@ -1,51 +1,26 @@
-<h1>Hiding The Admin Login URL</h1>
+[meta-description]The Universal Login Module replaces the old secret login URL approach. Learn why public login URLs are more secure and how the new system works.[/meta-description]
+<h1>Hiding The Admin Login URL &mdash; Deprecated</h1>
 
-<p>If someone attempts to hack into your admin panel, they will typically target common entry points such as the default admin login URL and the URL that processes post requests from the login form. Knowing your login URL doesn't mean they have succeeded, but it <i>does</i> give them a useful foothold for malicious activity.</p>
+<div class="alert alert-warning">
+    <p><strong>Note:</strong> This page describes a technique used by previous versions of Trongate. The Universal Login Module (shipped with Trongate v2) replaces this approach entirely. Security through obscurity is no longer recommended &mdash; the new login module is secure by design.</p>
+</div>
 
-<p>Therefore, it's a security best practice to keep your admin login URL secret  -  ideally impossible to guess  -  to make it much harder for attackers to gain access.</p>
+<h2>The Old Approach</h2>
+<p>In previous versions of Trongate, the <code>trongate_administrators</code> module featured a configurable <code>$secret_login_segment</code> property. Administrators could set a private word that acted as the login URL, making it harder for attackers to find the login page. Custom routing mapped this secret word to <code>trongate_administrators/login</code>.</p>
 
-<p>By default, the admin login URL for Trongate websites is the base URL followed by <strong>trongate_administrators/login</strong>.  For example:</p>
+<p>However, this approach had a known vulnerability: an unauthenticated request to <code>trongate_administrators/logout</code> would redirect to the secret login URL, revealing it in the HTTP response headers. This meant the secret was exposed to anyone who knew where to look.</p>
 
-[code]https://example.com/trongate_administrators/login[/code]
+<h2>Why We Changed</h2>
+<p>The new Universal Login Module takes a different approach. Instead of hiding the login URL, it focuses on:</p>
+<ul>
+    <li><strong>Secure credential validation</strong> &mdash; Timing-safe hash comparison prevents enumeration attacks</li>
+    <li><strong>Brute-force protection</strong> &mdash; Configurable rate limiting blocks repeated failed attempts</li>
+    <li><strong>Configurable view styles</strong> &mdash; Three different login page layouts to suit your site's design</li>
+    <li><strong>Multi-table support</strong> &mdash; Authenticate administrators, members, or any user type from one module</li>
+</ul>
 
-<p>Additionally, a shorter URL using the base URL followed by <strong>tg-admin</strong> is also supported.</p> 
+<h2>How It Works Now</h2>
+<p>The login module is accessed at the public URL <code>login/login</code>. This is intentional &mdash; a discoverable, well-audited login page with proper security controls is more robust than a hidden one that can be leaked through a redirect.</p>
 
-[code]https://example.com/tg-admin[/code]
-
-<p>This shorter alias works because of custom routing defined in the <code>custom_routing.php</code> file inside the <code>config</code> directory.</p>
-
-
-<h2>How To Create A Secret Admin Login URL</h2>
-
-<h3>Step 1: Choose a Secret Word</strong></h3>
-<p>Select a word that is difficult to guess but meaningful and easy for the site owner to remember. This can be a made-up word or a combination of words. Avoid spaces or special characters.</p>
-
-<p>For example, if you choose <strong>fantasticola</strong>, your new admin login URL would be:</p>
-
-[code]https://example.com/fantasticola[/code]
-
-<h3 class="mt-3">Step 2: Update Your Custom Routing File</h3>
-<p>Next, open the <code>custom_routing.php</code> file inside the <code>config</code> directory. Replace all instances of <code>tg-admin</code> with your secret word.</p>
-
-<p>For example, after modification (using <code>fantasticola</code>) you would have:</p>
-
-[code=php]&lt;?php
-$routes = [
-  "fantasticola" =&gt; "trongate_administrators/login",
-  "fantasticola/submit_login" =&gt; "trongate_administrators/submit_login"
-];
-
-define("CUSTOM_ROUTES", $routes);
-[/code]
-
-<h3 class="mt-3">Step 3: Declare Your Secret Login Segment</h3>
-<p>Finally, open <code>Trongate_administrators.php</code>. If you are using Trongate version 1.3.3031 or higher, around line 12 you will find the following commented line:</p>
-
-[code=php]//private $secret_login_segment = "tg-admin";[/code]
-
-<p>Uncomment this line and replace <code>"tg-admin"</code> with your chosen secret word.  For example:</p>
-
-[code=php]private $secret_login_segment = "fantasticola";[/code]
-
-<h3 class="mt-3">Done!</h3>
-<p>Once these steps are complete, the default admin login URL (<code>trongate_administrators/login</code>) will return a 404 error, effectively hiding it. To access the admin panel, users must navigate to your base URL followed by your secret word (e.g., <code>https://example.com/fantasticola</code>).</p>
+<h2>Migrating to the New System</h2>
+<p>If you are upgrading an existing project, please refer to the <a href="documentation/trongate_php_framework/tips-and-best-practices/migrating-to-the-universal-login-module">Migrating to the Universal Login Module</a> guide for step-by-step instructions.</p>

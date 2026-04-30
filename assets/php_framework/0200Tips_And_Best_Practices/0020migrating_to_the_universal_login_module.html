@@ -1,0 +1,211 @@
+[meta-description]A step-by-step guide for migrating existing Trongate projects from the old trongate_administrators authentication system to the new Universal Login Module.[/meta-description]
+<h1>Migrating to the Universal Login Module</h1>
+
+<p>Trongate now ships with a Universal Login Module that replaces the authentication built into the <code>trongate_administrators</code> module. The new module supports multiple user levels, works with any user table (administrators, members, subscribers, etc.), and offers three configurable view styles.</p>
+
+<p>This guide walks you through upgrading an existing Trongate project.</p>
+
+<h2>What Changed</h2>
+<p>The <code>trongate_administrators</code> module previously handled its own login, logout, and authentication logic. In the new architecture, all authentication is handled by the <code>login</code> module. The old methods &mdash; <code>login()</code>, <code>submit_login()</code>, <code>log_user_in()</code>, <code>login_check()</code>, <code>not_allowed()</code>, <code>police_secret_login_url()</code>, and <code>make_sure_login_attempt_allowed()</code> &mdash; have been removed from the <code>trongate_administrators</code> controller.</p>
+
+<p>The <code>login</code> module handles credential validation, token generation, failed attempt tracking, and session management. The <code>trongate_administrators</code> module now focuses purely on user administration (create, edit, delete, manage).</p>
+
+<h2>Prerequisites</h2>
+<ul>
+    <li>Trongate v2.0 or higher</li>
+    <li>The <code>login</code> module present in your <code>modules/</code> directory</li>
+    <li>The <code>config/login.php</code> configuration file</li>
+    <li>The <code>config/login_routes.php</code> routing file (if using custom routing)</li>
+</ul>
+
+<h2>Step-by-Step Migration</h2>
+
+<h3>Step 1: Copy the New Modules</h3>
+<p>Copy the following directories from the latest Trongate release into your project:</p>
+<ul>
+    <li><code>modules/login/</code> &mdash; The new login module (including <code>forgot_password/</code> child module)</li>
+    <li><code>modules/trongate_administrators/</code> &mdash; The updated administrators module (without its own auth)</li>
+</ul>
+
+<h3>Step 2: Copy the Configuration Files</h3>
+<p>Copy these files from the latest release:</p>
+<ul>
+    <li><code>config/login.php</code> &mdash; Login module configuration (user level mappings, view style, redirect URLs)</li>
+    <li><code>config/login_routes.php</code> &mdash; Optional routing for custom login URLs</li>
+</ul>
+
+<h3>Step 3: Configure the Login Module</h3>
+<p>Open <code>config/login.php</code>. This file defines how the login module works for each user level. A typical configuration for administrators looks like this:</p>
+
+[code=php]
+&lt;?php
+$config['login'] = [
+
+    'default_user_level' =&gt; 1,
+    'max_failed_attempts' =&gt; 3,
+    'block_duration' =&gt; 900,
+    'password_hash_cost' =&gt; 11,
+    'default_view_file' =&gt; 'login_compact',
+
+    'smtp' =&gt; [
+        'host' =&gt; '',
+        'port' =&gt; '587',
+        'username' =&gt; '',
+        'password' =&gt; '',
+        'encryption' =&gt; 'tls',
+        'from_email' =&gt; '',
+        'from_name' =&gt; ''
+    ],
+
+    'reset_token_lifespan' =&gt; 3600,
+
+    'user_levels' =&gt; [
+
+        1 =&gt; [
+            'target_table'       =&gt; 'trongate_administrators',
+            'user_ref_field'     =&gt; 'trongate_user_id',
+            'redirect_on_success' =&gt; 'trongate_administrators/manage',
+            'allow_remember'     =&gt; 0,
+            'remember_days'      =&gt; 0,
+            'view_file'          =&gt; 'login_split',
+            'fields'             =&gt; [
+                'identifiers' =&gt; [
+                    'username' =&gt; [
+                        'column' =&gt; 'username',
+                        'label'  =&gt; 'Username'
+                    ],
+                    'email' =&gt; [
+                        'column' =&gt; 'email',
+                        'label'  =&gt; 'Email'
+                    ]
+                ],
+                'password' =&gt; [
+                    'column' =&gt; 'password',
+                    'label'  =&gt; 'Password'
+                ]
+            ]
+        ],
+
+        2 =&gt; [
+            'target_table'       =&gt; 'members',
+            'user_ref_field'     =&gt; 'trongate_user_id',
+            'redirect_on_success' =&gt; 'members/dashboard',
+            'allow_remember'     =&gt; 1,
+            'remember_days'      =&gt; 30,
+            'view_file'          =&gt; 'login_default',
+            'fields'             =&gt; [
+                'identifiers' =&gt; [
+                    'email_address' =&gt; [
+                        'column' =&gt; 'email_address',
+                        'label'  =&gt; 'Email Address'
+                    ]
+                ],
+                'password' =&gt; [
+                    'column' =&gt; 'password',
+                    'label'  =&gt; 'Password'
+                ]
+            ]
+        ]
+
+    ]
+];
+[/code]
+
+<h3>About the Identifiers Array</h3>
+<p>The <code>identifiers</code> array replaces the single <code>identifier</code> field from earlier versions. Each entry defines a column name and label for an acceptable login identifier. Users can log in with <strong>any</strong> of the configured identifiers &mdash; for example, an administrator can use either their username or their email address, along with their password.</p>
+
+<p>Map your database column names directly. Common examples:</p>
+
+[code=php]
+'identifiers' =&gt; [
+    'username' =&gt; ['column' =&gt; 'user_name', 'label' =&gt; 'Username'],
+    'email'    =&gt; ['column' =&gt; 'customer_email', 'label' =&gt; 'Email']
+]
+[/code]
+
+<p>If your table only supports one identifier (e.g. email-only for a members table), simply declare a single entry:</p>
+
+[code=php]
+'identifiers' =&gt; [
+    'email_address' =&gt; ['column' =&gt; 'email', 'label' =&gt; 'Email Address']
+]
+[/code]
+
+<p>The label you set determines what the login form shows. When multiple identifiers are configured, they are combined automatically (e.g. "Username or Email").</p>
+
+<div class="alert alert-info">
+    <p>For multiple user levels, add additional entries to the <code>user_levels</code> array. Each entry maps a user level ID to its corresponding database table and identifier configuration.</p>
+</div>
+
+<h3>Step 4: Update the Updated Administrators Module</h3>
+<p>If you have made custom changes to your <code>trongate_administrators</code> module, you will need to merge the changes rather than overwriting. The key modifications are:</p>
+
+<ol>
+    <li><strong>Remove the <code>$secret_login_segment</code> property</strong> &mdash; This concept has been removed. The login module uses public URLs.</li>
+    <li><strong>Update <code>logout()</code></strong> &mdash; It should now redirect to <code>login/logout</code> instead of a local login URL.</li>
+    <li><strong>Update <code>make_sure_allowed()</code></strong> &mdash; It should redirect to <code>login/login</code> when unauthenticated, instead of trying to auto-login or redirecting to a secret URL.</li>
+    <li><strong>Remove login-related methods</strong> &mdash; Remove <code>login()</code>, <code>submit_login()</code>, <code>log_user_in()</code>, <code>login_check()</code>, <code>not_allowed()</code>, <code>police_secret_login_url()</code>, and <code>make_sure_login_attempt_allowed()</code>.</li>
+    <li><strong>Remove auth-related model methods</strong> &mdash; Remove <code>validate_credentials()</code>, <code>verify_password()</code>, <code>get_timing_safe_hash()</code>, <code>log_user_in()</code>, <code>after_login_tasks()</code>, <code>is_login_attempt_allowed()</code>, <code>remove_expired_restrictions()</code>, <code>increment_failed_login_attempts()</code>, and <code>get_any_active_user()</code>.</li>
+    <li><strong>Remove old views</strong> &mdash; Delete <code>modules/trongate_administrators/views/login.php</code> and <code>not_allowed.php</code>.</li>
+</ol>
+
+<h3>Step 5: Update Custom Routing (If Applicable)</h3>
+<p>If your project used custom routing to alias the admin login URL (e.g., <code>tg-admin</code>), you can remove those routes. The new login module uses the URL <code>login/login</code>, which is intentionally public and discoverable &mdash; this is more secure than obscurity.</p>
+
+<p>If you were using routing like this:</p>
+
+[code=php]
+"tg-admin" => "trongate_administrators/login"
+[/code]
+
+<p>You can now remove it, or repurpose it to redirect to the login module:</p>
+
+[code=php]
+"tg-admin" => "login/login"
+[/code]
+
+<h2>View Styles</h2>
+<p>The login module ships with three view styles, configurable via the <code>view_file</code> setting in each user level's configuration:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>View File</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>login_default</strong></td>
+            <td>Centred login card with a clean, professional layout</td>
+        </tr>
+        <tr>
+            <td><strong>login_compact</strong></td>
+            <td>Minimal login form, ideal for embedded or lightweight use</td>
+        </tr>
+        <tr>
+            <td><strong>login_split</strong></td>
+            <td>Two-column layout with login form on one side and branding or illustration on the other</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>What You Gain</h2>
+<ul>
+    <li><strong>Multi-table support</strong> &mdash; Authenticate against any user table, not just <code>trongate_administrators</code></li>
+    <li><strong>Multi-identifier login</strong> &mdash; Users can log in with their username, email address, or any combination defined in your config</li>
+    <li><strong>Configurable view styles</strong> &mdash; Choose from three different login page layouts</li>
+    <li><strong>Forgot password flow</strong> &mdash; Built-in password reset with SMTP-based email delivery and token-based reset links</li>
+    <li><strong>Brute-force protection</strong> &mdash; Configurable rate limiting and failed-attempt tracking</li>
+    <li><strong>Timing-safe hash comparison</strong> &mdash; Protection against timing-based enumeration attacks</li>
+    <li><strong>No secret URLs</strong> &mdash; The system is secure by design, not by obscurity</li>
+    <li><strong>Cleaner module</strong> &mdash; The administrators module now handles only administration, not authentication</li>
+</ul>
+
+<h2>Rollback</h2>
+<p>If you need to revert, the old <code>trongate_administrators</code> module is still available in previous releases. To roll back:</p>
+<ol>
+    <li>Restore your previous <code>trongate_administrators</code> controller and model</li>
+    <li>Remove or rename the <code>modules/login/</code> directory</li>
+    <li>Restore any custom routing that pointed to <code>trongate_administrators/login</code></li>
+</ol>

@@ -1,28 +1,80 @@
-[meta-description]Install Trongate in minutes: upload files, configure BASE_URL, set up your database. Never launch with ENV set to dev.[/meta-description]
+[meta-description]Install Trongate in minutes. Upload files, visit your site, and follow the 5-step setup wizard. No manual configuration required.[/meta-description]
 <h1>Installation &amp; Configuration</h1>
 
-<p>After downloading Trongate, installation takes only a few minutes. There are no dependency managers, no build steps, and no scaffolding commands. Just upload and configure.</p>
+<p>After downloading Trongate, installation takes only a few minutes. There are no dependency managers, no build steps, and no scaffolding commands. The framework includes an intelligent Setup Wizard that guides you through the entire process.</p>
 
 <h2>1. Place the Files on Your Server</h2>
 <p>Upload the contents of the Trongate ZIP file to your web server's document root. On many shared hosts this is a directory called <code>public_html</code> or <code>www</code>. The resulting structure should look like this:</p>
 
 [code]
 your-site.com/
-├── config/
-├── engine/
-├── modules/
-├── public/
-├── uploads/
-├── .htaccess
-└── index.php
+&crarr; config/
+&crarr; engine/
+&crarr; modules/
+&crarr; public/
+&crarr; uploads/
+&crarr; .htaccess
+&crarr; index.php
 [/code]
 
 <p>The <code>public/</code> directory is the web root. Point your domain to <code>public/</code> if possible &mdash; this keeps the framework files one level above public access for better security.</p>
 
-<h2>2. Configure Your Base URL</h2>
-<p>Open <code>config/config.php</code> and set the <code>BASE_URL</code> constant to the URL where your application will be accessed. Also, set <code>ENV</code> to <code>'dev'</code> for development or <code>'prod'</code> (or <code>'live'</code>) for production:</p>
+<div class="alert alert-success">
+    <p><strong>From here, the Setup Wizard handles the rest.</strong> No manual file editing is required to get started.</p>
+</div>
+
+<h2>2. Visit Your Site &mdash; The Setup Wizard Loads</h2>
+<p>Navigate to your site's URL. The Setup Wizard will automatically detect that Trongate has not yet been configured and will present a 5-step installation wizard:</p>
+
+<h3 class="mt-3">Step 1 &mdash; Welcome</h3>
+<p>The welcome screen confirms your server meets the minimum requirements and presents an overview of the installation process. Click <em>"Let's Go!"</em> to proceed.</p>
+
+<h3 class="mt-3">Step 2 &mdash; Database</h3>
+<p>Enter your database connection details &mdash; host, port, username, password, and database name. Click <em>"Test Database Connection"</em> to verify the settings are correct.</p>
+
+<div class="alert alert-info">
+    <p><strong>Tip:</strong> If your database does not yet exist, Trongate will attempt to create it automatically. Alternatively, create the database through your hosting control panel first and then enter its name here.</p>
+</div>
+
+<h3 class="mt-3">Step 3 &mdash; Confirm</h3>
+<p>After a successful connection test, you will see the exact PHP configuration that will be written to your <code>config/database.php</code> file. You can either:</p>
+<ul>
+    <li><strong>Copy the code manually</strong> and save it to <code>config/database.php</code>, or</li>
+    <li><strong>Let the wizard write it for you</strong> &mdash; it will save the file automatically</li>
+</ul>
+<p>The wizard displays the code it will write so you retain full visibility and control.</p>
+
+<h3 class="mt-3">Step 4 &mdash; Admin Account</h3>
+<p>Create your administrator account by providing a username and password. This account gives you full access to the Trongate admin panel. The wizard:</p>
+<ul>
+    <li>Creates the necessary database tables</li>
+    <li>Seeds the database with initial data</li>
+    <li>Registers your administrator account</li>
+</ul>
+
+<h3 class="mt-3">Step 5 &mdash; Complete</h3>
+<p>Installation is finished. A confirmation message confirms everything is set up and the wizard module removes itself from the framework, leaving a clean installation. Click <em>"Go to Admin Panel"</em> to log in and start building.</p>
+
+<h2>What the Setup Wizard Does For You</h2>
+<ul>
+    <li>Verifies PHP version and server requirements</li>
+    <li>Tests and configures your database connection</li>
+    <li>Writes the <code>config/database.php</code> file with your settings</li>
+    <li>Creates all required database tables</li>
+    <li>Seeds default data (including user levels and token system)</li>
+    <li>Creates your administrator account</li>
+    <li>Configures the <code>BASE_URL</code> in <code>config/config.php</code></li>
+    <li>Removes itself after completion, leaving no trace</li>
+</ul>
+
+<h2>Manual Configuration (Optional)</h2>
+<p>If you prefer to configure Trongate manually, you can do so by editing the configuration files directly:</p>
+
+<h3>Configure Your Base URL</h3>
+<p>Open <code>config/config.php</code> and set the <code>BASE_URL</code> constant to the URL where your application will be accessed:</p>
 
 [code=php]
+&lt;?php
 define('BASE_URL', 'http://localhost/trongate/');
 define('ENV', 'dev');
 [/code]
@@ -32,7 +84,7 @@ define('ENV', 'dev');
     <p>When ENV is set to <code>'dev'</code>, the framework may display detailed error messages and debugging information that could expose sensitive details about your application. For production, always set ENV to <code>'prod'</code>, <code>'live'</code>, or any value other than <code>'dev'</code>.</p>
 </div>
 
-<h2>3. Configure Your Database</h2>
+<h3>Configure Your Database (if not using the wizard)</h3>
 <p>Open <code>config/database.php</code> and enter your database connection details:</p>
 
 [code=php]
@@ -45,11 +97,15 @@ $databases = [
         'password' => '',
         'database' => 'trongate'
     ]
-];[/code]
+];
+[/code]
 
 <p>You can define multiple database groups by adding more entries to the <code>$databases</code> array. Additional guidance is available on our documentation on <a href="documentation/trongate_php_framework/database-operations/working-with-multiple-databases">Working With Multiple Databases</a>.</p>
 
-<h2>4. Verify the Installation</h2>
-<p>Navigate to the URL you set in <code>BASE_URL</code>. You should see the default Trongate welcome page. If you see a blank page or an error, check that PHP 8.0+ is installed and that your <code>BASE_URL</code> is correct.</p>
+<h2>3. Verify the Installation</h2>
+<p>Navigate to the URL you set in <code>BASE_URL</code>. If you used the Setup Wizard, you will be redirected to the login page. If you configured manually, you should see the default Trongate welcome page.</p>
 
 <p>That&rsquo;s it. You&rsquo;re ready to build.</p>
+
+<h2>Upgrading an Existing Installation</h2>
+<p>If you are upgrading an existing Trongate project and wish to adopt the new Setup Wizard and Universal Login Module, please refer to the <a href="documentation/trongate_php_framework/tips-and-best-practices/migrating-to-the-universal-login-module">Migration Guide</a>.</p>
