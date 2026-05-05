@@ -1,0 +1,73 @@
+[meta-description]Hide your Trongate admin login in seconds: pick a secret word, update two lines in custom_routing.php and one in the admin controller. Default URLs die, hackers cry. Security done.[/meta-description]
+<h1>Hiding The Admin Login URL</h1>
+
+<p>When you initially install Trongate, your admin login URL is:</p>
+[code]https://yoursite.com/trongate_administrators/login[/code]
+
+<p>The following shorter URL also works:</p>
+[code]https://yoursite.com/tg-admin[/code]
+
+<p><strong><span style="color: red;">Hackers know this.</span></strong>  You do not want them knocking.</strong></p>
+
+<p><strong>So, let us fix it.</strong></p>
+<hr>
+
+<h2 class="mt-0">Step 1: Pick your secret word</h2>
+
+<p>Choose something random but memorable. No spaces. No special characters. Use a single, made-up word that you can remember.</p>
+
+<p>Example:</p>
+[code]fantasticola[/code]
+
+<p>Your new admin login URL becomes:</p>
+[code]https://yoursite.com/fantasticola[/code]
+
+<hr>
+
+<h2 class="mt-0">Step 2: Update custom routing</h2>
+
+<p>Open <code>config/custom_routing.php</code>. You should see something like this:</p>
+
+[code=php]&lt;?php
+$routes = [
+    'tg-admin' => 'trongate_administrators/login',
+    'tg-admin/submit_login' => 'trongate_administrators/submit_login'
+];
+define('CUSTOM_ROUTES', $routes);
+[/code]
+
+<p>Replace <strong>both</strong> occurrences of <code>tg-admin</code> with your secret word. For example:</p>
+
+[code=php]&lt;?php
+$routes = [
+    "fantasticola" =&gt; "trongate_administrators/login",
+    "fantasticola/submit_login" =&gt; "trongate_administrators/submit_login"
+];
+define("CUSTOM_ROUTES", $routes);
+[/code]
+
+<hr>
+
+<h2 class="mt-0">Step 3: Lock the back door</h2>
+
+<p>Open:</p> 
+[code]modules/trongate_administrators/Trongate_administrators.php[/code]
+
+<p>Around line 12 you will see this commented line:</p>
+
+[code=php]//private $secret_login_segment = "tg-admin";[/code]
+
+<p>Uncomment it and replace <code>tg-admin</code> with your secret word:</p>
+
+[code=php]private $secret_login_segment = "fantasticola";[/code]
+
+<hr>
+
+<h2 class="mt-0">Congratulations!</h2>
+
+<p>Now:</p>
+<ul>
+    <li><code>trongate_administrators/login</code>  -  returns <strong>404</strong>.</li>
+    <li><code>tg-admin</code>  -  <strong>no longer works</strong>.</li>
+    <li>Only your secret URL (<code>fantasticola</code>) grants access.</li>
+</ul>
