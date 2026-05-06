@@ -47,16 +47,6 @@ $config['login'] = [
     'password_hash_cost' =&gt; 11,
     'default_view_file' =&gt; 'login_compact',
 
-    'smtp' =&gt; [
-        'host' =&gt; '',
-        'port' =&gt; '587',
-        'username' =&gt; '',
-        'password' =&gt; '',
-        'encryption' =&gt; 'tls',
-        'from_email' =&gt; '',
-        'from_name' =&gt; ''
-    ],
-
     'reset_token_lifespan' =&gt; 3600,
 
     'user_levels' =&gt; [
@@ -195,7 +185,7 @@ $config['login'] = [
     <li><strong>Multi-table support</strong> &mdash; Authenticate against any user table, not just <code>trongate_administrators</code></li>
     <li><strong>Multi-identifier login</strong> &mdash; Users can log in with their username, email address, or any combination defined in your config</li>
     <li><strong>Configurable view styles</strong> &mdash; Choose from three different login page layouts</li>
-    <li><strong>Forgot password flow</strong> &mdash; Built-in password reset with SMTP-based email delivery and token-based reset links</li>
+    <li><strong>Forgot password flow</strong> &mdash; Built-in password reset with email delivery via the <code>trongate_email</code> module and token-based reset links</li>
     <li><strong>Brute-force protection</strong> &mdash; Configurable rate limiting and failed-attempt tracking</li>
     <li><strong>Timing-safe hash comparison</strong> &mdash; Protection against timing-based enumeration attacks</li>
     <li><strong>No secret URLs</strong> &mdash; The system is secure by design, not by obscurity</li>

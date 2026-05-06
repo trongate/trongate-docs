@@ -1,73 +1,36 @@
-[meta-description]Hide your Trongate admin login in seconds: pick a secret word, update two lines in custom_routing.php and one in the admin controller. Default URLs die, hackers cry. Security done.[/meta-description]
-<h1>Hiding The Admin Login URL</h1>
+[meta-description]Trongate's login module uses a public, discoverable login URL — security through strong authentication, not obscurity. Learn why this is more secure and how it works.[/meta-description]
+<h1>Hiding The Admin Login URL &mdash; Deprecated</h1>
 
-<p>When you initially install Trongate, your admin login URL is:</p>
-[code]https://yoursite.com/trongate_administrators/login[/code]
+<div class="alert alert-warning">
+    <p><strong>Note:</strong> This technique belongs to older versions of Trongate. The <code>login</code> module (shipped with Trongate v2) replaces this approach entirely. Security through obscurity is no longer recommended &mdash; the login module is secure by design.</p>
+</div>
 
-<p>The following shorter URL also works:</p>
-[code]https://yoursite.com/tg-admin[/code]
+<h2>The Old Approach</h2>
+<p>In previous versions of Trongate, the <code>trongate_administrators</code> module featured a configurable <code>$secret_login_segment</code> property. Administrators could set a private word that acted as the login URL, making it harder for attackers to find the login page. Custom routing mapped this secret word to <code>trongate_administrators/login</code>.</p>
 
-<p><strong><span style="color: red;">Hackers know this.</span></strong>  You do not want them knocking.</strong></p>
+<p>However, this approach had a known vulnerability: an unauthenticated request to <code>trongate_administrators/logout</code> would redirect to the secret login URL, revealing it in the HTTP response headers. The secret was exposed to anyone who knew where to look.</p>
 
-<p><strong>So, let us fix it.</strong></p>
-<hr>
-
-<h2 class="mt-0">Step 1: Pick your secret word</h2>
-
-<p>Choose something random but memorable. No spaces. No special characters. Use a single, made-up word that you can remember.</p>
-
-<p>Example:</p>
-[code]fantasticola[/code]
-
-<p>Your new admin login URL becomes:</p>
-[code]https://yoursite.com/fantasticola[/code]
-
-<hr>
-
-<h2 class="mt-0">Step 2: Update custom routing</h2>
-
-<p>Open <code>config/custom_routing.php</code>. You should see something like this:</p>
-
-[code=php]&lt;?php
-$routes = [
-    'tg-admin' => 'trongate_administrators/login',
-    'tg-admin/submit_login' => 'trongate_administrators/submit_login'
-];
-define('CUSTOM_ROUTES', $routes);
-[/code]
-
-<p>Replace <strong>both</strong> occurrences of <code>tg-admin</code> with your secret word. For example:</p>
-
-[code=php]&lt;?php
-$routes = [
-    "fantasticola" =&gt; "trongate_administrators/login",
-    "fantasticola/submit_login" =&gt; "trongate_administrators/submit_login"
-];
-define("CUSTOM_ROUTES", $routes);
-[/code]
-
-<hr>
-
-<h2 class="mt-0">Step 3: Lock the back door</h2>
-
-<p>Open:</p> 
-[code]modules/trongate_administrators/Trongate_administrators.php[/code]
-
-<p>Around line 12 you will see this commented line:</p>
-
-[code=php]//private $secret_login_segment = "tg-admin";[/code]
-
-<p>Uncomment it and replace <code>tg-admin</code> with your secret word:</p>
-
-[code=php]private $secret_login_segment = "fantasticola";[/code]
-
-<hr>
-
-<h2 class="mt-0">Congratulations!</h2>
-
-<p>Now:</p>
+<h2>Why We Changed</h2>
+<p>The new <code>login</code> module takes a fundamentally different approach. Instead of hiding the login URL, it focuses on proper security controls:</p>
 <ul>
-    <li><code>trongate_administrators/login</code>  -  returns <strong>404</strong>.</li>
-    <li><code>tg-admin</code>  -  <strong>no longer works</strong>.</li>
-    <li>Only your secret URL (<code>fantasticola</code>) grants access.</li>
+    <li><strong>Timing-safe password verification</strong> &mdash; Prevents enumeration attacks by always using a valid bcrypt hash, even when the username does not exist</li>
+    <li><strong>Brute-force protection</strong> &mdash; Configurable rate limiting tracks failed attempts by both identifier and IP address, blocking access after a configurable number of failures</li>
+    <li><strong>Dedicated login_attempts table</strong> &mdash; Failed attempts are tracked independently of user records, so even non-existent usernames are rate-limited</li>
+    <li><strong>Configurable user levels</strong> &mdash; Support for multiple user tables (administrators, members, etc.) from a single module</li>
+    <li><strong>Multi-identifier login</strong> &mdash; Users can log in with any configured identifier (username, email, or both)</li>
+</ul>
+
+<h2>How It Works Now</h2>
+<p>The login module is accessed at the public URL <code>login/login</code>. A discoverable, well-audited login page with proper security controls is far more robust than a hidden one that can be leaked through redirects.</p>
+
+<h2>Migrating to the New System</h2>
+<p>If you are upgrading an existing project, please refer to the <a href="documentation/trongate_php_framework/tips-and-best-practices/migrating-to-the-universal-login-module">Migrating to the Universal Login Module</a> guide for step-by-step instructions.</p>
+
+<h2>Benefits of the New Approach</h2>
+<ul>
+    <li><strong>No secret URLs to leak</strong> &mdash; Security is built into the authentication process, not the URL</li>
+    <li><strong>Proper rate limiting</strong> &mdash; Blocks brute-force attempts regardless of whether the username exists</li>
+    <li><strong>Consistent authentication</strong> &mdash; All user types authenticate through the same robust system</li>
+    <li><strong>Forgot password flow</strong> &mdash; Built-in password reset with SMTP-based email delivery</li>
+    <li><strong>Configurable</strong> &mdash; Adjust security settings without touching code</li>
 </ul>
