@@ -29,12 +29,12 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('scenario_name');
 <p>Each scenario routes to a specific module that knows how to handle that particular type of access control.</p>
 
 <div class="alert alert-info">
-    <p>It's for you - the developer - to decide how many scenarios your application is going to have. You also, as the developer, determine what names each scenario should be given.</p>
+    <p>It is for you — the developer — to decide how many scenarios your application is going to have. You also, as the developer, determine what names each scenario should be given.</p>
 </div>
 
 <h2>How It Works</h2>
 
-<p>The <code>Trongate_security</code> module uses a switch statement to delegate scenarios to appropriate modules:</p>
+<p>The <code>Trongate_security</code> module uses a switch statement to delegate scenarios to appropriate modules. The default scenario handles admin panel access by checking for a valid token with user level 1:</p>
 
 [code=php]
 &lt;?php
@@ -53,8 +53,19 @@ class Trongate_security extends Trongate {
                 
             default:
                 // Default: admin panel access
-                $result = $this-&gt;trongate_administrators-&gt;make_sure_allowed();
-                return $result;
+                // Checks for a valid token for user level 1 (administrators)
+                $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(1);
+                
+                if ($token === false) {
+                    if (ENV === 'dev') {
+                        // Dev mode convenience: create a token and redirect to login
+                        redirect('login/login');
+                    } else {
+                        redirect('login/login');
+                    }
+                }
+                
+                return $token;
         }
     }
 }
@@ -64,9 +75,11 @@ class Trongate_security extends Trongate {
     <p>The commented-out case shows how to add custom scenarios. Uncomment and modify as needed for your application.</p>
 </div>
 
+<p>In development mode (<code>ENV === 'dev'</code>), the login module provides convenience features to streamline development. In production, unauthenticated users are always redirected to the login page at <code>login/login</code>.</p>
+
 <h2>The Default Scenario</h2>
 
-<p>If you don't specify a scenario, it defaults to <code>'admin panel'</code>:</p>
+<p>If you do not specify a scenario, it defaults to <code>'admin panel'</code>:</p>
 
 [code=php]
 // These two calls are identical
@@ -74,25 +87,18 @@ $this-&gt;trongate_security-&gt;make_sure_allowed();
 $this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
 [/code]
 
-<p>Both delegate to <code>trongate_administrators-&gt;make_sure_allowed()</code>, which:</p>
-
-<ol>
-    <li>Checks for a valid token with user level 1 (admin)</li>
-    <li>In dev mode: auto-generates a token for convenience</li>
-    <li>In production: redirects to login if no valid token</li>
-    <li>Returns the token string if successful</li>
-</ol>
+<p>Both check for a valid token with user level 1 (administrators) and redirect to <code>login/login</code> if none is found.</p>
 
 <h2>Return Values: Flexible by Design</h2>
 
 <p>The <span class="feature-ref">make_sure_allowed()</span> method is intentionally open-ended. It can return:</p>
 
 <ul>
-    <li><strong>String</strong> - The validated token</li>
-    <li><strong>Boolean</strong> - <code>true</code> for public access, <code>false</code> for denied</li>
-    <li><strong>Object</strong> - Complete user object with permissions</li>
-    <li><strong>Array</strong> - Custom data structure with multiple values</li>
-    <li><strong>Nothing</strong> - Can redirect or die instead of returning</li>
+    <li><strong>String</strong> — The validated token</li>
+    <li><strong>Boolean</strong> — <code>true</code> for public access, <code>false</code> for denied</li>
+    <li><strong>Object</strong> — Complete user object with permissions</li>
+    <li><strong>Array</strong> — Custom data structure with multiple values</li>
+    <li><strong>Nothing</strong> — Can redirect or die instead of returning</li>
 </ul>
 
 <p>The return type depends on what your scenario needs. You decide.</p>
@@ -103,14 +109,14 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
 
 <h2>Example: Discussion Forum</h2>
 
-<p>Let's build a hypothetical discussion forum accessible by the public, with special privileges for admin users and member users.</p>
+<p>Let us build a hypothetical discussion forum accessible by the public, with special privileges for admin users and member users.</p>
 
 <h3>The Requirements</h3>
 
 <ul>
-    <li><strong>Read comments</strong> - Open to anyone (no authentication)</li>
-    <li><strong>Create comments</strong> - Must be a logged-in member</li>
-    <li><strong>Edit/delete comments</strong> - Must be the comment owner OR an admin</li>
+    <li><strong>Read comments</strong> — Open to anyone (no authentication)</li>
+    <li><strong>Create comments</strong> — Must be a logged-in member</li>
+    <li><strong>Edit/delete comments</strong> — Must be the comment owner OR an admin</li>
 </ul>
 
 <h3>Trongate_security.php</h3>
@@ -121,14 +127,14 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
 public function make_sure_allowed(string $scenario = 'admin panel', array $params = []): mixed {
     switch ($scenario) {
         case 'read comment':
-            // Public access - no authentication required
+            // Public access — no authentication required
             return true;
             
         case 'create comment':
             // Must be a member (user level 2)
             $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
             if ($token === false) {
-                redirect('members/login');
+                redirect('login/login');
             }
             return $token;
             
@@ -139,9 +145,14 @@ public function make_sure_allowed(string $scenario = 'admin panel', array $param
             return $result;
             
         default:
-            // Admin panel access
-            $result = $this-&gt;trongate_administrators-&gt;make_sure_allowed();
-            return $result;
+            // Admin panel access — checks for user level 1 token
+            $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(1);
+            
+            if ($token === false) {
+                redirect('login/login');
+            }
+            
+            return $token;
     }
 }
 [/code]
@@ -169,7 +180,7 @@ public function make_sure_allowed(string $scenario = 'members area', array $para
             $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
             
             if ($user === false) {
-                redirect('members/login');
+                redirect('login/login');
             }
             
             // Fetch comment
@@ -264,6 +275,21 @@ class Forum_comments extends Trongate {
     <p>This example assumes you have <code>public</code> and <code>members_area</code> templates created.</p>
 </div>
 
+<h2>Using $this->login->make_sure_allowed() Directly</h2>
+
+<p>In your own controllers, you can also call the login module directly to check authentication without going through the security module:</p>
+
+[code=php]
+// Check if the current user is logged in as an administrator (user level 1)
+$token = $this-&gt;login-&gt;make_sure_allowed();
+
+if ($token === false) {
+    redirect('login/login');
+}
+[/code]
+
+<p>The <code>login-&gt;make_sure_allowed()</code> method checks the token, validates the user level, and returns the token string if valid, or <code>false</code> if not. In development mode, it provides convenience features; in production, it always requires proper authentication.</p>
+
 <h2>The $params Array</h2>
 
 <p>The optional <code>$params</code> array allows fine-grained control:</p>
@@ -279,27 +305,6 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('moderate forum', $params);
 [/code]
 
 <p>Pass any data your scenario needs to make authorization decisions.</p>
-
-<h2>Dev Mode Auto-Login</h2>
-
-<p>The <code>trongate_administrators</code> module includes special behavior for development:</p>
-
-[code=php]
-if ($token === false) {
-    if (ENV === 'dev') {
-        // Auto-generate token for first admin
-        // (convenience feature for development)
-    } else {
-        redirect('trongate_administrators/login');
-    }
-}
-[/code]
-
-<p>In dev mode, the first administrator is automatically logged in. This speeds up development by eliminating repeated logins.</p>
-
-<div class="alert alert-warning">
-    <p><strong>Production Safety:</strong> This auto-login only works when <code>ENV === 'dev'</code> in your config. Production deployments always require proper authentication.</p>
-</div>
 
 <h2>Building Your Own Scenarios</h2>
 
@@ -319,7 +324,7 @@ case 'premium content':
     $user = $this-&gt;trongate_tokens-&gt;get_user_obj();
     
     if ($user === false) {
-        redirect('members/login');
+        redirect('login/login');
     }
     
     // Check if user has premium subscription
@@ -336,11 +341,11 @@ case 'premium content':
 <h2>Why Scenarios Win</h2>
 
 <ul>
-    <li><strong>Centralized security logic</strong> - All authorization in one place</li>
-    <li><strong>Consistent patterns</strong> - Same method call everywhere</li>
-    <li><strong>Easy to audit</strong> - Review security in one file</li>
-    <li><strong>Flexible delegation</strong> - Complex logic lives in appropriate modules</li>
-    <li><strong>Testable</strong> - Mock scenarios for unit tests</li>
+    <li><strong>Centralized security logic</strong> — All authorization in one place</li>
+    <li><strong>Consistent patterns</strong> — Same method call everywhere</li>
+    <li><strong>Easy to audit</strong> — Review security in one file</li>
+    <li><strong>Flexible delegation</strong> — Complex logic lives in appropriate modules</li>
+    <li><strong>Testable</strong> — Mock scenarios for unit tests</li>
 </ul>
 
 <h2>Common Patterns</h2>
@@ -358,7 +363,7 @@ case 'public page':
 case 'members area':
     $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
     if ($token === false) {
-        redirect('members/login');
+        redirect('login/login');
     }
     return $token;
 [/code]
@@ -373,10 +378,10 @@ case 'complex scenario':
 
 <div class="alert alert-success">
     <ul class="mt-0">
-        <li><strong>Use descriptive scenario names</strong> - <code>'edit comment'</code> not <code>'scenario_7'</code></li>
-        <li><strong>Delegate complex logic</strong> - Keep switch statement clean, push details to modules</li>
-        <li><strong>Return consistent types per scenario</strong> - Don't mix tokens and booleans for same scenario</li>
-        <li><strong>Document your scenarios</strong> - Add comments explaining what each scenario protects</li>
-        <li><strong>Test thoroughly</strong> - Especially ownership checks and edge cases</li>
+        <li><strong>Use descriptive scenario names</strong> — <code>'edit comment'</code> not <code>'scenario_7'</code></li>
+        <li><strong>Delegate complex logic</strong> — Keep switch statement clean, push details to modules</li>
+        <li><strong>Return consistent types per scenario</strong> — Do not mix tokens and booleans for same scenario</li>
+        <li><strong>Document your scenarios</strong> — Add comments explaining what each scenario protects</li>
+        <li><strong>Test thoroughly</strong> — Especially ownership checks and edge cases</li>
     </ul>
 </div>
