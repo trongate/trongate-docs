@@ -1,26 +1,144 @@
-[meta-description]The Universal Login Module replaces the old secret login URL approach. Learn why public login URLs are more secure and how the new system works.[/meta-description]
-<h1>Hiding The Admin Login URL &mdash; Deprecated</h1>
+[meta-description]Set up the forgot-password feature in the Trongate login module. Configure the trongate_email module for SMTP delivery and enable password resets for any user level.[/meta-description]
+<h1>Setting Up Password Resets</h1>
 
-<div class="alert alert-warning">
-    <p><strong>Note:</strong> This page describes a technique used by previous versions of Trongate. The Universal Login Module (shipped with Trongate v2) replaces this approach entirely. Security through obscurity is no longer recommended &mdash; the new login module is secure by design.</p>
-</div>
+<p>The <code>login</code> module includes a built-in forgot-password flow. When a user forgets their password, they can request a reset link, which is sent to their email address via the <code>trongate_email</code> module.</p>
 
-<h2>The Old Approach</h2>
-<p>In previous versions of Trongate, the <code>trongate_administrators</code> module featured a configurable <code>$secret_login_segment</code> property. Administrators could set a private word that acted as the login URL, making it harder for attackers to find the login page. Custom routing mapped this secret word to <code>trongate_administrators/login</code>.</p>
+<p>This page walks through the complete setup.</p>
 
-<p>However, this approach had a known vulnerability: an unauthenticated request to <code>trongate_administrators/logout</code> would redirect to the secret login URL, revealing it in the HTTP response headers. This meant the secret was exposed to anyone who knew where to look.</p>
+<h2>Prerequisites</h2>
 
-<h2>Why We Changed</h2>
-<p>The new Universal Login Module takes a different approach. Instead of hiding the login URL, it focuses on:</p>
 <ul>
-    <li><strong>Secure credential validation</strong> &mdash; Timing-safe hash comparison prevents enumeration attacks</li>
-    <li><strong>Brute-force protection</strong> &mdash; Configurable rate limiting blocks repeated failed attempts</li>
-    <li><strong>Configurable view styles</strong> &mdash; Three different login page layouts to suit your site's design</li>
-    <li><strong>Multi-table support</strong> &mdash; Authenticate administrators, members, or any user type from one module</li>
+    <li>The <code>login</code> module in your <code>modules/</code> directory (included with Trongate v2)</li>
+    <li>The <code>trongate_email</code> module in your <code>modules/</code> directory (included with Trongate v2)</li>
+    <li>A configured <code>trongate_email.php</code> config file</li>
+    <li>SMTP credentials for sending emails</li>
 </ul>
 
-<h2>How It Works Now</h2>
-<p>The login module is accessed at the public URL <code>login/login</code>. This is intentional &mdash; a discoverable, well-audited login page with proper security controls is more robust than a hidden one that can be leaked through a redirect.</p>
+<h2>Step 1: Configure the Email Module</h2>
 
-<h2>Migrating to the New System</h2>
-<p>If you are upgrading an existing project, please refer to the <a href="documentation/trongate_php_framework/tips-and-best-practices/migrating-to-the-universal-login-module">Migrating to the Universal Login Module</a> guide for step-by-step instructions.</p>
+<p>Create <code>config/trongate_email.php</code> with your SMTP server details:</p>
+
+[code=php]
+&lt;?php
+$config['trongate_email'] = [
+    'smtp_host' => 'mail.yourdomain.com',
+    'smtp_port' => 465,
+    'smtp_user' => 'noreply@yourdomain.com',
+    'smtp_pass' => 'your_password',
+    'smtp_secure' => 'ssl',
+    'smtp_from_name' => 'Your Website'
+];
+[/code]
+
+<p>Common SMTP configurations:</p>
+
+<table class="table sm">
+    <thead>
+        <tr>
+            <th>Provider</th>
+            <th>Host</th>
+            <th>Port</th>
+            <th>Security</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>cPanel / Shared Hosting</td><td><code>mail.yourdomain.com</code></td><td>465</td><td><code>ssl</code></td></tr>
+        <tr><td>Gmail (App Password)</td><td><code>smtp.gmail.com</code></td><td>587</td><td><code>tls</code></td></tr>
+        <tr><td>Mailgun / SendGrid</td><td>As provided</td><td>587</td><td><code>tls</code></td></tr>
+    </tbody>
+</table>
+
+<h2>Step 2: Configure the Login Module</h2>
+
+<p>Open <code>config/login.php</code>. The forgot-password feature uses these settings:</p>
+
+[code=php]
+&lt;?php
+$config['login'] = [
+    'reset_token_lifespan' => 3600, // Reset link expires in 1 hour
+    'user_levels' => [
+        1 => [
+            'target_table' => 'trongate_administrators',
+            'fields' => [
+                'identifiers' => [
+                    'email' => [
+                        'column' => 'email',
+                        'label'  => 'Email'
+                    ]
+                ]
+            ]
+        ]
+    ]
+];
+[/code]
+
+<p>The <code>reset_token_lifespan</code> setting controls how long a reset link remains valid. The default is 3600 seconds (1 hour).</p>
+
+<div class="alert alert-info">
+    <p>For the forgot-password feature to work, at least one identifier in your configuration must use the email column from your user table. Without an email identifier, the system cannot determine where to send the reset link.</p>
+</div>
+
+<h2>Step 3: Test the Forgot Password Flow</h2>
+
+<p>Navigate to the forgot-password form at:</p>
+
+[code]https://yoursite.com/login/forgot_password[/code]
+
+<ol>
+    <li>Enter the email address associated with the user account</li>
+    <li>Submit the form</li>
+    <li>Check the inbox for the reset email</li>
+    <li>Click the reset link and set a new password</li>
+</ol>
+
+<p>If you have configured custom routes (see <a href="documentation/trongate_php_framework/understanding-routing/working-with-login-routes">Working with Login Routes</a>), adjust the URL accordingly.</p>
+
+<h2>How It Works</h2>
+
+<p>When a user requests a password reset:</p>
+
+<ol>
+    <li>The login module looks up the user by email address in the configured target table</li>
+    <li>A cryptographically random token is generated and stored in the <code>trongate_tokens</code> table</li>
+    <li>An email is sent via <code>trongate_email</code> containing a reset link with the token</li>
+    <li>The user clicks the link and sets a new password</li>
+    <li>All existing authentication tokens for that user are destroyed, forcing a re-login everywhere</li>
+</ol>
+
+<p>This last step is critical for security &mdash; if an attacker had access to an active session, changing the password invalidates all sessions immediately.</p>
+
+<h2>Customising the Reset Email</h2>
+
+<p>The forgot-password email is built by the <code>Login_model</code> and sent via <code>trongate_email</code>. The email contains:</p>
+
+<ul>
+    <li>A greeting</li>
+    <li>The reset link (with a time-sensitive token)</li>
+    <li>An expiry notice</li>
+    <li>A warning to ignore if not requested</li>
+</ul>
+
+<p>The email is sent as an HTML-formatted message. The <code>trongate_email</code> module automatically generates a plain-text version from the HTML.</p>
+
+<h2>Troubleshooting</h2>
+
+<h3>Email Not Received</h3>
+<ul>
+    <li>Check that <code>config/trongate_email.php</code> exists and has valid SMTP credentials</li>
+    <li>Verify the SMTP host and port are correct for your provider</li>
+    <li>Check your server allows outbound connections on the SMTP port</li>
+    <li>Check spam folders</li>
+    <li>Test the SMTP configuration separately using the <code>trongate_email</code> module</li>
+</ul>
+
+<h3>Reset Link Expires Immediately</h3>
+<ul>
+    <li>Check that server time is accurate (clock drift can cause tokens to be considered expired)</li>
+    <li>Increase <code>reset_token_lifespan</code> in <code>config/login.php</code></li>
+</ul>
+
+<h3>User Not Found</h3>
+<ul>
+    <li>Verify the email identifier column matches your database column name</li>
+    <li>Check that the user level ID in the config matches the user's level</li>
+</ul>
