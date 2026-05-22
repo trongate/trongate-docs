@@ -24,7 +24,6 @@
 >
   <i class="fa fa-gears"></i> Settings
 </button>
-<p class="text-center xs" style="padding: 1em;">NOTE:  The modal body will contain a spinner element.</p>
 </div>
 
 [code=vf]
@@ -282,7 +281,7 @@ public function create(): void {
         <li>Use modal footers to keep important actions visible and accessible</li>
         <li>Combine loading indicators with modal forms for professional user experiences</li>
         <li>Always validate form data server-side using Trongate's validation class</li>
-        <li>To dynamically update page content <i>after</i> successful form submission, consider using the <a href="documentation/display/trongate_mx/events-and-responses/handling-successful-requests">mx-on-success</a> attribute or  the <a href="documentation/display/trongate_mx/swapping-content/after-swap-operations">mx-after-swap</a> attribute.</li>
+        <li>To dynamically update page content <i>after</i> successful form submission, consider using the <a href="documentation/trongate_mx/events-and-responses/handling-successful-requests">mx-on-success</a> attribute or  the <a href="documentation/trongate_mx/swapping-content/after-swap-operations">mx-after-swap</a> attribute.</li>
     </ul>
 </div>
 
@@ -293,21 +292,21 @@ public function create(): void {
 <h3>Enhanced Validation and Error Handling</h3>
 
 <ul>
-    <li><strong><a href="documentation/display/trongate_mx/form-handling/after-validation-operations">mx-after-validation</a></strong> - Executes custom JavaScript functions immediately after form validation errors are displayed, allowing you to implement custom error handling logic, focus management, or additional user interface updates.</li>
+    <li><strong><a href="documentation/trongate_mx/form-handling/after-validation-operations">mx-after-validation</a></strong> - Executes custom JavaScript functions immediately after form validation errors are displayed, allowing you to implement custom error handling logic, focus management, or additional user interface updates.</li>
     
-    <li><strong><a href="documentation/display/trongate_mx/ui-enhancements/error-animations">mx-animate-error</a></strong> - Triggers visual error animations when form submissions fail (HTTP response codes 400-599), providing immediate visual feedback to users without requiring custom JavaScript.</li>
+    <li><strong><a href="documentation/trongate_mx/ui-enhancements/error-animations">mx-animate-error</a></strong> - Triggers visual error animations when form submissions fail (HTTP response codes 400-599), providing immediate visual feedback to users without requiring custom JavaScript.</li>
     
-    <li><strong><a href="documentation/display/trongate_mx/ui-enhancements/automatically-closing-modals">mx-close-on-error</a></strong> - Automatically closes modal dialogs when form submissions encounter errors, useful for scenarios where you want to redirect users away from the modal context on validation failures.</li>
+    <li><strong><a href="documentation/trongate_mx/ui-enhancements/automatically-closing-modals">mx-close-on-error</a></strong> - Automatically closes modal dialogs when form submissions encounter errors, useful for scenarios where you want to redirect users away from the modal context on validation failures.</li>
     
-    <li><strong><a href="documentation/display/trongate_mx/events-and-responses/handling-request-errors">mx-on-error</a></strong> - Specifies elements to initialize or update after failed form submissions, enabling you to display error messages in specific page locations or trigger error-specific workflows.</li>
+    <li><strong><a href="documentation/trongate_mx/events-and-responses/handling-request-errors">mx-on-error</a></strong> - Specifies elements to initialize or update after failed form submissions, enabling you to display error messages in specific page locations or trigger error-specific workflows.</li>
 </ul>
 
 <h3>Alternative Success Workflows</h3>
 
 <ul>
-    <li><strong><a href="documentation/display/trongate_mx/events-and-responses/redirect-on-success">mx-redirect-on-success</a></strong> - Automatically redirects users to different URLs after successful form submissions, perfect for multi-step workflows or when you need to navigate users to confirmation pages instead of staying in the current context.</li>
+    <li><strong><a href="documentation/trongate_mx/events-and-responses/redirect-on-success">mx-redirect-on-success</a></strong> - Automatically redirects users to different URLs after successful form submissions, perfect for multi-step workflows or when you need to navigate users to confirmation pages instead of staying in the current context.</li>
     
-    <li><strong><a href="documentation/display/trongate_mx/events-and-responses/redirect-on-error">mx-redirect-on-error</a></strong> - Redirects users to error-specific pages when form submissions fail, useful for handling authentication errors, permission issues, or other scenarios requiring full page navigation.</li>
+    <li><strong><a href="documentation/trongate_mx/events-and-responses/redirect-on-error">mx-redirect-on-error</a></strong> - Redirects users to error-specific pages when form submissions fail, useful for handling authentication errors, permission issues, or other scenarios requiring full page navigation.</li>
 </ul>
 
 <h3>Combining Strategies</h3>

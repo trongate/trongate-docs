@@ -5,7 +5,7 @@
 <div class="alert alert-warning">
   <p>The <code>mx-on-success</code> attribute (which happens to be the focus of this page) is designed for reinitialising elements, <b>not</b> for executing custom JavaScript!</p>
 
-  <p>To execute your own custom JavaScript code after an HTTP request, use the <code>mx-after-swap</code> attribute. You can find the relevant documentation <a href="documentation/display/trongate_mx/swapping-content/after-swap-operations">here</a>.</p>
+  <p>To execute your own custom JavaScript code after an HTTP request, use the <code>mx-after-swap</code> attribute. You can find the relevant documentation <a href="documentation/trongate_mx/swapping-content/after-swap-operations">here</a>.</p>
 </div>
 
 
@@ -25,7 +25,7 @@
   <li>Trongate MX checks the element (that invoked the HTTP request) for an <code>mx-on-success</code> attribute.</li>
   <li>If an <code>mx-on-success</code> attribute is found, the value that has been assigned to the attribute is read.</li>
   <li>Trongate MX identifies an element whose CSS selector matches the value of <code>mx-on-success</code>.</li>
-  <li>Any <a href="documentation/display/trongate_mx/core-http-operations/http-methods-in-trongate-mx">HTTP requests  tied to the target element</a> are triggered, reinitialising it.</li>
+  <li>Any <a href="documentation/trongate_mx/core-http-operations/http-methods-in-trongate-mx">HTTP requests  tied to the target element</a> are triggered, reinitialising it.</li>
 </ol>
 <p>
   This makes it easy to refresh multiple, dynamic sections of your application or set up chained actions.
@@ -132,7 +132,7 @@ echo form_close();
 <p>From this, we now know that as soon as the page loads, a GET request will be made and (if all goes well!) order details will be added inside the '#order-summary' element.</p>
 
 <div class="alert alert-success">
-  <p>If the behaviour of the #order-summary element is confusing, you are encouraged to refer to our section on <a href="documentation/display/trongate_mx/events-and-responses/triggers-in-trongate-mx">Triggers In Trongate MX</a>.</p>
+  <p>If the behaviour of the #order-summary element is confusing, you are encouraged to refer to our section on <a href="documentation/trongate_mx/events-and-responses/triggers-in-trongate-mx">Triggers In Trongate MX</a>.</p>
 </div>
 
 <p>Moving up, we see another div element:</p>

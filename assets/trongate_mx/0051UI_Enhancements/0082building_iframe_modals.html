@@ -1,0 +1,254 @@
+<h1>Building iFrame Modals</h1>
+<p>
+  The <code>mx-build-iframe</code> attribute in Trongate MX allows you to dynamically create modal dialogs that contain embedded iframes. Unlike a conventional modal — where HTML is appended directly into the current page — an iframe modal loads the target page inside its own browsing context. This brings three important benefits: <b>CSS isolation</b>, <b>JavaScript isolation</b>, and an <b>independent page lifecycle</b>.
+</p>
+
+<h2>Why Use an iFrame Modal?</h2>
+<p>When you build a modal with <code>mx-build-modal</code>, the server returns a fragment of HTML that Trongate MX injects into the current document. This works well for simple content, but it can introduce problems in more complex scenarios:</p>
+<ul>
+  <li>Existing JavaScript may need to be re-initialised after the content appears.</li>
+  <li>Event handlers may be attached multiple times if the modal is opened repeatedly.</li>
+  <li>Components may require manual cleanup when the modal closes.</li>
+  <li>Third-party widgets may not behave correctly when dynamically inserted.</li>
+  <li>CSS from the embedded content can leak into the parent page — and vice versa.</li>
+</ul>
+<p>An iframe modal sidesteps all of these problems because the embedded page runs in its own browsing context with its own <code>window</code>, <code>document</code>, global variables, event listeners, timers and application state. The page loads naturally from top to bottom, executes its JavaScript exactly as if it had been opened in a new browser tab, and cleans itself up automatically when the iframe is removed.</p>
+
+<div class="alert alert-info">
+  <p><b>In short:</b> iframe modals let you reuse existing pages without modification, keep styles and scripts isolated, and avoid the lifecycle headaches that come with dynamically appended content.</p>
+</div>
+
+<h2>Demonstration</h2>
+<p>Click the button below to see a demonstration. The page loaded inside the iframe has its own CSS and JavaScript and runs entirely independently of this documentation page.</p>
+<style>
+.code-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.code-demo button {
+    margin-top: 0;
+}
+</style>
+
+<div class="code-demo text-center">
+
+<button mx-get="documentation-demo/demo_page"
+        mx-build-iframe='{
+            "id": "demo-iframe-modal",
+            "width": "800px",
+            "height": "450px"
+        }'>
+    Open iFrame
+</button>
+
+</div>
+
+<h2>Syntax</h2>
+[code=html]&lt;element mx-get="url" mx-build-iframe="iframeOptions"&gt;[/code]
+<p>
+  The <code>mx-get</code> attribute (or any core MX method attribute like <code>mx-post</code>) provides the URL that will be loaded into the iframe. The <code>iframeOptions</code> is a JSON object that configures the modal and the iframe itself.
+</p>
+
+<h2>Basic Usage</h2>
+<p>Here is an example of using <code>mx-build-iframe</code> to display a page from your own site inside a modal:</p>
+[code=vf]&lt;?php
+$btn_attr = [
+    'mx-get' => 'legal/terms',
+    'mx-build-iframe' => json_encode([
+        'id' => 'terms-modal',
+        'width' => '700px',
+        'modalHeading' => 'Terms &amp; Conditions',
+        'height' => '500px'
+    ])
+];
+
+echo form_button('terms_btn', 'Read Terms', $btn_attr);
+?&gt;[/code]
+
+<p class="mt-3 mb-0">Here is a pure HTML representation of the solution:</p>
+[code=html]
+&lt;button mx-get="legal/terms"
+        mx-build-iframe='{
+            "id": "terms-modal",
+            "width": "700px",
+            "modalHeading": "Terms &amp; Conditions",
+            "height": "500px"
+        }'&gt;Read Terms&lt;/button&gt;
+[/code]
+
+<p>Key details about this example:</p>
+<ul>
+  <li>A modal with the ID "terms-modal" is dynamically created upon clicking the button.</li>
+  <li>The <code>mx-get</code> value ("legal/terms") becomes the iframe's <code>src</code> attribute.</li>
+  <li>The modal itself has a max-width of 700px while the iframe fills the full width.</li>
+  <li>A modal heading labelled "Terms &amp; Conditions" appears above the iframe.</li>
+  <li>No HTTP request is fired by Trongate MX — the browser loads the iframe content directly.</li>
+</ul>
+
+<h2>CSS and JavaScript Isolation</h2>
+
+<h3>CSS Isolation</h3>
+<p>Because an iframe creates a separate browsing context, stylesheets loaded inside the embedded page cannot affect the parent document — and the parent's styles cannot leak into the iframe. This eliminates the risk of style collisions between the modal content and the rest of your application.</p>
+
+<h3>JavaScript Isolation</h3>
+<p>JavaScript running within the embedded page remains isolated from JavaScript running on the parent page. Global variables, event listeners, timers and application state are kept separate, reducing the likelihood of naming collisions, unintended side effects or lifecycle conflicts between independent interfaces.</p>
+
+<h3>Independent Page Lifecycle</h3>
+<p>Another significant benefit of iframe modals is that the embedded page retains its own JavaScript lifecycle. Scripts execute as they would during a normal page load, without requiring special initialisation logic after content injection. This can simplify development and reduce the risk of event-handler conflicts, duplicated initialisation code and other issues commonly associated with dynamically appended modal content.</p>
+
+<p>For large applications — particularly those where different screens may use different JavaScript frameworks or library versions — this isolation is invaluable.</p>
+
+<h2>How iFrame Modals Differ from Regular Modals</h2>
+<p>Unlike regular modals created with <code>mx-build-modal</code>, iframe modals built with <code>mx-build-iframe</code> have some important technical differences:</p>
+<ul>
+  <li><b>No HTTP request is fired.</b> The URL from your <code>mx-get</code> (or <code>mx-post</code> etc.) is assigned directly as the iframe's <code>src</code> attribute. The browser loads the content without Trongate MX making any AJAX call.</li>
+  <li><b>Any core MX method attribute works.</b> While <code>mx-get</code> is the most natural choice, you can equally use <code>mx-post</code>, <code>mx-put</code>, <code>mx-patch</code>, or <code>mx-delete</code> — the attribute's value is always treated as the iframe URL.</li>
+  <li><b>mx-target and mx-select are not applicable.</b> Since no server response is being swapped into the DOM, content-swapping attributes like <code>mx-target</code> and <code>mx-select</code> are ignored.</li>
+  <li><b>Styles and scripts are isolated.</b> The iframe's content cannot interfere with the parent page — and vice versa.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p><b>Important:</b> The URL in your <code>mx-get</code> attribute <i>is</i> the iframe source. Unlike <code>mx-build-modal</code> where the URL points to an API endpoint that returns HTML to be injected, here the URL is loaded directly by the browser inside the iframe element.</p>
+</div>
+
+<h2>iFrame Options Reference</h2>
+<p>When using <code>mx-build-iframe</code> with a JSON object, the following options are available:</p>
+
+<h3>Modal Options</h3>
+<p>These options control the modal window itself:</p>
+<ul>
+  <li><strong>id</strong> (required): The modal's unique ID in the DOM.</li>
+  <li><strong>width</strong> (optional): Max-width of the modal window (e.g., "800px", "90vw").</li>
+  <li><strong>marginTop</strong> / <strong>margin-top</strong> (optional): Distance from the top of the viewport. Defaults to "12vh" if unspecified.</li>
+  <li><strong>modalHeading</strong> (optional): HTML content for the modal heading displayed above the iframe.</li>
+  <li><strong>modalFooter</strong> (optional): HTML content for the modal footer displayed below the iframe.</li>
+  <li><strong>renderCloseIcon</strong> (optional): Controls whether a close icon appears when using <code>modalHeading</code>. Defaults to <code>true</code>.</li>
+</ul>
+
+<h3>iFrame Options</h3>
+<p>These options control the iframe element:</p>
+<ul>
+  <li><strong>height</strong> (optional): CSS height of the iframe. Defaults to "400px".</li>
+  <li><strong>iframeAllow</strong> (optional): Value for the iframe's <code>allow</code> attribute (e.g., "autoplay; encrypted-media").</li>
+  <li><strong>iframeSandbox</strong> (optional): Value for the iframe's <code>sandbox</code> attribute (e.g., "allow-same-origin allow-scripts").</li>
+  <li><strong>iframeAllowFullscreen</strong> (optional): Set to <code>false</code> to disable fullscreen. Defaults to <code>true</code>.</li>
+</ul>
+
+<div class="alert alert-info">
+  <p><b>Understanding width and height:</b></p>
+  <ul>
+    <li><code>width</code> controls the max-width of the <b>modal</b> (the white dialog box). The iframe always fills 100% of the modal's width.</li>
+    <li><code>height</code> controls the CSS height of the <b>iframe element</b> inside the modal. Defaults to <code>400px</code>.</li>
+  </ul>
+  <p>The modal's vertical size is determined by its content (heading, iframe height, and footer if present).</p>
+</div>
+
+<h2>Practical Examples</h2>
+
+<h3>Loading an Existing Internal Page</h3>
+<p>The most common use case: take a page that already works standalone and display it inside a modal — no modifications required:</p>
+[code=html]
+&lt;button mx-get="admin/products/edit/42"
+        mx-build-iframe='{
+            "id": "edit-product-modal",
+            "modalHeading": "Edit Product",
+            "height": "500px",
+            "width": "800px"
+        }'&gt;Edit Product&lt;/button&gt;
+[/code]
+
+<h3>Internal Page with Sandboxing</h3>
+<p>Load a page from your own site and apply sandbox restrictions for additional security:</p>
+[code=html]
+&lt;button mx-get="legal/terms"
+        mx-build-iframe='{
+            "id": "terms-modal",
+            "modalHeading": "Terms &amp; Conditions",
+            "height": "500px",
+            "iframeSandbox": "allow-same-origin allow-scripts",
+            "width": "700px"
+        }'&gt;Read Terms&lt;/button&gt;
+[/code]
+
+<h3>With a Modal Footer</h3>
+<p>Add buttons below the iframe using the <code>modalFooter</code> option:</p>
+[code=html]
+&lt;button mx-get="reports/summary"
+        mx-build-iframe='{
+            "id": "report-modal",
+            "modalHeading": "Monthly Report",
+            "height": "500px",
+            "width": "700px",
+            "modalFooter": "&lt;button class=\"alt\" onclick=\"closeModal()\"&gt;Close&lt;/button&gt;"
+        }'&gt;View Report&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+  <p>When adding a <code>modalFooter</code>, remember to escape any double quotes inside the value with backslashes if you are working with inline JSON.</p>
+  <p>To close the modal manually, add <code>onclick="closeModal()"</code> to any button element, whether it is inside the footer or elsewhere on the page.</p>
+</div>
+
+<h3>Maximum Width with No Heading</h3>
+<p>For a near-full-screen experience without a heading or close icon:</p>
+[code=html]
+&lt;button mx-get="dashboard/analytics"
+        mx-build-iframe='{
+            "id": "fullish-modal",
+            "height": "600px",
+            "width": "96vw",
+            "marginTop": "2vh",
+            "renderCloseIcon": false
+        }'&gt;Open Dashboard&lt;/button&gt;
+[/code]
+
+<h2>Embedding Third-Party Content</h2>
+<p>While the primary use case for <code>mx-build-iframe</code> is loading pages from your own application, it also works well for embedding trusted third-party content such as YouTube videos or Google Maps. These examples are included here for completeness.</p>
+
+<h3>YouTube Video</h3>
+[code=html]
+&lt;button mx-get="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        mx-build-iframe='{
+            "id": "video-modal",
+            "modalHeading": "Product Overview",
+            "height": "450px",
+            "iframeAllow": "autoplay; encrypted-media; picture-in-picture",
+            "width": "800px"
+        }'&gt;Watch Video&lt;/button&gt;
+[/code]
+
+<h3>Google Map</h3>
+[code=html]
+&lt;button mx-get="https://www.google.com/maps/embed?pb=YOUR_EMBED_CODE"
+        mx-build-iframe='{
+            "id": "map-modal",
+            "modalHeading": "Find Us",
+            "height": "500px",
+            "width": "900px"
+        }'&gt;View Map&lt;/button&gt;
+[/code]
+
+<div class="alert alert-warning">
+  <p>Embedding third-party websites can introduce security and privacy concerns. Consider using the <code>iframeSandbox</code> option to restrict the embedded content's capabilities, and only embed content from sources you trust.</p>
+</div>
+
+<h2>Modal Headers and the Close Icon</h2>
+<p>When using <code>mx-build-iframe</code> with a <code>modalHeading</code> property, Trongate MX automatically adds a close icon (&#215;) to the top-right corner of your modal window. The system detects whether Font Awesome is available in your project. If it is, Trongate MX will use the <code>fa-times</code> icon. If Font Awesome is not available, the system automatically generates a similar-looking SVG close icon instead.</p>
+<p>If you do not want the close icon to appear automatically when using a <code>modalHeading</code>, you can prevent this by setting the <code>renderCloseIcon</code> property to <code>false</code> in your modal options. This will create a modal header without any close button.</p>
+
+<h2>Loading State</h2>
+<p>While the iframe content is loading, Trongate MX displays a CSS spinner inside the modal body. Once the iframe has finished loading its content, the spinner is automatically removed. No additional configuration is required.</p>
+
+<h2>Additional Notes</h2>
+<ul>
+  <li>Modal styling is governed by your application's CSS — customise as needed.</li>
+  <li>The iframe's <code>src</code> is always derived from the value of your core MX method attribute (<code>mx-get</code>, <code>mx-post</code>, etc.).</li>
+  <li>No AJAX request is fired when using <code>mx-build-iframe</code> — the browser loads the iframe content directly.</li>
+  <li>Both <code>marginTop</code> and <code>margin-top</code> are valid property names for the modal's top margin setting.</li>
+  <li>For security, consider using the <code>iframeSandbox</code> option when loading external content.</li>
+  <li>The iframe's own page lifecycle — including any JavaScript initialisation — runs automatically as it would in a normal browser tab.</li>
+</ul>
+<p>
+  By using <code>mx-build-iframe</code>, you can embed internal pages, dashboards, forms and reports into your Trongate application with full CSS and JavaScript isolation — all with a single, declarative attribute.
+</p>

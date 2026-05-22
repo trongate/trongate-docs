@@ -12,7 +12,7 @@
 </table>
 
 <div class="alert alert-info">
-    <p>In addition to the above attributes, the Trongate PHP framework also has the <span class="feature-ref" ref-path="helpers/utilities_helpers">from_trongate_mx()</span> function.  This function can be used on API endpoints to determine if an HTTP request came from Trongate MX or not.  Full details are available from, <a href="documentation/display/trongate_mx/core-http-operations/identifying-trongate-mx-requests">Identifying Trongate MX Requests</a>.</p>
+    <p>In addition to the above attributes, the Trongate PHP framework also has the <span class="feature-ref" ref-path="helpers/utilities_helpers">from_trongate_mx()</span> function.  This function can be used on API endpoints to determine if an HTTP request came from Trongate MX or not.  Full details are available from, <a href="documentation/trongate_mx/core-http-operations/identifying-trongate-mx-requests">Identifying Trongate MX Requests</a>.</p>
 </div>
 
 
@@ -37,6 +37,11 @@
             attribute: 'mx-after-validation',
             description: 'Executes a specified JavaScript function immediately after form validation errors are displayed.',
             url: 'form-handling/after-validation-operations'
+        },
+        {
+            attribute: 'mx-build-iframe',
+            description: 'Dynamically creates modal dialogs containing embedded iframes for displaying videos, maps, external pages, or internal content',
+            url: 'ui-enhancements/building-iframe-modals'
         },
         {
             attribute: 'mx-build-modal',
@@ -87,6 +92,11 @@
             attribute: 'mx-on-error',
             description: 'Specifies an element to be initialized or updated after a failed HTTP request (response code less than 200 or 300 and above)',
             url: 'events-and-responses/handling-request-errors'
+        },
+        {
+            attribute: 'mx-on-timeout',
+            description: 'Executes a specified JavaScript function when an HTTP request times out',
+            url: 'events-and-responses/handling-request-timeouts'
         },
         {
             attribute: 'mx-on-success',
@@ -162,6 +172,11 @@
             attribute: 'mx-throttle',
             description: 'Allows you to limit the frequency of HTTP requests triggered by user interactions.',
             url: 'advanced-features/throttling-http-requests'
+        },
+        {
+            attribute: 'mx-timeout',
+            description: 'Sets a custom timeout (in milliseconds) for an HTTP request, overriding the default 60-second limit',
+            url: 'events-and-responses/handling-request-timeouts'
         },
         {
             attribute: 'mx-token',

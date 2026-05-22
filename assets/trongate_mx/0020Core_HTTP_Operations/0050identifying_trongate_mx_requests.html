@@ -48,7 +48,7 @@
 
 [code=php]public function get_users() {
 
-    $users = $this->model->get('users');
+    $users = $this->db->get('users');
     
     if (from_trongate_mx() === true) {
         // Return HTML for dynamic update
@@ -104,7 +104,7 @@
 
 [code=php]public function get_data() {
 
-    $data = $this->model->get('items');
+    $data = $this->db->get('items');
     
     if (from_trongate_mx() === true) {
         // Return HTML for dynamic insertion

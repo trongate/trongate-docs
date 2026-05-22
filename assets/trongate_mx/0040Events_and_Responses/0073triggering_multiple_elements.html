@@ -1,5 +1,5 @@
 <h1>Triggering Multiple Elements</h1>
-<p>The <a href="documentation/display/trongate_mx/events-and-responses/handling-successful-requests">previous page</a> covered how to update/trigger <b>one element</b> after a successful HTTP request has been made.   This was achieved by using the <code>mx-on-success</code> attribute.</p>
+<p>The <a href="documentation/trongate_mx/events-and-responses/handling-successful-requests">previous page</a> covered how to update/trigger <b>one element</b> after a successful HTTP request has been made.   This was achieved by using the <code>mx-on-success</code> attribute.</p>
 
 <p>With <code>mx-on-success</code> it's also possible to trigger <i>multiple</i> elements by separating their selectors with spaces. Here's an example:</p>
 
@@ -54,7 +54,7 @@ echo form_close();
 [/code]
 
 <div class="alert alert-success">
-  <p>You may have noticed that in the examples shown, the elements to be <a href="documentation/display/trongate_mx/events-and-responses/triggers-in-trongate-mx">triggered</a>  have all been given the attribute, <code>mx-trigger="activate"</code>.</p>
+  <p>You may have noticed that in the examples shown, the elements to be <a href="documentation/trongate_mx/events-and-responses/triggers-in-trongate-mx">triggered</a>  have all been given the attribute, <code>mx-trigger="activate"</code>.</p>
 
   <p>The reason for this is to prevent default trigger behaviour from activating the target elements. By adding <code>mx-trigger="activate"</code>, we are effectively saying, "This element should <i>only</i> be activated when it is programmatically triggered by another element."</p>
 

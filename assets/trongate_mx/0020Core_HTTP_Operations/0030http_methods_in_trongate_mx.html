@@ -152,12 +152,7 @@ echo form_button('submit_btn', 'Submit', $attributes);
 <p class="text-center"><button onclick="alert('In the example, clicking on the button would invoke an HTTP POST request.')">Submit</button></p>
 
 <p>Clicking on the 'Submit' button would invoke an HTTP POST request which would be sent to a URL of the following form:</p>
-[code]&lt;base-url&gt;form/submit[/code]
-
-<div class="alert alert-info">
-  <p>You may assume that <code>&lt;base-url&gt;</code> would be replaced by the base URL of your web application.  In reality, this means that your target URL may be more like this:</p>
-  [code]https://example.com/form/submit[/code]
-</div>
+[code]https://example.com/form/submit[/code]
 
 <p>Once a response is received from the API endpoint (at 'form/submit'), the response text would then be displayed inside a div with an 'id' of 'form-result'.</p>
 
