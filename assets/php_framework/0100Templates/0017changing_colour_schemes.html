@@ -3,9 +3,32 @@
 
 <p>The built-in admin template ships with multiple color schemes (default, blue, red, green) and switching between them is ridiculously simple.</p>
 
-<h2>How It Works</h2>
+<h2>At a Glance</h2>
 
-<p>Just add a <code>theme</code> key to your <code>$data</code> array:</p>
+<p>There are two ways to set the admin theme:</p>
+
+<ul>
+    <li><strong>Per-controller</strong> — Set the <code>$admin_theme</code> property on your admin controller (recommended for the built-in admin panel).</li>
+    <li><strong>Per-method</strong> — Pass <code>$data['theme']</code> directly to <code>$this->templates->admin()</code> (useful for custom controllers or dynamic themes).</li>
+</ul>
+
+<h2>Per-Controller (Recommended)</h2>
+
+<p>The <code>Trongate_administrators</code> controller (and any controller that extends it) supports the <code>$admin_theme</code> property. Set it once at the top of your controller and it will apply to every admin view automatically:</p>
+
+[code=php]
+class Trongate_administrators extends Trongate {
+
+    private string $admin_theme = 'blue'; // or 'red', 'green'
+    // …remaining controller code…
+}
+[/code]
+
+<p>That's it. Every admin page — <code>manage</code>, <code>create</code>, <code>show</code>, <code>delete_conf</code>, <code>update_password</code>, <code>not_found</code> — will receive the theme automatically. An empty string (the default) produces the default dark charcoal theme.</p>
+
+<h2>Per-Method (For Custom Controllers)</h2>
+
+<p>If you are building your own controller (not extending the admin panel), just add a <code>theme</code> key to your <code>$data</code> array:</p>
 
 [code=php]
 public function manage(): void {
@@ -14,8 +37,6 @@ public function manage(): void {
     $this->templates->admin($data);
 }
 [/code]
-
-<p>That’s it. One line.</p>
 
 <h2>What Happens Behind the Scenes</h2>
 
@@ -59,6 +80,9 @@ body.theme-purple {
     --sidebar: #6b21a8;
     --submenu-bg: #581c87;
     --submenu-hover-bg: #6b21a8;
+    --primary: #6b21a8;
+    --primary-dark: #581c87;
+    --primary-darker: #3b0764;
     /* copy and adjust as many variables as you like */
 }
 [/code]
@@ -84,4 +108,4 @@ public function dashboard(): void {
 
 <h2>Why This Rules</h2>
 <p>One line of PHP + one CSS block = instant theme switch.</p>
-<p>That’s the Trongate way!</p>
+<p>That's the Trongate way!</p>
