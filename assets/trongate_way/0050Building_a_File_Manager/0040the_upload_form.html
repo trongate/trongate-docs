@@ -1,0 +1,104 @@
+[meta-description]Build the upload form in Trongate v2: form_open_upload(), file validation rules, and the complete create view for the File Manager module.[/meta-description]
+<div class="container">
+  <h1>The Upload Form</h1>
+
+  <p>
+    The upload form follows the same admin pattern as the <code>create()</code> method from the Basic CRUD chapter, but with an important difference: it uses <code>form_open_upload()</code> instead of <code>form_open()</code>. This is required because file uploads need a <code>multipart/form-data</code> encoding type.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <p>
+    The <code>create()</code> method is minimal  -  it sets up the view data and renders the admin template:
+  </p>
+
+  <pre><code class="language-php">public function create(): void {
+    $this->gatekeeper();
+
+    $data['view_module'] = 'file_manager';
+    $data['view_file'] = 'create';
+    $this->templates->admin($data);
+}</code></pre>
+
+  <h2>The View File</h2>
+
+  <p>
+    The view contains a form with two fields: a text input for the document name and a file input for selecting the file.
+  </p>
+
+  <pre><code class="language-php">&lt;div class="container"&gt;
+  &lt;h1&gt;Upload File&lt;/h1&gt;
+
+  &lt;?= form_open_upload(
+      'file_manager/submit'
+  ) ?&gt;
+
+  &lt;div class="form-group"&gt;
+    &lt;label for="doc_name"&gt;
+      Document Name:
+    &lt;/label&gt;
+    &lt;?= form_input('doc_name', '', [
+        'class' => 'form-control'
+    ]) ?&gt;
+    &lt;?= form_error('doc_name') ?&gt;
+  &lt;/div&gt;
+
+  &lt;div class="form-group"&gt;
+    &lt;label for="userfile"&gt;
+      Select File:
+    &lt;/label&gt;
+    &lt;?= form_file_select('userfile', [
+        'class' => 'form-control'
+    ]) ?&gt;
+    &lt;?= form_error('userfile') ?&gt;
+    &lt;p class="help-block"&gt;
+      Allowed types: PDF, TXT, CSV, DOC, DOCX,
+      XLS, XLSX, ZIP. Maximum size: 10 MB.
+    &lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div class="form-group"&gt;
+    &lt;button type="submit" class="btn btn-primary"&gt;
+      &lt;i class="fa-solid fa-upload"&gt;&lt;/i&gt;
+      Upload File
+    &lt;/button&gt;
+    &lt;a href="&lt;?= BASE_URL ?&gt;file_manager/manage"
+       class="btn btn-default"&gt;
+      Cancel
+    &lt;/a&gt;
+  &lt;/div&gt;
+
+  &lt;?= form_close() ?&gt;
+&lt;/div&gt;</code></pre>
+
+  <h2>Key Differences From a Regular Form</h2>
+
+  <ol>
+    <li>
+      <strong><code>form_open_upload()</code></strong>  -  Automatically adds the <code>enctype="multipart/form-data"</code> attribute, which is required for file uploads. Using <code>form_open()</code> instead would silently drop the file data.
+    </li>
+    <li>
+      <strong><code>form_file_select()</code></strong>  -  Renders an <code>&lt;input type="file"&gt;</code> element. The <code>name</code> attribute (<code>userfile</code>) must match the validation rule name in the controller.
+    </li>
+    <li>
+      <strong>Validation feedback</strong>  -  <code>form_error('userfile')</code> displays validation messages next to the file input, just like any other field.
+    </li>
+  </ol>
+
+  <h2>File Input Name Consistency</h2>
+
+  <p>
+    In the view, the file input is named <code>userfile</code>. In the controller's <code>submit()</code> method, the validation rule references the same name:
+  </p>
+
+  <pre><code class="language-php">$this->validation->set_rules(
+    'userfile', 'File',
+    'allowed_types[pdf,txt,csv,doc,docx,xls,xlsx,zip]'
+    . '|max_size[10240]'
+);</code></pre>
+
+  <p>
+    The File module automatically processes the first file uploaded in your form, regardless of its input field name. However, for validation to work correctly, the name attribute of the file input must match the validation rule. Using <code>userfile</code> consistently throughout is a reliable convention.
+  </p>
+
+</div>

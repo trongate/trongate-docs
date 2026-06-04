@@ -1,0 +1,311 @@
+[meta-description]Build the admin manage page in Trongate v2: paginated record list, per-page selector, search modal, and view/edit/delete action buttons.[/meta-description]
+<div class="container">
+  <h1>The Manage Page</h1>
+
+  <p>
+    The manage page is the centerpiece of any Trongate admin CRUD module. It displays a paginated table of records, provides search and per-page controls, and gives quick access to view, edit, and delete actions for each record.
+  </p>
+
+  <h2>Page Layout</h2>
+
+  <p>
+    Here is the high-level layout of the manage page. The page is rendered inside the admin template, which provides the header, sidebar, and footer. What we build is the content area:
+  </p>
+
+  <div style="border: 3px solid #33C3F0; border-radius: 6px; padding: 0; margin: 20px 0; font-family: monospace; font-size: 14px;">
+    <div style="background: #e8f8ff; padding: 12px 16px; border-bottom: 2px solid #33C3F0; font-weight: bold; color: #1a1a2e;">
+      admin template header + sidebar
+    </div>
+    <div style="padding: 20px;">
+      <div style="border: 2px solid #4a4; padding: 10px; margin-bottom: 10px; background: #f0fff0; text-align: center;">
+        <strong>h1</strong> → Manage Countries
+      </div>
+      <div style="border: 2px dashed #888; padding: 10px; margin-bottom: 10px; text-align: center;">
+        <em>flashdata message</em> (appears only after create/update/delete)
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <div style="border: 2px solid #44a; padding: 10px; flex: 1; margin-right: 8px; background: #eef; text-align: center;">
+          <strong>[ + Create New Country Record ]</strong>
+        </div>
+        <div style="border: 2px solid #44a; padding: 10px; background: #eef; text-align: center;">
+          <strong>[ Search ]</strong>
+        </div>
+      </div>
+      <div style="border: 2px solid #a4a; padding: 10px; margin-bottom: 10px; background: #fef; text-align: center;">
+        <strong>pagination bar</strong> ← 1 2 3 … 5 → &nbsp; Showing 1 to 20 of 100
+      </div>
+      <div style="border: 2px solid #a44; padding: 10px; margin-bottom: 10px; background: #fff0f0;">
+        <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #a44; font-weight: bold;">
+          <span>Country Name</span>
+          <span>Actions</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #ddd;">
+          <span>Afghanistan</span>
+          <span>[👁] [✏] [🗑]</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #ddd;">
+          <span>Albania</span>
+          <span>[👁] [✏] [🗑]</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 4px 8px;">
+          <span>Algeria</span>
+          <span>[👁] [✏] [🗑]</span>
+        </div>
+      </div>
+      <div style="border: 2px solid #a4a; padding: 10px; background: #fef; text-align: center;">
+        <strong>pagination bar</strong> &nbsp; Records Per Page: [20 ▼]
+      </div>
+    </div>
+    <div style="background: #e8f8ff; padding: 12px 16px; border-top: 2px solid #33C3F0; font-weight: bold; color: #1a1a2e;">
+      admin template footer
+    </div>
+  </div>
+
+  <h2>Controller Method</h2>
+
+  <p>The <code>manage()</code> method in <code>Countries.php</code> gathers all the data needed by the view:</p>
+
+  <pre><code class="language-php">public function manage(): void {
+    $this->gatekeeper();
+
+    $search_query = $_GET['search_query'] ?? '';
+    $search_column = $_GET['search_column'] ?? '';
+
+    $limit = $this->get_limit();
+    $offset = $this->get_offset();
+    $rows = $this->model->fetch_records($limit, $offset);
+    $rows = $this->model->prepare_records_for_display($rows);
+
+    $data = [
+        'rows' => $rows,
+        'search_query' => $search_query,
+        'search_column' => $search_column,
+        'pagination_data' => $this->get_pagination_data($limit),
+        'view_module' => 'countries',
+        'view_file' => 'manage',
+        'per_page_options' => $this->per_page_options,
+        'selected_per_page' => $this->get_selected_per_page()
+    ];
+
+    $this->templates->admin($data);
+}</code></pre>
+
+  <p>Let us examine each piece.</p>
+
+  <h3>Gatekeeper</h3>
+  <p>
+    The <code>gatekeeper()</code> call ensures only logged-in administrators can access this page. If the current user's token does not have <code>admin</code> level, they are redirected to the login page (or given a 403 response for MX requests).
+  </p>
+
+  <h3>Search Parameters</h3>
+  <p>
+    The search query and column are read from the URL's query string (<code>?search_query=...&amp;search_column=...</code>). These are passed through to the view but handled at the database level by <code>submit_search()</code>, which redirects back to <code>manage()</code> with the query parameters.
+  </p>
+
+  <h3>Pagination</h3>
+  <p>
+    The <code>get_limit()</code> helper reads the user's preferred page size from the session (defaulting to 20). The <code>get_offset()</code> helper calculates how many records to skip based on the current page number, which is extracted from URL segment 3 via <code>segment(3, 'int')</code>.
+  </p>
+
+  <pre><code class="language-php">public function get_limit(): int {
+    block_url('countries/get_limit');
+
+    if (isset($_SESSION['selected_per_page'])) {
+        return $this->per_page_options[$_SESSION['selected_per_page']];
+    }
+    return $this->default_limit;
+}
+
+public function get_offset(): int {
+    block_url('countries/get_offset');
+
+    $page_num = segment(3, 'int');
+    return ($page_num > 1)
+        ? ($page_num - 1) * $this->get_limit()
+        : 0;
+}</code></pre>
+
+  <h3>Pagination Data</h3>
+  <p>
+    The pagination data array tells the pagination module how to render its controls:
+  </p>
+
+  <pre><code class="language-php">public function get_pagination_data(int $limit): array {
+    block_url('countries/get_pagination_data');
+
+    return [
+        'total_rows' => $this->model->count_all(),
+        'page_num_segment' => 3,
+        'limit' => $limit,
+        'pagination_root' => 'countries/manage',
+        'record_name_plural' => 'countries',
+        'include_showing_statement' => true
+    ];
+}</code></pre>
+
+  <p>
+    The pagination module is invoked in the view with <code>Modules::run('pagination/display', $pagination_data)</code>, which renders page numbers and a "Showing X to Y of Z" statement.
+  </p>
+
+  <h2>The Manage View (Complete)</h2>
+
+  <p>
+    The view file <code>manage.php</code> renders the full content area shown in the layout diagram above. Here is the complete file with no omissions:
+  </p>
+
+  <pre><code class="language-php">&lt;h1&gt;Manage Countries&lt;/h1&gt;
+&lt;?= flashdata() ?&gt;
+
+&lt;?php
+echo '&lt;p class="flex-row justify-between"&gt;';
+echo anchor('countries/create', 'Create New Country Record', ['class' => 'button alt']);
+if (!empty($rows) || !empty($search_query)) {
+    $btn_attr = [
+        'class' => 'alt',
+        'mx-get' => 'countries/search_modal',
+        'mx-build-modal' => json_encode([
+            'id' => 'search-modal',
+            'modalHeading' => 'Search Countries',
+            'modalFooter' => '&lt;button class="alt" onclick="closeModal()"&gt;Cancel&lt;/button&gt;&lt;button form="search-form"&gt;Search&lt;/button&gt;'
+        ])
+    ];
+    echo form_button('search_btn', 'Search &lt;i class="tg tg-search"&gt;&lt;/i&gt;', $btn_attr);
+}
+echo '&lt;/p&gt;';
+
+if (empty($rows)) {
+    echo '&lt;p&gt;There are currently no records to display.&lt;/p&gt;';
+    return;
+}
+echo Modules::run('pagination/display', $pagination_data);
+?&gt;
+
+&lt;div class="table-container"&gt;
+    &lt;table class="records-table"&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th colspan="3"&gt;
+                    &lt;div&gt;
+                        &lt;div&gt;&amp;nbsp;&lt;/div&gt;
+                        &lt;div&gt;Records Per Page: &lt;?php
+                        $dropdown_attr['onchange'] = 'setPerPage()';
+                        echo form_dropdown('per_page', $per_page_options, $selected_per_page, $dropdown_attr);
+                        ?&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th class="text-left"&gt;Country Name&lt;/th&gt;
+                &lt;th&gt;Actions&lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            &lt;?php foreach ($rows as $row): ?&gt;
+                &lt;?php
+                $preview_attr = [
+                    'mx-get' => 'countries/show/' . $row-&gt;id,
+                    'mx-select' => '.detail-grid',
+                    'mx-build-modal' => json_encode([
+                        'id' => 'record-preview-modal',
+                        'width' => '640px',
+                        'modalHeading' => 'Record Preview',
+                        'modalFooter' => '&lt;a href="#" class="button alt mt-0 xs" onclick="event.preventDefault(); closeModal()"&gt;Close&lt;/a&gt; &lt;a href="countries/show/' . $row-&gt;id . '" class="button mt-0 xs"&gt;View Details&lt;/a&gt;'
+                    ])
+                ];
+                ?&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;
+                        &lt;?= anchor('#', out($row-&gt;country_title), $preview_attr) ?&gt;
+                    &lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;div class="actions"&gt;
+                            &lt;a href="countries/show/&lt;?= $row-&gt;id ?&gt;"
+                               class="button alt button-round"
+                               title="View Record"&gt;
+                                &lt;i class="tg tg-eye"&gt;&lt;/i&gt;
+                            &lt;/a&gt;
+                            &lt;a href="countries/create/&lt;?= $row-&gt;id ?&gt;"
+                               class="button alt button-round"
+                               title="Edit Record"&gt;
+                                &lt;i class="tg tg-pencil"&gt;&lt;/i&gt;
+                            &lt;/a&gt;
+                            &lt;a href="countries/confirm_delete/&lt;?= $row-&gt;id ?&gt;"
+                               class="button alt button-round"
+                               title="Delete Record"&gt;
+                                &lt;i class="tg tg-trash"&gt;&lt;/i&gt;
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;?php endforeach; ?&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+&lt;/div&gt;
+
+&lt;?php
+if (count($rows) &gt; 9) {
+    unset($pagination_data['include_showing_statement']);
+    echo Modules::run('pagination/display', $pagination_data);
+}
+?&gt;
+
+&lt;script&gt;
+function setPerPage() {
+    const selectedIndex = document.querySelector('select[name="per_page"]').value;
+    window.location.href = '&lt;?= BASE_URL ?&gt;countries/set_per_page/' + selectedIndex;
+}
+&lt;/script&gt;</code></pre>
+
+  <p>
+    Note that this is a Trongate view partial  -  it does not include <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, or <code>&lt;body&gt;</code> tags because those are provided by the admin template. The view only supplies the content that appears within the <code>card-body</code> area of the layout diagram above.
+  </p>
+
+  <p>
+    Each row in the table has three action buttons: <strong>View</strong> (eye icon), <strong>Edit</strong> (pencil icon), and <strong>Delete</strong> (trash icon). The country name itself doubles as a link that opens a quick-preview modal via Trongate MX.
+  </p>
+
+  <h3>Per-Page Selector</h3>
+  <p>
+    A dropdown in the table header lets the user choose between 10, 20, 50, or 100 records per page. When changed, the <code>setPerPage()</code> JavaScript function redirects to <code>/countries/set_per_page/{index}</code>, which stores the preference in the session:
+  </p>
+
+  <pre><code class="language-php">public function set_per_page(): void {
+    $this-&gt;gatekeeper();
+
+    $selected_index = segment(3, 'int');
+
+    if (!isset($this-&gt;per_page_options[$selected_index])) {
+        $selected_index = 1;
+    }
+
+    $_SESSION['selected_per_page'] = $selected_index;
+    redirect('countries/manage');
+}</code></pre>
+
+  <h2>Search Modal</h2>
+  <p>
+    The Search button opens an MX-powered modal where the user enters a query and selects which column to search:
+  </p>
+
+  <pre><code class="language-php">&lt;?php
+$form_attr = ['id' => 'search-form'];
+echo form_open('countries/submit_search', $form_attr);
+?&gt;
+    &lt;div class="form-group"&gt;
+        &lt;?= form_label('Search Query') ?&gt;
+        &lt;?= form_input('search_query', '', [
+            'placeholder' => 'Enter search term...',
+            'autocomplete' => 'off'
+        ]) ?&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+        &lt;?= form_label('Search In') ?&gt;
+        &lt;?= form_dropdown('search_column', $searchable_columns) ?&gt;
+    &lt;/div&gt;
+&lt;?= form_close() ?&gt;</code></pre>
+
+  <p>
+    When the user submits the search form, <code>submit_search()</code> validates the input and redirects back to <code>/countries/manage</code> with the search parameters in the query string. The manage method reads these parameters and passes them to the view, which shows only matching records.
+  </p>
+
+</div>

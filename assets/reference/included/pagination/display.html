@@ -5,10 +5,10 @@
   <h2>Description</h2>
   <div class="description">
     <p>
-      Renders pagination navigation controls with optional "Showing" statement. This method processes the pagination configuration through the model layer for validation, then outputs the complete pagination HTML. The method handles all link types — First, Previous, numbered pages, Next, and Last — with automatically detected or explicitly specified URL roots.
+      Renders pagination navigation controls with optional "Showing" statement. This method processes the pagination configuration through the model layer for validation, then outputs the complete pagination HTML. The method handles all link types  -  First, Previous, numbered pages, Next, and Last  -  with automatically detected or explicitly specified URL roots.
     </p>
     <p>
-      If the total number of records does not exceed the limit per page, the method returns early without rendering any output — no unnecessary markup.
+      If the total number of records does not exceed the limit per page, the method returns early without rendering any output  -  no unnecessary markup.
     </p>
   </div>
 
@@ -134,7 +134,7 @@
   </table>
 
   <h2>Example #1</h2>
-  <p>Basic usage — paginate blog posts with 10 per page and display a showing statement.</p>
+  <p>Basic usage  -  paginate blog posts with 10 per page and display a showing statement.</p>
 [code=php]public function index(): void {
     $sql = 'SELECT * FROM blog_posts ORDER BY date_created DESC';
     $total_rows = $this-&gt;db-&gt;query($sql, ['count'])-&gt;total;
@@ -170,7 +170,7 @@ $pagination_data['settings']['last_link'] = 'Last »';
 $this-&gt;pagination-&gt;display($pagination_data);[/code]
 
   <h2>Example #3</h2>
-  <p>Auto-detected pagination — the module determines the current page and pagination root from the URL automatically.</p>
+  <p>Auto-detected pagination  -  the module determines the current page and pagination root from the URL automatically.</p>
 [code=php]$pagination_data['total_rows'] = 1200;
 $pagination_data['limit'] = 15;
 $pagination_data['record_name_plural'] = 'images';

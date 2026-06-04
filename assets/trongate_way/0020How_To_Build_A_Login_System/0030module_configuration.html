@@ -1,0 +1,171 @@
+[meta-description]Configure the Trongate login module for member authentication: user levels, target tables, identifiers, remember-me, forgot-password settings.[/meta-description]
+<div class="container">
+  <h1>Module Configuration</h1>
+
+  <p>
+    Create <code>config/login.php</code>. This is the central configuration file that tells the login module everything it needs to know about your user levels.
+  </p>
+
+[code=php]
+<?php
+$config['login'] = [
+
+    // Global settings
+    'default_view_file'     => 'login_default',
+    'max_failed_attempts'   => 3,
+    'block_duration'        => 900,
+    'password_hash_cost'    => 11,
+    'reset_token_lifespan'  => 3600,
+
+    'user_levels' => [
+
+        // Level 1: Administrators (built-in with framework)
+        1 => [
+            'target_table'            => 'trongate_administrators',
+            'user_ref_field'          => 'trongate_user_id',
+            'secret_login_word'       => 'tg-admin',
+            'redirect_on_success'     => 'trongate_administrators/manage',
+            'allow_remember'          => 0,
+            'remember_days'           => 0,
+            'enable_forgot_password'  => false,
+            'view_file'               => 'login_default',
+            'fields' => [
+                'identifiers' => [
+                    'username' => ['column' => 'username', 'label' => 'Username'],
+                    'email'    => ['column' => 'email', 'label' => 'Email']
+                ],
+                'password' => [
+                    'column' => 'password',
+                    'label'  => 'Password'
+                ]
+            ]
+        ],
+
+        // Level 2: Members
+        2 => [
+            'target_table'            => 'members',
+            'user_ref_field'          => 'trongate_user_id',
+            'secret_login_word'       => 'member-login',
+            'redirect_on_success'     => 'members/welcome',
+            'allow_remember'          => 1,
+            'remember_days'           => 30,
+            'enable_forgot_password'  => true,
+            'view_file'               => 'login_default',
+            'fields' => [
+                'identifiers' => [
+                    'username' => ['column' => 'username', 'label' => 'Username'],
+                    'email'    => ['column' => 'email_address', 'label' => 'Email Address']
+                ],
+                'password' => [
+                    'column' => 'password',
+                    'label'  => 'Password'
+                ]
+            ]
+        ]
+    ]
+];
+[/code]
+
+  <h2>Member-Level Settings Explained</h2>
+
+  <p>Settings that are specifically relevant to the member experience:</p>
+
+  <table class="table sm">
+    <thead>
+      <tr>
+        <th>Setting</th>
+        <th>Value</th>
+        <th>Why This Matters for Members</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>secret_login_word</code></td>
+        <td><code>member-login</code></td>
+        <td>Creates a clean URL like <code>/member-login</code>. The login module uses this word to identify the correct user level.</td>
+      </tr>
+      <tr>
+        <td><code>redirect_on_success</code></td>
+        <td><code>members/welcome</code></td>
+        <td>After a successful login, members are sent to the welcome page in your custom Members controller.</td>
+      </tr>
+      <tr>
+        <td><code>allow_remember</code></td>
+        <td><code>1</code></td>
+        <td>Members typically want to stay logged in between visits. Enable this to show a "Remember Me" checkbox on the login form.</td>
+      </tr>
+      <tr>
+        <td><code>remember_days</code></td>
+        <td><code>30</code></td>
+        <td>How long the remember-me token remains valid. 30 days is a common balance between convenience and security.</td>
+      </tr>
+      <tr>
+        <td><code>enable_forgot_password</code></td>
+        <td><code>true</code></td>
+        <td>Members forget their passwords. Enable this to allow them to request a password reset email.</td>
+      </tr>
+      <tr>
+        <td><code>identifiers</code></td>
+        <td><code>username</code> and <code>email_address</code></td>
+        <td>Members can log in with either their chosen username or their email address. The <code>column</code> values must match column names in the <code>members</code> table.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Important: Column Names Must Match</h2>
+
+  <p>
+    The <code>fields.identifiers</code> and <code>fields.password</code> column names must match <strong>exactly</strong> with the column names in your <code>members</code> table. In this configuration:
+  </p>
+
+  <ul>
+    <li><code>username</code> maps to the <code>username</code> column in the <code>members</code> table</li>
+    <li><code>email_address</code> maps to the <code>email_address</code> column</li>
+    <li><code>password</code> maps to the <code>password</code> column</li>
+  </ul>
+
+  <p>A common source of errors is a column name mismatch between the configuration and the database. Verify that every column name in your config exists in your target table.</p>
+
+  <h2>Global Settings Reference</h2>
+
+  <table class="table sm">
+    <thead>
+      <tr>
+        <th>Setting</th>
+        <th>Default</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>default_view_file</code></td>
+        <td><code>login_default</code></td>
+        <td>The default view file for login forms when a level does not specify its own.</td>
+      </tr>
+      <tr>
+        <td><code>max_failed_attempts</code></td>
+        <td><code>3</code></td>
+        <td>Number of failed login attempts before the user is temporarily blocked.</td>
+      </tr>
+      <tr>
+        <td><code>block_duration</code></td>
+        <td><code>900</code></td>
+        <td>Duration in seconds (15 minutes) that a user is blocked after exceeding the max failed attempts.</td>
+      </tr>
+      <tr>
+        <td><code>password_hash_cost</code></td>
+        <td><code>11</code></td>
+        <td>The cost factor used by <code>password_hash()</code> with the bcrypt algorithm.</td>
+      </tr>
+      <tr>
+        <td><code>reset_token_lifespan</code></td>
+        <td><code>3600</code></td>
+        <td>Duration in seconds (1 hour) that a password reset token remains valid.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    With the configuration in place, the login module now knows exactly how to authenticate members. Next, we will set up custom routing so the secret login word resolves to the correct controller.
+  </p>
+</div>

@@ -1,7 +1,7 @@
 <h1>Handling Request Errors</h1>
 <p>
   The <code>mx-on-error</code> attribute in Trongate MX lets you specify which elements should 
-  update or reinitialise when an AJAX request fails. It offers a means of handling errors 
+  update or reinitialize when an AJAX request fails. It offers a means of handling errors 
   gracefully and keeping your users informed when things don't go quite as planned.
 </p>
 
@@ -16,7 +16,7 @@
 
 <p>
   Use a CSS selector as the value of <code>mx-on-error</code>. This tells Trongate MX which 
-  element should be updated or reinitialised after a request fails.
+  element should be updated or reinitialized after a request fails.
 </p>
 
 <h2>How It Works</h2>
@@ -26,7 +26,7 @@
 <ol>
   <li>It checks if the triggering element has an <code>mx-on-error</code> attribute.</li>
   <li>If it does, the framework finds the target element using your CSS selector.</li>
-  <li>Page load events tied to the target element are triggered, reinitialising it.</li>
+  <li>Page load events tied to the target element are triggered, reinitializing it.</li>
 </ol>
 <p>
   This makes it easy to display error messages or trigger fallback options when things go wrong.
@@ -50,7 +50,7 @@
 
 <div class="alert alert-info">
 <p>Usually, if a form is submitted - and something goes wrong - it'll be appropriate to display <a href="documentation/trongate_mx/form-handling/form-validation-and-error-handling">form validation errors</a>. <b>That's not what's happening here!</b></p>
-<p>In our example, the assumption is that we have a more sophistated error message to display when things go wrong.  For example, let's imagine a user is enrolling to join a course.  Let's further assume that - at the last moment - somebody else has enrolled and there are no more spaces left!</p>
+<p>In our example, the assumption is that we have a more sophisticated error message to display when things go wrong.  For example, let's imagine a user is enrolling to join a course.  Let's further assume that - at the last moment - somebody else has enrolled and there are no more spaces left!</p>
 <p>As complicated as it may seem, this is <i>precisely</i> the kind of situation where a more sophisticated error message would be appropriate (as opposed to just a form validation error).</p>
 <p>In the error message, we might explain that there are no more spaces left and we may wish to give the user an opportunity to join a waiting list so that they can be kept informed of future courses or even cancellations.</p>  
 <p>For information on how to render form validation errors with Trongate MX, <a href="documentation/trongate_mx/form-handling/form-validation-and-error-handling">click here</a>.</p>

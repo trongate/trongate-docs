@@ -1,0 +1,95 @@
+[meta-description]Create the countries table in Trongate v2: SQL schema with country_title, country_code, and pre-populated seed data for 60 countries.[/meta-description]
+<div class="container">
+  <h1>Database Setup</h1>
+
+  <p>
+    Our CRUD module stores data in a simple <code>countries</code> table consisting of three columns: an auto-incrementing primary key, the country name, and a two-letter country code.
+  </p>
+
+  <h2>The SQL Schema</h2>
+
+  <p>Create the table by running the following SQL statement:</p>
+
+  <pre><code class="language-sql">CREATE TABLE IF NOT EXISTS `countries` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `country_title` varchar(255) NOT NULL,
+    `country_code` varchar(2) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `country_code` (`country_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+
+  <p>
+    The <code>country_code</code> column is marked as <code>UNIQUE</code> to prevent duplicate codes. For example, "GB" can only appear once. This is enforced at the database level regardless of what your application code does.
+  </p>
+
+  <h2>Seed Data</h2>
+
+  <p>
+    To make the module immediately useful, populate the table with a starter set of countries. Here is a sample:
+  </p>
+
+  <pre><code class="language-sql">INSERT INTO `countries` (`country_title`, `country_code`) VALUES
+('Afghanistan', 'AF'),
+('Albania', 'AL'),
+('Algeria', 'DZ'),
+('Argentina', 'AR'),
+('Australia', 'AU'),
+('Austria', 'AT'),
+('Brazil', 'BR'),
+('Canada', 'CA'),
+('China', 'CN'),
+('France', 'FR'),
+('Germany', 'DE'),
+('India', 'IN'),
+('Italy', 'IT'),
+('Japan', 'JP'),
+('United Kingdom', 'GB'),
+('United States', 'US');
+-- ... and many more</code></pre>
+
+  <p>
+    A full set of 60 countries is included in the <strong>countries.sql</strong> file that ships with the companion GitHub repository. You can also add your own countries through the admin interface once the module is running.
+  </p>
+
+  <h2>Running the SQL</h2>
+
+  <p>
+    You can run the SQL through phpMyAdmin, the MySQL command line, or any other database management tool. For the command line:
+  </p>
+
+  <pre><code class="language-bash">mysql -u root -p your_database_name &lt; countries.sql</code></pre>
+
+  <p>
+    Replace <code>your_database_name</code> with the database configured in your Trongate project's <code>config/database.php</code> file.
+  </p>
+
+  <h2>Column Reference</h2>
+
+  <table class="narrow-table">
+    <thead>
+      <tr>
+        <th>Column</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>id</code></td>
+        <td><code>INT(11) AUTO_INCREMENT</code></td>
+        <td>Primary key, automatically assigned</td>
+      </tr>
+      <tr>
+        <td><code>country_title</code></td>
+        <td><code>VARCHAR(255)</code></td>
+        <td>The full country name (e.g. "United Kingdom")</td>
+      </tr>
+      <tr>
+        <td><code>country_code</code></td>
+        <td><code>VARCHAR(2)</code></td>
+        <td>Two-letter ISO code (e.g. "GB")</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

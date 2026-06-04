@@ -1,0 +1,102 @@
+[meta-description]Set up custom routing for member login using secret login words in Trongate. Understanding how login/login routes member requests through the login module.[/meta-description]
+<div class="container">
+  <h1>Custom Routing</h1>
+
+  <p>
+    When a user level has a <code>secret_login_word</code>, that word must be mapped to the correct controller method via custom routing. This keeps login URLs clean and secure.
+  </p>
+
+  <p>Create or update <code>config/custom_routing.php</code>:</p>
+
+[code=php]
+<?php
+$routes = [
+
+    // Member route through the login module
+    "member-login"                 => "login/login/member-login",
+
+    // Admin route through the admin controller (built-in)
+    "tg-admin"                     => "trongate_administrators/login",
+    "tg-admin/submit_login"        => "trongate_administrators/submit_login",
+];
+define('CUSTOM_ROUTES', $routes);
+[/code]
+
+  <h2>Understanding the Member Route</h2>
+
+  <p>
+    The member route <code>member-login</code> points to <code>login/login/member-login</code>. Let us break this down:
+  </p>
+
+  <ul>
+    <li>
+      <strong><code>login/login</code></strong>  -  The first <code>login</code> is the module name, the second <code>login</code> is the controller method. So this calls <code>Login->login()</code> in <code>modules/login/Login.php</code>.
+    </li>
+    <li>
+      <strong><code>/member-login</code></strong>  -  This is the secret login word passed as a URL segment. The login module uses <code>get_last_part(current_url(), '/')</code> to extract it and compare against the configured secret words.
+    </li>
+  </ul>
+
+  <p>
+    When a visitor navigates to <code>/member-login</code>, the following happens:
+  </p>
+
+  <ol>
+    <li>Custom routing forwards the request to <code>login/login/member-login</code>.</li>
+    <li>The <code>login()</code> method calls <code>resolve_level()</code>, which scans the URL segments for a matching secret word.</li>
+    <li>It finds <code>member-login</code> and matches it to user level 2 (Members).</li>
+    <li>If the member already has a valid token, they are redirected to <code>members/welcome</code>.</li>
+    <li>Otherwise, the login form is rendered.</li>
+    <li>The form submits to <code>login/submit_login/member-login</code>, which routes through the same custom routing pattern.</li>
+  </ol>
+
+  <h2>How Member Routing Differs from Admin Routing</h2>
+
+  <p>
+    Notice the difference between the two route patterns:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Administrators</strong> route directly to <code>trongate_administrators/login</code>. This is because the admin controller has its own <code>login()</code> and <code>submit_login()</code> methods that handle the full authentication flow, rendered with the admin template.
+    </li>
+    <li>
+      <strong>Members</strong> route through <code>login/login/member-login</code>, which goes directly to the login module's built-in <code>login()</code> method. Members use the default login module views rendered with the site's public template.
+    </li>
+  </ul>
+
+  <p>
+    Why this difference? Because administrators are covered by the framework's built-in <code>trongate_administrators</code> module, which has its own view and controller. Members have a custom controller that delegates the authentication heavy lifting to the login module.
+  </p>
+
+  <h2>Critical Rule: Route Key Must Match Secret Login Word</h2>
+
+  <p>
+    The <code>secret_login_word</code> in <code>config/login.php</code> and the route key in <code>config/custom_routing.php</code> must match <strong>exactly</strong>. If the login word is <code>member-login</code>, the route key must be <code>member-login</code>. A mismatch here is the most common source of routing errors.
+  </p>
+
+  <h2>How It Looks in the Browser</h2>
+
+  <p>After setting up custom routing, the login URLs are clean and intuitive:</p>
+
+  <table class="table sm">
+    <thead>
+      <tr>
+        <th>URL</th>
+        <th>What It Does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>http://your-site.com/member-login</code></td>
+        <td>Displays the member login form</td>
+      </tr>
+      <tr>
+        <td><code>http://your-site.com/tg-admin</code></td>
+        <td>Displays the admin login form</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Next, we will build the Members controller that handles the post-login experience.</p>
+</div>

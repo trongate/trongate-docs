@@ -1,0 +1,27 @@
+<div class="container">
+  <h1>detect_base_url()</h1>
+  <p class="signature">public function detect_base_url(): string</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Auto-detects the application's base URL by examining the server protocol, host, and script path. Used during initial setup to suggest a likely base URL for the application.
+    </p>
+    <p>
+      The method takes no user input and makes a best-effort determination based on the current server environment. The detected URL should always be verified by the user before being saved.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <p>This method takes no parameters.</p>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>string</td><td>The detected base URL with trailing forward slash (e.g., <code>http://localhost/myapp/</code>).</td></tr>
+    </tbody>
+  </table>
+</div>

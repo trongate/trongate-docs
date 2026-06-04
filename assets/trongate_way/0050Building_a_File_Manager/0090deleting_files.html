@@ -1,0 +1,145 @@
+[meta-description]Delete files in the Trongate v2 File Manager: confirm_delete and submit_confirm_delete, removing from both the database and the filesystem.[/meta-description]
+<div class="container">
+  <h1>Deleting Files</h1>
+
+  <p>
+    The delete flow follows the same confirm-then-delete pattern from the Basic CRUD chapter. The key difference is that our delete operation removes the file from two places: the database record and the physical file on disk.
+  </p>
+
+  <h2>The Confirm Delete Method</h2>
+
+  <pre><code class="language-php">public function confirm_delete(): void {
+    $this->gatekeeper();
+
+    $update_id = segment(3, 'int');
+    $data = $this->model->get_file_by_id($update_id);
+
+    if ($data === false) {
+        $this->not_found();
+        return;
+    }
+
+    $data['headline'] = 'Delete File';
+    $data['cancel_url'] = BASE_URL
+                       . 'file_manager/show/'
+                       . $update_id;
+    $data['form_location'] = str_replace(
+        '/confirm_delete',
+        '/submit_confirm_delete',
+        current_url()
+    );
+    $data['update_id'] = $update_id;
+    $data['view_module'] = 'file_manager';
+    $data['view_file'] = 'confirm_delete';
+
+    $this->templates->admin($data);
+}</code></pre>
+
+  <p>
+    The confirmation page shows the document name and filename, then asks the user to confirm. A warning message emphasizes that the action is irreversible  -  the file will be removed from both the database and the filesystem.
+  </p>
+
+  <h2>The Confirm Delete View</h2>
+
+  <pre><code class="language-php">&lt;div class="container"&gt;
+  &lt;h1&gt;&lt;?= out($headline) ?&gt;&lt;/h1&gt;
+
+  &lt;p&gt;
+    Are you sure you want to permanently
+    delete the following file?
+  &lt;/p&gt;
+
+  &lt;table class="table"&gt;
+    &lt;tr&gt;
+      &lt;th style="width: 200px;"&gt;
+        Document Name
+      &lt;/th&gt;
+      &lt;td&gt;&lt;?= out($doc_name) ?&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;File Name&lt;/th&gt;
+      &lt;td&gt;
+        &lt;code&gt;
+          &lt;?= out($file_name) ?&gt;
+        &lt;/code&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+
+  &lt;div class="alert alert-danger"&gt;
+    &lt;strong&gt;Warning:&lt;/strong&gt;
+    This action is irreversible.
+    The file will be permanently removed
+    from both the database and the server
+    filesystem.
+  &lt;/div&gt;
+
+  &lt;?= form_open($form_location) ?&gt;
+    &lt;div class="form-group"&gt;
+      &lt;button type="submit"
+              class="btn btn-danger"&gt;
+        &lt;i class="fa-solid fa-trash"&gt;&lt;/i&gt;
+        Yes, Delete This File
+      &lt;/button&gt;
+      &lt;a href="&lt;?= out($cancel_url) ?&gt;"
+         class="btn btn-default"&gt;
+        Cancel
+      &lt;/a&gt;
+    &lt;/div&gt;
+  &lt;?= form_close() ?&gt;
+&lt;/div&gt;</code></pre>
+
+  <h2>The Submission Method</h2>
+
+  <pre><code class="language-php">public function submit_confirm_delete(): void {
+    $this->gatekeeper();
+
+    $update_id = segment(3, 'int');
+    $data = $this->model->get_file_by_id($update_id);
+
+    if ($data === false) {
+        $this->not_found();
+        return;
+    }
+
+    // Delete from filesystem first
+    $file_path = $data['file_path'];
+    if (file_exists($file_path)) {
+        $this->file->delete($file_path);
+    }
+
+    // Then delete from database
+    $this->model->delete_file($update_id);
+
+    set_flashdata(
+        'The file record was successfully deleted.'
+    );
+    redirect('file_manager/manage');
+}</code></pre>
+
+  <h2>Filesystem First, Database Second</h2>
+
+  <p>
+    The method deletes from the filesystem <em>before</em> deleting from the database. This is intentional:
+  </p>
+
+  <ol>
+    <li>
+      If the filesystem delete fails (e.g., permission error), the database record still exists and the admin can investigate.
+    </li>
+    <li>
+      If we deleted the database record first and then the filesystem delete failed, we would lose the record's <code>file_path</code> and have no way to locate the orphaned file.
+    </li>
+  </ol>
+
+  <p>
+    The <code>file_exists()</code> check before deletion is also deliberate. It handles the case where the physical file was already removed (by an admin, a cleanup script, etc.)  -  the method simply skips the filesystem delete and removes the database record cleanly.
+  </p>
+
+  <h2>Irreversibility</h2>
+
+  <p>
+    Unlike the countries module where a deleted record can be re-created by submitting a form, a deleted file cannot be recovered. The actual bytes are gone. This is why the confirmation page displays a prominent warning and why the two-step confirm-then-delete pattern is particularly important for file management.
+  </p>
+
+</div>

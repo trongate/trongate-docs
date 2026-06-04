@@ -107,3 +107,89 @@
 &lt;label&gt;Username &lt;span&gt;(optional)&lt;/span&gt;&lt;/label&gt;
 &lt;input type="text"&gt;
 [/code]
+
+<h2>Form Validation</h2>
+
+<p>Trongate CSS includes built-in styling for form validation feedback, helping you communicate errors clearly to users.</p>
+
+<h3>Validation Errors Container</h3>
+
+<p>Wrap validation messages in a <code>.validation-errors</code> element to display them with the danger theme color:</p>
+
+[code=css]
+.validation-errors {
+  margin: 0.5em 0 1em 0;
+  padding: 0.3em 1em;
+  border: 1px solid var(--danger);
+  background-color: #ff000011;
+  color: var(--danger);
+  border-radius: 6px;
+  font-size: .9em;
+}
+[/code]
+
+[code=html]
+&lt;div class="validation-errors"&gt;
+  &lt;p&gt;Please correct the following errors:&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Email address is required&lt;/li&gt;
+    &lt;li&gt;Password must be at least 8 characters&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+[/code]
+
+<h3>Field-Level Error Styling</h3>
+
+<p>Individual form fields that fail validation can be highlighted by adding the <code>.form-field-validation-error</code> class, which applies a red border and subtle background:</p>
+
+[code=css]
+form .form-field-validation-error,
+form .form-field-validation-error:focus {
+  border: 3px solid var(--danger);
+  background-color: #ff000011;
+}
+[/code]
+
+<div class="trongate-css-demo">
+  <div>
+    <label>Email Address</label>
+    <input type="email" class="form-field-validation-error" value="not-an-email">
+  </div>
+</div>
+
+[code=html]
+&lt;input type="email" class="form-field-validation-error" value="not-an-email"&gt;
+[/code]
+
+<h3>Shake Animation</h3>
+
+<p>The <code>.shake</code> class triggers a horizontal shake animation on an element  -  useful for drawing attention to forms with validation errors:</p>
+
+[code=css]
+.shake {
+  animation: form-shake 0.35s ease-in-out;
+}
+
+@keyframes form-shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+[/code]
+
+[code=html]
+&lt;form class="shake"&gt;
+  &lt;!-- Form fields here --&gt;
+&lt;/form&gt;
+
+&lt;script&gt;
+  document.querySelector('form').classList.add('shake');
+&lt;/script&gt;
+[/code]
+
+<div class="alert alert-success">
+  <p>These validation features work together: use <code>.validation-errors</code> to display a summary, <code>.form-field-validation-error</code> to highlight individual fields, and <code>.shake</code> to draw attention to the form as a whole.</p>
+</div>

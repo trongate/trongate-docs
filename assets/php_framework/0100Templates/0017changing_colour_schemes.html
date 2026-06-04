@@ -8,8 +8,8 @@
 <p>There are two ways to set the admin theme:</p>
 
 <ul>
-    <li><strong>Per-controller</strong> — Set the <code>$admin_theme</code> property on your admin controller (recommended for the built-in admin panel).</li>
-    <li><strong>Per-method</strong> — Pass <code>$data['theme']</code> directly to <code>$this->templates->admin()</code> (useful for custom controllers or dynamic themes).</li>
+    <li><strong>Per-controller</strong>  -  Set the <code>$admin_theme</code> property on your admin controller (recommended for the built-in admin panel).</li>
+    <li><strong>Per-method</strong>  -  Pass <code>$data['theme']</code> directly to <code>$this->templates->admin()</code> (useful for custom controllers or dynamic themes).</li>
 </ul>
 
 <h2>Per-Controller (Recommended)</h2>
@@ -24,7 +24,7 @@ class Trongate_administrators extends Trongate {
 }
 [/code]
 
-<p>That's it. Every admin page — <code>manage</code>, <code>create</code>, <code>show</code>, <code>delete_conf</code>, <code>update_password</code>, <code>not_found</code> — will receive the theme automatically. An empty string (the default) produces the default dark charcoal theme.</p>
+<p>That's it. Every admin page  -  <code>manage</code>, <code>create</code>, <code>show</code>, <code>delete_conf</code>, <code>update_password</code>, <code>not_found</code>  -  will receive the theme automatically. An empty string (the default) produces the default dark charcoal theme.</p>
 
 <h2>Per-Method (For Custom Controllers)</h2>
 

@@ -1,0 +1,110 @@
+[meta-description]Chapter introduction for building a REST API in Trongate v2: endpoints, authentication, and JSON responses using the countries module.[/meta-description]
+<div class="container">
+  <h1>Project Introduction</h1>
+
+  <p>
+    In the previous chapter we built a complete admin CRUD interface for managing countries  -  forms, tables, pagination, search, and all the HTML views. In this chapter we take the same data and expose it through a <strong>RESTful API</strong>, returning JSON instead of HTML.
+  </p>
+
+  <p>
+    This is a common requirement: perhaps you are building a mobile app that needs to read country data, or you want to let a third-party service create records programmatically. By the end of this chapter you will have a fully functional JSON API with token-based authentication, input validation, proper HTTP status codes, and request logging.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Want the complete code?</strong> Grab the full example from GitHub:</p>
+    <p><a href="https://github.com/grady-trongate/Trongate-v2-REST-API" target="_blank">https://github.com/grady-trongate/Trongate-v2-REST-API</a></p>
+    <p>This repository contains the finished <strong>countries_api</strong> module (controller, model, and logs directory), a <strong>countries.sql</strong> file with the full schema and sample data, and a README with quick-start instructions including cURL examples for every endpoint.</p>
+  </div>
+
+  <h2>What is a REST API?</h2>
+
+  <p>
+    REST (Representational State Transfer) is an architectural style for building web services. In a REST API, each URL represents a <em>resource</em> (such as a country), and HTTP methods represent <em>actions</em> on that resource:
+  </p>
+
+  <ul>
+    <li><code>GET</code>  -  Retrieve a resource or collection</li>
+    <li><code>POST</code>  -  Create a new resource</li>
+    <li><code>PUT</code>  -  Update an existing resource</li>
+    <li><code>DELETE</code>  -  Remove a resource</li>
+  </ul>
+
+  <p>
+    The server responds with JSON (JavaScript Object Notation), which is lightweight, language-independent, and easy for client applications to parse.
+  </p>
+
+  <h2>Endpoints</h2>
+
+  <p>Here are the API endpoints we will build:</p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Endpoint</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>GET</code></td>
+        <td><code>/countries_api/get_all</code></td>
+        <td>List all countries</td>
+      </tr>
+      <tr>
+        <td><code>GET</code></td>
+        <td><code>/countries_api/get_one/{id}</code></td>
+        <td>Get a single country</td>
+      </tr>
+      <tr>
+        <td><code>POST</code></td>
+        <td><code>/countries_api/create</code></td>
+        <td>Create a new country</td>
+      </tr>
+      <tr>
+        <td><code>PUT</code></td>
+        <td><code>/countries_api/update/{id}</code></td>
+        <td>Update an existing country</td>
+      </tr>
+      <tr>
+        <td><code>DELETE</code></td>
+        <td><code>/countries_api/destroy/{id}</code></td>
+        <td>Delete a country</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>How This Differs From The CRUD Chapter</h2>
+
+  <p>
+    The admin CRUD module we built earlier used HTML views through the admin template. Every method returned a full page with forms, tables, and navigation. The REST API, by contrast, returns only JSON data. There are no views, no templates, no forms  -  just raw data in a standardised format.
+  </p>
+
+  <p>
+    Authentication also differs. The admin CRUD module used the session-based gatekeeper pattern: if you had a valid admin session, you could access the page. The REST API uses <strong>token-based authentication</strong>, where each request includes an API token in the HTTP headers. This allows non-browser clients  -  mobile apps, third-party services, automated scripts  -  to authenticate without maintaining a session.
+  </p>
+
+  <p>
+    Trongate provides the tools for token authentication, but it is <strong>entirely up to you</strong> to decide which endpoints require authentication and what the access rules should be. You may choose to expose certain endpoints publicly (a read-only list of countries, for example), require a token for write operations only, or lock down every endpoint. The framework gives you the means; you set the policy.
+  </p>
+
+  <p>
+    For a full understanding of how tokens work, see <a href="https://trongate.io/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
+  </p>
+
+  <h2>What You Will Learn</h2>
+
+  <ul>
+    <li>Building a Trongate controller that returns JSON</li>
+    <li>Token-based authentication for API requests</li>
+    <li>Reading and parsing JSON request bodies</li>
+    <li>Setting appropriate HTTP response status codes</li>
+    <li>Validating input and returning structured error messages</li>
+    <li>Using before and after hooks for cross-cutting concerns</li>
+  </ul>
+
+  <p>
+    Let us begin by setting up a new module: <code>countries_api</code>.
+  </p>
+
+</div>

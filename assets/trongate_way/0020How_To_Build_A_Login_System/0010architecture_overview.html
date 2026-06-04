@@ -1,0 +1,79 @@
+[meta-description]Build a member login system in Trongate v2: understand the four components  -  config, routing, login module, and the Members controller.[/meta-description]
+<div class="container">
+  <h1>Project Introduction</h1>
+
+  <p>
+    This chapter will guide you through building a complete member authentication system using Trongate v2's login module. By the end, you will have member registration, login, logout, password resets, remember-me cookies, and a protected member area.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Want the complete code?</strong> Grab the full example from GitHub:</p>
+    <p><a href="https://github.com/grady-trongate/Trongate-v2-Login-System" target="_blank">https://github.com/grady-trongate/Trongate-v2-Login-System</a></p>
+    <p>This repository contains the finished <strong>config/login.php</strong>, <strong>config/custom_routing.php</strong>, a complete <strong>members</strong> module (controller, model, views), and a <strong>login.sql</strong> file with the full database schema.</p>
+  </div>
+
+  <h2>A Note on Administrators</h2>
+
+  <p>
+    Administrators are a special case in Trongate v2. The <code>trongate_administrators</code> module ships with the framework and provides a ready-made login flow, CRUD management, and the <code>make_sure_allowed()</code> security gate. You do <strong>not</strong> need to build an administrator login system from scratch  -  it is already there.
+  </p>
+
+  <p>
+    Members, however, require a custom implementation. Each application has unique requirements for member registration, profile fields, and front-end templates. This chapter focuses entirely on what <strong>you</strong> need to build  -  the member side of authentication.
+  </p>
+
+  <h2>The Four Components</h2>
+
+  <p>
+    A member login system in Trongate v2 consists of four parts working together:
+  </p>
+
+  <ol>
+    <li>
+      <strong>Configuration</strong> (<code>config/login.php</code>)<br>
+      Defines the member user level, target table, login identifiers, redirect paths, and security settings such as remember-me duration and forgot-password support.
+    </li>
+    <li>
+      <strong>Custom Routing</strong> (<code>config/custom_routing.php</code>)<br>
+      Maps the member's secret login word to the login module, creating clean, secure login URLs.
+    </li>
+    <li>
+      <strong>The Login Module</strong> (<code>modules/login/</code>)<br>
+      The framework's built-in authentication engine. It handles credential validation, token creation, rate limiting, and forgot-password flows. Everything is config-driven  -  you write configuration, not authentication logic.
+    </li>
+    <li>
+      <strong>The Members Controller</strong> (<code>modules/members/Members.php</code>)<br>
+      Your custom controller that provides login form rendering, logout handling, a welcome page, and the protected member area. This is the piece you build yourself.
+    </li>
+  </ol>
+
+  <h2>How the Flow Works</h2>
+
+  <ol>
+    <li>A visitor navigates to <code>/member-login</code> (the secret login word).</li>
+    <li>Custom routing forwards the request to the login module: <code>login/login/member-login</code>.</li>
+    <li>The login module resolves the user level, renders the login form, and handles form submission.</li>
+    <li>On successful login, the user is redirected to <code>members/welcome</code>.</li>
+    <li>The Members controller's <code>welcome()</code> method renders the protected welcome page.</li>
+    <li>The member can access their account dashboard, update their profile, change their password, and log out.</li>
+  </ol>
+
+  <p>
+    If the member forgets their password, they can request a reset email via the login module's built-in forgot-password flow.
+  </p>
+
+  <h2>What You Will Build</h2>
+
+  <ul>
+    <li>A <strong>members</strong> database table linked to <code>trongate_users</code></li>
+    <li>A <strong>login configuration</strong> for the member user level</li>
+    <li><strong>Custom routing</strong> for the member login word</li>
+    <li>A <strong>Members controller</strong> with login, logout, and welcome methods</li>
+    <li>A <strong>Registration and account management</strong> system</li>
+  </ul>
+
+  <p>
+    Let us begin with the database.
+  </p>
+
+</div>

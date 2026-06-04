@@ -1,0 +1,217 @@
+[meta-description]HTTP response status codes reference for Trongate v2 REST APIs: when to use 200, 201, 400, 401, 404, 405, 429, and 500 with code examples.[/meta-description]
+<div class="container">
+  <h1>HTTP Response Status Codes</h1>
+
+  <p>
+    Every API response includes an HTTP status code that tells the client, at a glance, whether the request succeeded and  -  if it did not  -  what category of error occurred. Choosing the right status code is as important as returning the right data.
+  </p>
+
+  <p>
+    Below is the complete set of status codes used in our countries API, grouped by category.
+  </p>
+
+  <h2>Success Codes (2xx)</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Meaning</th>
+        <th>When To Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>200</code></td>
+        <td>OK</td>
+        <td>
+          The request succeeded. Used for:
+          <ul>
+            <li><code>GET</code> requests (list, detail)</li>
+            <li><code>PUT</code> requests (update)</li>
+            <li><code>DELETE</code> requests (with response body)</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>201</code></td>
+        <td>Created</td>
+        <td>
+          A new resource was successfully created. Used for:
+          <ul>
+            <li><code>POST</code> requests</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>204</code></td>
+        <td>No Content</td>
+        <td>
+          The request succeeded but returns no body. Used for:
+          <ul>
+            <li><code>DELETE</code> with no response body (alternative to 200)</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Client Error Codes (4xx)</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Meaning</th>
+        <th>When To Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>400</code></td>
+        <td>Bad Request</td>
+        <td>
+          The request was malformed or invalid. Used for:
+          <ul>
+            <li>Missing required ID in URL</li>
+            <li>Invalid or missing JSON payload</li>
+            <li>Validation failure (with field-level errors)</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>401</code></td>
+        <td>Unauthorized</td>
+        <td>
+          Authentication is required and failed. Used for:
+          <ul>
+            <li>Missing API token</li>
+            <li>Invalid or expired API token</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>403</code></td>
+        <td>Forbidden</td>
+        <td>
+          The client is authenticated but lacks permission. Used for:
+          <ul>
+            <li>Token is valid but user level is insufficient</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>404</code></td>
+        <td>Not Found</td>
+        <td>
+          The requested resource does not exist. Used for:
+          <ul>
+            <li>A record ID that does not match any database row</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>405</code></td>
+        <td>Method Not Allowed</td>
+        <td>
+          The HTTP method is not supported for this endpoint. Used for:
+          <ul>
+            <li>A <code>POST</code> request sent to a read-only endpoint</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><code>429</code></td>
+        <td>Too Many Requests</td>
+        <td>
+          The client has exceeded a rate limit. Used when:
+          <ul>
+            <li>Implementing rate limiting in a before hook (see next chapter)</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Server Error Codes (5xx)</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Meaning</th>
+        <th>When To Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>500</code></td>
+        <td>Internal Server Error</td>
+        <td>
+          An unexpected error occurred on the server. Used when:
+          <ul>
+            <li>A database query fails</li>
+            <li>An uncaught exception occurs</li>
+            <li>Any unforeseen server-side error</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Setting Status Codes in Trongate</h2>
+
+  <p>
+    Trongate uses PHP's built-in <code>http_response_code()</code> function. Simply call it before outputting your response:
+  </p>
+
+  <pre><code class="language-php">// Success
+http_response_code(200);
+echo json_encode($data);
+
+// Created
+http_response_code(201);
+echo json_encode(['id' => $new_id]);
+
+// Client error
+http_response_code(400);
+echo json_encode(['error' => 'Validation failed.', 'fields' => $errors]);
+
+// Authentication failure
+http_response_code(401);
+echo json_encode(['error' => 'Unauthorized.']);
+
+// Not found
+http_response_code(404);
+echo json_encode(['error' => 'Country not found.']);</code></pre>
+
+  <h2>Quick Reference Card</h2>
+
+  <p>When deciding which status code to use, ask yourself these questions in order:</p>
+
+  <ol>
+    <li>
+      <strong>Did the server crash?</strong> → <code>500</code>
+    </li>
+    <li>
+      <strong>Is the client authenticated?</strong> → No: <code>401</code>
+    </li>
+    <li>
+      <strong>Is the request well-formed?</strong> → No: <code>400</code>
+    </li>
+    <li>
+      <strong>Does the resource exist?</strong> → No: <code>404</code>
+    </li>
+    <li>
+      <strong>Was a resource created?</strong> → <code>201</code>
+    </li>
+    <li>
+      <strong>Everything else succeeded?</strong> → <code>200</code>
+    </li>
+  </ol>
+
+  <p>
+    This decision tree covers the vast majority of API responses. Once you internalize it, choosing the right status code becomes automatic.
+  </p>
+
+</div>

@@ -1,0 +1,29 @@
+<div class="container">
+  <h1>is_logged_in()</h1>
+  <p class="signature">public function is_logged_in(?int $user_level_id = null): string|bool</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Checks whether the current user has a valid authentication token. Optionally filters by a specific user level. Useful for conditional logic in controllers where you need to check authentication status without triggering a redirect.</p>
+  </div>
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead><tr><th>Parameter</th><th>Type</th><th>Description</th><th>Default</th><th>Required</th></tr></thead>
+    <tbody>
+      <tr><td>user_level_id</td><td>int|null</td><td>Optional user level ID to check against. If null, any valid token is accepted.</td><td>null</td><td>No</td></tr>
+    </tbody>
+  </table>
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+  <tbody><tr><td>string|bool</td><td>Returns the token string if a valid token is found, or <code>false</code> if not authenticated.</td></tr></tbody></table>
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+if ($this->login->is_logged_in()) {
+    echo 'User is logged in';
+}
+
+if ($this->login->is_logged_in(1)) {
+    echo 'Admin is logged in';
+}
+[/code]
+</div>

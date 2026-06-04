@@ -72,7 +72,7 @@ define('ERROR_404', 'errors/show_404');
 class Errors extends Trongate {
     public function show_404(array $data = []): void {
         $data['page_title'] = 'Page Not Found';
-        $data['message']    = 'Sorry, we couldn't find that page.';
+        $data['message']    = 'Sorry, we couldn\'t find that page.';
         $this->templates->public($data);
     }
 }

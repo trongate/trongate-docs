@@ -1,0 +1,27 @@
+<div class="container">
+  <h1>process()</h1>
+  <p class="signature">public function process(): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Handles AJAX POST requests for SQL file operations. Accepts action data from the management interface and routes it to the appropriate handler. Supports actions such as viewing SQL content, executing SQL files, and deleting SQL files.
+    </p>
+    <p>
+      Only operates in development mode. Returns appropriate HTTP status codes for error conditions (400 for bad requests, 404 for missing files).
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <p>This method takes no parameters. The action data is retrieved from the POST request body.</p>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>void</td><td>Outputs the result of the SQL operation. Returns a 400 status code for bad requests.</td></tr>
+    </tbody>
+  </table>
+</div>

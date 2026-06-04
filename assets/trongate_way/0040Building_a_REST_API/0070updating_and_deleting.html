@@ -1,0 +1,163 @@
+[meta-description]Build PUT and DELETE endpoints in Trongate v2: updating existing records, soft and hard deletion patterns, and proper status codes for each operation.[/meta-description]
+<div class="container">
+  <h1>Updating and Deleting Records</h1>
+
+  <p>
+    The update and delete endpoints follow a similar pattern to <code>get_one()</code>: they accept an ID from the URL, verify the record exists, perform the operation, and return an appropriate response.
+  </p>
+
+  <h2>Updating a Record  -  PUT</h2>
+
+  <p>
+    The <code>update()</code> endpoint combines patterns from <code>get_one()</code> (ID extraction, existence check) and <code>create()</code> (JSON parsing, validation):
+  </p>
+
+  <pre><code class="language-php">public function update(): void {
+    $this->authenticate();
+
+    $update_id = segment(3, 'int');
+
+    if ($update_id === 0) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'No country ID provided.'
+        ]);
+        return;
+    }
+
+    $existing = $this->model->get_one($update_id);
+
+    if ($existing === false) {
+        http_response_code(404);
+        echo json_encode([
+            'error' => 'Country not found.'
+        ]);
+        return;
+    }
+
+    $data = $this->get_post_data();
+
+    if ($data === null) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Invalid or missing JSON payload.'
+        ]);
+        return;
+    }
+
+    $validation_errors = $this->validate($data);
+
+    if (!empty($validation_errors)) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Validation failed.',
+            'fields' => $validation_errors
+        ]);
+        return;
+    }
+
+    $this->model->update($update_id, $data);
+
+    http_response_code(200);
+    echo json_encode([
+        'message' => 'Country updated successfully.',
+        'id' => $update_id,
+        'country' => $data
+    ]);
+
+    $this->log_request('update', $update_id);
+}</code></pre>
+
+  <p>
+    The method checks each precondition in order and returns early if any check fails. This is sometimes called the <strong>guard clause</strong> pattern  -  validate everything before doing work, and return immediately on the first error.
+  </p>
+
+  <h3>The Model Update</h3>
+
+  <pre><code class="language-php">public function update(int $update_id, array $data): void {
+    $update_data = [
+        'country_title' => trim($data['country_title']),
+        'country_code' => strtoupper(
+            trim($data['country_code'])
+        )
+    ];
+
+    $this->db->update(
+        $update_id, $update_data, 'countries'
+    );
+}</code></pre>
+
+  <h2>Deleting a Record  -  DELETE</h2>
+
+  <p>
+    The <code>destroy()</code> endpoint is the simplest of the write operations:
+  </p>
+
+  <pre><code class="language-php">public function destroy(): void {
+    $this->authenticate();
+
+    $update_id = segment(3, 'int');
+
+    if ($update_id === 0) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'No country ID provided.'
+        ]);
+        return;
+    }
+
+    $existing = $this->model->get_one($update_id);
+
+    if ($existing === false) {
+        http_response_code(404);
+        echo json_encode([
+            'error' => 'Country not found.'
+        ]);
+        return;
+    }
+
+    $this->model->destroy($update_id);
+
+    http_response_code(200);
+    echo json_encode([
+        'message' => 'Country deleted successfully.'
+    ]);
+
+    $this->log_request('destroy', $update_id);
+}</code></pre>
+
+  <h3>200 vs 204 for Deletion</h3>
+  <p>
+    You may have seen REST APIs that return <code>204 No Content</code> after a successful deletion. There is genuine debate about which is correct. We use <code>200</code> in this chapter because we include a confirmation message in the response body, which provides a better developer experience  -  the client can display "Country deleted successfully" to the user without needing to synthesise their own success message.
+  </p>
+
+  <p>
+    If you prefer the purist approach, simply change <code>http_response_code(200)</code> to <code>http_response_code(204)</code> and omit the <code>echo json_encode(...)</code> line. Both are valid.
+  </p>
+
+  <h2>Testing</h2>
+
+  <pre><code class="language-bash"># Update a record
+curl -X PUT \
+  -H "Trongatetoken: your-token" \
+  -H "Content-Type: application/json" \
+  -d '{"country_title":"New Name","country_code":"NN"}' \
+  http://localhost/countries_api/update/1
+
+# Delete a record
+curl -X DELETE \
+  -H "Trongatetoken: your-token" \
+  http://localhost/countries_api/destroy/1
+
+# Update non-existent record
+curl -X PUT \
+  -H "Trongatetoken: your-token" \
+  -H "Content-Type: application/json" \
+  -d '{"country_title":"Nope","country_code":"NP"}' \
+  http://localhost/countries_api/update/999</code></pre>
+
+  <p>
+    The third test case  -  attempting to update a record that does not exist  -  should return <code>404 Not Found</code> with an informative error message.
+  </p>
+
+</div>

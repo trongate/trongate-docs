@@ -1,0 +1,145 @@
+[meta-description]Build the file listing page in Trongate v2: the manage() method with pagination, search, file size formatting, and download/view action buttons.[/meta-description]
+<div class="container">
+  <h1>Listing Files</h1>
+
+  <p>
+    The <code>manage()</code> method displays a paginated table of uploaded files, with search, action buttons, and the standard admin pagination. It follows the same pattern as the <code>manage()</code> method from the Basic CRUD chapter.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <pre><code class="language-php">public function manage(): void {
+    $this->gatekeeper();
+
+    $search_query = $_GET['search_query'] ?? '';
+    $search_column = $_GET['search_column'] ?? '';
+
+    $limit = $this->get_limit();
+    $offset = $this->get_offset();
+
+    $rows = $this->model->get_all_files(
+        $limit, $offset,
+        $search_query, $search_column
+    );
+    $total = $this->model->count_all_files(
+        $search_query, $search_column
+    );
+
+    $data['rows'] = $rows;
+    $data['total'] = $total;
+    $data['limit'] = $limit;
+    $data['offset'] = $offset;
+    $data['search_query'] = $search_query;
+    $data['search_column'] = $search_column;
+    $data['num_rows'] = count($rows);
+    $data['view_module'] = 'file_manager';
+    $data['view_file'] = 'manage';
+
+    $this->templates->admin($data);
+}</code></pre>
+
+  <h2>The View File</h2>
+
+  <pre><code class="language-php">&lt;div class="container"&gt;
+  &lt;h1&gt;File Manager&lt;/h1&gt;
+
+  &lt;p&gt;
+    &lt;a href="&lt;?= BASE_URL ?&gt;file_manager/create"
+       class="btn btn-primary"&gt;
+      &lt;i class="fa-solid fa-upload"&gt;&lt;/i&gt;
+      Upload New File
+    &lt;/a&gt;
+  &lt;/p&gt;
+
+  &lt;?php
+  $pagination_data = [
+      'num_rows' => $num_rows,
+      'total' => $total,
+      'limit' => $limit,
+      'offset' => $offset,
+      'search_query' => $search_query,
+      'search_column' => $search_column
+  ];
+
+  echo $this->pagination->admin_pagination(
+      $pagination_data
+  );
+  ?&gt;
+
+  &lt;div class="table-responsive"&gt;
+    &lt;table class="table"&gt;
+      &lt;thead&gt;
+        &lt;tr&gt;
+          &lt;th&gt;Document Name&lt;/th&gt;
+          &lt;th&gt;File Name&lt;/th&gt;
+          &lt;th&gt;File Size&lt;/th&gt;
+          &lt;th&gt;Type&lt;/th&gt;
+          &lt;th&gt;Actions&lt;/th&gt;
+        &lt;/tr&gt;
+      &lt;/thead&gt;
+      &lt;tbody&gt;
+        &lt;?php if (
+            $rows && count($rows) > 0
+        ): ?&gt;
+          &lt;?php foreach ($rows as $row): ?&gt;
+            &lt;tr&gt;
+              &lt;td&gt;
+                &lt;?= out($row->doc_name) ?&gt;
+              &lt;/td&gt;
+              &lt;td&gt;
+                &lt;code&gt;
+                  &lt;?= out($row->file_name) ?&gt;
+                &lt;/code&gt;
+              &lt;/td&gt;
+              &lt;td&gt;
+                &lt;?= number_format(
+                    $row->file_size
+                ) ?&gt; bytes
+              &lt;/td&gt;
+              &lt;td&gt;
+                &lt;?= out($row->file_type) ?&gt;
+              &lt;/td&gt;
+              &lt;td&gt;
+                &lt;a href="&lt;?= BASE_URL ?&gt;
+                    file_manager/show/&lt;?= $row->id ?&gt;"
+                   class="btn btn-default btn-sm"&gt;
+                  &lt;i class="fa-solid fa-eye"&gt;&lt;/i&gt;
+                  View
+                &lt;/a&gt;
+                &lt;a href="&lt;?= BASE_URL ?&gt;
+                    file_manager/download/&lt;?= $row->id ?&gt;"
+                   class="btn btn-success btn-sm"&gt;
+                  &lt;i class="fa-solid fa-download"&gt;&lt;/i&gt;
+                  Download
+                &lt;/a&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;?php endforeach; ?&gt;
+        &lt;?php else: ?&gt;
+          &lt;tr&gt;
+            &lt;td colspan="5"&gt;
+              No files found.
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;?php endif; ?&gt;
+      &lt;/tbody&gt;
+    &lt;/table&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+  <h2>Displaying File Size</h2>
+
+  <p>
+    File sizes are stored in bytes  -  the raw value from <code>upload()</code>. In the manage view, we use PHP's <code>number_format()</code> to display the value with thousand separators, making large files readable:
+  </p>
+
+  <ul>
+    <li><code>12453</code> → <code>12,453 bytes</code></li>
+    <li><code>245600</code> → <code>245,600 bytes</code></li>
+  </ul>
+
+  <p>
+    For a more user-friendly display (KB, MB), you could add a simple formatting helper. The key principle, however, is to keep formatting in the view and raw data in the database.
+  </p>
+
+</div>

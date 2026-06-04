@@ -1,0 +1,388 @@
+[meta-description]Complete code listing for the Trongate v2 REST API module: full Countries_api controller and model with token authentication, CRUD endpoints, and request logging.[/meta-description]
+<div class="container">
+  <h1>Complete Example and Summary</h1>
+
+  <p>
+    Below is the complete code for the countries REST API module. You can copy these files into your own Trongate v2 project, or download the full repository from the link below.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Download from GitHub:</strong></p>
+    <p><a href="https://github.com/grady-trongate/Trongate-v2-REST-API" target="_blank">https://github.com/grady-trongate/Trongate-v2-REST-API</a></p>
+  </div>
+
+  <h2>Countries_api.php (Controller)</h2>
+
+  <details>
+    <summary>Click to expand full controller code</summary>
+    <pre><code class="language-php">&lt;?php
+class Countries_api extends Trongate {
+
+    public function get_all(): void {
+        $this->authenticate();
+
+        $rows = $this->model->get_all();
+
+        if (empty($rows)) {
+            http_response_code(200);
+            echo json_encode([]);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode($rows);
+
+        $this->log_request('get_all');
+    }
+
+    public function get_one(): void {
+        $this->authenticate();
+
+        $update_id = segment(3, 'int');
+
+        if ($update_id === 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No country ID provided.']);
+            return;
+        }
+
+        $data = $this->model->get_one($update_id);
+
+        if ($data === false) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Country not found.']);
+            return;
+        }
+
+        http_response_code(200);
+        echo json_encode($data);
+
+        $this->log_request('get_one', $update_id);
+    }
+
+    public function create(): void {
+        $this->authenticate();
+
+        $data = $this->get_post_data();
+
+        if ($data === null) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid or missing JSON payload.']);
+            return;
+        }
+
+        $validation_errors = $this->validate($data);
+
+        if (!empty($validation_errors)) {
+            http_response_code(400);
+            echo json_encode([
+                'error' => 'Validation failed.',
+                'fields' => $validation_errors
+            ]);
+            return;
+        }
+
+        $new_id = $this->model->insert($data);
+
+        http_response_code(201);
+        echo json_encode([
+            'message' => 'Country created successfully.',
+            'id' => $new_id,
+            'country' => $data
+        ]);
+
+        $this->log_request('create');
+    }
+
+    public function update(): void {
+        $this->authenticate();
+
+        $update_id = segment(3, 'int');
+
+        if ($update_id === 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No country ID provided.']);
+            return;
+        }
+
+        $existing = $this->model->get_one($update_id);
+
+        if ($existing === false) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Country not found.']);
+            return;
+        }
+
+        $data = $this->get_post_data();
+
+        if ($data === null) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid or missing JSON payload.']);
+            return;
+        }
+
+        $validation_errors = $this->validate($data);
+
+        if (!empty($validation_errors)) {
+            http_response_code(400);
+            echo json_encode([
+                'error' => 'Validation failed.',
+                'fields' => $validation_errors
+            ]);
+            return;
+        }
+
+        $this->model->update($update_id, $data);
+
+        http_response_code(200);
+        echo json_encode([
+            'message' => 'Country updated successfully.',
+            'id' => $update_id,
+            'country' => $data
+        ]);
+
+        $this->log_request('update', $update_id);
+    }
+
+    public function destroy(): void {
+        $this->authenticate();
+
+        $update_id = segment(3, 'int');
+
+        if ($update_id === 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No country ID provided.']);
+            return;
+        }
+
+        $existing = $this->model->get_one($update_id);
+
+        if ($existing === false) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Country not found.']);
+            return;
+        }
+
+        $this->model->destroy($update_id);
+
+        http_response_code(200);
+        echo json_encode(['message' => 'Country deleted successfully.']);
+
+        $this->log_request('destroy', $update_id);
+    }
+
+    // -- Before hook -----------------------------------------------------
+
+    public function authenticate(): void {
+        block_url('countries_api/authenticate');
+
+        $token = $this->trongate_tokens
+            ->attempt_get_valid_token();
+
+        if ($token === false) {
+            http_response_code(401);
+            echo json_encode([
+                'error' => 'Unauthorized. '
+                         . 'A valid API token is required.'
+            ]);
+            die();
+        }
+    }
+
+    // -- After hook ------------------------------------------------------
+
+    public function log_request(
+        string $action, ?int $record_id = null
+    ): void {
+        block_url('countries_api/log_request');
+
+        $log_entry = date('Y-m-d H:i:s') . ' | '
+                   . $_SERVER['REQUEST_METHOD'] . ' | '
+                   . $action
+                   . ($record_id !== null
+                       ? ' | id: ' . $record_id
+                       : '')
+                   . ' | '
+                   . ($_SERVER['REMOTE_ADDR'] ?? 'unknown')
+                   . PHP_EOL;
+
+        $log_file = APPPATH
+                  . 'modules/countries_api/logs/'
+                  . 'api_requests.log';
+
+        $log_dir = dirname($log_file);
+        if (!is_dir($log_dir)) {
+            mkdir($log_dir, 0755, true);
+        }
+
+        file_put_contents(
+            $log_file, $log_entry, FILE_APPEND | LOCK_EX
+        );
+    }
+
+    // -- Helpers ---------------------------------------------------------
+
+    public function get_post_data(): array|null {
+        block_url('countries_api/get_post_data');
+
+        $raw_input = file_get_contents('php://input');
+        $data = json_decode($raw_input, true);
+
+        if (!is_array($data) || empty($data)) {
+            return null;
+        }
+
+        return $data;
+    }
+
+    public function validate(array $data): array {
+        block_url('countries_api/validate');
+
+        $errors = [];
+
+        if (!isset($data['country_title'])
+            || trim($data['country_title']) === ''
+        ) {
+            $errors['country_title']
+                = 'Country name is required.';
+        } elseif (
+            strlen(trim($data['country_title'])) < 2
+        ) {
+            $errors['country_title']
+                = 'Country name must be at least '
+                . '2 characters.';
+        } elseif (
+            strlen(trim($data['country_title'])) > 100
+        ) {
+            $errors['country_title']
+                = 'Country name must not exceed '
+                . '100 characters.';
+        }
+
+        if (!isset($data['country_code'])
+            || trim($data['country_code']) === ''
+        ) {
+            $errors['country_code']
+                = 'Country code is required.';
+        } elseif (
+            strlen(trim($data['country_code'])) !== 2
+        ) {
+            $errors['country_code']
+                = 'Country code must be exactly '
+                . '2 characters.';
+        }
+
+        return $errors;
+    }
+
+}</code></pre>
+  </details>
+
+  <h2>Countries_api_model.php</h2>
+
+  <details>
+    <summary>Click to expand full model code</summary>
+    <pre><code class="language-php">&lt;?php
+class Countries_api_model extends Model {
+
+    private string $table_name = 'countries';
+
+    public function get_all(): array {
+        $sql = 'SELECT id, country_title, country_code
+                FROM ' . $this->table_name . '
+                ORDER BY country_title ASC';
+
+        return $this->db->query($sql, 'object');
+    }
+
+    public function get_one(
+        int $update_id
+    ): array|false {
+        $record_obj = $this->db->get_where(
+            $update_id, $this->table_name
+        );
+
+        if ($record_obj === false) {
+            return false;
+        }
+
+        return [
+            'id' => (int) $record_obj->id,
+            'country_title' => $record_obj->country_title,
+            'country_code' => $record_obj->country_code
+        ];
+    }
+
+    public function insert(array $data): int {
+        $insert_data = [
+            'country_title' => trim($data['country_title']),
+            'country_code' => strtoupper(
+                trim($data['country_code'])
+            )
+        ];
+
+        return $this->db->insert(
+            $insert_data, $this->table_name
+        );
+    }
+
+    public function update(
+        int $update_id, array $data
+    ): void {
+        $update_data = [
+            'country_title' => trim($data['country_title']),
+            'country_code' => strtoupper(
+                trim($data['country_code'])
+            )
+        ];
+
+        $this->db->update(
+            $update_id, $update_data, $this->table_name
+        );
+    }
+
+    public function destroy(int $update_id): void {
+        $this->db->delete(
+            $update_id, $this->table_name
+        );
+    }
+
+}</code></pre>
+  </details>
+
+  <h2>Summary</h2>
+
+  <p>
+    In this chapter you built a complete REST API for managing countries. Here is what you accomplished:
+  </p>
+
+  <ul>
+    <li>
+      <strong>API Controller:</strong> Built <code>Countries_api</code> with five endpoints covering all CRUD operations, returning JSON instead of HTML.
+    </li>
+    <li>
+      <strong>Token Authentication:</strong> Secured every endpoint with Trongate's built-in token system, supporting both header-based and session-based authentication.
+    </li>
+    <li>
+      <strong>JSON Input Parsing:</strong> Read and validated JSON request bodies from <code>php://input</code>, a pattern distinct from HTML form handling.
+    </li>
+    <li>
+      <strong>HTTP Status Codes:</strong> Used appropriate codes for every response  -  200 for success, 201 for creation, 400 for bad requests, 401 for authentication failures, and 404 for missing resources.
+    </li>
+    <li>
+      <strong>Before Hooks:</strong> Used explicit <code>authenticate()</code> calls as a before-hook pattern, keeping authentication logic reusable and endpoints clean.
+    </li>
+    <li>
+      <strong>After Hooks:</strong> Used explicit <code>log_request()</code> calls as an after-hook pattern, building an audit trail without polluting endpoint logic.
+    </li>
+  </ul>
+
+  <p>
+    This API pattern  -  authenticate, validate, operate, log  -  applies to any Trongate module you wish to expose programmatically. The structure remains the same whether you are managing countries, products, members, or any other resource.
+  </p>
+
+  <p>
+    In the next chapter, we will explore testing these endpoints and handling more complex scenarios like nested resources and pagination.
+  </p>
+
+</div>

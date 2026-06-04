@@ -1,0 +1,151 @@
+[meta-description]Set up the database tables for member authentication in Trongate v2: trongate_user_levels, trongate_users, trongate_tokens, and the members table.[/meta-description]
+<div class="container">
+  <h1>Database Setup</h1>
+
+  <p>
+    The login module works with three framework-level tables plus one custom table for each user level. The framework tables are created when you first install Trongate v2. The member table is specific to your application.
+  </p>
+
+  <h2>Framework Tables</h2>
+
+  <p>These three tables are shared across all user levels:</p>
+
+  <h3><code>trongate_user_levels</code></h3>
+
+[code=sql]
+CREATE TABLE trongate_user_levels (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    level_title varchar(125) DEFAULT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO trongate_user_levels (id, level_title) VALUES
+(1, 'Administrators'),
+(2, 'Members');
+[/code]
+
+  <p>Each row represents a distinct user level. The <code>id</code> values must match the keys in your <code>config/login.php</code>.</p>
+
+  <h3><code>trongate_users</code></h3>
+
+[code=sql]
+CREATE TABLE trongate_users (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    code varchar(32) DEFAULT NULL,
+    user_level_id int(11) DEFAULT 0,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+[/code]
+
+  <p>
+    This is the central user registry. Every person with an account  -  whether administrator or member  -  has exactly one row in this table. The per-level tables (like <code>members</code>) reference this row via a foreign key column.
+  </p>
+
+  <h3><code>trongate_tokens</code></h3>
+
+[code=sql]
+CREATE TABLE trongate_tokens (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    token varchar(125) DEFAULT NULL,
+    user_id int(11) DEFAULT 0,
+    expiry_date int(11) DEFAULT NULL,
+    code varchar(3) DEFAULT '0',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+[/code]
+
+  <p>
+    Tokens represent authenticated sessions. When a user logs in, the login module creates a token record. On each request, the module checks for a valid, unexpired token. When the user logs out or the token expires, the session ends.
+  </p>
+
+  <h2>The Members Table</h2>
+
+  <p>
+    This is the per-level table for member accounts. It stores profile data alongside the authentication fields.
+  </p>
+
+[code=sql]
+CREATE TABLE members (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    username varchar(55) DEFAULT NULL UNIQUE,
+    email_address varchar(255) DEFAULT NULL,
+    password varchar(255) NOT NULL,
+    first_name text DEFAULT NULL,
+    last_name text DEFAULT NULL,
+    date_created int(11) NOT NULL,
+    num_logins int(11) NOT NULL DEFAULT 0,
+    last_login int(11) NOT NULL DEFAULT 0,
+    trongate_user_id int(11) NOT NULL,
+    code varchar(16) NOT NULL,
+    confirmed tinyint(1) DEFAULT NULL,
+    ip_address varchar(65) NOT NULL DEFAULT '',
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+[/code]
+
+  <p>Key columns explained:</p>
+
+  <table class="table sm">
+    <thead>
+      <tr>
+        <th>Column</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>username</code></td>
+        <td>A unique display name chosen by the member. Used as a login identifier.</td>
+      </tr>
+      <tr>
+        <td><code>email_address</code></td>
+        <td>The member's email address. Also used as a login identifier. Required for forgot-password flows.</td>
+      </tr>
+      <tr>
+        <td><code>password</code></td>
+        <td>A bcrypt-hashed password. The login module handles hashing and verification automatically.</td>
+      </tr>
+      <tr>
+        <td><code>first_name</code>, <code>last_name</code></td>
+        <td>Optional profile fields. You may add any additional columns your application needs.</td>
+      </tr>
+      <tr>
+        <td><code>trongate_user_id</code></td>
+        <td>Foreign key linking this record to <code>trongate_users.id</code>. This is the <code>user_ref_field</code> referenced in your login configuration.</td>
+      </tr>
+      <tr>
+        <td><code>date_created</code></td>
+        <td>A Unix timestamp set when the account is created.</td>
+      </tr>
+      <tr>
+        <td><code>num_logins</code></td>
+        <td>A counter incremented each time the member logs in.</td>
+      </tr>
+      <tr>
+        <td><code>code</code></td>
+        <td>A random string generated for security purposes.</td>
+      </tr>
+      <tr>
+        <td><code>confirmed</code></td>
+        <td>Flag for email confirmation (<code>1</code> = confirmed, <code>NULL</code> = pending).</td>
+      </tr>
+      <tr>
+        <td><code>ip_address</code></td>
+        <td>The IP address from the last login session, used for tracking purposes.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    The <code>username</code> column has a <code>UNIQUE</code> constraint to prevent duplicate display names. The <code>email_address</code> column is also unique in practice (enforced at the application level). You may add a unique index on <code>email_address</code> if your application requires it.
+  </p>
+
+  <p>
+    Feel free to add additional columns to the <code>members</code> table for your application's specific needs  -  a bio field, avatar path, preferences JSON, or anything else.
+  </p>
+
+  <h2>Creating the Tables</h2>
+
+  <p>You may run the SQL above directly, or use the <code>Db</code> module's query methods within a migration or setup script. The <code>login.sql</code> file included in the companion GitHub repository contains all tables plus the default user level inserts, ready to import.</p>
+
+</div>

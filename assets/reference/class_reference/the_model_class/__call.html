@@ -1,0 +1,56 @@
+<div class="container">
+  <h1>__call()</h1>
+  <p class="signature">public function __call(string $method, array $arguments)</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Magic method that handles calls to inaccessible methods on the model object. When you call <code>$this->model->some_method()</code> from a controller, <code>__call()</code> routes the call to the corresponding module's model file (e.g., <code>Products_model.php</code> in the <code>products</code> module).
+    </p>
+    <p>
+      The method automatically detects the calling module, loads its model file if not already loaded, and delegates the method call to that model instance.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>method</td>
+        <td>string</td>
+        <td>The name of the method being called.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>arguments</td>
+        <td>array</td>
+        <td>The arguments passed to the method.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>Returns whatever the delegated model method returns. Throws an Exception if the calling module cannot be determined.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

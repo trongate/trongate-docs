@@ -1,7 +1,7 @@
 [meta-description]Configure custom login routes for the Trongate login module. Set prettier login URLs, redirect to the login page when unauthenticated, and manage authenticated access to protected pages.[/meta-description]
 <h1>Working with Login Routes</h1>
 
-<p>The <code>login</code> module lives at the URL <code>login/login</code> by default. While this works fine, you may prefer a shorter or more branded path for your users &mdash; <code>/admin</code>, <code>/sign-in</code>, or anything else that suits your application.</p>
+<p>The <code>login</code> module lives at the URL <code>login/login</code> by default. While this works fine, you may prefer a shorter or more branded path for your users  -  <code>/admin</code>, <code>/sign-in</code>, or anything else that suits your application.</p>
 
 <p>This page covers how to configure custom routes for the login module and how to handle unauthenticated access to protected pages.</p>
 
@@ -85,7 +85,7 @@ $this-&gt;trongate_security-&gt;make_sure_allowed();
 
 <p>The <code>trongate_security</code> module's default scenario checks for a valid token and redirects to <code>login/login</code> if none is found. If you have set a custom route for login, the security module will still redirect correctly because the login module is doing the actual work.</p>
 
-<p>For scenarios where you need a different redirect behaviour, you can override the default scenario in your <code>Trongate_security.php</code> controller:</p>
+<p>For scenarios where you need a different redirect behavior, you can override the default scenario in your <code>Trongate_security.php</code> controller:</p>
 
 [code=php]
 switch ($scenario) {
@@ -102,7 +102,7 @@ switch ($scenario) {
 
 <h2>Configuration Options</h2>
 
-<p>The login module's behaviour is configured in <code>config/login.php</code>. The most relevant settings for routing are:</p>
+<p>The login module's behavior is configured in <code>config/login.php</code>. The most relevant settings for routing are:</p>
 
 <table class="table sm">
     <thead>

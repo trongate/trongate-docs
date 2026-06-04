@@ -1,0 +1,155 @@
+[meta-description]Process file uploads in Trongate v2: validation, the $this->file->upload() call, storing metadata in the database, and the POST-Redirect-GET pattern.[/meta-description]
+<div class="container">
+  <h1>Processing Uploads</h1>
+
+  <p>
+    The <code>submit()</code> method is the heart of the file manager. It validates the input, uploads the physical file, stores the metadata in the database, and redirects to the manage page. This follows the same pattern introduced in the Basic CRUD chapter: validate, process, redirect.
+  </p>
+
+  <h2>The Complete submit() Method</h2>
+
+  <pre><code class="language-php">public function submit(): void {
+    $this->gatekeeper();
+
+    $this->validation->set_rules(
+        'doc_name', 'Document Name',
+        'required|min_length[2]|max_length[255]'
+    );
+
+    $this->validation->set_rules(
+        'userfile', 'File',
+        'allowed_types[pdf,txt,csv,doc,docx,'
+        . 'xls,xlsx,zip]'
+        . '|max_size[10240]'
+    );
+
+    $result = $this->validation->run();
+
+    if ($result === true) {
+        $doc_name = strip_tags(post('doc_name'));
+
+        $config['destination']
+            = 'modules/file_manager/files';
+        $config['upload_to_module'] = true;
+        $config['make_rand_name'] = true;
+
+        $file_info = $this->file->upload($config);
+
+        $data['doc_name'] = $doc_name;
+        $data['file_name'] = $file_info['file_name'];
+        $data['file_path'] = $file_info['file_path'];
+        $data['file_size'] = $file_info['file_size'];
+        $data['file_type'] = $file_info['file_type'];
+
+        $this->model->insert_file($data);
+
+        set_flashdata(
+            'The file was successfully uploaded.'
+        );
+        redirect('file_manager/manage');
+    } else {
+        $data['view_module'] = 'file_manager';
+        $data['view_file'] = 'create';
+        $this->templates->admin($data);
+    }
+}</code></pre>
+
+  <h2>The Upload Config Array</h2>
+
+  <p>
+    The <code>$config</code> array passed to <code>$this->file->upload()</code> controls where and how the file is stored:
+  </p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Value</th>
+        <th>Effect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>destination</code></td>
+        <td><code>modules/file_manager/files</code></td>
+        <td>Store files in a dedicated directory within the module</td>
+      </tr>
+      <tr>
+        <td><code>upload_to_module</code></td>
+        <td><code>true</code></td>
+        <td>Tell the File module the destination is relative to the module path</td>
+      </tr>
+      <tr>
+        <td><code>make_rand_name</code></td>
+        <td><code>true</code></td>
+        <td>Generate a random 10-character filename (preserving extension)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Using <code>upload_to_module = true</code> keeps uploaded files inside the module directory, keeping them organized and separate from your public-facing assets. The random filename prevents users from guessing file URLs and guards against filename collisions.
+  </p>
+
+  <h2>The upload() Return Array</h2>
+
+  <p>
+    When the upload succeeds, <code>$this->file->upload()</code> returns an array with four properties:
+  </p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Key</th>
+        <th>Example Value</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>file_name</code></td>
+        <td><code>report_k3m9n1.pdf</code></td>
+        <td>The random filename on disk</td>
+      </tr>
+      <tr>
+        <td><code>file_path</code></td>
+        <td><code>../modules/file_manager/files/report_k3m9n1.pdf</code></td>
+        <td>The relative filesystem path</td>
+      </tr>
+      <tr>
+        <td><code>file_size</code></td>
+        <td><code>89201</code></td>
+        <td>Size in bytes</td>
+      </tr>
+      <tr>
+        <td><code>file_type</code></td>
+        <td><code>application/pdf</code></td>
+        <td>MIME type detected by the File module</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    All four properties are stored in the database exactly as returned. The <code>file_path</code> is particularly important  -  it is the value you will use with other File module methods like <code>delete()</code> and <code>download()</code>.
+  </p>
+
+  <h2>What Happens When Validation Fails</h2>
+
+  <p>
+    If validation fails (e.g., the file type is not allowed, or the file exceeds the size limit), the method re-renders the upload form with validation error messages. Crucially, the file <em>never reaches the filesystem</em>  -  the Validation module checks the temporary uploaded file for type, size, and malicious content before the File module ever moves it to its destination.
+  </p>
+
+  <h2>Creating the Upload Directory</h2>
+
+  <p>
+    Before the first upload, you need to create the destination directory and ensure it is writable by the web server:
+  </p>
+
+  <pre><code class="language-bash">mkdir -p modules/file_manager/files
+chmod 755 modules/file_manager/files</code></pre>
+
+  <p>
+    The <code>755</code> permission allows the owner full access, and everyone else read and execute access. If the directory does not exist, <code>$this->file->upload()</code> will throw an exception.
+  </p>
+
+</div>

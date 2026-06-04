@@ -1,0 +1,27 @@
+<div class="container">
+  <h1>save_base_url()</h1>
+  <p class="signature">public function save_base_url(): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Saves the user-confirmed base URL to the application's <code>config/config.php</code> file. Validates that a URL was provided, ensures it ends with a forward slash, and writes the <code>BASE_URL</code> constant to the config file.
+    </p>
+    <p>
+      This method is called internally by <code>show_url_setup()</code> on form submission and is blocked from direct URL access.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <p>This method takes no parameters. The URL value is retrieved from POST data via <code>post('base_url', true)</code>.</p>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>void</td><td>Redirects back to the URL setup view on error, or to the application homepage on success.</td></tr>
+    </tbody>
+  </table>
+</div>

@@ -87,14 +87,14 @@
                 </div>
                 <div class="card-body text-center">
                     <p>Ideal for growing businesses and organizations that need more.</p>
-                    <button class="primary">Select Plan</button>
+                    <button>Select Plan</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<p>In the example, we also use <code>.text-center</code> to center-align the modal body content.  Here's the source code:</p>
+<p>In the example, we also use <code>.text-center</code> to center-align the card body content.  Here's the source code:</p>
 
 [code=html]
 &lt;div class="flex-row"&gt;
@@ -113,7 +113,7 @@
         &lt;/div&gt;
         &lt;div class="card-body text-center"&gt;
             &lt;p&gt;Ideal for growing businesses and organizations that need more.&lt;/p&gt;
-            &lt;button class="primary"&gt;Select Plan&lt;/button&gt;
+            &lt;button&gt;Select Plan&lt;/button&gt;
         &lt;/div&gt;
     &lt;/div&gt;
 &lt;/div&gt;
@@ -166,6 +166,75 @@
         background-color: var(--neutral);
     }
 &lt;/style&gt;
+[/code]
+
+<h2>Card Heading Color Variants</h2>
+
+<p>Trongate CSS includes built-in color variant classes for card headings, allowing you to quickly convey status or category:</p>
+
+[code=css]
+.card-heading.danger {
+  background-color: var(--danger);
+  border: 1px solid var(--danger-dark);
+}
+
+.card-heading.success {
+  background-color: var(--success);
+  border: 1px solid var(--success-dark);
+}
+
+.card-heading.warning {
+  background-color: var(--warning);
+  border: 1px solid var(--warning-dark);
+}
+[/code]
+
+<div class="trongate-css-demo">
+  <div>
+    <div class="card">
+      <div class="card-heading success">Success Card</div>
+      <div class="card-body">
+        <p>This card heading uses the success color variant.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-heading warning">Warning Card</div>
+      <div class="card-body">
+        <p>This card heading uses the warning color variant.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-heading danger">Danger Card</div>
+      <div class="card-body">
+        <p>This card heading uses the danger color variant.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+[code=html]
+&lt;div class="card"&gt;
+  &lt;div class="card-heading success"&gt;Success Card&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;This card heading uses the success color variant.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="card"&gt;
+  &lt;div class="card-heading warning"&gt;Warning Card&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;This card heading uses the warning color variant.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="card"&gt;
+  &lt;div class="card-heading danger"&gt;Danger Card&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;p&gt;This card heading uses the danger color variant.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
 [/code]
 
 <h2>Top Tips</h2>

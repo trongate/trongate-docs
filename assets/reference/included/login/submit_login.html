@@ -1,0 +1,14 @@
+<div class="container">
+  <h1>submit_login()</h1>
+  <p class="signature">public function submit_login(): void</p>
+  <h2>Description</h2>
+  <div class="description">
+    <p>Handles login form submission. Validates credentials against the configured target table, checks rate limiting, runs validation rules, and either logs the user in (generating a token) or records the failed attempt and redisplayes the form with errors.</p>
+    <p>On successful login, the user is redirected to their configured <code>redirect_on_success</code> URL. On failure, the form is redisplayed with validation errors.</p>
+  </div>
+  <h2>Parameters</h2>
+  <p>This method takes no parameters. Form data is retrieved via POST.</p>
+  <h2>Return Value</h2>
+  <table><thead><tr><th>Type</th><th>Description</th></tr></thead>
+  <tbody><tr><td>void</td><td>Redirects on success or redisplays the form on failure.</td></tr></tbody></table>
+</div>

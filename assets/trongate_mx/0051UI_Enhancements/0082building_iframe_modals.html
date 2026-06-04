@@ -1,16 +1,16 @@
 <h1>Building iFrame Modals</h1>
 <p>
-  The <code>mx-build-iframe</code> attribute in Trongate MX allows you to dynamically create modal dialogs that contain embedded iframes. Unlike a conventional modal — where HTML is appended directly into the current page — an iframe modal loads the target page inside its own browsing context. This brings three important benefits: <b>CSS isolation</b>, <b>JavaScript isolation</b>, and an <b>independent page lifecycle</b>.
+  The <code>mx-build-iframe</code> attribute in Trongate MX allows you to dynamically create modal dialogs that contain embedded iframes. Unlike a conventional modal - where HTML is appended directly into the current page - an iframe modal loads the target page inside its own browsing context. This brings three important benefits: <b>CSS isolation</b>, <b>JavaScript isolation</b>, and an <b>independent page lifecycle</b>.
 </p>
 
 <h2>Why Use an iFrame Modal?</h2>
 <p>When you build a modal with <code>mx-build-modal</code>, the server returns a fragment of HTML that Trongate MX injects into the current document. This works well for simple content, but it can introduce problems in more complex scenarios:</p>
 <ul>
-  <li>Existing JavaScript may need to be re-initialised after the content appears.</li>
+  <li>Existing JavaScript may need to be re-initialized after the content appears.</li>
   <li>Event handlers may be attached multiple times if the modal is opened repeatedly.</li>
   <li>Components may require manual cleanup when the modal closes.</li>
   <li>Third-party widgets may not behave correctly when dynamically inserted.</li>
-  <li>CSS from the embedded content can leak into the parent page — and vice versa.</li>
+  <li>CSS from the embedded content can leak into the parent page - and vice versa.</li>
 </ul>
 <p>An iframe modal sidesteps all of these problems because the embedded page runs in its own browsing context with its own <code>window</code>, <code>document</code>, global variables, event listeners, timers and application state. The page loads naturally from top to bottom, executes its JavaScript exactly as if it had been opened in a new browser tab, and cleans itself up automatically when the iframe is removed.</p>
 
@@ -83,30 +83,30 @@ echo form_button('terms_btn', 'Read Terms', $btn_attr);
   <li>A modal with the ID "terms-modal" is dynamically created upon clicking the button.</li>
   <li>The <code>mx-get</code> value ("legal/terms") becomes the iframe's <code>src</code> attribute.</li>
   <li>The modal itself has a max-width of 700px while the iframe fills the full width.</li>
-  <li>A modal heading labelled "Terms &amp; Conditions" appears above the iframe.</li>
-  <li>No HTTP request is fired by Trongate MX — the browser loads the iframe content directly.</li>
+  <li>A modal heading labeled "Terms &amp; Conditions" appears above the iframe.</li>
+  <li>No HTTP request is fired by Trongate MX - the browser loads the iframe content directly.</li>
 </ul>
 
 <h2>CSS and JavaScript Isolation</h2>
 
 <h3>CSS Isolation</h3>
-<p>Because an iframe creates a separate browsing context, stylesheets loaded inside the embedded page cannot affect the parent document — and the parent's styles cannot leak into the iframe. This eliminates the risk of style collisions between the modal content and the rest of your application.</p>
+<p>Because an iframe creates a separate browsing context, stylesheets loaded inside the embedded page cannot affect the parent document - and the parent's styles cannot leak into the iframe. This eliminates the risk of style collisions between the modal content and the rest of your application.</p>
 
 <h3>JavaScript Isolation</h3>
 <p>JavaScript running within the embedded page remains isolated from JavaScript running on the parent page. Global variables, event listeners, timers and application state are kept separate, reducing the likelihood of naming collisions, unintended side effects or lifecycle conflicts between independent interfaces.</p>
 
 <h3>Independent Page Lifecycle</h3>
-<p>Another significant benefit of iframe modals is that the embedded page retains its own JavaScript lifecycle. Scripts execute as they would during a normal page load, without requiring special initialisation logic after content injection. This can simplify development and reduce the risk of event-handler conflicts, duplicated initialisation code and other issues commonly associated with dynamically appended modal content.</p>
+<p>Another significant benefit of iframe modals is that the embedded page retains its own JavaScript lifecycle. Scripts execute as they would during a normal page load, without requiring special initialization logic after content injection. This can simplify development and reduce the risk of event-handler conflicts, duplicated initialization code and other issues commonly associated with dynamically appended modal content.</p>
 
-<p>For large applications — particularly those where different screens may use different JavaScript frameworks or library versions — this isolation is invaluable.</p>
+<p>For large applications - particularly those where different screens may use different JavaScript frameworks or library versions - this isolation is invaluable.</p>
 
 <h2>How iFrame Modals Differ from Regular Modals</h2>
 <p>Unlike regular modals created with <code>mx-build-modal</code>, iframe modals built with <code>mx-build-iframe</code> have some important technical differences:</p>
 <ul>
   <li><b>No HTTP request is fired.</b> The URL from your <code>mx-get</code> (or <code>mx-post</code> etc.) is assigned directly as the iframe's <code>src</code> attribute. The browser loads the content without Trongate MX making any AJAX call.</li>
-  <li><b>Any core MX method attribute works.</b> While <code>mx-get</code> is the most natural choice, you can equally use <code>mx-post</code>, <code>mx-put</code>, <code>mx-patch</code>, or <code>mx-delete</code> — the attribute's value is always treated as the iframe URL.</li>
+  <li><b>Any core MX method attribute works.</b> While <code>mx-get</code> is the most natural choice, you can equally use <code>mx-post</code>, <code>mx-put</code>, <code>mx-patch</code>, or <code>mx-delete</code> - the attribute's value is always treated as the iframe URL.</li>
   <li><b>mx-target and mx-select are not applicable.</b> Since no server response is being swapped into the DOM, content-swapping attributes like <code>mx-target</code> and <code>mx-select</code> are ignored.</li>
-  <li><b>Styles and scripts are isolated.</b> The iframe's content cannot interfere with the parent page — and vice versa.</li>
+  <li><b>Styles and scripts are isolated.</b> The iframe's content cannot interfere with the parent page - and vice versa.</li>
 </ul>
 
 <div class="alert alert-info">
@@ -148,7 +148,7 @@ echo form_button('terms_btn', 'Read Terms', $btn_attr);
 <h2>Practical Examples</h2>
 
 <h3>Loading an Existing Internal Page</h3>
-<p>The most common use case: take a page that already works standalone and display it inside a modal — no modifications required:</p>
+<p>The most common use case: take a page that already works standalone and display it inside a modal - no modifications required:</p>
 [code=html]
 &lt;button mx-get="admin/products/edit/42"
         mx-build-iframe='{
@@ -242,13 +242,13 @@ echo form_button('terms_btn', 'Read Terms', $btn_attr);
 
 <h2>Additional Notes</h2>
 <ul>
-  <li>Modal styling is governed by your application's CSS — customise as needed.</li>
+  <li>Modal styling is governed by your application's CSS - customize as needed.</li>
   <li>The iframe's <code>src</code> is always derived from the value of your core MX method attribute (<code>mx-get</code>, <code>mx-post</code>, etc.).</li>
-  <li>No AJAX request is fired when using <code>mx-build-iframe</code> — the browser loads the iframe content directly.</li>
+  <li>No AJAX request is fired when using <code>mx-build-iframe</code> - the browser loads the iframe content directly.</li>
   <li>Both <code>marginTop</code> and <code>margin-top</code> are valid property names for the modal's top margin setting.</li>
   <li>For security, consider using the <code>iframeSandbox</code> option when loading external content.</li>
-  <li>The iframe's own page lifecycle — including any JavaScript initialisation — runs automatically as it would in a normal browser tab.</li>
+  <li>The iframe's own page lifecycle - including any JavaScript initialization - runs automatically as it would in a normal browser tab.</li>
 </ul>
 <p>
-  By using <code>mx-build-iframe</code>, you can embed internal pages, dashboards, forms and reports into your Trongate application with full CSS and JavaScript isolation — all with a single, declarative attribute.
+  By using <code>mx-build-iframe</code>, you can embed internal pages, dashboards, forms and reports into your Trongate application with full CSS and JavaScript isolation - all with a single, declarative attribute.
 </p>

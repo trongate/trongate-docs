@@ -1,0 +1,102 @@
+[meta-description]View file details in the Trongate v2 File Manager: the show() method displaying metadata and providing download and delete actions.[/meta-description]
+<div class="container">
+  <h1>Viewing File Details</h1>
+
+  <p>
+    The <code>show()</code> method displays all metadata for a single file record. It provides the same "detail view" pattern as the Basic CRUD chapter's <code>show()</code> method, but instead of editable form fields, it presents read-only information about the uploaded file.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <pre><code class="language-php">public function show(): void {
+    $this->gatekeeper();
+
+    $update_id = segment(3, 'int');
+
+    if ($update_id === 0) {
+        $this->not_found();
+        return;
+    }
+
+    $data = $this->model->get_file_by_id($update_id);
+
+    if ($data === false) {
+        $this->not_found();
+        return;
+    }
+
+    $data['headline'] = 'File Details';
+    $data['update_id'] = $update_id;
+    $data['back_url'] = $this->get_back_url();
+    $data['view_module'] = 'file_manager';
+    $data['view_file'] = 'show';
+
+    $this->templates->admin($data);
+}</code></pre>
+
+  <p>
+    The method first checks that a valid ID was provided (segment 3 is greater than 0) and that the record exists. If either check fails, it calls the <code>not_found()</code> helper. On success, it merges the file data with view metadata and passes everything to the admin template.
+  </p>
+
+  <h2>The View File</h2>
+
+  <pre><code class="language-php">&lt;div class="container"&gt;
+  &lt;h1&gt;&lt;?= out($headline) ?&gt;&lt;/h1&gt;
+
+  &lt;table class="table"&gt;
+    &lt;tr&gt;
+      &lt;th style="width: 200px;"&gt;
+        Document Name
+      &lt;/th&gt;
+      &lt;td&gt;&lt;?= out($doc_name) ?&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;File Name&lt;/th&gt;
+      &lt;td&gt;
+        &lt;code&gt;&lt;?= out($file_name) ?&gt;&lt;/code&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;File Size&lt;/th&gt;
+      &lt;td&gt;
+        &lt;?= number_format($file_size) ?&gt; bytes
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;File Type&lt;/th&gt;
+      &lt;td&gt;&lt;?= out($file_type) ?&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+
+  &lt;div class="form-group"&gt;
+    &lt;a href="&lt;?= BASE_URL ?&gt;
+        file_manager/download/&lt;?= $update_id ?&gt;"
+       class="btn btn-success"&gt;
+      &lt;i class="fa-solid fa-download"&gt;&lt;/i&gt;
+      Download File
+    &lt;/a&gt;
+    &lt;a href="&lt;?= BASE_URL ?&gt;
+        file_manager/confirm_delete/&lt;?= $update_id ?&gt;"
+       class="btn btn-danger"&gt;
+      &lt;i class="fa-solid fa-trash"&gt;&lt;/i&gt;
+      Delete
+    &lt;/a&gt;
+    &lt;a href="&lt;?= out($back_url) ?&gt;"
+       class="btn btn-default"&gt;
+      &lt;i class="fa-solid fa-arrow-left"&gt;&lt;/i&gt;
+      Back
+    &lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+  <p>
+    The detail page displays four pieces of file metadata in a clean table. Below the table, three action buttons let the user download the file, delete it, or return to the manage page.
+  </p>
+
+  <h2>What Is Not Editable</h2>
+
+  <p>
+    Unlike the countries module, there is no <code>edit()</code> or <code>update()</code> method in this module. File records represent uploaded files  -  changing the <code>file_name</code> or <code>file_path</code> after upload would break the link between the database record and the physical file. If a user needs to replace a file, the recommended pattern is to delete the old record and upload a new one.
+  </p>
+
+</div>

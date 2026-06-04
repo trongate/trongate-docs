@@ -1,0 +1,27 @@
+<div class="container">
+  <h1>show_url_setup()</h1>
+  <p class="signature">public function show_url_setup(): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Displays the URL setup form and handles URL submission. On a POST request, calls <code>save_base_url()</code> to persist the confirmed URL. On a GET request, auto-detects the likely base URL and presents it to the user for confirmation.
+    </p>
+    <p>
+      This method is primarily used during initial application setup. It is blocked from direct URL access via <code>block_url()</code> in production.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <p>This method takes no parameters.</p>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>void</td><td>Outputs the URL setup view directly.</td></tr>
+    </tbody>
+  </table>
+</div>

@@ -165,6 +165,90 @@
 &lt;/div&gt;
 [/code]
 
+<h2>Modal Heading Color Variants</h2>
+
+<p>Trongate CSS includes built-in color variant classes for modal headings, matching the same patterns used on buttons and cards:</p>
+
+[code=css]
+.modal-heading.danger {
+  background-color: var(--danger);
+  border: 1px solid var(--danger-dark);
+}
+
+.modal-heading.success {
+  background-color: var(--success);
+  border: 1px solid var(--success-dark);
+}
+
+.modal-heading.warning {
+  background-color: var(--warning);
+  border: 1px solid var(--warning-dark);
+}
+[/code]
+
+<div class="trongate-css-demo" style="background-color: #575757;">
+  <div class="text-center">
+    <div class="modal text-left" style="position: static; opacity: 1; margin: 0 auto;">
+      <div class="modal-heading success">
+        Success
+      </div>
+      <div class="modal-body">
+        <p class="text-left">Operation completed successfully.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>For destructive actions that require emphasis, a <code>.modal-danger</code> button class is also available:</p>
+
+[code=css]
+.modal-danger {
+  background-color: red;
+  border: 1px #990000 solid;
+}
+[/code]
+
+<div class="trongate-css-demo" style="background-color: #575757;">
+  <div class="text-center">
+    <div class="modal text-left" style="position: static; opacity: 1; margin: 0 auto;">
+      <div class="modal-heading danger">
+        Delete Item
+      </div>
+      <div class="modal-body">
+        <p class="text-left">Are you sure? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="alt" onclick="closeModal()">Cancel</button>
+        <button class="modal-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+[code=html]
+&lt;div class="modal"&gt;
+  &lt;div class="modal-heading success"&gt;
+    Success
+  &lt;/div&gt;
+  &lt;div class="modal-body"&gt;
+    &lt;p&gt;Operation completed successfully.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Danger variant with modal-danger button --&gt;
+&lt;div class="modal"&gt;
+  &lt;div class="modal-heading danger"&gt;
+    Delete Item
+  &lt;/div&gt;
+  &lt;div class="modal-body"&gt;
+    &lt;p&gt;Are you sure? This action cannot be undone.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div class="modal-footer"&gt;
+    &lt;button class="alt"&gt;Cancel&lt;/button&gt;
+    &lt;button class="modal-danger"&gt;Delete&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+[/code]
 
 <h2>Close Modal Icons</h2>
 

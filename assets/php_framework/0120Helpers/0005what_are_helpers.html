@@ -3,13 +3,13 @@
 
 <p>A <strong>helper function</strong> is a standalone PHP function that performs a specific task. It lives outside any class or module. No instantiation. No dependency injection. You call it, it works, you move on.</p>
 
-<p>Trongate v2 comes with dozens of them &mdash; for URLs, forms, strings, flashdata, utilities, and more.</p>
+<p>Trongate v2 comes with dozens of them  -  for URLs, forms, strings, flashdata, utilities, and more.</p>
 
 <h2>How Trongate Handles Helpers</h2>
 
 <p>Every PHP framework has helpers. The difference is <em>how</em> they load them.</p>
 
-<p><strong>CodeIgniter 3</strong> requires you to declare which helpers to load via a config file or a <code>$this->load->helper()</code> call. Load a helper file and you get every function in that file &mdash; parsed, tokenised, and ready to go, whether you use them all or not.</p>
+<p><strong>CodeIgniter 3</strong> requires you to declare which helpers to load via a config file or a <code>$this->load->helper()</code> call. Load a helper file and you get every function in that file  -  parsed, tokenised, and ready to go, whether you use them all or not.</p>
 
 <p><strong>Trongate v2</strong> takes a different approach. Each helper function is a thin dispatcher that forwards the call to a dedicated service module. The real logic lives in <code>modules/</code>, not in the helper file.</p>
 
@@ -20,7 +20,7 @@ function some_heavy_helper(string $input): string {
 }
 [/code]
 
-<p>The helper file stays small and fast to parse. The heavy lifting happens inside a service module &mdash; loaded only when the function is actually called.</p>
+<p>The helper file stays small and fast to parse. The heavy lifting happens inside a service module  -  loaded only when the function is actually called.</p>
 
 <div class="alert alert-info">
     <p>Trongate's unique approach to loading of helpers reduced source, within the <code>engine</code> directory, from ~80 KB to ~10 KB. 

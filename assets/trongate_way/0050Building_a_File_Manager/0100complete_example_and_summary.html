@@ -1,0 +1,302 @@
+[meta-description]Complete code listing for the Trongate v2 File Manager module: full File_manager controller and File_manager_model with upload, listing, download, and delete operations.[/meta-description]
+<div class="container">
+  <h1>Complete Example and Summary</h1>
+
+  <p>
+    Below is the complete code for the File Manager module. You can copy these files into your own Trongate v2 project, or download the full repository from the link below.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Download from GitHub:</strong></p>
+    <p><a href="https://github.com/grady-trongate/Trongate-v2-File-Manager" target="_blank">https://github.com/grady-trongate/Trongate-v2-File-Manager</a></p>
+    <p>This repository contains the finished <strong>file_manager</strong> module (controller, model, and four views), a <strong>file_manager.sql</strong> file with the schema and sample data, and a README with quick-start instructions.</p>
+  </div>
+
+  <h2>File_manager.php (Controller)</h2>
+
+  <details>
+    <summary>Click to expand full controller code</summary>
+    <pre><code class="language-php">&lt;?php
+class File_manager extends Trongate {
+
+    public function manage(): void {
+        $this->gatekeeper();
+        $search_query = $_GET['search_query'] ?? '';
+        $search_column = $_GET['search_column'] ?? '';
+        $limit = $this->get_limit();
+        $offset = $this->get_offset();
+        $rows = $this->model->get_all_files(
+            $limit, $offset, $search_query, $search_column
+        );
+        $total = $this->model->count_all_files(
+            $search_query, $search_column
+        );
+        $data['rows'] = $rows;
+        $data['total'] = $total;
+        $data['limit'] = $limit;
+        $data['offset'] = $offset;
+        $data['search_query'] = $search_query;
+        $data['search_column'] = $search_column;
+        $data['num_rows'] = count($rows);
+        $data['view_module'] = 'file_manager';
+        $data['view_file'] = 'manage';
+        $this->templates->admin($data);
+    }
+
+    public function create(): void {
+        $this->gatekeeper();
+        $data['view_module'] = 'file_manager';
+        $data['view_file'] = 'create';
+        $this->templates->admin($data);
+    }
+
+    public function submit(): void {
+        $this->gatekeeper();
+        $this->validation->set_rules(
+            'doc_name', 'Document Name',
+            'required|min_length[2]|max_length[255]'
+        );
+        $this->validation->set_rules(
+            'userfile', 'File',
+            'allowed_types[pdf,txt,csv,doc,docx,'
+            . 'xls,xlsx,zip]|max_size[10240]'
+        );
+        $result = $this->validation->run();
+        if ($result === true) {
+            $doc_name = strip_tags(post('doc_name'));
+            $config['destination'] = 'modules/file_manager/files';
+            $config['upload_to_module'] = true;
+            $config['make_rand_name'] = true;
+            $file_info = $this->file->upload($config);
+            $data['doc_name'] = $doc_name;
+            $data['file_name'] = $file_info['file_name'];
+            $data['file_path'] = $file_info['file_path'];
+            $data['file_size'] = $file_info['file_size'];
+            $data['file_type'] = $file_info['file_type'];
+            $this->model->insert_file($data);
+            set_flashdata('The file was successfully uploaded.');
+            redirect('file_manager/manage');
+        } else {
+            $data['view_module'] = 'file_manager';
+            $data['view_file'] = 'create';
+            $this->templates->admin($data);
+        }
+    }
+
+    public function show(): void {
+        $this->gatekeeper();
+        $update_id = segment(3, 'int');
+        if ($update_id === 0) { $this->not_found(); return; }
+        $data = $this->model->get_file_by_id($update_id);
+        if ($data === false) { $this->not_found(); return; }
+        $data['headline'] = 'File Details';
+        $data['update_id'] = $update_id;
+        $data['back_url'] = $this->get_back_url();
+        $data['view_module'] = 'file_manager';
+        $data['view_file'] = 'show';
+        $this->templates->admin($data);
+    }
+
+    public function download(): void {
+        $this->gatekeeper();
+        $update_id = segment(3, 'int');
+        if ($update_id === 0) { $this->not_found(); return; }
+        $data = $this->model->get_file_by_id($update_id);
+        if ($data === false) { $this->not_found(); return; }
+        $file_path = $data['file_path'];
+        if (file_exists($file_path)) {
+            $this->file->download($file_path);
+        } else {
+            show_error('The requested file could not be found.');
+        }
+    }
+
+    public function confirm_delete(): void {
+        $this->gatekeeper();
+        $update_id = segment(3, 'int');
+        $data = $this->model->get_file_by_id($update_id);
+        if ($data === false) { $this->not_found(); return; }
+        $data['headline'] = 'Delete File';
+        $data['cancel_url'] = BASE_URL . 'file_manager/show/' . $update_id;
+        $data['form_location'] = str_replace(
+            '/confirm_delete', '/submit_confirm_delete', current_url()
+        );
+        $data['update_id'] = $update_id;
+        $data['view_module'] = 'file_manager';
+        $data['view_file'] = 'confirm_delete';
+        $this->templates->admin($data);
+    }
+
+    public function submit_confirm_delete(): void {
+        $this->gatekeeper();
+        $update_id = segment(3, 'int');
+        $data = $this->model->get_file_by_id($update_id);
+        if ($data === false) { $this->not_found(); return; }
+        $file_path = $data['file_path'];
+        if (file_exists($file_path)) {
+            $this->file->delete($file_path);
+        }
+        $this->model->delete_file($update_id);
+        set_flashdata('The file record was successfully deleted.');
+        redirect('file_manager/manage');
+    }
+
+    // -- Helpers (blocked from URL) -----------------------------------
+
+    public function gatekeeper(): void {
+        block_url('file_manager/gatekeeper');
+        $this->module('trongate_administrators');
+        $this->trongate_administrators->_gatekeeper();
+    }
+
+    public function get_limit(): int {
+        block_url('file_manager/get_limit');
+        $limit = segment(4, 'int');
+        return ($limit > 0) ? $limit : 10;
+    }
+
+    public function get_offset(): int {
+        block_url('file_manager/get_offset');
+        $offset = segment(5, 'int');
+        return ($offset > 0) ? $offset : 0;
+    }
+
+    public function get_back_url(): string {
+        block_url('file_manager/get_back_url');
+        $search_column = $_GET['search_column'] ?? '';
+        $search_query = $_GET['search_query'] ?? '';
+        $url = 'file_manager/manage';
+        if ($search_query !== '') {
+            $url .= '/' . rawurlencode($search_query)
+                  . '/' . rawurlencode($search_column);
+        }
+        return BASE_URL . $url;
+    }
+
+    public function not_found(): void {
+        block_url('file_manager/not_found');
+        $data['view_module'] = 'file_manager';
+        $data['view_file'] = 'not_found';
+        $this->templates->admin($data);
+        die();
+    }
+
+}</code></pre>
+  </details>
+
+  <h2>File_manager_model.php</h2>
+
+  <details>
+    <summary>Click to expand full model code</summary>
+    <pre><code class="language-php">&lt;?php
+class File_manager_model extends Model {
+
+    private string $table_name = 'file_manager';
+
+    public function get_all_files(
+        int $limit, int $offset,
+        string $search_query = '',
+        string $search_column = ''
+    ): array {
+        $where_clause = '';
+        if ($search_query !== '') {
+            $col = ($search_column !== '')
+                ? $search_column : 'doc_name';
+            $where_clause = 'WHERE ' . $col
+                          . ' LIKE :search_query';
+        }
+        $sql = 'SELECT id, doc_name, file_name,
+                       file_size, file_type
+                FROM ' . $this->table_name . '
+                ' . $where_clause . '
+                ORDER BY id DESC
+                LIMIT :limit OFFSET :offset';
+        $params = [':limit' => $limit, ':offset' => $offset];
+        if ($search_query !== '') {
+            $params[':search_query'] = '%' . $search_query . '%';
+        }
+        return $this->db->query($sql, 'object', $params);
+    }
+
+    public function count_all_files(
+        string $search_query = '',
+        string $search_column = ''
+    ): int {
+        $where_clause = '';
+        if ($search_query !== '') {
+            $col = ($search_column !== '')
+                ? $search_column : 'doc_name';
+            $where_clause = 'WHERE ' . $col
+                          . ' LIKE :search_query';
+        }
+        $sql = 'SELECT COUNT(*) as count
+                FROM ' . $this->table_name . '
+                ' . $where_clause;
+        $params = [];
+        if ($search_query !== '') {
+            $params[':search_query'] = '%' . $search_query . '%';
+        }
+        $result = $this->db->query($sql, 'object', $params);
+        return (int) ($result[0]->count ?? 0);
+    }
+
+    public function get_file_by_id(
+        int $update_id
+    ): array|false {
+        $record_obj = $this->db->get_where(
+            $update_id, $this->table_name
+        );
+        if ($record_obj === false) { return false; }
+        return [
+            'id' => (int) $record_obj->id,
+            'doc_name' => $record_obj->doc_name,
+            'file_name' => $record_obj->file_name,
+            'file_path' => $record_obj->file_path,
+            'file_size' => (int) $record_obj->file_size,
+            'file_type' => $record_obj->file_type
+        ];
+    }
+
+    public function insert_file(array $data): int {
+        return $this->db->insert($data, $this->table_name);
+    }
+
+    public function delete_file(int $update_id): void {
+        $this->db->delete($update_id, $this->table_name);
+    }
+
+}</code></pre>
+  </details>
+
+  <h2>Summary</h2>
+
+  <p>
+    In this chapter you built a complete File Manager module. Here is what you accomplished:
+  </p>
+
+  <ul>
+    <li>
+      <strong>File Uploads:</strong> Used <code>$this->file->upload()</code> with random filenames and module-directory storage to securely accept file uploads.
+    </li>
+    <li>
+      <strong>Database-Backed Index:</strong> Stored all four metadata properties returned by <code>upload()</code> (file name, path, size, type) in a database table alongside a user-provided document name.
+    </li>
+    <li>
+      <strong>Admin Manage Page:</strong> Built a paginated, searchable file list using the same admin CRUD pattern from the Basic CRUD chapter.
+    </li>
+    <li>
+      <strong>File Detail View:</strong> Displayed file metadata on a dedicated show page with download and delete actions.
+    </li>
+    <li>
+      <strong>File Downloads:</strong> Used <code>$this->file->download()</code> to serve files to the browser, verifying the physical file exists before downloading.
+    </li>
+    <li>
+      <strong>Safe Deletion:</strong> Implemented a two-step confirmation process that removes the file from both the filesystem and the database.
+    </li>
+  </ul>
+
+  <p>
+    This module demonstrates how to extend the standard admin CRUD pattern with file operations. The same pattern applies to any module that needs to manage uploaded files  -  product images in a store, user avatars, document archives, or report generators.
+  </p>
+
+</div>

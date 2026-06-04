@@ -4,7 +4,7 @@
 
   <h2>Description</h2>
   <div class="description">
-    <p>Executes a module controller method from anywhere — controllers, views, or models — by passing the module/method string and optional data. Accepts any PHP data type as the second parameter.</p>
+    <p>Executes a module controller method from anywhere  -  controllers, views, or models  -  by passing the module/method string and optional data. Accepts any PHP data type as the second parameter.</p>
   </div>
 
   <h2>Parameters</h2>
@@ -76,7 +76,7 @@ $default_view = Modules::run('dashboard/load_default', null);
   <h2>Notes</h2>
   <ul>
     <li>The <code>Modules::run()</code> method is callable from controllers, views, and models</li>
-    <li>The first parameter must be in <code>Module/Method</code> format — case-insensitive for both segments</li>
+    <li>The first parameter must be in <code>Module/Method</code> format  -  case-insensitive for both segments</li>
     <li>If the target module is a child module, use hyphenated format: <code>'parent-child/method'</code></li>
     <li>When <code>$data</code> is null, the target method is called without parameters</li>
     <li>Throws <code>Exception</code> if the controller or method is not found</li>

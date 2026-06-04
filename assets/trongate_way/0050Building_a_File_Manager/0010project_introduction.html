@@ -1,0 +1,89 @@
+[meta-description]Chapter introduction for building a File Manager module in Trongate v2: database-backed admin CRUD with file upload, listing, download, and deletion.[/meta-description]
+<div class="container">
+  <h1>Project Introduction</h1>
+
+  <p>
+    In this chapter, we build a <strong>File Manager</strong> module  -  a complete, database-backed admin interface for managing uploaded files. Users can upload files, browse the file list with pagination and search, view file metadata, download files, and delete them with confirmation.
+  </p>
+
+  <p>
+    This chapter applies everything you learned in the Basic CRUD chapter  -  the admin manage page pattern, pagination, search, confirm-and-delete  -  and introduces file uploads as a real-world extension. By the end, you will have a reusable file manager that you can drop into any Trongate project.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Want the complete code?</strong> Grab the full example from GitHub:</p>
+    <p><a href="https://github.com/grady-trongate/Trongate-v2-File-Manager" target="_blank">https://github.com/grady-trongate/Trongate-v2-File-Manager</a></p>
+    <p>This repository contains the finished <strong>file_manager</strong> module (controller, model, and four views), a <strong>file_manager.sql</strong> file with the schema and sample data, and a README with quick-start instructions.</p>
+  </div>
+
+  <h2>What Is Different About This Chapter?</h2>
+
+  <p>
+    The Trongate framework documentation already covers the File module's individual methods in depth  -  how <code>$this->file->upload()</code> works, what configuration keys it accepts, how file paths are constructed, and so on. This chapter does not repeat that reference material. Instead, it shows you how to <em>assemble</em> those methods into a working admin module, complete with a database index, a proper CRUD interface, and practical file operations like download and filesystem deletion.
+  </p>
+
+  <h2>Methods We Will Build</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>URL</th>
+        <th>Method</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/file_manager/manage</code></td>
+        <td><code>manage()</code></td>
+        <td>Paginated list of uploaded files</td>
+      </tr>
+      <tr>
+        <td><code>/file_manager/create</code></td>
+        <td><code>create()</code></td>
+        <td>Upload form</td>
+      </tr>
+      <tr>
+        <td><code>/file_manager/submit</code></td>
+        <td><code>submit()</code></td>
+        <td>Process upload with validation</td>
+      </tr>
+      <tr>
+        <td><code>/file_manager/show/{id}</code></td>
+        <td><code>show()</code></td>
+        <td>View file metadata</td>
+      </tr>
+      <tr>
+        <td><code>/file_manager/download/{id}</code></td>
+        <td><code>download()</code></td>
+        <td>Download the file</td>
+      </tr>
+      <tr>
+        <td><code>/file_manager/confirm_delete/{id}</code></td>
+        <td><code>confirm_delete()</code></td>
+        <td>Delete confirmation page</td>
+      </tr>
+      <tr>
+        <td><code>/file_manager/submit_confirm_delete</code></td>
+        <td><code>submit_confirm_delete()</code></td>
+        <td>Process deletion</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>What You Will Learn</h2>
+
+  <ul>
+    <li>Uploading files to a module directory with random filenames</li>
+    <li>Storing file metadata in a database table alongside the uploaded file</li>
+    <li>Listing files with pagination, search, and human-readable file sizes</li>
+    <li>Serving files for download via a controller method</li>
+    <li>Deleting files from both the database and the filesystem</li>
+    <li>Integrating the File module with the admin CRUD pattern</li>
+  </ul>
+
+  <p>
+    Let us begin by setting up the database table.
+  </p>
+
+</div>

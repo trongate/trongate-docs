@@ -1,0 +1,167 @@
+[meta-description]Build the File_manager_model in Trongate v2: querying the file index with pagination, searching, retrieving by ID, and inserting/deleting records.[/meta-description]
+<div class="container">
+  <h1>Building the Model</h1>
+
+  <p>
+    The model handles all database interactions. It provides five methods that cover the full lifecycle of a file record: listing, counting, retrieving, inserting, and deleting.
+  </p>
+
+  <h2>The Full Model</h2>
+
+  <pre><code class="language-php">&lt;?php
+class File_manager_model extends Model {
+
+    private string $table_name = 'file_manager';
+
+    public function get_all_files(
+        int $limit,
+        int $offset,
+        string $search_query = '',
+        string $search_column = ''
+    ): array {
+
+        $where_clause = '';
+
+        if ($search_query !== '') {
+            $col = ($search_column !== '')
+                ? $search_column
+                : 'doc_name';
+            $where_clause = 'WHERE ' . $col
+                          . ' LIKE :search_query';
+        }
+
+        $sql = 'SELECT id, doc_name, file_name,
+                       file_size, file_type
+                FROM ' . $this->table_name . '
+                ' . $where_clause . '
+                ORDER BY id DESC
+                LIMIT :limit OFFSET :offset';
+
+        $params = [
+            ':limit' => (int) $limit,
+            ':offset' => (int) $offset
+        ];
+
+        if ($search_query !== '') {
+            $params[':search_query']
+                = '%' . $search_query . '%';
+        }
+
+        return $this->db->query(
+            $sql, 'object', $params
+        );
+    }
+
+    public function count_all_files(
+        string $search_query = '',
+        string $search_column = ''
+    ): int {
+
+        $where_clause = '';
+
+        if ($search_query !== '') {
+            $col = ($search_column !== '')
+                ? $search_column
+                : 'doc_name';
+            $where_clause = 'WHERE ' . $col
+                          . ' LIKE :search_query';
+        }
+
+        $sql = 'SELECT COUNT(*) as count
+                FROM ' . $this->table_name . '
+                ' . $where_clause;
+
+        $params = [];
+
+        if ($search_query !== '') {
+            $params[':search_query']
+                = '%' . $search_query . '%';
+        }
+
+        $result = $this->db->query(
+            $sql, 'object', $params
+        );
+
+        return (int) ($result[0]->count ?? 0);
+    }
+
+    public function get_file_by_id(
+        int $update_id
+    ): array|false {
+
+        $record_obj = $this->db->get_where(
+            $update_id, $this->table_name
+        );
+
+        if ($record_obj === false) {
+            return false;
+        }
+
+        return [
+            'id' => (int) $record_obj->id,
+            'doc_name' => $record_obj->doc_name,
+            'file_name' => $record_obj->file_name,
+            'file_path' => $record_obj->file_path,
+            'file_size' => (int) $record_obj->file_size,
+            'file_type' => $record_obj->file_type
+        ];
+    }
+
+    public function insert_file(array $data): int {
+        return $this->db->insert(
+            $data, $this->table_name
+        );
+    }
+
+    public function delete_file(int $update_id): void {
+        $this->db->delete(
+            $update_id, $this->table_name
+        );
+    }
+
+}</code></pre>
+
+  <h2>Method Summary</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Returns</th>
+        <th>Used By</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>get_all_files()</code></td>
+        <td>Array of file objects</td>
+        <td><code>manage()</code>  -  populates the paginated table</td>
+      </tr>
+      <tr>
+        <td><code>count_all_files()</code></td>
+        <td>Integer</td>
+        <td><code>manage()</code>  -  provides total for pagination</td>
+      </tr>
+      <tr>
+        <td><code>get_file_by_id()</code></td>
+        <td>Associative array or false</td>
+        <td><code>show()</code>, <code>download()</code>, <code>confirm_delete()</code></td>
+      </tr>
+      <tr>
+        <td><code>insert_file()</code></td>
+        <td>New record ID</td>
+        <td><code>submit()</code>  -  stores uploaded file metadata</td>
+      </tr>
+      <tr>
+        <td><code>delete_file()</code></td>
+        <td>Void</td>
+        <td><code>submit_confirm_delete()</code>  -  removes database record</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Unlike the Countries model from the Basic CRUD chapter, this model does <em>not</em> include an <code>update()</code> method. File records are insert-once  -  you cannot change a file after upload (you would delete the old record and upload a replacement). The <code>doc_name</code> could theoretically be edited, but we omit that for simplicity.
+  </p>
+
+</div>

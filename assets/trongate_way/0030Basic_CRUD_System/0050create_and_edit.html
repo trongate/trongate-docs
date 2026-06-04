@@ -1,0 +1,157 @@
+[meta-description]Build the create and edit forms in Trongate v2: form handling with validation, the create/submit pattern, flashdata for success messages.[/meta-description]
+<div class="container">
+  <h1>Creating and Editing Records</h1>
+
+  <p>
+    Creating and editing records follows the same form-and-submit pattern used throughout Trongate. A single <code>create()</code> method renders the form (empty for new records, pre-populated for edits), and a <code>submit()</code> method handles validation and persistence.
+  </p>
+
+  <h2>The Create Method</h2>
+
+  <pre><code class="language-php">public function create(): void {
+    $this-&gt;gatekeeper();
+
+    $update_id = segment(3, 'int');
+    $submit = post('submit');
+
+    if (($update_id === 0) || ($submit === 'Submit')) {
+        $data = $this-&gt;model-&gt;get_data_from_post();
+    } else {
+        $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+    }
+
+    $data['headline'] = ($update_id === 0)
+        ? 'Create Country Record'
+        : 'Update Country Record';
+    $data['update_id'] = $update_id;
+    $data['form_location'] = str_replace('/create', '/submit', current_url());
+    $data['view_module'] = 'countries';
+    $data['view_file'] = 'create';
+
+    $this-&gt;templates-&gt;admin($data);
+}</code></pre>
+
+  <p>
+    This method handles three distinct situations:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Creating a new record:</strong> Visiting <code>/countries/create</code> gives <code>update_id</code> of 0, so it calls <code>get_data_from_post()</code> which returns empty strings. The form renders blank.
+    </li>
+    <li>
+      <strong>Editing an existing record:</strong> Visiting <code>/countries/create/5</code> gives <code>update_id</code> of 5. It calls <code>get_data_from_db(5)</code> to pre-populate the form with the current values.
+    </li>
+    <li>
+      <strong>Re-displaying after validation failure:</strong> When <code>submit()</code> detects invalid data, it calls <code>$this-&gt;create()</code> again. This time <code>$submit</code> equals <code>'Submit'</code>, so it uses <code>get_data_from_post()</code> to preserve the user's submitted values rather than the database values.
+    </li>
+  </ul>
+
+  <h2>The Create View</h2>
+
+  <pre><code class="language-php">&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;div class="card"&gt;
+    &lt;div class="card-heading"&gt;Country Details&lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;?php
+        echo form_open($form_location);
+        echo validation_errors();
+
+        echo form_label('Country Name');
+        echo form_input('country_title', $country_title,
+            ["placeholder" =&gt; "Enter Country Name",
+             "autocomplete" =&gt; "off"]);
+
+        echo form_label('Country Code');
+        echo form_input('country_code', $country_code,
+            ["placeholder" =&gt; "e.g. GB, FR, DE",
+             "maxlength" =&gt; "2",
+             "autocomplete" =&gt; "off"]);
+
+        echo '&lt;div class="text-center"&gt;';
+        echo anchor('countries/manage', 'Cancel',
+            array('class' =&gt; 'button alt'));
+
+        if ($update_id &gt; 0) {
+            echo anchor(
+                'countries/confirm_delete/' . $update_id,
+                'Delete Country',
+                array('class' =&gt; 'button danger')
+            );
+        }
+
+        echo form_submit('submit', 'Submit');
+        echo '&lt;/div&gt;';
+
+        echo form_close();
+        ?&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+  <p>
+    Notice the <strong>Delete Country</strong> link only appears when editing an existing record  -  it would make no sense on the create form. The <code>form_open()</code> helper uses the <code>$form_location</code> URL, which points to <code>/countries/submit</code> (or <code>/countries/submit/5</code> for updates).
+  </p>
+
+  <h2>The Submit Method</h2>
+
+  <pre><code class="language-php">public function submit(): void {
+    $this-&gt;gatekeeper();
+
+    $this-&gt;validation-&gt;set_rules(
+        'country_title', 'Country Name',
+        'required|min_length[2]|max_length[100]'
+    );
+    $this-&gt;validation-&gt;set_rules(
+        'country_code', 'Country Code',
+        'required|min_length[2]|max_length[2]'
+    );
+
+    $result = $this-&gt;validation-&gt;run();
+
+    if ($result === true) {
+        $data = $this-&gt;model-&gt;get_data_from_post();
+        $update_id = segment(3, 'int');
+
+        if ($update_id === 0) {
+            $this-&gt;db-&gt;insert($data, 'countries');
+            set_flashdata(
+                'The new country record was successfully created.'
+            );
+        } else {
+            $this-&gt;db-&gt;update($update_id, $data, 'countries');
+            set_flashdata(
+                'The country record was successfully updated.'
+            );
+        }
+
+        redirect('countries/manage');
+    } else {
+        $this-&gt;create();
+    }
+}</code></pre>
+
+  <p>Key points in this method:</p>
+
+  <ul>
+    <li>
+      <strong>Validation rules</strong> are set using <code>set_rules()</code> with the familiar pipe-delimited format. The country name must be 2–100 characters, and the country code must be exactly 2 characters.
+    </li>
+    <li>
+      <strong>If validation passes:</strong> the data is inserted or updated, a flashdata message is set, and the user is redirected back to the manage page.
+    </li>
+    <li>
+      <strong>If validation fails:</strong> the method calls <code>$this-&gt;create()</code> instead of rendering a view directly. This re-displays the form with validation errors shown by <code>validation_errors()</code> in the view, and preserves the user's submitted input.
+    </li>
+  </ul>
+
+  <h2>Flashdata</h2>
+  <p>
+    The <code>set_flashdata()</code> function stores a one-time message in the session that is displayed on the next page load. In the manage view, <code>flashdata()</code> renders this message. After the page is shown, the message is automatically cleared from the session.
+  </p>
+
+  <h2>Next Step</h2>
+  <p>
+    With create and edit working, the next page covers viewing individual records and deleting them with a confirmation step.
+  </p>
+
+</div>

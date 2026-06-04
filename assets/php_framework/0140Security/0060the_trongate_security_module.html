@@ -29,7 +29,7 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('scenario_name');
 <p>Each scenario routes to a specific module that knows how to handle that particular type of access control.</p>
 
 <div class="alert alert-info">
-    <p>It is for you — the developer — to decide how many scenarios your application is going to have. You also, as the developer, determine what names each scenario should be given.</p>
+    <p>It is for you  -  the developer  -  to decide how many scenarios your application is going to have. You also, as the developer, determine what names each scenario should be given.</p>
 </div>
 
 <h2>How It Works</h2>
@@ -94,11 +94,11 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
 <p>The <span class="feature-ref">make_sure_allowed()</span> method is intentionally open-ended. It can return:</p>
 
 <ul>
-    <li><strong>String</strong> — The validated token</li>
-    <li><strong>Boolean</strong> — <code>true</code> for public access, <code>false</code> for denied</li>
-    <li><strong>Object</strong> — Complete user object with permissions</li>
-    <li><strong>Array</strong> — Custom data structure with multiple values</li>
-    <li><strong>Nothing</strong> — Can redirect or die instead of returning</li>
+    <li><strong>String</strong>  -  The validated token</li>
+    <li><strong>Boolean</strong>  -  <code>true</code> for public access, <code>false</code> for denied</li>
+    <li><strong>Object</strong>  -  Complete user object with permissions</li>
+    <li><strong>Array</strong>  -  Custom data structure with multiple values</li>
+    <li><strong>Nothing</strong>  -  Can redirect or die instead of returning</li>
 </ul>
 
 <p>The return type depends on what your scenario needs. You decide.</p>
@@ -114,9 +114,9 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
 <h3>The Requirements</h3>
 
 <ul>
-    <li><strong>Read comments</strong> — Open to anyone (no authentication)</li>
-    <li><strong>Create comments</strong> — Must be a logged-in member</li>
-    <li><strong>Edit/delete comments</strong> — Must be the comment owner OR an admin</li>
+    <li><strong>Read comments</strong>  -  Open to anyone (no authentication)</li>
+    <li><strong>Create comments</strong>  -  Must be a logged-in member</li>
+    <li><strong>Edit/delete comments</strong>  -  Must be the comment owner OR an admin</li>
 </ul>
 
 <h3>Trongate_security.php</h3>
@@ -127,7 +127,7 @@ $this-&gt;trongate_security-&gt;make_sure_allowed('admin panel');
 public function make_sure_allowed(string $scenario = 'admin panel', array $params = []): mixed {
     switch ($scenario) {
         case 'read comment':
-            // Public access — no authentication required
+            // Public access  -  no authentication required
             return true;
             
         case 'create comment':
@@ -145,7 +145,7 @@ public function make_sure_allowed(string $scenario = 'admin panel', array $param
             return $result;
             
         default:
-            // Admin panel access — checks for user level 1 token
+            // Admin panel access  -  checks for user level 1 token
             $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(1);
             
             if ($token === false) {
@@ -341,11 +341,11 @@ case 'premium content':
 <h2>Why Scenarios Win</h2>
 
 <ul>
-    <li><strong>Centralized security logic</strong> — All authorization in one place</li>
-    <li><strong>Consistent patterns</strong> — Same method call everywhere</li>
-    <li><strong>Easy to audit</strong> — Review security in one file</li>
-    <li><strong>Flexible delegation</strong> — Complex logic lives in appropriate modules</li>
-    <li><strong>Testable</strong> — Mock scenarios for unit tests</li>
+    <li><strong>Centralized security logic</strong>  -  All authorization in one place</li>
+    <li><strong>Consistent patterns</strong>  -  Same method call everywhere</li>
+    <li><strong>Easy to audit</strong>  -  Review security in one file</li>
+    <li><strong>Flexible delegation</strong>  -  Complex logic lives in appropriate modules</li>
+    <li><strong>Testable</strong>  -  Mock scenarios for unit tests</li>
 </ul>
 
 <h2>Common Patterns</h2>
@@ -378,10 +378,10 @@ case 'complex scenario':
 
 <div class="alert alert-success">
     <ul class="mt-0">
-        <li><strong>Use descriptive scenario names</strong> — <code>'edit comment'</code> not <code>'scenario_7'</code></li>
-        <li><strong>Delegate complex logic</strong> — Keep switch statement clean, push details to modules</li>
-        <li><strong>Return consistent types per scenario</strong> — Do not mix tokens and booleans for same scenario</li>
-        <li><strong>Document your scenarios</strong> — Add comments explaining what each scenario protects</li>
-        <li><strong>Test thoroughly</strong> — Especially ownership checks and edge cases</li>
+        <li><strong>Use descriptive scenario names</strong>  -  <code>'edit comment'</code> not <code>'scenario_7'</code></li>
+        <li><strong>Delegate complex logic</strong>  -  Keep switch statement clean, push details to modules</li>
+        <li><strong>Return consistent types per scenario</strong>  -  Do not mix tokens and booleans for same scenario</li>
+        <li><strong>Document your scenarios</strong>  -  Add comments explaining what each scenario protects</li>
+        <li><strong>Test thoroughly</strong>  -  Especially ownership checks and edge cases</li>
     </ul>
 </div>

@@ -1,0 +1,122 @@
+[meta-description]Build the GET /countries_api/get_one/{id} endpoint in Trongate v2: fetching a single record, 404 handling, and ID validation.[/meta-description]
+<div class="container">
+  <h1>Getting a Single Record</h1>
+
+  <p>
+    The <code>get_one()</code> endpoint retrieves a single country by its primary key. This is the first endpoint where we encounter the concept of <strong>resource not found</strong>  -  what happens when the client requests a record that does not exist.
+  </p>
+
+  <h2>The Model Method</h2>
+
+  <p>
+    The model method uses <code>$this->db->get_where()</code> to fetch a single record. If no record is found, it returns <code>false</code>. If found, it returns the data as an associative array.
+  </p>
+
+  <pre><code class="language-php">public function get_one(int $update_id): array|false {
+    $record_obj = $this->db->get_where($update_id, 'countries');
+
+    if ($record_obj === false) {
+        return false;
+    }
+
+    return [
+        'id' => (int) $record_obj->id,
+        'country_title' => $record_obj->country_title,
+        'country_code' => $record_obj->country_code
+    ];
+}</code></pre>
+
+  <p>
+    Unlike the model from the Basic CRUD chapter, this version does <em>not</em> call <code>die()</code> when the record is not found. Instead, it returns <code>false</code> to the controller, allowing the controller to decide how to respond. This is important for an API  -  the error response (404) comes from the controller, not the model.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <pre><code class="language-php">public function get_one(): void {
+    $this->authenticate();
+
+    $update_id = segment(3, 'int');
+
+    if ($update_id === 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'No country ID provided.']);
+        return;
+    }
+
+    $data = $this->model->get_one($update_id);
+
+    if ($data === false) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Country not found.']);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode($data);
+
+    $this->log_request('get_one', $update_id);
+}</code></pre>
+
+  <p>There are three response paths in this method:</p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>When</th>
+        <th>Response</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>400</code></td>
+        <td>No ID provided (segment 3 is 0)</td>
+        <td><code>{"error": "No country ID provided."}</code></td>
+      </tr>
+      <tr>
+        <td><code>404</code></td>
+        <td>ID provided but record does not exist</td>
+        <td><code>{"error": "Country not found."}</code></td>
+      </tr>
+      <tr>
+        <td><code>200</code></td>
+        <td>Record found</td>
+        <td><code>{"id": 1, "country_title": "Afghanistan", ...}</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Notice the distinction between <code>400 Bad Request</code> and <code>404 Not Found</code>:
+  </p>
+
+  <ul>
+    <li>
+      <strong>400</strong>  -  The request itself was malformed (missing required ID). This is the client's mistake and should not happen in a well-built client.
+    </li>
+    <li>
+      <strong>404</strong>  -  The request was well-formed but the resource does not exist. This is expected behavior  -  records may have been deleted between the list and the detail request.
+    </li>
+  </ul>
+
+  <h2>Testing</h2>
+
+  <pre><code class="language-bash"># Valid request
+curl -H "Trongatetoken: your-token" \
+  http://localhost/countries_api/get_one/1
+
+# Missing ID
+curl -H "Trongatetoken: your-token" \
+  http://localhost/countries_api/get_one
+
+# Non-existent ID
+curl -H "Trongatetoken: your-token" \
+  http://localhost/countries_api/get_one/999</code></pre>
+
+  <h2>URL Segment Behaviour</h2>
+
+  <p>
+    The <code>segment(3, 'int')</code> call extracts the third segment of the URL and casts it to an integer. If the segment is missing or non-numeric, it returns 0  -  which is why we check for <code>=== 0</code>. In Trongate, primary keys start at 1, so 0 is a safe sentinel value meaning "no valid ID given."
+  </p>
+
+</div>

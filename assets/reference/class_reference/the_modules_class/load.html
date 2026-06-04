@@ -41,14 +41,22 @@
   </table>
   <h2>Example Usage</h2>
 [code=php]
-$this->modules->load("welcome");[/code]
+$module_loader = new Modules();
+$module_loader->load('welcome');[/code]
 
   <h2>Alternative Technique</h2>
   <div class="alternative">
-    <p>The main Trongate class provides the <code>module()</code> method as a convenient alias to <code>$this->modules->load()</code>. This method offers a semantically clear alternative for developers, ensuring the codebase remains expressive and maintainable while utilizing the same underlying functionality as the <code>load()</code> method.</p>
+    <p>The main Trongate class provides the <code>module()</code> method as a more convenient alternative. This method offers a semantically clear approach for developers, ensuring the codebase remains expressive and maintainable.</p>
 
     <h3>Example Usage of Alternative Technique</h3>
-    [code=php]$this-&gt;module('welcome');[/code]
+    [code=php]
+// From a controller extending Trongate
+$this->module('welcome');[/code]
+
+  <h3>Static Access</h3>
+  <p>The <code>Modules</code> class can also be used directly via its static method:</p>
+  [code=php]
+Modules::run('welcome/index');[/code]
 
 </div>
 </div>

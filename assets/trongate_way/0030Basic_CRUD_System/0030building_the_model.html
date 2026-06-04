@@ -1,0 +1,98 @@
+[meta-description]Build the Countries_model in Trongate v2: get_data_from_post, get_data_from_db, paginated fetch_records, prepare_for_display, and count_all.[/meta-description]
+<div class="container">
+  <h1>Building the Model</h1>
+
+  <p>
+    The model handles all database interactions for the countries module. In Trongate v2, models extend the <code>Model</code> class and are stored in the module directory as <code>Countries_model.php</code>.
+  </p>
+
+  <h2>The Complete Model</h2>
+
+  <pre><code class="language-php">&lt;?php
+class Countries_model extends Model {
+
+    private string $table_name = 'countries';
+
+    public function get_data_from_post(): array {
+        return [
+            'country_title' =&gt; post('country_title', true),
+            'country_code' =&gt; post('country_code', true)
+        ];
+    }
+
+    public function get_data_from_db(int $update_id): array {
+        $record_obj = $this-&gt;db-&gt;get_where($update_id, $this-&gt;table_name);
+
+        if ($record_obj === false) {
+            http_response_code(404);
+            echo 'Country record not found';
+            die();
+        }
+
+        return (array) $record_obj;
+    }
+
+    public function fetch_records(int $limit, int $offset): array {
+        $rows_to_return = (int) $limit;
+        $rows_to_skip = (int) $offset;
+
+        $sql = 'SELECT * FROM ' . $this-&gt;table_name
+             . ' ORDER BY country_title ASC'
+             . ' LIMIT ' . $rows_to_return
+             . ' OFFSET ' . $rows_to_skip;
+
+        return $this-&gt;db-&gt;query($sql, 'object');
+    }
+
+    public function prepare_records_for_display(array $rows): array {
+        $prepared = [];
+        foreach ($rows as $row) {
+            $row_array = (array) $row;
+            $prepared[] = (object) $this-&gt;prepare_for_display($row_array);
+        }
+        return $prepared;
+    }
+
+    public function prepare_for_display(array $data): array {
+        return $data;
+    }
+
+    public function count_all(): int {
+        return $this-&gt;db-&gt;count($this-&gt;table_name);
+    }
+
+}</code></pre>
+
+  <h2>Method by Method</h2>
+
+  <h3><code>get_data_from_post()</code></h3>
+  <p>
+    Retrieves submitted form data and sanitises it. The <code>true</code> parameter passed to <code>post()</code> tells Trongate to strip HTML tags and encode special characters. This method is called in two places: when displaying an empty create form (no previous data), and in the <code>submit()</code> method to build the array for database insertion or update.
+  </p>
+
+  <h3><code>get_data_from_db(int $update_id)</code></h3>
+  <p>
+    Fetches a single record by its primary key using <code>$this->db->get_where()</code>. If no record is found it sends a 404 response and terminates  -  this ensures that your views never receive an empty data set.
+  </p>
+
+  <h3><code>fetch_records(int $limit, int $offset)</code></h3>
+  <p>
+    Returns a paginated set of records sorted alphabetically by country name. The <code>LIMIT</code> and <code>OFFSET</code> values come from the controller's <code>get_limit()</code> and <code>get_offset()</code> helpers, which in turn read the current page number from the URL segment and the user's per-page preference from the session.
+  </p>
+
+  <h3><code>prepare_records_for_display()</code> and <code>prepare_for_display()</code></h3>
+  <p>
+    These methods let you transform raw database data before sending it to the view. In this simple example they pass the data through unchanged, but in a real-world module you might use them to format dates, join related data, or compute derived values. The two-method pattern  -  one for single records, one for collections  -  keeps your code clean and reusable.
+  </p>
+
+  <h3><code>count_all()</code></h3>
+  <p>
+    Returns the total number of records. The controller's pagination helper calls this to calculate how many pages are needed.
+  </p>
+
+  <h2>Naming Convention</h2>
+  <p>
+    Remember that the model file must be named after the module: <code>Countries_model.php</code> (note the singular "Country" becomes "Countries" for the module name, and the model appends <code>_model</code>). The class inside the file must match the filename: <code>class Countries_model extends Model</code>.
+  </p>
+
+</div>

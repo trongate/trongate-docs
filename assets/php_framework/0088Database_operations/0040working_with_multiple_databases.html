@@ -44,7 +44,7 @@ $stats = $this-&gt;analytics-&gt;get('id', 'page_views');         // analytics g
 $stock = $this-&gt;warehouse-&gt;get_where(42, 'items');          // warehouse group
 [/code]
 
-<p>Each connection is lazy-loaded &mdash; no overhead for groups you don't use in a given request.</p>
+<p>Each connection is lazy-loaded  -  no overhead for groups you don't use in a given request.</p>
 
 <hr>
 
@@ -58,10 +58,10 @@ $stock = $this-&gt;warehouse-&gt;get_where(42, 'items');          // warehouse g
 <p>Accessing a secondary database from a controller gives you the default connection instead. If you need data from multiple databases, make a model method that handles it:</p>
 
 [code=php]
-// Controller &mdash; only uses default:
+// Controller  -  only uses default:
 $report = $this-&gt;reports_model-&gt;get_sales_report($month);
 
-// Models/reports_model.php &mdash; uses both:
+// Models/reports_model.php  -  uses both:
 public function get_sales_report(string $month): array {
     $sql = "SELECT * FROM orders WHERE month = :month";
     $orders = $this-&gt;db-&gt;query_bind($sql, ['month' =&gt; $month], 'object');

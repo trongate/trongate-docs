@@ -1,12 +1,12 @@
 <h1>Working with Trongate Tokens</h1>
 
-<p>The <code>mx-token</code> attribute in Trongate MX provides a mechanism for seamlessly integrating Trongate's authentication and authorisation system by attaching Trongate Tokens to outgoing HTTP requests.</p>
+<p>The <code>mx-token</code> attribute in Trongate MX provides a mechanism for seamlessly integrating Trongate's authentication and authorization system by attaching Trongate Tokens to outgoing HTTP requests.</p>
 
 <h2>Implementation Overview</h2>
-<p>The Trongate PHP framework includes a powerful module named <code>trongate_tokens</code>. This module facilitates authentication and authorisation tasks, enabling you to secure API endpoints with customisable rules. With the <code>trongate_tokens</code> module, you can enforce granular control over who can interact with your API.</p>
+<p>The Trongate PHP framework includes a powerful module named <code>trongate_tokens</code>. This module facilitates authentication and authorization tasks, enabling you to secure API endpoints with customizable rules. With the <code>trongate_tokens</code> module, you can enforce granular control over who can interact with your API.</p>
 
 <div class="alert alert-info">
-	<p>Trongate's authorisation system supports a variety of access control patterns. Examples of possible API authorisation rules are:</p>
+	<p>Trongate's authorization system supports a variety of access control patterns. Examples of possible API authorization rules are:</p>
 
 	<ol>
 		<li>Allow access to an API endpoint for users who <b>have a user level of 'admin'</b>.</li>
@@ -176,7 +176,7 @@ $token = $this->trongate_tokens->attempt_get_valid_token();[/code]
 
 <h3>Successful Access</h3>
 <p>When a valid token is provided and meets all authorization requirements, your endpoint should return an HTTP response code within the success range.  For example:</p>
-[code=php]http_reponse_code(200);[/code]
+[code=php]http_response_code(200);[/code]
 
 <p>Example of granting access:</p>
 [code=php]public function protected_endpoint() {

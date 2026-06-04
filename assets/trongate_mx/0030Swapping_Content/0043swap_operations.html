@@ -74,7 +74,7 @@
 
 [code=vf]&lt;?php
 $btn_attr = [
-  'mx-get' =--&gt; 'api/data',
+  'mx-get' =&amp;gt; 'api/data',
   'mx-target' =&amp;gt; '#task-list',
   'mx-swap' =&amp;gt; 'afterbegin'
 ];
@@ -108,7 +108,7 @@ echo form_button('add_task_btn', 'Add New Task', $btn_attr);
 <p>Using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> function:</p>
 [code=vf]&lt;?php
 $btn_attr = [
-  'mx-get' =--&gt; 'api/data',
+  'mx-get' =&amp;gt; 'api/data',
   'mx-target' =&amp;gt; '#result',
   'mx-swap' =&amp;gt; 'outerHTML'
 ];
@@ -132,7 +132,7 @@ echo form_button('replace_btn', 'Replace Element', $btn_attr);
 <p>Using Trongate's <span class="feature-ref" ref-path="helpers/Form_Helpers">form_button()</span> form helper:</p>
 [code=vf]&lt;?php
 $btn_attr = [
-  'mx-get' =--&gt; 'api/data',
+  'mx-get' =&amp;gt; 'api/data',
   'mx-target' =&amp;gt; '#result',
   'mx-swap' =&amp;gt; 'beforebegin'
 ];
@@ -153,12 +153,12 @@ echo form_button('insert_before_btn', 'Insert Before', $btn_attr);
 <h3>Repopulate Form Field:</h3>
 <p>In the following example, <code>mx-swap="value"</code> is used to update the value of a form textarea element. This approach can be particularly useful for applications such as code beautifiers, date-pickers or any other tool that modifies form input values.</p>
 
-<p><b>PLEASE NOTE:</b> The code sample below utilises a variety of Trongate's form helper functions; however, their usage is entirely optional:</p>
+<p><b>PLEASE NOTE:</b> The code sample below utilizes a variety of Trongate's form helper functions; however, their usage is entirely optional:</p>
 
 
 [code=vf]&lt;?php 
 $form_attr = [
-   'mx-post' =--&gt; 'beautify/submit_code',
+   'mx-post' =&amp;gt; 'beautify/submit_code',
    'mx-target' =&amp;gt; '#code-input',
    'mx-swap' =&amp;gt; 'value'
 ];

@@ -1,0 +1,75 @@
+<div class="container">
+  <h1>view()</h1>
+  <p class="signature">protected function view(string $view, array $data = [], ?bool $return_as_str = null): ?string</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Loads and renders a view file from the current (or specified) module's <code>views/</code> directory. By default, the view is output directly to the browser. Pass <code>true</code> as the third argument to return the rendered output as a string instead.
+    </p>
+    <p>
+      The view file must be a PHP file ending in <code>.php</code>. The <code>$data</code> array is extracted into variables available within the view scope.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>view</td>
+        <td>string</td>
+        <td>The view file name without the <code>.php</code> extension.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>data</td>
+        <td>array</td>
+        <td>Associative array of data to extract into the view's variable scope.</td>
+        <td>[]</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>return_as_str</td>
+        <td>bool|null</td>
+        <td>If <code>true</code>, returns rendered HTML as a string instead of outputting it.</td>
+        <td>null (false)</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>string|null</td><td>Returns the rendered HTML string when <code>$return_as_str</code> is <code>true</code>. Returns <code>null</code> when outputting directly.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Basic view rendering
+$data['page_title'] = 'Welcome';
+$this->view('homepage', $data);
+
+// View rendering with template
+$data['view_file'] = 'user_profile';
+$this->templates->admin($data);
+
+// Return view as string (e.g., for emails)
+$html = $this->view('email_template', $data, true);
+[/code]
+</div>

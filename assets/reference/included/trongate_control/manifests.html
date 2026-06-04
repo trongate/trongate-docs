@@ -1,0 +1,27 @@
+<div class="container">
+  <h1>manifests()</h1>
+  <p class="signature">public function manifests(): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Scans the application for all available module manifests and outputs the results as JSON. Used by the framework to discover installed modules and their metadata.
+    </p>
+    <p>
+      The output includes module names, paths, and manifest data. This method is typically called programmatically during module discovery, not directly by end users.
+    </p>
+  </div>
+
+  <h2>Parameters</h2>
+  <p>This method takes no parameters.</p>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>void</td><td>Outputs JSON data directly with <code>Content-Type: application/json</code> header.</td></tr>
+    </tbody>
+  </table>
+</div>

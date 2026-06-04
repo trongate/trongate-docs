@@ -12,7 +12,7 @@
 [code=php]
 function get_user($id) {
     $user_obj = $this->db->get_where($id, 'users');
-    return $user_obj();
+    return $user_obj;
 }
 [/code]
 
@@ -27,7 +27,7 @@ function get_user($id) {
  */
 public function get_user(int $id): object|bool {
     $user_obj = $this->db->get_where($id, 'users');
-    return $user_obj();
+    return $user_obj;
 }
 [/code]
 

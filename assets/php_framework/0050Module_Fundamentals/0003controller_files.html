@@ -80,8 +80,9 @@ class Users extends Trongate {
         $this->view('users_list', $data);
     }
 
-    function profile($user_id) {
-        $user = $this->db->get_where($user_id);
+    function profile() {
+        $user_id = segment(3, 'int');
+        $user = $this->db->get_where($user_id, 'users');
         $this->view('user_profile', $user);
     }
 
@@ -91,7 +92,7 @@ class Users extends Trongate {
 <p>URL → Method magic:</p>
 <ul>
     <li><code>/users</code> → <code>index()</code></li>
-    <li><code>/users/profile/42</code> → <code>profile(42)</code></li>
+    <li><code>/users/profile/42</code> → <code>profile()</code> (use <code>segment(3, 'int')</code> to fetch the ID)</li>
 </ul>
 <hr>
 <h2 class="mt-0">Constructors? Optional.</h2>

@@ -1,0 +1,160 @@
+[meta-description]Build the POST /countries_api/create endpoint in Trongate v2: reading JSON input, validating fields, inserting records, and returning 201 responses.[/meta-description]
+<div class="container">
+  <h1>Creating Records</h1>
+
+  <p>
+    The <code>create()</code> endpoint accepts a JSON payload, validates it, inserts a new record, and returns a <code>201 Created</code> response. This is the first time we need to read a JSON request body.
+  </p>
+
+  <h2>Reading JSON Input</h2>
+
+  <p>
+    HTML forms send data as <code>application/x-www-form-urlencoded</code>, which PHP reads via <code>$_POST</code> or the <code>post()</code> helper. But API clients send data as <code>application/json</code>, which arrives as a raw request body accessed via <code>php://input</code>.
+  </p>
+
+  <p>
+    Our controller includes a helper method to parse JSON input:
+  </p>
+
+  <pre><code class="language-php">public function get_post_data(): array|null {
+    block_url('countries_api/get_post_data');
+
+    $raw_input = file_get_contents('php://input');
+    $data = json_decode($raw_input, true);
+
+    if (!is_array($data) || empty($data)) {
+        return null;
+    }
+
+    return $data;
+}</code></pre>
+
+  <p>
+    This method reads the raw request body, decodes it from JSON, and returns an associative array. If the JSON is invalid or empty, it returns <code>null</code>, which the controller interprets as a 400 Bad Request.
+  </p>
+
+  <h2>Validation</h2>
+
+  <p>
+    The validation helper checks the required fields and returns an array of error messages:
+  </p>
+
+  <pre><code class="language-php">public function validate(array $data): array {
+    block_url('countries_api/validate');
+
+    $errors = [];
+
+    if (!isset($data['country_title'])
+        || trim($data['country_title']) === '') {
+        $errors['country_title'] = 'Country name is required.';
+    } elseif (strlen(trim($data['country_title'])) &lt; 2) {
+        $errors['country_title']
+            = 'Country name must be at least 2 characters.';
+    } elseif (strlen(trim($data['country_title'])) &gt; 100) {
+        $errors['country_title']
+            = 'Country name must not exceed 100 characters.';
+    }
+
+    if (!isset($data['country_code'])
+        || trim($data['country_code']) === '') {
+        $errors['country_code'] = 'Country code is required.';
+    } elseif (strlen(trim($data['country_code'])) !== 2) {
+        $errors['country_code']
+            = 'Country code must be exactly 2 characters.';
+    }
+
+    return $errors;
+}</code></pre>
+
+  <p>
+    Each field error is keyed by the field name, making it easy for the client to display errors next to the correct input.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <pre><code class="language-php">public function create(): void {
+    $this->authenticate();
+
+    $data = $this->get_post_data();
+
+    if ($data === null) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Invalid or missing JSON payload.'
+        ]);
+        return;
+    }
+
+    $validation_errors = $this->validate($data);
+
+    if (!empty($validation_errors)) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Validation failed.',
+            'fields' => $validation_errors
+        ]);
+        return;
+    }
+
+    $new_id = $this->model->insert($data);
+
+    http_response_code(201);
+    echo json_encode([
+        'message' => 'Country created successfully.',
+        'id' => $new_id,
+        'country' => $data
+    ]);
+
+    $this->log_request('create');
+}</code></pre>
+
+  <h3>The 201 Created Status</h3>
+  <p>
+    Note the use of <code>http_response_code(201)</code>. The 201 status code specifically means "Created"  -  it tells the client that a new resource was successfully created as a result of their request. This is more precise than 200 (OK) and is a REST best practice.
+  </p>
+
+  <h2>The Model Insert Method</h2>
+
+  <pre><code class="language-php">public function insert(array $data): int {
+    $insert_data = [
+        'country_title' => trim($data['country_title']),
+        'country_code' => strtoupper(
+            trim($data['country_code'])
+        )
+    ];
+
+    return $this->db->insert($insert_data, 'countries');
+}</code></pre>
+
+  <p>
+    The model method cleans the data before inserting: it trims whitespace and uppercases the country code for consistent formatting. The <code>$this->db->insert()</code> method returns the ID of the newly inserted record.
+  </p>
+
+  <h2>Testing</h2>
+
+  <pre><code class="language-bash"># Successful creation
+curl -X POST \
+  -H "Trongatetoken: your-token" \
+  -H "Content-Type: application/json" \
+  -d '{"country_title":"New Country","country_code":"NC"}' \
+  http://localhost/countries_api/create
+
+# Missing required field
+curl -X POST \
+  -H "Trongatetoken: your-token" \
+  -H "Content-Type: application/json" \
+  -d '{"country_title":"Incomplete Country"}' \
+  http://localhost/countries_api/create
+
+# Invalid JSON
+curl -X POST \
+  -H "Trongatetoken: your-token" \
+  -H "Content-Type: application/json" \
+  -d 'not valid json' \
+  http://localhost/countries_api/create</code></pre>
+
+  <p>
+    Each of these test cases exercises a different response path: 201 for success, 400 with field errors for validation failure, and 400 for invalid JSON.
+  </p>
+
+</div>

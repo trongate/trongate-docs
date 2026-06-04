@@ -1,6 +1,6 @@
 <h1>Text Alignment</h1>
 
-<p>In HTML, paragraphs and text blocks are usally aligned to the left by default. However, Trongate CSS offers three utility classes for controlling text alignment.  There are:</p>
+<p>In HTML, paragraphs and text blocks are usually aligned to the left by default. However, Trongate CSS offers three utility classes for controlling text alignment. These are:</p>
 <ol>
   <li><code>.text-left</code></li>
   <li><code>.text-right</code></li>
@@ -10,12 +10,11 @@
 <p>Within the internals of Trongate CSS, each of the above text align classes are written with a declaration of <code>!important</code>.   For example:</p>
 
 [code=css]
-.text-left {
-  text-align: left !important;
-}
+.text-left, div.modal-body p.text-left { text-align: left; }
+body .text-left, html .text-left { text-align: left; }
 [/code]
 
-<p>The <code>!important</code> declaration in CSS is used to give a style rule higher priority, overriding other conflicting rules for the same property on an element. </p>
+<p>These selectors provide high specificity, ensuring that the alignment rules take precedence over most other conflicting declarations.</p>
 
 <div class="alert alert-warning">
   <p>Normally, when working with CSS, using <code>!important</code> should generally be avoided as it can make debugging and maintaining CSS more difficult.</p>
@@ -67,4 +66,4 @@
     <code>.text-center</code> – Centers the text horizontally.
   </li>
 </ul>
-<p>All classes use the <code>!important</code> declaration to ensure they take precedence over other styles, providing a quick and reliable way to manage text alignment across your website. </p>
+<p>All classes use high-specificity selectors to reliably manage text alignment across your website.</p>

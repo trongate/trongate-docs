@@ -1,0 +1,161 @@
+[meta-description]Build the Members controller in Trongate v2: login, logout, welcome page, and protected areas with is_logged_in() and attempt_get_valid_token().[/meta-description]
+<div class="container">
+  <h1>Building the Members Controller</h1>
+
+  <p>
+    The login module handles the heavy lifting of authentication: credential validation, token creation, rate limiting, and forgot-password flows. Your Members controller provides the landing pages, the post-login experience, and access to protected content.
+  </p>
+
+  <p>Create <code>modules/members/Members.php</code>:</p>
+
+[code=php]
+<?php
+class Members extends Trongate {
+
+    /**
+     * Display the member's welcome page.
+     *
+     * This is the page members see after logging in.
+     * The login module redirects here after successful
+     * authentication (configured in config/login.php).
+     *
+     * @return void
+     */
+    public function welcome(): void {
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'welcome';
+        $this->templates->public($data);
+    }
+
+    /**
+     * Log the current user out.
+     *
+     * Destroys the authentication token and redirects
+     * to the member login page.
+     *
+     * @return void
+     */
+    public function logout(): void {
+        $this->trongate_tokens->destroy();
+        redirect('member-login');
+    }
+
+    /**
+     * Check if a member is authenticated with a valid token.
+     *
+     * Unlike administrators who use make_sure_allowed(),
+     * members can be checked via is_logged_in() or by
+     * attempting to retrieve a valid token directly.
+     *
+     * @return void
+     */
+    public function members_only(): void {
+        $member_level_id = 2;
+
+        // Option A: Using the login module's is_logged_in()
+        $logged_in = $this->login->is_logged_in($member_level_id);
+
+        // Option B: Using tokens directly
+        // $token = $this->trongate_tokens->attempt_get_valid_token($member_level_id);
+        // if ($token === false) { redirect('member-login'); }
+
+        if ($logged_in !== true) {
+            redirect('member-login');
+        }
+
+        // Member is authenticated  -  show the protected page
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'members_only';
+        $this->templates->public($data);
+    }
+}
+[/code]
+
+  <h2>Understanding the Login Flow</h2>
+
+  <p>
+    Notice that the Members controller does <strong>not</strong> need <code>login()</code> or <code>submit_login()</code> methods. When a visitor navigates to <code>/member-login</code>, the custom routing forwards the request to the login module directly:
+  </p>
+
+  <ul>
+    <li><code>login/login/member-login</code> renders the login form using the configured <code>view_file</code> from <code>modules/login/views/</code>.</li>
+    <li>The form submits to <code>login/submit_login/member-login</code>, which validates credentials, enforces rate limiting, and creates a session token.</li>
+    <li>On success, the member is redirected to <code>members/welcome</code>.</li>
+    <li>On failure, the form is redisplayed with validation errors.</li>
+  </ul>
+
+  <p>This is the key difference from the administrator flow, where the <code>trongate_administrators</code> controller implements its own <code>login()</code> and <code>submit_login()</code> methods to integrate with the admin template.</p>
+
+  <h2>Checking Authentication</h2>
+
+  <p>
+    There are two ways to check whether a member is logged in:
+  </p>
+
+  <h3>Using <code>is_logged_in()</code></h3>
+
+[code=php]
+$this->module('login'); // Ensure the module is loaded
+if ($this->login->is_logged_in(2) === true) {
+    // Member (level 2) is authenticated
+}
+[/code]
+
+  <p>
+    The <code>is_logged_in()</code> method checks for a valid, unexpired token for the given user level. Pass no argument to check <em>any</em> user level.
+  </p>
+
+  <h3>Using <code>attempt_get_valid_token()</code></h3>
+
+[code=php]
+$token = $this->trongate_tokens->attempt_get_valid_token(2);
+if ($token !== false) {
+    // Member is authenticated  -  token object is available
+    // $token->token, $token->user_id, $token->expiry_date
+}
+[/code]
+
+  <p>
+    This returns the token object if a valid one exists, or <code>false</code> if not. It is useful when you need access to token metadata.
+  </p>
+
+  <h2>Logging Out</h2>
+
+  <p>
+    The <code>logout()</code> method in the Members controller destroys all existing tokens and redirects the member to the login page. If you prefer, you can also use the login module's built-in logout:
+  </p>
+
+[code=php]
+$this->module('login');
+$this->login->logout(); // Destroys tokens and redirects to login/login/{secret_word}
+[/code]
+
+  <p>
+    Using <code>$this->trongate_tokens->destroy()</code> directly gives you control over the redirect destination.
+  </p>
+
+  <h2>Creating the Welcome View</h2>
+
+  <p>Create <code>modules/members/views/welcome.php</code>:</p>
+
+[code=html]
+<h1>Welcome!</h1>
+
+<p>You are now logged in as a member of our site.</p>
+
+<p><?= anchor('members/your_account', 'Your Account') ?></p>
+<p><?= anchor('members/logout', 'Logout') ?></p>
+[/code]
+
+  <h2>Key Points</h2>
+
+  <ul>
+    <li>The login module handles authentication logic  -  your controller focuses on the user experience.</li>
+    <li>Use <code>is_logged_in()</code> for simple authentication checks in any controller.</li>
+    <li>Use <code>attempt_get_valid_token()</code> when you need the token object itself.</li>
+    <li>Members use the <strong>public</strong> template (<code>$this->templates->public()</code>), not the admin template.</li>
+    <li>You can add methods to the Members controller for profile pages, settings, or any member-only features.</li>
+  </ul>
+
+  <p>In the next page, we will add registration and account management to give members a complete self-service experience.</p>
+</div>

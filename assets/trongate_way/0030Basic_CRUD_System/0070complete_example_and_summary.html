@@ -1,0 +1,423 @@
+[meta-description]Complete code listing for the Trongate v2 Basic CRUD module: full Countries controller and Countries_model with manage, show, create, submit, and delete methods.[/meta-description]
+<div class="container">
+  <h1>Complete Example and Summary</h1>
+
+  <p>
+    Below is the complete code for the countries CRUD module. You can copy these files into your own Trongate v2 project, or download the full repository from the link at the top of this chapter.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Download from GitHub:</strong></p>
+    <p><a href="https://github.com/grady-trongate/Trongate-v2-Basic-CRUD" target="_blank">https://github.com/grady-trongate/Trongate-v2-Basic-CRUD</a></p>
+  </div>
+
+  <h2>Countries.php (Controller)</h2>
+
+  <p>The controller handles all HTTP requests and orchestrates the CRUD flow:</p>
+
+  <details>
+    <summary>Click to expand full controller code</summary>
+    <pre><code class="language-php">&lt;?php
+class Countries extends Trongate {
+
+    private int $default_limit = 20;
+    private array $per_page_options = [10, 20, 50, 100];
+
+    public function manage(): void {
+        $this->gatekeeper();
+
+        $search_query = $_GET['search_query'] ?? '';
+        $search_column = $_GET['search_column'] ?? '';
+
+        $limit = $this->get_limit();
+        $offset = $this->get_offset();
+        $rows = $this->model->fetch_records($limit, $offset);
+        $rows = $this->model->prepare_records_for_display($rows);
+
+        $data = [
+            'rows' => $rows,
+            'search_query' => $search_query,
+            'search_column' => $search_column,
+            'pagination_data' => $this->get_pagination_data($limit),
+            'view_module' => 'countries',
+            'view_file' => 'manage',
+            'per_page_options' => $this->per_page_options,
+            'selected_per_page' => $this->get_selected_per_page()
+        ];
+
+        $this->templates->admin($data);
+    }
+
+    public function show(): void {
+        $this->gatekeeper();
+
+        $update_id = segment(3, 'int');
+
+        if ($update_id === 0) {
+            $this->not_found();
+            return;
+        }
+
+        $data = $this->model->get_data_from_db($update_id);
+        $data = $this->model->prepare_for_display($data);
+
+        $data['update_id'] = $update_id;
+        $data['headline'] = 'Country Details';
+        $data['back_url'] = $this->get_back_url();
+        $data['view_module'] = 'countries';
+        $data['view_file'] = 'show';
+
+        $this->templates->admin($data);
+    }
+
+    public function create(): void {
+        $this->gatekeeper();
+
+        $update_id = segment(3, 'int');
+        $submit = post('submit');
+
+        if (($update_id === 0) || ($submit === 'Submit')) {
+            $data = $this->model->get_data_from_post();
+        } else {
+            $data = $this->model->get_data_from_db($update_id);
+        }
+
+        $data['headline'] = ($update_id === 0)
+            ? 'Create Country Record'
+            : 'Update Country Record';
+        $data['update_id'] = $update_id;
+        $data['form_location'] = str_replace(
+            '/create', '/submit', current_url()
+        );
+        $data['view_module'] = 'countries';
+        $data['view_file'] = 'create';
+
+        $this->templates->admin($data);
+    }
+
+    public function submit(): void {
+        $this->gatekeeper();
+
+        $this->validation->set_rules(
+            'country_title', 'Country Name',
+            'required|min_length[2]|max_length[100]'
+        );
+        $this->validation->set_rules(
+            'country_code', 'Country Code',
+            'required|min_length[2]|max_length[2]'
+        );
+
+        $result = $this->validation->run();
+
+        if ($result === true) {
+            $data = $this->model->get_data_from_post();
+            $update_id = segment(3, 'int');
+
+            if ($update_id === 0) {
+                $this->db->insert($data, 'countries');
+                set_flashdata(
+                    'The new country record was successfully created.'
+                );
+            } else {
+                $this->db->update($update_id, $data, 'countries');
+                set_flashdata(
+                    'The country record was successfully updated.'
+                );
+            }
+
+            redirect('countries/manage');
+        } else {
+            $this->create();
+        }
+    }
+
+    public function confirm_delete(): void {
+        $this->gatekeeper();
+
+        $update_id = segment(3, 'int');
+        $this->model->get_data_from_db($update_id);
+
+        $data = [
+            'headline' => 'Delete Country Record',
+            'cancel_url' => BASE_URL . 'countries/show/' . $update_id,
+            'form_location' => str_replace(
+                '/confirm_delete', '/submit_confirm_delete',
+                current_url()
+            ),
+            'update_id' => $update_id,
+            'view_module' => 'countries',
+            'view_file' => 'confirm_delete'
+        ];
+
+        $this->templates->admin($data);
+    }
+
+    public function submit_confirm_delete(): void {
+        $this->gatekeeper();
+
+        $update_id = (int) post('update_id', true);
+        $this->db->delete($update_id, 'countries');
+        set_flashdata(
+            'The country record was successfully deleted.'
+        );
+        redirect('countries/manage');
+    }
+
+    public function set_per_page(): void {
+        $this->gatekeeper();
+
+        $selected_index = segment(3, 'int');
+
+        if (!isset($this->per_page_options[$selected_index])) {
+            $selected_index = 1;
+        }
+
+        $_SESSION['selected_per_page'] = $selected_index;
+        redirect('countries/manage');
+    }
+
+    public function search_modal(): void {
+        block_url('countries/search_modal');
+
+        $user_level = $this->trongate_tokens->get_user_level();
+        if ($user_level !== 'admin') {
+            http_response_code(403);
+            echo '';
+            die();
+        }
+
+        $searchable_columns = [
+            'country_title' => 'Country Name',
+            'country_code' => 'Country Code',
+        ];
+
+        $data['searchable_columns'] = $searchable_columns;
+        $this->view('search_modal', $data);
+    }
+
+    public function submit_search(): void {
+        $this->gatekeeper();
+
+        $search_query = post('search_query', true);
+        $search_column = post('search_column', true);
+
+        $allowed_columns = ['country_title', 'country_code'];
+        if ($search_column !== ''
+            && !in_array($search_column, $allowed_columns, true)
+        ) {
+            $search_column = '';
+        }
+
+        $search_query = trim($search_query);
+        $search_query = preg_replace('/\s+/', ' ', $search_query);
+
+        if (strlen($search_query) < 2) {
+            set_flashdata(
+                'Search query must be at least 2 characters'
+            );
+            redirect('countries/manage');
+        }
+
+        redirect(
+            'countries/manage?search_query='
+            . urlencode($search_query)
+            . '&search_column='
+            . urlencode($search_column)
+        );
+    }
+
+    // -- Helper methods (protected from URL invocation via block_url()) --
+
+    public function gatekeeper(): void {
+        block_url('countries/gatekeeper');
+
+        $user_level = $this->trongate_tokens->get_user_level();
+        if ($user_level !== 'admin') {
+            if (from_trongate_mx() === true) {
+                http_response_code(403);
+                echo '';
+                die();
+            }
+            redirect('login/login');
+        }
+    }
+
+    public function not_found(): void {
+        block_url('countries/not_found');
+
+        $data = [
+            'headline' => 'Country Not Found',
+            'message' => "The country you're looking for "
+                       . "doesn't exist or has been deleted.",
+            'back_url' => $this->get_back_url(),
+            'back_label' => 'Go Back',
+            'view_module' => 'countries',
+            'view_file' => 'not_found'
+        ];
+        $this->templates->admin($data);
+    }
+
+    public function get_pagination_data(int $limit): array {
+        block_url('countries/get_pagination_data');
+
+        return [
+            'total_rows' => $this->model->count_all(),
+            'page_num_segment' => 3,
+            'limit' => $limit,
+            'pagination_root' => 'countries/manage',
+            'record_name_plural' => 'countries',
+            'include_showing_statement' => true
+        ];
+    }
+
+    public function get_back_url(): string {
+        block_url('countries/get_back_url');
+
+        $previous_url = previous_url();
+        if ($previous_url !== ''
+            && strpos(
+                $previous_url,
+                BASE_URL . 'countries/manage'
+            ) === 0
+        ) {
+            return $previous_url;
+        }
+        return BASE_URL . 'countries/manage';
+    }
+
+    public function get_limit(): int {
+        block_url('countries/get_limit');
+
+        if (isset($_SESSION['selected_per_page'])) {
+            return $this->per_page_options[
+                $_SESSION['selected_per_page']
+            ];
+        }
+        return $this->default_limit;
+    }
+
+    public function get_offset(): int {
+        block_url('countries/get_offset');
+
+        $page_num = segment(3, 'int');
+        return ($page_num > 1)
+            ? ($page_num - 1) * $this->get_limit()
+            : 0;
+    }
+
+    public function get_selected_per_page(): int {
+        block_url('countries/get_selected_per_page');
+
+        return $_SESSION['selected_per_page'] ?? 1;
+    }
+
+}</code></pre>
+  </details>
+
+  <h2>Countries_model.php</h2>
+
+    <details>
+    <summary>Click to expand full model code</summary>
+    <pre><code class="language-php">&lt;?php
+class Countries_model extends Model {
+
+    private string $table_name = 'countries';
+
+    public function get_data_from_post(): array {
+        return [
+            'country_title' => post('country_title', true),
+            'country_code' => post('country_code', true)
+        ];
+    }
+
+    public function get_data_from_db(int $update_id): array {
+        $record_obj = $this->db->get_where(
+            $update_id, $this->table_name
+        );
+
+        if ($record_obj === false) {
+            http_response_code(404);
+            echo 'Country record not found';
+            die();
+        }
+
+        return (array) $record_obj;
+    }
+
+    public function fetch_records(
+        int $limit, int $offset
+    ): array {
+        $rows_to_return = (int) $limit;
+        $rows_to_skip = (int) $offset;
+
+        $sql = 'SELECT * FROM ' . $this->table_name
+             . ' ORDER BY country_title ASC'
+             . ' LIMIT ' . $rows_to_return
+             . ' OFFSET ' . $rows_to_skip;
+
+        return $this->db->query($sql, 'object');
+    }
+
+    public function prepare_records_for_display(
+        array $rows
+    ): array {
+        $prepared = [];
+        foreach ($rows as $row) {
+            $row_array = (array) $row;
+            $prepared[] = (object) $this->prepare_for_display(
+                $row_array
+            );
+        }
+        return $prepared;
+    }
+
+    public function prepare_for_display(array $data): array {
+        return $data;
+    }
+
+    public function count_all(): int {
+        return $this->db->count($this->table_name);
+    }
+
+}</code></pre>
+  </details>
+
+  <h2>Summary</h2>
+
+  <p>
+    In this chapter you built a complete CRUD module for managing countries. Here is what you accomplished:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Database:</strong> Created a <code>countries</code> table with <code>country_title</code> and <code>country_code</code> columns, and populated it with sample data.
+    </li>
+    <li>
+      <strong>Model:</strong> Built <code>Countries_model</code> with methods for fetching, inserting, updating, counting, and preparing records for display.
+    </li>
+    <li>
+      <strong>Manage page:</strong> A paginated list with search, per-page selector, and view/edit/delete action buttons.
+    </li>
+    <li>
+      <strong>Create and Edit:</strong> A single form that handles both creation and updates, with validation rules and error display.
+    </li>
+    <li>
+      <strong>Show:</strong> A detail view of individual records with navigation to edit or delete.
+    </li>
+    <li>
+      <strong>Delete:</strong> A two-step delete flow with a confirmation screen to prevent accidental data loss.
+    </li>
+    <li>
+      <strong>Gatekeeping:</strong> Every method protected by token-based admin authentication, with URL invocation blocked via <code>block_url()</code>.
+    </li>
+  </ul>
+
+  <p>
+    This same pattern  -  manage, show, create, submit, confirm_delete, submit_confirm_delete  -  is used by every admin CRUD module in Trongate. Once you have built one, you have built them all. The only differences are the table schema, the form fields, and the validation rules.
+  </p>
+
+  <p>
+    In the next chapter, we will look at exposing these same records through a REST API, where the same <code>block_url()</code> pattern takes on new significance for securing endpoints.
+  </p>
+
+</div>

@@ -1,0 +1,97 @@
+[meta-description]Build the GET /countries_api/get_all endpoint in Trongate v2: listing records with the model, JSON response, and cURL testing.[/meta-description]
+<div class="container">
+  <h1>Listing Records</h1>
+
+  <p>
+    The <code>get_all()</code> endpoint is our simplest API method. It retrieves all countries from the database, orders them alphabetically, and returns them as a JSON array. There is no pagination in this version  -  every matching record is returned.
+  </p>
+
+  <h2>The Model Method</h2>
+
+  <p>
+    The model method is straightforward: a single SQL query with no parameters. It returns an array of objects, which <code>json_encode()</code> will serialise into a JSON array automatically.
+  </p>
+
+  <pre><code class="language-php">public function get_all(): array {
+    $sql = 'SELECT id, country_title, country_code
+            FROM countries
+            ORDER BY country_title ASC';
+
+    return $this->db->query($sql, 'object');
+}</code></pre>
+
+  <p>
+    We explicitly list the columns we want (<code>id</code>, <code>country_title</code>, <code>country_code</code>) rather than using <code>SELECT *</code>. This keeps the API response clean and predictable  -  no hidden fields, no extra data.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <pre><code class="language-php">public function get_all(): void {
+    $this->authenticate();
+
+    $rows = $this->model->get_all();
+
+    if (empty($rows)) {
+        http_response_code(200);
+        echo json_encode([]);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode($rows);
+
+    $this->log_request('get_all');
+}</code></pre>
+
+  <p>
+    The flow is simple: authenticate, fetch, check for empty results, encode, and log. No views, no templates, no HTML.
+  </p>
+
+  <h2>Testing with cURL</h2>
+
+  <p>
+    Once the controller is in place, you can test it from the command line. Replace <code>your-token</code> with an actual Trongate token:
+  </p>
+
+  <pre><code class="language-bash">curl -H "Trongatetoken: your-token" \
+  http://localhost/countries_api/get_all</code></pre>
+
+  <p>The response will look like this:</p>
+
+  <pre><code class="language-json">[
+  {"id":1,"country_title":"Afghanistan","country_code":"AF"},
+  {"id":2,"country_title":"Albania","country_code":"AL"},
+  {"id":3,"country_title":"Algeria","country_code":"DZ"},
+  ...
+]</code></pre>
+
+  <h3>Testing Without a Token</h3>
+
+  <p>
+    If you omit the token or provide an invalid one, the <code>authenticate()</code> method will return a 401 response:
+  </p>
+
+  <pre><code class="language-bash">curl -i http://localhost/countries_api/get_all</code></pre>
+
+  <pre><code>HTTP/1.1 401 Unauthorized
+Content-Type: text/html; charset=UTF-8
+
+{"error":"Unauthorized. A valid API token is required."}</code></pre>
+
+  <p>
+    Note the <code>-i</code> flag in the cURL command  -  this shows the HTTP response headers, including the status code. This is useful when testing API behavior.
+  </p>
+
+  <h2>Testing with a Browser</h2>
+
+  <p>
+    If you are logged into your Trongate application in the same browser, the token is stored in your session. You can simply visit:
+  </p>
+
+  <pre><code>http://localhost/countries_api/get_all</code></pre>
+
+  <p>
+    The browser will display the raw JSON. This is a convenient way to test during development, but remember: real API clients will send the token in a header, not via a browser session.
+  </p>
+
+</div>

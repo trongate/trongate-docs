@@ -1,0 +1,77 @@
+<div class="container">
+  <h1>make_sure_allowed()</h1>
+  <p class="signature">public function make_sure_allowed(string $scenario = 'admin panel', array $params = []): mixed</p>
+  
+  <h2>Description</h2>
+  <div class="description">
+    <p>
+      Centralised authorization method that routes access control checks to the appropriate module based on the supplied scenario. By default, it validates that the current user has a valid admin-level token (user level 1).
+    </p>
+    <p>
+      In development mode (<code>ENV === 'dev'</code>), convenience features streamline authentication. In production, unauthenticated users are always redirected to the login page.
+    </p>
+  </div>
+  
+  <h2>Parameters</h2>
+  <table class="params-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>scenario</td>
+        <td>string</td>
+        <td>The security context to check. Defaults to <code>'admin panel'</code> which checks for a valid token with user level 1. Additional scenarios such as <code>'members area'</code> can be defined in your application.</td>
+        <td>'admin panel'</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>params</td>
+        <td>array</td>
+        <td>Optional parameters for fine-grained access control. For example, passing a record ID for ownership checks.</td>
+        <td>[]</td>
+        <td>No</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>mixed</td>
+        <td>Returns a token string, boolean, object, array, or custom value depending on the scenario. Redirects to login if authentication fails.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>Example Usage</h2>
+  [code=php]
+&lt;?php
+// Default admin panel check
+$this->trongate_security->make_sure_allowed();
+
+// Explicit admin panel check (same as above)
+$this->trongate_security->make_sure_allowed('admin panel');
+
+// Members area check (requires custom scenario)
+$this->trongate_security->make_sure_allowed('members area');
+
+// With additional parameters for ownership checks
+$this->trongate_security->make_sure_allowed('edit comment', [
+    'comment_id' => 42
+]);
+[/code]
+</div>

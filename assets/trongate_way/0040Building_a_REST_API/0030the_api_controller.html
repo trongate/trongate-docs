@@ -1,0 +1,123 @@
+[meta-description]Build the Countries_api controller in Trongate v2: JSON responses, token authentication via block_url(), and the overall API structure.[/meta-description]
+<div class="container">
+  <h1>The API Controller</h1>
+
+  <p>
+    The API controller lives in its own module: <code>countries_api</code>. It follows the same Trongate controller pattern but returns JSON instead of rendering views. There are no <code>$this->view()</code> calls, no templates, and no HTML  -  every method echoes a JSON-encoded response and sets an appropriate HTTP status code.
+  </p>
+
+  <h2>Module Structure</h2>
+
+  <pre><code>modules/countries_api/
+  Countries_api.php          (controller)
+  Countries_api_model.php    (model)
+  logs/
+    api_requests.log         (request audit log)</code></pre>
+
+  <h2>The Controller Skeleton</h2>
+
+  <pre><code class="language-php">&lt;?php
+class Countries_api extends Trongate {
+
+    public function get_all(): void {
+        $this->authenticate();
+        // ... fetch and return all countries
+    }
+
+    public function get_one(): void {
+        $this->authenticate();
+        // ... fetch and return a single country
+    }
+
+    public function create(): void {
+        $this->authenticate();
+        // ... create a new country
+    }
+
+    public function update(): void {
+        $this->authenticate();
+        // ... update an existing country
+    }
+
+    public function destroy(): void {
+        $this->authenticate();
+        // ... delete a country
+    }
+
+}
+</code></pre>
+
+  <p>
+    Every public method corresponds to one API endpoint. In this chapter, we focus on the <code>get_all()</code> and <code>get_one()</code> endpoints. In the next chapters we add <code>create()</code>, <code>update()</code>, and <code>destroy()</code>.
+  </p>
+
+  <h2>Key Design Decisions</h2>
+
+  <h3>No Views, No Templates</h3>
+  <p>
+    Unlike the countries controller from the Basic CRUD chapter, this controller never calls <code>$this->view()</code> or <code>$this->templates->admin()</code>. Instead, every endpoint:
+  </p>
+
+  <ol>
+    <li>Calls <code>$this->authenticate()</code> to verify the token</li>
+    <li>Fetches or manipulates data via the model</li>
+    <li>Calls <code>http_response_code()</code> to set the status code</li>
+    <li>Echoes <code>json_encode()</code> to return structured data</li>
+    <li>Calls <code>$this->log_request()</code> for auditing</li>
+  </ol>
+
+  <h3>Using <code>block_url()</code> for Helper Methods</h3>
+  <p>
+    The helper methods  -  <code>authenticate()</code>, <code>log_request()</code>, <code>get_post_data()</code>, and <code>validate()</code>  -  are all declared as <em>public</em> methods, but each one calls <code>block_url()</code> as its first action. This follows the Trongate v2 convention of keeping methods accessible from code while preventing direct URL invocation.
+  </p>
+
+  <pre><code class="language-php">public function authenticate(): void {
+    block_url('countries_api/authenticate');
+
+    $token = $this->trongate_tokens->attempt_get_valid_token();
+
+    if ($token === false) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized. A valid API token is required.']);
+        die();
+    }
+}</code></pre>
+
+  <p>
+    <strong>Your Security, Your Rules.</strong> In this chapter we apply <code>authenticate()</code> to <em>every</em> endpoint, but that is a design choice, not a requirement. Trongate gives you the token system; you decide which endpoints need it. You may wish to leave <code>get_all()</code> public for fast browsing while requiring a token for <code>create()</code>, <code>update()</code>, and <code>destroy()</code>. The framework makes either approach straightforward.
+  </p>
+
+  <p>
+    For a full understanding of how tokens work, see <a href="https://trongate.io/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
+  </p>
+
+  <h3>JSON Response Pattern</h3>
+  <p>
+    Every endpoint follows the same response pattern. Here is the simplest example, from <code>get_all()</code>:
+  </p>
+
+  <pre><code class="language-php">public function get_all(): void {
+    $this->authenticate();
+
+    $rows = $this->model->get_all();
+
+    if (empty($rows)) {
+        http_response_code(200);
+        echo json_encode([]);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode($rows);
+}</code></pre>
+
+  <p>
+    Note that we return an empty array <code>[]</code> with a 200 status when there are no records  -  not an error. An empty collection is a valid response. An error would be something like a missing authentication token or an invalid record ID.
+  </p>
+
+  <h2>Next Step</h2>
+  <p>
+    With the controller skeleton in place, we will fill in the <code>get_all()</code> endpoint in the next page.
+  </p>
+
+</div>

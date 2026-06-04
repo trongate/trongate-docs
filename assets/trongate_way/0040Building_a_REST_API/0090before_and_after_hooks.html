@@ -1,0 +1,178 @@
+[meta-description]Before and after hooks in Trongate v2 REST APIs: the authenticate() before hook pattern, log_request() after hook pattern, and how to implement rate limiting and audit logging.[/meta-description]
+<div class="container">
+  <h1>Before and After Hooks</h1>
+
+  <p>
+    You will have noticed by now that every endpoint in our API follows the same structure:
+  </p>
+
+  <pre><code class="language-php">public function some_endpoint(): void {
+    $this->authenticate();     // ← before hook
+    // ... endpoint logic ...
+    $this->log_request(...);   // ← after hook
+}</code></pre>
+
+  <p>
+    The <code>authenticate()</code> call runs <em>before</em> the endpoint logic. The <code>log_request()</code> call runs <em>after</em>. These are our <strong>before and after hooks</strong>  -  explicit, opt-in, and transparent.
+  </p>
+
+  <h2>Why Explicit Hooks?</h2>
+
+  <p>
+    Some frameworks use magic: they automatically detect methods named <code>_before()</code> or <code>_after()</code> and invoke them around every controller action. Trongate does not do this, for three reasons:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Explicitness:</strong> Looking at a controller method, you can see exactly what runs, in what order. There is no hidden code executing around your logic.
+    </li>
+    <li>
+      <strong>Selective application:</strong> Some endpoints may not need authentication (a public health-check endpoint, for example). With explicit calls, you choose per-endpoint.
+    </li>
+    <li>
+      <strong>Debuggability:</strong> If something goes wrong, the stack trace shows exactly which method called which. No magic wrappers to unravel.
+    </li>
+  </ul>
+
+  <h2>The Before Hook: Authentication</h2>
+
+  <p>
+    Our <code>authenticate()</code> method checks for a valid Trongate token and terminates the request with a 401 response if none is found:
+  </p>
+
+  <pre><code class="language-php">public function authenticate(): void {
+    block_url('countries_api/authenticate');
+
+    $token = $this->trongate_tokens
+        ->attempt_get_valid_token();
+
+    if ($token === false) {
+        http_response_code(401);
+        echo json_encode([
+            'error' => 'Unauthorized. '
+                     . 'A valid API token is required.'
+        ]);
+        die();
+    }
+}</code></pre>
+
+  <p>
+    This uses <code>Trongate_tokens::attempt_get_valid_token()</code> with no user-level filter, meaning any valid token (from any logged-in user) is accepted. To require admin-level access, pass a user level ID:
+  </p>
+
+  <pre><code class="language-php">// Require admin level (typically ID 1)
+$token = $this->trongate_tokens
+    ->attempt_get_valid_token(1);</code></pre>
+
+  <p>
+    If no valid token is found, the method calls <code>die()</code> after sending the 401 response. This stops execution immediately  -  the endpoint logic never runs.
+  </p>
+
+  <p>
+    Remember: requiring authentication on every endpoint is a choice, not a framework mandate. You decide which endpoints need tokens, which user levels are allowed, and whether some should remain public. Trongate provides the <code>Trongate_tokens</code> module and the <code>attempt_get_valid_token()</code> method; you define the security policy.
+  </p>
+
+  <p>
+    For a full understanding of how tokens work, see <a href="https://trongate.io/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
+  </p>
+
+  <h2>The After Hook: Request Logging</h2>
+
+  <p>
+    The <code>log_request()</code> method appends an entry to a log file after every successful API call:
+  </p>
+
+  <pre><code class="language-php">public function log_request(
+    string $action, ?int $record_id = null
+): void {
+    block_url('countries_api/log_request');
+
+    $log_entry = date('Y-m-d H:i:s') . ' | '
+               . $_SERVER['REQUEST_METHOD'] . ' | '
+               . $action
+               . ($record_id !== null
+                   ? ' | id: ' . $record_id
+                   : '')
+               . ' | '
+               . ($_SERVER['REMOTE_ADDR'] ?? 'unknown')
+               . PHP_EOL;
+
+    $log_file = APPPATH
+              . 'modules/countries_api/logs/'
+              . 'api_requests.log';
+
+    file_put_contents(
+        $log_file, $log_entry, FILE_APPEND | LOCK_EX
+    );
+}</code></pre>
+
+  <p>
+    Each log entry records the timestamp, HTTP method, action name, affected record ID (if any), and the client's IP address. Over time, this builds a complete audit trail of API activity.
+  </p>
+
+  <h2>Extending the Pattern</h2>
+
+  <p>
+    Once you have adopted the before/after hook pattern, adding new cross-cutting concerns becomes straightforward. Here are two examples:
+  </p>
+
+  <h3>Rate Limiting (Before Hook)</h3>
+
+  <pre><code class="language-php">public function rate_limit(): void {
+    block_url('countries_api/rate_limit');
+
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $window = 60; // seconds
+    $max_requests = 30;
+
+    // Implementation: track request timestamps per IP
+    // in a file or database, then check the count
+    // within the time window.
+    // If exceeded: http_response_code(429); die();
+}</code></pre>
+
+  <p>
+    Call it after <code>authenticate()</code> in each endpoint:
+  </p>
+
+  <pre><code class="language-php">public function get_all(): void {
+    $this->authenticate();
+    $this->rate_limit();
+    // ... rest of endpoint logic
+}</code></pre>
+
+  <h3>Response Wrapping (After Hook)</h3>
+
+  <pre><code class="language-php">public function wrap_response(
+    mixed $data, int $status_code
+): void {
+    block_url('countries_api/wrap_response');
+
+    http_response_code($status_code);
+    echo json_encode([
+        'status' => $status_code,
+        'timestamp' => time(),
+        'data' => $data
+    ]);
+}</code></pre>
+
+  <p>
+    This would replace the individual <code>http_response_code()</code> + <code>echo json_encode()</code> calls in every endpoint, giving you a single place to modify the response format across the entire API.
+  </p>
+
+  <h2>The Contract</h2>
+
+  <p>
+    The before/after hook pattern in Trongate is a <em>convention</em>, not a framework feature. The contract is simple:
+  </p>
+
+  <ul>
+    <li><strong>Before hooks</strong> run at the start of each endpoint. If they detect a problem, they send an error response and terminate.</li>
+    <li><strong>After hooks</strong> run at the end of each endpoint, after the response body has been prepared but before the method returns.</li>
+  </ul>
+
+  <p>
+    Because this is explicit code rather than automatic magic, you remain in full control. You decide which hooks run on which endpoints, in what order, and with what logic.
+  </p>
+
+</div>

@@ -1,0 +1,101 @@
+[meta-description]Download files in the Trongate v2 File Manager: the download() method using $this->file->download() to serve files to the browser.[/meta-description]
+<div class="container">
+  <h1>Downloading Files</h1>
+
+  <p>
+    The <code>download()</code> method serves a file to the browser using Trongate's built-in <code>$this->file->download()</code> method. It looks up the record in the database, verifies the file exists on disk, and then initiates the download.
+  </p>
+
+  <h2>The Controller Method</h2>
+
+  <pre><code class="language-php">public function download(): void {
+    $this->gatekeeper();
+
+    $update_id = segment(3, 'int');
+
+    if ($update_id === 0) {
+        $this->not_found();
+        return;
+    }
+
+    $data = $this->model->get_file_by_id($update_id);
+
+    if ($data === false) {
+        $this->not_found();
+        return;
+    }
+
+    $file_path = $data['file_path'];
+
+    if (file_exists($file_path)) {
+        $this->file->download($file_path);
+    } else {
+        show_error(
+            'The requested file could not be found '
+            . 'on the server.'
+        );
+    }
+}</code></pre>
+
+  <h2>How It Works</h2>
+
+  <ol>
+    <li>
+      <strong>Authenticate</strong>  -  The <code>gatekeeper()</code> call ensures only logged-in administrators can download files.
+    </li>
+    <li>
+      <strong>Look up the record</strong>  -  The database record provides the <code>file_path</code> stored during upload.
+    </li>
+    <li>
+      <strong>Verify the physical file</strong>  -  <code>file_exists()</code> checks that the file is actually present on disk. It is possible for a database record to exist but the file to be missing (deleted manually, moved, etc.).
+    </li>
+    <li>
+      <strong>Serve the file</strong>  -  <code>$this->file->download()</code> sends the appropriate HTTP headers and streams the file contents to the browser.
+    </li>
+  </ol>
+
+  <h2>The file->download() Method</h2>
+
+  <p>
+    Trongate's <code>$this->file->download()</code> handles all the HTTP mechanics:
+  </p>
+
+  <ul>
+    <li>Sets <code>Content-Type</code> based on the file's MIME type</li>
+    <li>Sets <code>Content-Disposition: attachment</code> to force a download dialog</li>
+    <li>Sets <code>Content-Length</code> so the browser shows a progress bar</li>
+    <li>Streams the file in chunks to handle large files without memory issues</li>
+    <li>Calls <code>exit()</code> after sending, preventing further script execution</li>
+  </ul>
+
+  <p>
+    The method accepts a relative path  -  the same <code>file_path</code> stored in the database during upload. It also accepts an optional second parameter:
+  </p>
+
+  <pre><code class="language-php">// Display inline (e.g., PDF in browser) instead of download
+$this->file->download($file_path, false);</code></pre>
+
+  <p>
+    When the second parameter is <code>false</code>, the file is displayed inline rather than as an attachment download. This is useful for PDFs that you want the browser to render directly.
+  </p>
+
+  <h2>Error Handling</h2>
+
+  <p>
+    There are two failure scenarios handled explicitly:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Record not found</strong> (invalid ID or deleted record)  -  The <code>not_found()</code> helper renders a "File Not Found" page.
+    </li>
+    <li>
+      <strong>File missing from disk</strong> (database record exists but file was deleted manually)  -  <code>show_error()</code> displays an error message through the admin template.
+    </li>
+  </ul>
+
+  <p>
+    The second scenario is worth emphasizing: always verify the physical file exists before calling <code>download()</code>. A missing file will cause an error in the download method, so check first and present a helpful message if the file is absent.
+  </p>
+
+</div>
