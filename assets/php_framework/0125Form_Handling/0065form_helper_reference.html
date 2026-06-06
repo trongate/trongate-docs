@@ -78,6 +78,11 @@ echo form_close();
             <td><code>$name, $value, $attributes</code></td>
         </tr>
         <tr>
+            <td><span class="feature-ref">form_url()</span></td>
+            <td><code>url</code></td>
+            <td><code>$name, $value, $attributes</code></td>
+        </tr>
+        <tr>
             <td><span class="feature-ref">form_hidden()</span></td>
             <td><code>hidden</code></td>
             <td><code>$name, $value, $attributes</code></td>
@@ -98,6 +103,7 @@ echo form_email('email', $email, ['placeholder' =&gt; 'you@example.com']);
 echo form_password('password');
 echo form_number('quantity', $quantity, ['min' =&gt; '1', 'max' =&gt; '100']);
 echo form_search('q', $q, ['placeholder' =&gt; 'Search...']);
+echo form_url('website', $website, ['placeholder' =&gt; 'https://example.com']);
 echo form_hidden('user_id', $user_id);
 echo form_file_select('document', ['accept' =&gt; '.pdf']);
 [/code]

@@ -1,0 +1,63 @@
+<div class="container">
+    <h1>form_url()</h1>
+    <p class="signature">function form_url(string $name, ?string $value = null, array $attributes = []): string</p>
+    
+    <h2>Description</h2>
+    <div class="description">
+    <p>Generates an HTML URL input field with <code>type="url"</code>. Provides built-in browser URL validation.</p>
+    </div>
+    
+    <h2>Parameters</h2>
+    <table>
+        <thead>
+            <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>$name</td><td>string</td><td>The name attribute for the input element.</td></tr>
+            <tr><td>$value</td><td>string|null</td><td>(optional) The URL value for the input.</td></tr>
+            <tr><td>$attributes</td><td>array</td><td>(optional) HTML attributes for the input element. Defaults to an empty array ([]).</td></tr>
+        </tbody>
+    </table>
+    
+    <h2>Return Value</h2>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>string</td><td>An HTML URL input element.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Example #1: Basic URL Input</h2>
+[code=php]
+echo form_url('website', 'https://trongate.io');
+
+// Output:
+// &lt;input type="url" name="website" value="https://trongate.io"&gt;
+[/code]
+
+    <h2>Example #2: URL Input with Placeholder</h2>
+[code=php]
+$attributes = [
+    'placeholder' =&gt; 'https://example.com',
+    'size' =&gt; '50'
+];
+echo form_url('homepage', '', $attributes);
+
+// Output:
+// &lt;input type="url" name="homepage" placeholder="https://example.com" size="50"&gt;
+[/code]
+
+    <div class="alert alert-success">
+        <p>Most browsers provide basic URL format validation, but always validate server-side.</p>
+    </div>
+    
+    <ul>
+        <li>URL inputs trigger URL-specific keyboards on mobile devices, providing quick access to <code>.</code>, <code>/</code>, and <code>.com</code> keys.</li>
+        <li>Add <code>required</code> attribute for HTML5 client-side validation.</li>
+        <li>Browser validation varies; implement server-side validation using Trongate's included <code>validation</code> module.</li>
+        <li>The browser expects a valid URL scheme (e.g., <code>http://</code> or <code>https://</code>) — entries without a scheme may fail validation.</li>
+        <li>For consistent behaviour, always validate URLs on the server before processing.</li>
+    </ul>
+</div>

@@ -54,6 +54,11 @@ form_[type]($name, $value, $attributes);
             <td>Search boxes</td>
         </tr>
         <tr>
+            <td><span class="feature-ref">form_url()</span></td>
+            <td><code>url</code></td>
+            <td>URL / website addresses</td>
+        </tr>
+        <tr>
             <td><span class="feature-ref">form_hidden()</span></td>
             <td><code>hidden</code></td>
             <td>Hidden fields</td>
@@ -123,7 +128,15 @@ echo form_number('quantity', '1', $attributes);
 <p>Use <span class="feature-ref">form_search()</span> for search boxes. Some browsers add a clear button automatically:</p>
 
 [code=vf]
-echo form_search('q', '', ['placeholder' =&gt; 'Search...']);
+echo form_search('q', '', ['placeholder' => 'Search...']);
+[/code]
+
+<h2>URL Fields</h2>
+
+<p>Use <span class="feature-ref">form_url()</span> for website addresses. Browsers validate the URL format automatically:</p>
+
+[code=vf]
+echo form_url('website', '', ['placeholder' => 'https://example.com']);
 [/code]
 
 <h2>Hidden Fields</h2>
