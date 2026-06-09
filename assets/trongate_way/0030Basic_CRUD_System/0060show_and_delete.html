@@ -1,180 +1,285 @@
-[meta-description]Build the show and delete features in Trongate v2: record detail view, delete confirmation screen, and safe deletion with flashdata.[/meta-description]
+[meta-description]Build show and delete pages in Trongate v2: record detail view with edit/delete buttons, two-step delete with confirmation, not-found handling, and graceful error pages.[/meta-description]
 <div class="container">
-  <h1>Viewing and Deleting Records</h1>
+  <h1>Show and Delete</h1>
 
   <p>
-    Every CRUD module needs a way to view individual records in detail and a safe deletion flow that asks for confirmation before removing data. This page covers both.
+    The <strong>show</strong> method displays a single record in a read-only detail view. The <strong>delete</strong> flow uses a two-step confirmation pattern to prevent accidental data loss.
   </p>
 
   <h2>The Show Method</h2>
 
+  [code=php]
+/**
+ * Display detailed view of a single country.
+ *
+ * Shows all details with edit/delete options.
+ * Automatically handles missing records with 404 page.
+ *
+ * @return void
+ */
+public function show(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    $update_id = segment(3, &apos;int&apos;);
+
+    if ($update_id === 0) {
+        redirect(&apos;countries/manage&apos;);
+    }
+
+    // Fetch record and prepare for display.
+    $data = $this-&gt;model-&gt;get_data_from_db($update_id, true);
+
+    if ($data === false) {
+        $this-&gt;not_found();
+        return;
+    }
+
+    // Add additional view data
+    $data[&apos;update_id&apos;] = $update_id;
+    $data[&apos;headline&apos;] = &apos;Country Details&apos;;
+    $data[&apos;back_url&apos;] = $this-&gt;get_back_url();
+    $data[&apos;view_module&apos;] = &apos;countries&apos;;
+    $data[&apos;view_file&apos;] = &apos;show&apos;;
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
   <p>
-    The <code>show()</code> method displays a single country record. It retrieves the record ID from URL segment 3 and passes the data through <code>prepare_for_display()</code> before rendering.
+    The method checks authentication, validates that an ID was provided via <code>segment(3, 'int')</code>, and then fetches the record from the model with <code>true</code> for the <code>prepare_for_display</code> parameter. If the record is not found (<code>false</code> is returned), it calls the private <code>$this->not_found()</code> method to show a clean error page.
   </p>
 
-  <pre><code class="language-php">public function show(): void {
-    $this-&gt;gatekeeper();
+  <p>
+    Note the use of <code>$this->get_back_url()</code>   -   this private helper returns the previous URL if it was the manage page, otherwise defaults to <code>/countries/manage</code>:
+  </p>
 
-    $update_id = segment(3, 'int');
+  [code=php]
+/**
+ * Determine appropriate back URL for navigation.
+ *
+ * Uses previous URL if it was the manage page, otherwise defaults to manage.
+ *
+ * @return string URL for back button
+ */
+private function get_back_url(): string {
+    $previous_url = previous_url();
+    if ($previous_url !== &apos;&apos; &amp;&amp; strpos($previous_url, BASE_URL . &apos;countries/manage&apos;) === 0) {
+        return $previous_url;
+    }
+    return BASE_URL . &apos;countries/manage&apos;;
+}[/code]
+
+  <h3>The Show View</h3>
+
+  [code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= flashdata() ?&gt;
+&lt;div class=&quot;card&quot;&gt;
+    &lt;div class=&quot;card-heading&quot;&gt;
+        Country Details
+    &lt;/div&gt;
+    &lt;div class=&quot;card-body&quot;&gt;
+        &lt;div class=&quot;text-right mb-3&quot;&gt;
+            &lt;?= anchor($back_url, &apos;Back&apos;, array(&apos;class&apos; =&gt; &apos;button alt&apos;)) ?&gt;
+            &lt;?= anchor(BASE_URL.&apos;countries/create/&apos;.$update_id, &apos;Edit&apos;, array(&apos;class&apos; =&gt; &apos;button&apos;)) ?&gt;
+            &lt;?= anchor(&apos;countries/delete_conf/&apos;.$update_id, &apos;Delete&apos;,  array(&apos;class&apos; =&gt; &apos;button danger&apos;)) ?&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;detail-grid&quot;&gt;
+            &lt;div class=&quot;detail-row&quot;&gt;
+                &lt;div class=&quot;detail-label&quot;&gt;Country Title&lt;/div&gt;
+                &lt;div class=&quot;detail-value&quot;&gt;&lt;?= out($country_title) ?&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;detail-row&quot;&gt;
+                &lt;div class=&quot;detail-label&quot;&gt;Country Code&lt;/div&gt;
+                &lt;div class=&quot;detail-value&quot;&gt;&lt;?= out($country_code) ?&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+  <p>
+    The <code>.detail-grid</code> class arranges label-value pairs in a two-column layout. Each value is wrapped in <code>out()</code> to escape HTML entities. The top-right button bar provides three actions:
+  </p>
+
+  <ul>
+    <li><strong>Back</strong>   -   returns to the previous page (or the manage page).</li>
+    <li><strong>Edit</strong>   -   opens the create form with this record's data.</li>
+    <li><strong>Delete</strong>   -   proceeds to the confirmation step.</li>
+  </ul>
+
+  <p>
+    The <code>.detail-grid</code> CSS class is significant   -   the manage page preview modal uses <code>mx-select=".detail-grid"</code> to extract this section when showing a quick preview. This is why the view uses a semantic class name rather than inline layout.
+  </p>
+
+  <h2>The Delete Flow</h2>
+
+  <p>
+    Deleting a record follows a two-step pattern to prevent accidents. The first step shows a confirmation page. The second step actually deletes the record.
+  </p>
+
+  <h3>Delete Confirmation</h3>
+
+  [code=php]
+/**
+ * Display confirmation page before deleting a country.
+ *
+ * Shows confirmation dialog with details to prevent accidental deletion.
+ *
+ * @return void
+ */
+public function delete_conf(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    $update_id = segment(3, &apos;int&apos;);
 
     if ($update_id === 0) {
         $this-&gt;not_found();
         return;
     }
 
-    $data = $this-&gt;model-&gt;get_data_from_db($update_id);
-    $data = $this-&gt;model-&gt;prepare_for_display($data);
+    $data = $this-&gt;model-&gt;get_data_for_edit($update_id);
 
-    $data['update_id'] = $update_id;
-    $data['headline'] = 'Country Details';
-    $data['back_url'] = $this-&gt;get_back_url();
-    $data['view_module'] = 'countries';
-    $data['view_file'] = 'show';
+    if ($data === false) {
+        $this-&gt;not_found();
+        return;
+    }
 
+    $data[&apos;update_id&apos;] = $update_id;
+    $data[&apos;headline&apos;] = &apos;Delete Country Record&apos;;
+    $data[&apos;cancel_url&apos;] = &apos;countries/show/&apos;.$update_id;
+    $data[&apos;form_location&apos;] = &apos;countries/submit_delete/&apos;.$update_id;
+    $data[&apos;view_module&apos;] = &apos;countries&apos;;
+    $data[&apos;view_file&apos;] = &apos;delete_conf&apos;;
     $this-&gt;templates-&gt;admin($data);
-}</code></pre>
+}[/code]
 
   <p>
-    If the ID in the URL is 0 (meaning no valid ID was provided), the <code>not_found()</code> helper renders a polite "Country Not Found" page instead.
+    It fetches the record via <code>get_data_for_edit()</code> (which returns raw data without display transformations) to confirm it exists, and renders the confirmation view:
   </p>
 
-  <h2>The Show View</h2>
-
-  <pre><code class="language-php">&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
-&lt;?= flashdata() ?&gt;
-
-&lt;div class="card"&gt;
-    &lt;div class="card-heading"&gt;Country Details&lt;/div&gt;
-    &lt;div class="card-body"&gt;
-        &lt;div class="text-right mb-3"&gt;
-            &lt;?= anchor($back_url, 'Back',
-                array('class' =&gt; 'button alt')) ?&gt;
-            &lt;?= anchor(
-                BASE_URL . 'countries/create/' . $update_id,
-                'Edit',
-                array('class' =&gt; 'button')) ?&gt;
-            &lt;?= anchor(
-                'countries/confirm_delete/' . $update_id,
-                'Delete',
-                array('class' =&gt; 'button danger')) ?&gt;
-        &lt;/div&gt;
-
-        &lt;div class="detail-grid"&gt;
-            &lt;div class="detail-row"&gt;
-                &lt;div class="detail-label"&gt;ID&lt;/div&gt;
-                &lt;div class="detail-value"&gt;
-                    &lt;?= nl2br(out($id)) ?&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="detail-row"&gt;
-                &lt;div class="detail-label"&gt;Country Name&lt;/div&gt;
-                &lt;div class="detail-value"&gt;
-                    &lt;?= nl2br(out($country_title)) ?&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="detail-row"&gt;
-                &lt;div class="detail-label"&gt;Country Code&lt;/div&gt;
-                &lt;div class="detail-value"&gt;
-                    &lt;?= nl2br(out($country_code)) ?&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
+  [code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;div class=&quot;card&quot;&gt;
+    &lt;div class=&quot;card-heading&quot;&gt;
+        Confirmation Required
     &lt;/div&gt;
-&lt;/div&gt;</code></pre>
-
-  <p>
-    The three action buttons  -  <strong>Back</strong>, <strong>Edit</strong>, and <strong>Delete</strong>  -  give the user clear navigation options. The <code>detail-grid</code> CSS class renders each field as a labeled row.
-  </p>
-
-  <h2>The Delete Confirmation</h2>
-
-  <p>
-    Deleting records requires two deliberate steps. First, the user visits <code>confirm_delete()</code> which asks "Are you sure?". Only after confirming does the actual deletion happen.
-  </p>
-
-  <pre><code class="language-php">public function confirm_delete(): void {
-    $this-&gt;gatekeeper();
-
-    $update_id = segment(3, 'int');
-    $this-&gt;model-&gt;get_data_from_db($update_id);
-
-    $data = [
-        'headline' =&gt; 'Delete Country Record',
-        'cancel_url' =&gt; BASE_URL . 'countries/show/' . $update_id,
-        'form_location' =&gt; str_replace(
-            '/confirm_delete',
-            '/submit_confirm_delete',
-            current_url()
-        ),
-        'update_id' =&gt; $update_id,
-        'view_module' =&gt; 'countries',
-        'view_file' =&gt; 'confirm_delete'
-    ];
-
-    $this-&gt;templates-&gt;admin($data);
-}
-
-public function submit_confirm_delete(): void {
-    $this-&gt;gatekeeper();
-
-    $update_id = (int) post('update_id', true);
-    $this-&gt;db-&gt;delete($update_id, 'countries');
-    set_flashdata(
-        'The country record was successfully deleted.'
-    );
-    redirect('countries/manage');
-}</code></pre>
-
-  <p>
-    Notice that <code>confirm_delete()</code> calls <code>get_data_from_db()</code> before rendering. This serves as a safety check  -  if the record does not exist (someone bookmarked a stale URL, for example), the model will return a 404 response and terminate before any confirmation form is displayed.
-  </p>
-
-  <h2>The Delete Confirmation View</h2>
-
-  <pre><code class="language-php">&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
-&lt;div class="card"&gt;
-    &lt;div class="card-heading"&gt;Confirmation Required&lt;/div&gt;
-    &lt;div class="card-body text-center"&gt;
-        &lt;h4&gt;Are you sure?&lt;/h4&gt;
-        &lt;p&gt;You are about to delete a country record.
-           This cannot be undone. Do you really want to do this?&lt;/p&gt;
-
+    &lt;div class=&quot;card-body&quot;&gt;
+        &lt;p&gt;Are you sure?&lt;/p&gt;
+        &lt;p&gt;You are about to delete a country record. This cannot be undone. Do you really want to do this?&lt;/p&gt;
+        
         &lt;?php
         echo form_open($form_location);
-        echo '&lt;div class="text-center"&gt;';
-        echo anchor($cancel_url, 'Cancel',
-            array('class' =&gt; 'button alt'));
-        echo form_submit('submit', 'Yes - Delete Now',
-            array('class' =&gt; 'danger'));
-        echo form_hidden('update_id', $update_id);
+        echo &apos;&lt;div class=&quot;text-center&quot;&gt;&apos;;
+        echo anchor($cancel_url, &apos;Cancel&apos;, array(&apos;class&apos; =&gt; &apos;button alt&apos;));
+        echo form_submit(&apos;submit&apos;, &apos;Yes - Delete Now&apos;, array(&apos;class&apos; =&gt; &apos;danger&apos;));
         echo form_close();
-        echo '&lt;/div&gt;';
+        echo &apos;&lt;/div&gt;&apos;;
         ?&gt;
     &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;
+[/code]
 
   <p>
-    The form has two buttons: <strong>Cancel</strong> (an anchor link back to the show page), and <strong>Yes - Delete Now</strong> (the red submit button). Only the submit button triggers the actual deletion. The <code>update_id</code> is passed as a hidden field so <code>submit_confirm_delete()</code> knows which record to remove.
+    The form posts to <code>/countries/submit_delete/{id}</code>. The Cancel button returns the user to the show page for that record.
   </p>
+
+  <h3>Execute Deletion</h3>
+
+  [code=php]
+/**
+ * Handle country deletion after confirmation.
+ *
+ * Verifies confirmation and deletes record from database.
+ * Includes safety checks to prevent unauthorized deletion.
+ *
+ * @return void
+ */
+public function submit_delete(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    $submit = post(&apos;submit&apos;, true);
+
+    if ($submit === &apos;Yes - Delete Now&apos;) {
+        $update_id = segment(3, &apos;int&apos;);
+
+        if ($update_id === 0) {
+            redirect(&apos;countries/manage&apos;);
+            return;
+        }
+
+        $record = $this-&gt;model-&gt;find_by_id($update_id);
+
+        if ($record === false) {
+            redirect(&apos;countries/manage&apos;);
+            return;
+        }
+
+        $this-&gt;model-&gt;delete_record($update_id);
+
+        set_flashdata(&apos;The record was successfully deleted&apos;);
+        redirect(&apos;countries/manage&apos;);
+    } else {
+        redirect(&apos;countries/manage&apos;);
+    }
+}[/code]
+
+  <p>
+    The method:
+  </p>
+
+  <ol>
+    <li>Verifies the form was actually submitted by checking that the submit button value is exactly <code>'Yes - Delete Now'</code>. Any other value (or a direct URL hit) redirects safely.</li>
+    <li>Checks that the record still exists using <code>find_by_id()</code>. If not, redirects to manage (the record may have been deleted by another user).</li>
+    <li>Deletes the record via the model.</li>
+    <li>Sets a flashdata success message and redirects back to the manage page.</li>
+  </ol>
 
   <h2>The Not Found Page</h2>
+
   <p>
-    For completeness, here is the not-found view that appears when an invalid or missing record ID is provided:
+    When a requested record does not exist, the controller calls the private <code>not_found()</code> method instead of showing a raw error or a blank view:
   </p>
 
-  <pre><code class="language-php">&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
-&lt;div class="card"&gt;
-    &lt;div class="card-body text-center"&gt;
-        &lt;h4&gt;&lt;?= $message ?? 'Record not found.' ?&gt;&lt;/h4&gt;
-        &lt;div class="mt-3"&gt;
-            &lt;?= anchor($back_url, 'Go Back',
-                array('class' =&gt; 'button alt')) ?&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+  [code=php]
+/**
+ * Display 404-style not found page for missing countries.
+ *
+ * Shows user-friendly error message with navigation back.
+ *
+ * @return void
+ */
+private function not_found(): void {
+    $data = [
+        &apos;headline&apos; =&gt; &apos;Country Not Found&apos;,
+        &apos;message&apos; =&gt; &apos;The country you\&apos;re looking for doesn\&apos;t exist or has been deleted.&apos;,
+        &apos;back_url&apos; =&gt; $this-&gt;get_back_url(),
+        &apos;back_label&apos; =&gt; &apos;Go Back&apos;,
+        &apos;view_module&apos; =&gt; &apos;countries&apos;,
+        &apos;view_file&apos; =&gt; &apos;not_found&apos;
+    ];
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
 
   <p>
-    This pattern  -  validate existence early, provide clear navigation, use flashdata for feedback  -  ensures a robust and user-friendly experience throughout the CRUD lifecycle.
+    The <code>not_found.php</code> view provides a clean error card with a link back to safety:
+  </p>
+
+  [code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;div class=&quot;card&quot;&gt;
+    &lt;div class=&quot;card-heading&quot;&gt;
+        &lt;?= $headline ?&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;card-body&quot;&gt;
+        &lt;p&gt;&lt;?= $message ?&gt;&lt;/p&gt;
+        &lt;div class=&quot;text-center&quot;&gt;
+            &lt;?= anchor($back_url, $back_label, array(&apos;class&apos; =&gt; &apos;button alt&apos;)) ?&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+[/code]
+
+  <p>
+    This is a private helper method because it is an internal implementation detail   -   it is not intended to be called as a URL endpoint.
   </p>
 
 </div>

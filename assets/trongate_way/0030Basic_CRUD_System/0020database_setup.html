@@ -1,4 +1,4 @@
-[meta-description]Create the countries table in Trongate v2: SQL schema with country_title, country_code, and pre-populated seed data for 60 countries.[/meta-description]
+[meta-description]Create the countries table in Trongate v2: SQL schema with country_title, country_code, and pre-populated seed data for 23 countries.[/meta-description]
 <div class="container">
   <h1>Database Setup</h1>
 
@@ -10,45 +10,59 @@
 
   <p>Create the table by running the following SQL statement:</p>
 
-  <pre><code class="language-sql">CREATE TABLE IF NOT EXISTS `countries` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `country_title` varchar(255) NOT NULL,
-    `country_code` varchar(2) NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `country_code` (`country_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+  [code=sql]
+CREATE TABLE countries (
+    id int(11) NOT NULL,
+    country_title varchar(255) NOT NULL,
+    country_code varchar(2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE countries
+    ADD PRIMARY KEY (id);
+
+ALTER TABLE countries
+    MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+[/code]
 
   <p>
-    The <code>country_code</code> column is marked as <code>UNIQUE</code> to prevent duplicate codes. For example, "GB" can only appear once. This is enforced at the database level regardless of what your application code does.
+    Three columns, one primary key, auto-increment on <code>id</code>. The <code>country_code</code> is a two-letter code such as "GB" or "FR". No unique constraint is placed on <code>country_code</code>   -   validation is handled at the application level if needed.
   </p>
 
   <h2>Seed Data</h2>
 
   <p>
-    To make the module immediately useful, populate the table with a starter set of countries. Here is a sample:
+    To make the module immediately useful, populate the table with a starter set of countries:
   </p>
 
-  <pre><code class="language-sql">INSERT INTO `countries` (`country_title`, `country_code`) VALUES
-('Afghanistan', 'AF'),
-('Albania', 'AL'),
-('Algeria', 'DZ'),
-('Argentina', 'AR'),
-('Australia', 'AU'),
-('Austria', 'AT'),
-('Brazil', 'BR'),
-('Canada', 'CA'),
-('China', 'CN'),
-('France', 'FR'),
-('Germany', 'DE'),
-('India', 'IN'),
-('Italy', 'IT'),
-('Japan', 'JP'),
-('United Kingdom', 'GB'),
-('United States', 'US');
--- ... and many more</code></pre>
+  [code=sql]
+INSERT INTO countries (id, country_title, country_code) VALUES
+(1, &apos;Australia&apos;, &apos;AU&apos;),
+(2, &apos;Belgium&apos;, &apos;BE&apos;),
+(3, &apos;Canada&apos;, &apos;CA&apos;),
+(4, &apos;Denmark&apos;, &apos;DK&apos;),
+(5, &apos;Finland&apos;, &apos;FI&apos;),
+(6, &apos;France&apos;, &apos;FR&apos;),
+(7, &apos;Germany&apos;, &apos;DE&apos;),
+(8, &apos;Ireland&apos;, &apos;IE&apos;),
+(9, &apos;Italy&apos;, &apos;IT&apos;),
+(10, &apos;Japan&apos;, &apos;JP&apos;),
+(11, &apos;Luxembourg&apos;, &apos;LU&apos;),
+(12, &apos;Monaco&apos;, &apos;MC&apos;),
+(13, &apos;Netherlands&apos;, &apos;NL&apos;),
+(14, &apos;New Zealand&apos;, &apos;NZ&apos;),
+(15, &apos;Norway&apos;, &apos;NO&apos;),
+(16, &apos;Portugal&apos;, &apos;PT&apos;),
+(17, &apos;Singapore&apos;, &apos;SG&apos;),
+(18, &apos;South Korea&apos;, &apos;KR&apos;),
+(19, &apos;Spain&apos;, &apos;ES&apos;),
+(20, &apos;Sweden&apos;, &apos;SE&apos;),
+(21, &apos;Switzerland&apos;, &apos;CH&apos;),
+(22, &apos;United Kingdom&apos;, &apos;GB&apos;),
+(23, &apos;United States&apos;, &apos;US&apos;);
+[/code]
 
   <p>
-    A full set of 60 countries is included in the <strong>countries.sql</strong> file that ships with the companion GitHub repository. You can also add your own countries through the admin interface once the module is running.
+    You can also add your own countries through the admin interface once the module is running.
   </p>
 
   <h2>Running the SQL</h2>
@@ -57,7 +71,9 @@
     You can run the SQL through phpMyAdmin, the MySQL command line, or any other database management tool. For the command line:
   </p>
 
-  <pre><code class="language-bash">mysql -u root -p your_database_name &lt; countries.sql</code></pre>
+  [code=bash]
+mysql -u root -p your_database_name &lt; countries.sql
+[/code]
 
   <p>
     Replace <code>your_database_name</code> with the database configured in your Trongate project's <code>config/database.php</code> file.
@@ -68,7 +84,7 @@
   <table class="narrow-table">
     <thead>
       <tr>
-        <th>Column</th>
+        <th style="white-space: nowrap;">Column</th>
         <th>Type</th>
         <th>Description</th>
       </tr>

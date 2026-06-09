@@ -73,41 +73,41 @@ $config['login'] = [
   <table class="table sm">
     <thead>
       <tr>
-        <th>Setting</th>
-        <th>Value</th>
+        <th style="white-space: nowrap;">Setting</th>
+        <th style="white-space: nowrap;">Value</th>
         <th>Why This Matters for Members</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><code>secret_login_word</code></td>
-        <td><code>member-login</code></td>
-        <td>Creates a clean URL like <code>/member-login</code>. The login module uses this word to identify the correct user level.</td>
+        <td style="white-space: nowrap;"><code>secret_login_word</code></td>
+        <td style="white-space: nowrap;"><code>member-login</code></td>
+        <td style="white-space: nowrap;">Creates a clean URL like <code>/member-login</code>. The login module uses this word to identify the correct user level.</td>
       </tr>
       <tr>
-        <td><code>redirect_on_success</code></td>
-        <td><code>members/welcome</code></td>
+        <td style="white-space: nowrap;"><code>redirect_on_success</code></td>
+        <td style="white-space: nowrap;"><code>members/welcome</code></td>
         <td>After a successful login, members are sent to the welcome page in your custom Members controller.</td>
       </tr>
       <tr>
-        <td><code>allow_remember</code></td>
-        <td><code>1</code></td>
+        <td style="white-space: nowrap;"><code>allow_remember</code></td>
+        <td style="white-space: nowrap;"><code>1</code></td>
         <td>Members typically want to stay logged in between visits. Enable this to show a "Remember Me" checkbox on the login form.</td>
       </tr>
       <tr>
-        <td><code>remember_days</code></td>
-        <td><code>30</code></td>
+        <td style="white-space: nowrap;"><code>remember_days</code></td>
+        <td style="white-space: nowrap;"><code>30</code></td>
         <td>How long the remember-me token remains valid. 30 days is a common balance between convenience and security.</td>
       </tr>
       <tr>
-        <td><code>enable_forgot_password</code></td>
-        <td><code>true</code></td>
+        <td style="white-space: nowrap;"><code>enable_forgot_password</code></td>
+        <td style="white-space: nowrap;"><code>true</code></td>
         <td>Members forget their passwords. Enable this to allow them to request a password reset email.</td>
       </tr>
       <tr>
-        <td><code>identifiers</code></td>
-        <td><code>username</code> and <code>email_address</code></td>
-        <td>Members can log in with either their chosen username or their email address. The <code>column</code> values must match column names in the <code>members</code> table.</td>
+        <td style="white-space: nowrap;"><code>identifiers</code></td>
+        <td style="white-space: nowrap;"><code>username</code> and <code>email_address</code></td>
+        <td style="white-space: nowrap;">Members can log in with either their chosen username or their email address. The <code>column</code> values must match column names in the <code>members</code> table.</td>
       </tr>
     </tbody>
   </table>
@@ -131,35 +131,35 @@ $config['login'] = [
   <table class="table sm">
     <thead>
       <tr>
-        <th>Setting</th>
-        <th>Default</th>
+        <th style="white-space: nowrap;">Setting</th>
+        <th style="white-space: nowrap;">Default</th>
         <th>Purpose</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><code>default_view_file</code></td>
-        <td><code>login_default</code></td>
+        <td style="white-space: nowrap;"><code>default_view_file</code></td>
+        <td style="white-space: nowrap;"><code>login_default</code></td>
         <td>The default view file for login forms when a level does not specify its own.</td>
       </tr>
       <tr>
-        <td><code>max_failed_attempts</code></td>
-        <td><code>3</code></td>
+        <td style="white-space: nowrap;"><code>max_failed_attempts</code></td>
+        <td style="white-space: nowrap;"><code>3</code></td>
         <td>Number of failed login attempts before the user is temporarily blocked.</td>
       </tr>
       <tr>
-        <td><code>block_duration</code></td>
-        <td><code>900</code></td>
+        <td style="white-space: nowrap;"><code>block_duration</code></td>
+        <td style="white-space: nowrap;"><code>900</code></td>
         <td>Duration in seconds (15 minutes) that a user is blocked after exceeding the max failed attempts.</td>
       </tr>
       <tr>
-        <td><code>password_hash_cost</code></td>
-        <td><code>11</code></td>
-        <td>The cost factor used by <code>password_hash()</code> with the bcrypt algorithm.</td>
+        <td style="white-space: nowrap;"><code>password_hash_cost</code></td>
+        <td style="white-space: nowrap;"><code>11</code></td>
+        <td style="white-space: nowrap;">The cost factor used by <code>password_hash()</code> with the bcrypt algorithm.</td>
       </tr>
       <tr>
-        <td><code>reset_token_lifespan</code></td>
-        <td><code>3600</code></td>
+        <td style="white-space: nowrap;"><code>reset_token_lifespan</code></td>
+        <td style="white-space: nowrap;"><code>3600</code></td>
         <td>Duration in seconds (1 hour) that a password reset token remains valid.</td>
       </tr>
     </tbody>

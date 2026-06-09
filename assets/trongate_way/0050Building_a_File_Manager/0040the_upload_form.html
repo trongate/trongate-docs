@@ -12,13 +12,13 @@
     The <code>create()</code> method is minimal  -  it sets up the view data and renders the admin template:
   </p>
 
-  <pre><code class="language-php">public function create(): void {
+  [code=php]public function create(): void {
     $this->gatekeeper();
 
     $data['view_module'] = 'file_manager';
     $data['view_file'] = 'create';
     $this->templates->admin($data);
-}</code></pre>
+}[/code]
 
   <h2>The View File</h2>
 
@@ -26,7 +26,7 @@
     The view contains a form with two fields: a text input for the document name and a file input for selecting the file.
   </p>
 
-  <pre><code class="language-php">&lt;div class="container"&gt;
+  [code=php]&lt;div class="container"&gt;
   &lt;h1&gt;Upload File&lt;/h1&gt;
 
   &lt;?= form_open_upload(
@@ -69,7 +69,7 @@
   &lt;/div&gt;
 
   &lt;?= form_close() ?&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;[/code]
 
   <h2>Key Differences From a Regular Form</h2>
 
@@ -91,11 +91,11 @@
     In the view, the file input is named <code>userfile</code>. In the controller's <code>submit()</code> method, the validation rule references the same name:
   </p>
 
-  <pre><code class="language-php">$this->validation->set_rules(
+  [code=php]$this->validation->set_rules(
     'userfile', 'File',
     'allowed_types[pdf,txt,csv,doc,docx,xls,xlsx,zip]'
     . '|max_size[10240]'
-);</code></pre>
+);[/code]
 
   <p>
     The File module automatically processes the first file uploaded in your form, regardless of its input field name. However, for validation to work correctly, the name attribute of the file input must match the validation rule. Using <code>userfile</code> consistently throughout is a reliable convention.

@@ -8,7 +8,7 @@
 
   <h2>The Controller Method</h2>
 
-  <pre><code class="language-php">public function show(): void {
+  [code=php]public function show(): void {
     $this->gatekeeper();
 
     $update_id = segment(3, 'int');
@@ -32,7 +32,7 @@
     $data['view_file'] = 'show';
 
     $this->templates->admin($data);
-}</code></pre>
+}[/code]
 
   <p>
     The method first checks that a valid ID was provided (segment 3 is greater than 0) and that the record exists. If either check fails, it calls the <code>not_found()</code> helper. On success, it merges the file data with view metadata and passes everything to the admin template.
@@ -40,7 +40,7 @@
 
   <h2>The View File</h2>
 
-  <pre><code class="language-php">&lt;div class="container"&gt;
+  [code=php]&lt;div class="container"&gt;
   &lt;h1&gt;&lt;?= out($headline) ?&gt;&lt;/h1&gt;
 
   &lt;table class="table"&gt;
@@ -87,7 +87,7 @@
       Back
     &lt;/a&gt;
   &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;[/code]
 
   <p>
     The detail page displays four pieces of file metadata in a clean table. Below the table, three action buttons let the user download the file, delete it, or return to the manage page.

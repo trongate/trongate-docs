@@ -6,11 +6,11 @@
     You will have noticed by now that every endpoint in our API follows the same structure:
   </p>
 
-  <pre><code class="language-php">public function some_endpoint(): void {
+  [code=php]public function some_endpoint(): void {
     $this->authenticate();     // ← before hook
     // ... endpoint logic ...
     $this->log_request(...);   // ← after hook
-}</code></pre>
+}[/code]
 
   <p>
     The <code>authenticate()</code> call runs <em>before</em> the endpoint logic. The <code>log_request()</code> call runs <em>after</em>. These are our <strong>before and after hooks</strong>  -  explicit, opt-in, and transparent.
@@ -40,11 +40,10 @@
     Our <code>authenticate()</code> method checks for a valid Trongate token and terminates the request with a 401 response if none is found:
   </p>
 
-  <pre><code class="language-php">public function authenticate(): void {
+  [code=php]public function authenticate(): void {
     block_url('countries_api/authenticate');
 
-    $token = $this->trongate_tokens
-        ->attempt_get_valid_token();
+    $token = $this->trongate_tokens->attempt_get_valid_token();
 
     if ($token === false) {
         http_response_code(401);
@@ -54,15 +53,14 @@
         ]);
         die();
     }
-}</code></pre>
+}[/code]
 
   <p>
     This uses <code>Trongate_tokens::attempt_get_valid_token()</code> with no user-level filter, meaning any valid token (from any logged-in user) is accepted. To require admin-level access, pass a user level ID:
   </p>
 
-  <pre><code class="language-php">// Require admin level (typically ID 1)
-$token = $this->trongate_tokens
-    ->attempt_get_valid_token(1);</code></pre>
+  [code=php]// Require admin level (typically ID 1)
+$token = $this->trongate_tokens->attempt_get_valid_token(1);[/code]
 
   <p>
     If no valid token is found, the method calls <code>die()</code> after sending the 401 response. This stops execution immediately  -  the endpoint logic never runs.
@@ -82,7 +80,7 @@ $token = $this->trongate_tokens
     The <code>log_request()</code> method appends an entry to a log file after every successful API call:
   </p>
 
-  <pre><code class="language-php">public function log_request(
+  [code=php]public function log_request(
     string $action, ?int $record_id = null
 ): void {
     block_url('countries_api/log_request');
@@ -104,7 +102,7 @@ $token = $this->trongate_tokens
     file_put_contents(
         $log_file, $log_entry, FILE_APPEND | LOCK_EX
     );
-}</code></pre>
+}[/code]
 
   <p>
     Each log entry records the timestamp, HTTP method, action name, affected record ID (if any), and the client's IP address. Over time, this builds a complete audit trail of API activity.
@@ -118,7 +116,7 @@ $token = $this->trongate_tokens
 
   <h3>Rate Limiting (Before Hook)</h3>
 
-  <pre><code class="language-php">public function rate_limit(): void {
+  [code=php]public function rate_limit(): void {
     block_url('countries_api/rate_limit');
 
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -129,21 +127,21 @@ $token = $this->trongate_tokens
     // in a file or database, then check the count
     // within the time window.
     // If exceeded: http_response_code(429); die();
-}</code></pre>
+}[/code]
 
   <p>
     Call it after <code>authenticate()</code> in each endpoint:
   </p>
 
-  <pre><code class="language-php">public function get_all(): void {
+  [code=php]public function get_all(): void {
     $this->authenticate();
     $this->rate_limit();
     // ... rest of endpoint logic
-}</code></pre>
+}[/code]
 
   <h3>Response Wrapping (After Hook)</h3>
 
-  <pre><code class="language-php">public function wrap_response(
+  [code=php]public function wrap_response(
     mixed $data, int $status_code
 ): void {
     block_url('countries_api/wrap_response');
@@ -154,7 +152,7 @@ $token = $this->trongate_tokens
         'timestamp' => time(),
         'data' => $data
     ]);
-}</code></pre>
+}[/code]
 
   <p>
     This would replace the individual <code>http_response_code()</code> + <code>echo json_encode()</code> calls in every endpoint, giving you a single place to modify the response format across the entire API.

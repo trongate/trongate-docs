@@ -12,7 +12,7 @@
     The <code>update()</code> endpoint combines patterns from <code>get_one()</code> (ID extraction, existence check) and <code>create()</code> (JSON parsing, validation):
   </p>
 
-  <pre><code class="language-php">public function update(): void {
+  [code=php]public function update(): void {
     $this->authenticate();
 
     $update_id = segment(3, 'int');
@@ -66,7 +66,7 @@
     ]);
 
     $this->log_request('update', $update_id);
-}</code></pre>
+}[/code]
 
   <p>
     The method checks each precondition in order and returns early if any check fails. This is sometimes called the <strong>guard clause</strong> pattern  -  validate everything before doing work, and return immediately on the first error.
@@ -74,7 +74,7 @@
 
   <h3>The Model Update</h3>
 
-  <pre><code class="language-php">public function update(int $update_id, array $data): void {
+  [code=php]public function update(int $update_id, array $data): void {
     $update_data = [
         'country_title' => trim($data['country_title']),
         'country_code' => strtoupper(
@@ -85,7 +85,7 @@
     $this->db->update(
         $update_id, $update_data, 'countries'
     );
-}</code></pre>
+}[/code]
 
   <h2>Deleting a Record  -  DELETE</h2>
 
@@ -93,7 +93,7 @@
     The <code>destroy()</code> endpoint is the simplest of the write operations:
   </p>
 
-  <pre><code class="language-php">public function destroy(): void {
+  [code=php]public function destroy(): void {
     $this->authenticate();
 
     $update_id = segment(3, 'int');
@@ -124,7 +124,7 @@
     ]);
 
     $this->log_request('destroy', $update_id);
-}</code></pre>
+}[/code]
 
   <h3>200 vs 204 for Deletion</h3>
   <p>
@@ -137,7 +137,7 @@
 
   <h2>Testing</h2>
 
-  <pre><code class="language-bash"># Update a record
+  [code=bash]# Update a record
 curl -X PUT \
   -H "Trongatetoken: your-token" \
   -H "Content-Type: application/json" \
@@ -154,7 +154,7 @@ curl -X PUT \
   -H "Trongatetoken: your-token" \
   -H "Content-Type: application/json" \
   -d '{"country_title":"Nope","country_code":"NP"}' \
-  http://localhost/countries_api/update/999</code></pre>
+  http://localhost/countries_api/update/999[/code]
 
   <p>
     The third test case  -  attempting to update a record that does not exist  -  should return <code>404 Not Found</code> with an informative error message.
