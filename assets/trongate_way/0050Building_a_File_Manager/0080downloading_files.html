@@ -8,7 +8,7 @@
 
   <h2>The Controller Method</h2>
 
-  <pre><code class="language-php">public function download(): void {
+  [code=php]public function download(): void {
     $this->gatekeeper();
 
     $update_id = segment(3, 'int');
@@ -35,7 +35,7 @@
             . 'on the server.'
         );
     }
-}</code></pre>
+}[/code]
 
   <h2>How It Works</h2>
 
@@ -72,8 +72,8 @@
     The method accepts a relative path  -  the same <code>file_path</code> stored in the database during upload. It also accepts an optional second parameter:
   </p>
 
-  <pre><code class="language-php">// Display inline (e.g., PDF in browser) instead of download
-$this->file->download($file_path, false);</code></pre>
+  [code=php]// Display inline (e.g., PDF in browser) instead of download
+$this->file->download($file_path, false);[/code]
 
   <p>
     When the second parameter is <code>false</code>, the file is displayed inline rather than as an attachment download. This is useful for PDFs that you want the browser to render directly.

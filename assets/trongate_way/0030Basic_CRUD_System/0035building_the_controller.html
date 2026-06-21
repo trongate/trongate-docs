@@ -1,0 +1,517 @@
+[meta-description]Build the Countries controller in Trongate v2: index, manage, create, submit, show, delete_conf, submit_delete methods plus private helpers for pagination, navigation, and search.[/meta-description]
+<div class="container">
+  <h1>Building the Controller</h1>
+
+  <p>
+    The controller handles all incoming HTTP requests, enforces authentication, delegates data operations to the model, and renders views. In Trongate v2, controllers extend the <code>Trongate</code> base class and are stored in the module directory as <code>Countries.php</code>.
+  </p>
+
+  <h2>The Complete Controller</h2>
+
+  [code=php]
+&lt;?php
+/**
+ * Countries Controller
+ *
+ * Manages country records with full CRUD operations.
+ */
+class Countries extends Trongate {
+
+    private int $default_limit = 20;
+    private array $per_page_options = [10, 20, 50, 100];
+    
+    /**
+     * Default entry point - redirects to manage page
+     *
+     * @return void
+     */
+    public function index(): void {
+        redirect(&apos;countries/manage&apos;);
+    }
+
+    /**
+     * Display paginated list of countries.
+     *
+     * Shows records in a table with pagination controls. Includes
+     * dropdown for selecting number of records per page.
+     *
+     * @return void
+     */
+    public function manage(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $search_query = $_GET[&apos;search_query&apos;] ?? &apos;&apos;;
+        $search_column = $_GET[&apos;search_column&apos;] ?? &apos;&apos;;
+
+        // Validate column against known searchable columns.
+        $allowed_columns = $this-&gt;model-&gt;get_searchable_columns();
+        if ($search_column !== &apos;&apos; &amp;&amp; !in_array($search_column, $allowed_columns, true)) {
+            $search_column = &apos;&apos;;
+        }
+
+        $search_active = ($search_query !== &apos;&apos;);
+
+        if ($search_active) {
+            $total_rows = $this-&gt;model-&gt;count_search_results($search_query, $search_column);
+        } else {
+            $total_rows = $this-&gt;model-&gt;count_all();
+        }
+        
+        $limit = $this-&gt;get_limit();
+        $offset = $this-&gt;get_offset();
+
+        if ($search_active) {
+            $rows = $this-&gt;model-&gt;search_records($search_query, $search_column, $limit, $offset);
+        } else {
+            $rows = $this-&gt;model-&gt;fetch_records($limit, $offset);
+        }
+        $rows = $this-&gt;model-&gt;prepare_records_for_display($rows);
+
+        $data = [
+            &apos;rows&apos; =&gt; $rows,
+            &apos;pagination_data&apos; =&gt; $this-&gt;get_pagination_data($total_rows, $limit, $search_query, $search_column),
+            &apos;view_module&apos; =&gt; &apos;countries&apos;,
+            &apos;view_file&apos; =&gt; &apos;manage&apos;,
+            &apos;per_page_options&apos; =&gt; $this-&gt;per_page_options,
+            &apos;selected_per_page&apos; =&gt; $this-&gt;get_selected_per_page()
+        ];
+
+        $data[&apos;search_query&apos;] = $search_query;
+        $data[&apos;search_column&apos;] = $search_column;
+        $data[&apos;search_active&apos;] = $search_active;
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Display form for creating or editing a country.
+     *
+     * Shows form with appropriate headline and action URL.
+     * Automatically repopulates form with submitted data on validation errors.
+     *
+     * @return void
+     */
+    public function create(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $update_id = segment(3, &apos;int&apos;);
+
+        if ((REQUEST_TYPE === &apos;GET&apos;) &amp;&amp; ($update_id &gt; 0)) {
+            $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+        } else {
+            $data = $this-&gt;model-&gt;get_data_from_post();
+        }
+
+        // Add view-specific data
+        $data[&apos;headline&apos;] = ($update_id &gt; 0) ? &apos;Update Country Record&apos; : &apos;Create New Country Record&apos;;
+        $data[&apos;cancel_url&apos;] = ($update_id &gt; 0) ? &apos;countries/show/&apos;.$update_id : &apos;countries/manage&apos;;
+        $data[&apos;form_location&apos;] = &apos;countries/submit/&apos;.$update_id;
+        $data[&apos;view_module&apos;] = &apos;countries&apos;;
+        $data[&apos;view_file&apos;] = &apos;create&apos;;
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Handle form submission for creating/updating countries.
+     *
+     * Validates input, converts checkbox data, and saves to database.
+     * Includes automatic CSRF validation and proper checkbox conversion.
+     *
+     * @return void
+     */
+    public function submit(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $submit = post(&apos;submit&apos;, true);
+
+        if ($submit === &apos;Submit&apos;) {
+            $this-&gt;validation-&gt;set_rules(&apos;country_title&apos;, &apos;country title&apos;, &apos;required|min_length[2]|max_length[255]&apos;);
+            $this-&gt;validation-&gt;set_rules(&apos;country_code&apos;, &apos;country code&apos;, &apos;required|min_length[2]|max_length[2]&apos;);
+
+            if ($this-&gt;validation-&gt;run()) {
+                $update_id = segment(3, &apos;int&apos;);
+                $data = $this-&gt;model-&gt;get_data_from_post();
+
+                if ($update_id &gt; 0) {
+                    $this-&gt;model-&gt;update_record($update_id, $data);
+                    $flash_msg = &apos;Country updated successfully&apos;;
+                    $finish_url = &apos;countries/show/&apos;.$update_id;
+                } else {
+                    $update_id = $this-&gt;model-&gt;create_new_record($data);
+                    $flash_msg = &apos;Country created successfully&apos;;
+                    $finish_url = &apos;countries/manage&apos;;
+                }
+
+                set_flashdata($flash_msg);
+                redirect($finish_url);
+            } else {
+                $this-&gt;create();
+            }
+        } else {
+            redirect(&apos;countries/manage&apos;);
+        }
+    }
+
+    /**
+     * Display detailed view of a single country.
+     *
+     * Shows all details with edit/delete options.
+     * Automatically handles missing records with 404 page.
+     *
+     * @return void
+     */
+    public function show(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $update_id = segment(3, &apos;int&apos;);
+
+        if ($update_id === 0) {
+            redirect(&apos;countries/manage&apos;);
+        }
+
+        // Fetch record and prepare for display.
+        $data = $this-&gt;model-&gt;get_data_from_db($update_id, true);
+
+        if ($data === false) {
+            $this-&gt;not_found();
+            return;
+        }
+
+        // Add additional view data
+        $data[&apos;update_id&apos;] = $update_id;
+        $data[&apos;headline&apos;] = &apos;Country Details&apos;;
+        $data[&apos;back_url&apos;] = $this-&gt;get_back_url();
+        $data[&apos;view_module&apos;] = &apos;countries&apos;;
+        $data[&apos;view_file&apos;] = &apos;show&apos;;
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Display confirmation page before deleting a country.
+     *
+     * Shows confirmation dialog with details to prevent accidental deletion.
+     *
+     * @return void
+     */
+    public function delete_conf(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $update_id = segment(3, &apos;int&apos;);
+
+        if ($update_id === 0) {
+            $this-&gt;not_found();
+            return;
+        }
+
+        $data = $this-&gt;model-&gt;get_data_for_edit($update_id);
+
+        if ($data === false) {
+            $this-&gt;not_found();
+            return;
+        }
+
+        $data[&apos;update_id&apos;] = $update_id;
+        $data[&apos;headline&apos;] = &apos;Delete Country Record&apos;;
+        $data[&apos;cancel_url&apos;] = &apos;countries/show/&apos;.$update_id;
+        $data[&apos;form_location&apos;] = &apos;countries/submit_delete/&apos;.$update_id;
+        $data[&apos;view_module&apos;] = &apos;countries&apos;;
+        $data[&apos;view_file&apos;] = &apos;delete_conf&apos;;
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Handle country deletion after confirmation.
+     *
+     * Verifies confirmation and deletes record from database.
+     * Includes safety checks to prevent unauthorized deletion.
+     *
+     * @return void
+     */
+    public function submit_delete(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $submit = post(&apos;submit&apos;, true);
+
+        if ($submit === &apos;Yes - Delete Now&apos;) {
+            $update_id = segment(3, &apos;int&apos;);
+
+            if ($update_id === 0) {
+                redirect(&apos;countries/manage&apos;);
+                return;
+            }
+
+            $record = $this-&gt;model-&gt;find_by_id($update_id);
+
+            if ($record === false) {
+                redirect(&apos;countries/manage&apos;);
+                return;
+            }
+
+            $this-&gt;model-&gt;delete_record($update_id);
+
+            set_flashdata(&apos;The record was successfully deleted&apos;);
+            redirect(&apos;countries/manage&apos;);
+        } else {
+            redirect(&apos;countries/manage&apos;);
+        }
+    }
+
+    /**
+     * Set number of records per page for pagination.
+     *
+     * Stores user preference in session for consistent pagination across requests.
+     *
+     * @return void
+     */
+    public function set_per_page(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $selected_index = segment(3, &apos;int&apos;);
+
+        if (!isset($this-&gt;per_page_options[$selected_index])) {
+            $selected_index = 1;
+        }
+
+        $_SESSION[&apos;selected_per_page&apos;] = $selected_index;
+        redirect(&apos;countries/manage&apos;);
+    }
+
+    /**
+     * Generate pagination configuration data.
+     *
+     * @param int    $total_rows    Total number of records
+     * @param int    $limit         Number of records per page
+     * @param string $search_query  The search query string
+     * @param string $search_column The column being searched
+     * @return array Pagination configuration for template
+     */
+    private function get_pagination_data(int $total_rows, int $limit, string $search_query = &apos;&apos;, string $search_column = &apos;&apos;): array {
+        $pagination_query = &apos;&apos;;
+        if ($search_query !== &apos;&apos; &amp;&amp; $search_column !== &apos;&apos;) {
+            $pagination_query = &apos;search_query=&apos; . urlencode($search_query) . &apos;&amp;search_column=&apos; . urlencode($search_column);
+        }
+
+        return [
+            &apos;total_rows&apos; =&gt; $total_rows,
+            &apos;limit&apos; =&gt; $limit,
+            &apos;pagination_root&apos; =&gt; &apos;countries/manage&apos;,
+            &apos;pagination_query&apos; =&gt; $pagination_query,
+            &apos;record_name_plural&apos; =&gt; &apos;countries&apos;,
+            &apos;include_showing_statement&apos; =&gt; true
+        ];
+    }
+
+    /**
+     * Determine appropriate back URL for navigation.
+     *
+     * Uses previous URL if it was the manage page, otherwise defaults to manage.
+     *
+     * @return string URL for back button
+     */
+    private function get_back_url(): string {
+        $previous_url = previous_url();
+        if ($previous_url !== &apos;&apos; &amp;&amp; strpos($previous_url, BASE_URL . &apos;countries/manage&apos;) === 0) {
+            return $previous_url;
+        }
+        return BASE_URL . &apos;countries/manage&apos;;
+    }
+
+    /**
+     * Display 404-style not found page for missing countries.
+     *
+     * Shows user-friendly error message with navigation back.
+     *
+     * @return void
+     */
+    private function not_found(): void {
+        $data = [
+            &apos;headline&apos; =&gt; &apos;Country Not Found&apos;,
+            &apos;message&apos; =&gt; &apos;The country you\&apos;re looking for doesn\&apos;t exist or has been deleted.&apos;,
+            &apos;back_url&apos; =&gt; $this-&gt;get_back_url(),
+            &apos;back_label&apos; =&gt; &apos;Go Back&apos;,
+            &apos;view_module&apos; =&gt; &apos;countries&apos;,
+            &apos;view_file&apos; =&gt; &apos;not_found&apos;
+        ];
+        $this-&gt;templates-&gt;admin($data);
+    }
+
+    /**
+     * Get selected per-page index from session.
+     *
+     * @return int Index of selected per-page option
+     */
+    private function get_selected_per_page(): int {
+        return $_SESSION[&apos;selected_per_page&apos;] ?? 1;
+    }
+
+    /**
+     * Get current pagination limit from session.
+     *
+     * @return int Number of records to display per page
+     */
+    private function get_limit(): int {
+        if (isset($_SESSION[&apos;selected_per_page&apos;])) {
+            return $this-&gt;per_page_options[$_SESSION[&apos;selected_per_page&apos;]];
+        }
+        return $this-&gt;default_limit;
+    }
+
+    /**
+     * Calculate pagination offset based on page number.
+     *
+     * @return int Database offset for current page
+     */
+    private function get_offset(): int {
+        $page_num = segment(3, &apos;int&apos;);
+        return ($page_num &gt; 1) ? ($page_num - 1) * $this-&gt;get_limit() : 0;
+    }
+
+    /**
+     * Handle search form submission for filtering countries.
+     *
+     * Preprocesses text parameters and triggers custom query filtering.
+     *
+     * @return void
+     */
+    public function submit_search(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $search_query = post(&apos;search_query&apos;, true);
+        $search_column = post(&apos;search_column&apos;, true);
+
+        // Validate column against known searchable columns.
+        $allowed_columns = $this-&gt;model-&gt;get_searchable_columns();
+        if ($search_column !== &apos;&apos; &amp;&amp; !in_array($search_column, $allowed_columns, true)) {
+            $search_column = &apos;&apos;;
+        }
+
+        // Preprocess the query
+        $search_query = trim($search_query);
+        $search_query = preg_replace(&apos;/\s+/&apos;, &apos; &apos;, $search_query);
+
+        // Validate minimum 2 character length
+        if (strlen($search_query) &lt; 2) {
+            set_flashdata(&apos;Search query must be at least 2 characters&apos;);
+            redirect(&apos;countries/manage&apos;);
+        }
+
+        redirect(&apos;countries/manage?search_query=&apos; . urlencode($search_query) . &apos;&amp;search_column=&apos; . urlencode($search_column));
+    }
+
+    /**
+     * Display the search modal form for filtering countries.
+     *
+     * Renders a form with a search input and a dropdown of searchable columns.
+     *
+     * @return void
+     */
+    public function search_modal(): void {
+        $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+        $data[&apos;view_module&apos;] = &apos;countries&apos;;
+        $data[&apos;view_file&apos;] = &apos;search_modal&apos;;
+        $this-&gt;view(&apos;search_modal&apos;, $data);
+    }
+
+
+}
+[/code]
+
+  <h2>Properties</h2>
+
+  <h3><code>$default_limit</code></h3>
+  <p>
+    Sets the default number of records per page (20) when the user has not yet chosen a custom value. This is used by the <code>get_limit()</code> private helper as a fallback when no per-page preference has been stored in the session.
+  </p>
+
+  <h3><code>$per_page_options</code></h3>
+  <p>
+    Defines the available options for the records-per-page dropdown: 10, 20, 50, 100. The user's selection is stored in the session via the <code>set_per_page()</code> method and persists across requests.
+  </p>
+
+  <h2>Method by Method</h2>
+
+  <h3><code>index()</code></h3>
+  <p>
+    The default entry point for the module. It simply redirects to <code>countries/manage</code>, ensuring that visiting the module root takes the user to the paginated list rather than showing an empty page.
+  </p>
+
+  <h3><code>manage()</code></h3>
+  <p>
+    The main list page. This method coordinates paginated data retrieval, search filtering, and view rendering. Key flow:
+  </p>
+  <ul>
+    <li>Reads optional <code>search_query</code> and <code>search_column</code> from the query string.</li>
+    <li>Validates the requested column against <code>get_searchable_columns()</code> to prevent SQL injection.</li>
+    <li>Counts total rows (either all records or filtered by search).</li>
+    <li>Calculates <code>$limit</code> and <code>$offset</code> using private helpers that read from the URL segment and session.</li>
+    <li>Fetches records and passes them through <code>prepare_records_for_display()</code>.</li>
+    <li>Renders the <code>manage.php</code> view inside the admin template.</li>
+  </ul>
+
+  <h3><code>create()</code></h3>
+  <p>
+    Handles both the create and edit forms in a single method. When the request is a <strong>GET</strong> with an <code>update_id</code> present, it fetches the existing record from the database for editing. Otherwise it uses <code>get_data_from_post()</code> to start with empty form fields (or previously submitted values after a validation failure). The headline, cancel URL, and form action are all set based on whether an <code>update_id</code> is present.
+  </p>
+
+  <h3><code>submit()</code></h3>
+  <p>
+    Processes form submissions. On a valid "Submit" button press, it sets validation rules, runs validation, and either inserts or updates the record. On success, it sets a flashdata message and redirects appropriately. On validation failure, it calls <code>$this->create()</code> to re-render the form with error messages.
+  </p>
+
+  <h3><code>show()</code></h3>
+  <p>
+    Displays a single record in a read-only detail view. It calls <code>get_data_from_db($update_id, true)</code> to fetch and prepare the record for display. If the record is not found, it calls the private <code>not_found()</code> method. The <code>$back_url</code> is determined by <code>get_back_url()</code>, which intelligently returns the user to the manage page if that was their previous stop.
+  </p>
+
+  <h3><code>delete_conf()</code></h3>
+  <p>
+    The first step of the two-step delete flow. It fetches the record via <code>get_data_for_edit()</code> (raw data, no display transformations) to confirm it exists, then renders a confirmation view. The Cancel button returns to the show page for that record.
+  </p>
+
+  <h3><code>submit_delete()</code></h3>
+  <p>
+    The second step of the delete flow. It checks that the submit button value is exactly <code>'Yes - Delete Now'</code> (preventing direct URL access), verifies the record still exists, deletes it, sets a flashdata message, and redirects to the manage page.
+  </p>
+
+  <h3><code>set_per_page()</code></h3>
+  <p>
+    Stores the user's preferred records-per-page setting in the session. The selected index is read from URL segment 3 and validated against the <code>$per_page_options</code> array before saving.
+  </p>
+
+  <h3>Private Helpers</h3>
+
+  <h4><code>get_pagination_data()</code></h4>
+  <p>
+    Builds the configuration array required by the pagination module, including total rows, current limit, the pagination root URL, and optional search parameters. This data is passed to <code>Modules::run('pagination/display', ...)</code> in the manage view.
+  </p>
+
+  <h4><code>get_back_url()</code></h4>
+  <p>
+    Determines the URL for the "Back" button on the show page. If the previous URL in the browser history was the manage page, it returns that exact URL. Otherwise it defaults to <code>/countries/manage</code>.
+  </p>
+
+  <h4><code>not_found()</code></h4>
+  <p>
+    A private method that renders a user-friendly "not found" page. Because it is private (not prefixed with <code>block_url()</code>), it cannot be called directly as a URL endpoint.
+  </p>
+
+  <h4><code>get_selected_per_page()</code>, <code>get_limit()</code>, <code>get_offset()</code></h4>
+  <p>
+    These three helpers work together to manage pagination state. <code>get_selected_per_page()</code> reads the user's preference from the session. <code>get_limit()</code> returns the corresponding value from <code>$per_page_options</code> (or the default if no preference is set). <code>get_offset()</code> calculates the database offset based on the current page number.
+  </p>
+
+  <h3><code>submit_search()</code></h3>
+  <p>
+    Processes the search form submission. It reads the search query and column from POST data, validates the column against the whitelist, trims and normalises the query, enforces a minimum length of 2 characters, and redirects back to the manage page with the search parameters in the query string.
+  </p>
+
+  <h3><code>search_modal()</code></h3>
+  <p>
+    Renders the search modal form as a standalone view (without the admin template wrapper). This is loaded via MX into a modal overlay when the user clicks the Search button on the manage page.
+  </p>
+
+  <p>
+    This controller demonstrates the complete CRUD pattern used by every admin module in Trongate: authentication on every public method, delegation to the model for data operations, and clean separation of view logic.
+  </p>
+
+</div>

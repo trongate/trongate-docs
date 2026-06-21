@@ -12,7 +12,7 @@
     The model method uses <code>$this->db->get_where()</code> to fetch a single record. If no record is found, it returns <code>false</code>. If found, it returns the data as an associative array.
   </p>
 
-  <pre><code class="language-php">public function get_one(int $update_id): array|false {
+  [code=php]public function get_one(int $update_id): array|false {
     $record_obj = $this->db->get_where($update_id, 'countries');
 
     if ($record_obj === false) {
@@ -24,7 +24,7 @@
         'country_title' => $record_obj->country_title,
         'country_code' => $record_obj->country_code
     ];
-}</code></pre>
+}[/code]
 
   <p>
     Unlike the model from the Basic CRUD chapter, this version does <em>not</em> call <code>die()</code> when the record is not found. Instead, it returns <code>false</code> to the controller, allowing the controller to decide how to respond. This is important for an API  -  the error response (404) comes from the controller, not the model.
@@ -32,7 +32,7 @@
 
   <h2>The Controller Method</h2>
 
-  <pre><code class="language-php">public function get_one(): void {
+  [code=php]public function get_one(): void {
     $this->authenticate();
 
     $update_id = segment(3, 'int');
@@ -55,14 +55,14 @@
     echo json_encode($data);
 
     $this->log_request('get_one', $update_id);
-}</code></pre>
+}[/code]
 
   <p>There are three response paths in this method:</p>
 
   <table class="table">
     <thead>
       <tr>
-        <th>Status</th>
+        <th style="white-space: nowrap;">Status</th>
         <th>When</th>
         <th>Response</th>
       </tr>
@@ -101,7 +101,7 @@
 
   <h2>Testing</h2>
 
-  <pre><code class="language-bash"># Valid request
+  [code=bash]# Valid request
 curl -H "Trongatetoken: your-token" \
   http://localhost/countries_api/get_one/1
 
@@ -111,7 +111,7 @@ curl -H "Trongatetoken: your-token" \
 
 # Non-existent ID
 curl -H "Trongatetoken: your-token" \
-  http://localhost/countries_api/get_one/999</code></pre>
+  http://localhost/countries_api/get_one/999[/code]
 
   <h2>URL Segment Behaviour</h2>
 

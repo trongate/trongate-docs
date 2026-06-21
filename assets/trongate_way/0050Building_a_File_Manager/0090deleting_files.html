@@ -8,7 +8,7 @@
 
   <h2>The Confirm Delete Method</h2>
 
-  <pre><code class="language-php">public function confirm_delete(): void {
+  [code=php]public function confirm_delete(): void {
     $this->gatekeeper();
 
     $update_id = segment(3, 'int');
@@ -33,7 +33,7 @@
     $data['view_file'] = 'confirm_delete';
 
     $this->templates->admin($data);
-}</code></pre>
+}[/code]
 
   <p>
     The confirmation page shows the document name and filename, then asks the user to confirm. A warning message emphasizes that the action is irreversible  -  the file will be removed from both the database and the filesystem.
@@ -41,7 +41,7 @@
 
   <h2>The Confirm Delete View</h2>
 
-  <pre><code class="language-php">&lt;div class="container"&gt;
+  [code=php]&lt;div class="container"&gt;
   &lt;h1&gt;&lt;?= out($headline) ?&gt;&lt;/h1&gt;
 
   &lt;p&gt;
@@ -87,11 +87,11 @@
       &lt;/a&gt;
     &lt;/div&gt;
   &lt;?= form_close() ?&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;[/code]
 
   <h2>The Submission Method</h2>
 
-  <pre><code class="language-php">public function submit_confirm_delete(): void {
+  [code=php]public function submit_confirm_delete(): void {
     $this->gatekeeper();
 
     $update_id = segment(3, 'int');
@@ -115,7 +115,7 @@
         'The file record was successfully deleted.'
     );
     redirect('file_manager/manage');
-}</code></pre>
+}[/code]
 
   <h2>Filesystem First, Database Second</h2>
 

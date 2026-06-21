@@ -16,7 +16,7 @@
     Our controller includes a helper method to parse JSON input:
   </p>
 
-  <pre><code class="language-php">public function get_post_data(): array|null {
+  [code=php]public function get_post_data(): array|null {
     block_url('countries_api/get_post_data');
 
     $raw_input = file_get_contents('php://input');
@@ -27,7 +27,7 @@
     }
 
     return $data;
-}</code></pre>
+}[/code]
 
   <p>
     This method reads the raw request body, decodes it from JSON, and returns an associative array. If the JSON is invalid or empty, it returns <code>null</code>, which the controller interprets as a 400 Bad Request.
@@ -39,7 +39,7 @@
     The validation helper checks the required fields and returns an array of error messages:
   </p>
 
-  <pre><code class="language-php">public function validate(array $data): array {
+  [code=php]public function validate(array $data): array {
     block_url('countries_api/validate');
 
     $errors = [];
@@ -64,7 +64,7 @@
     }
 
     return $errors;
-}</code></pre>
+}[/code]
 
   <p>
     Each field error is keyed by the field name, making it easy for the client to display errors next to the correct input.
@@ -72,7 +72,7 @@
 
   <h2>The Controller Method</h2>
 
-  <pre><code class="language-php">public function create(): void {
+  [code=php]public function create(): void {
     $this->authenticate();
 
     $data = $this->get_post_data();
@@ -106,7 +106,7 @@
     ]);
 
     $this->log_request('create');
-}</code></pre>
+}[/code]
 
   <h3>The 201 Created Status</h3>
   <p>
@@ -115,7 +115,7 @@
 
   <h2>The Model Insert Method</h2>
 
-  <pre><code class="language-php">public function insert(array $data): int {
+  [code=php]public function insert(array $data): int {
     $insert_data = [
         'country_title' => trim($data['country_title']),
         'country_code' => strtoupper(
@@ -124,7 +124,7 @@
     ];
 
     return $this->db->insert($insert_data, 'countries');
-}</code></pre>
+}[/code]
 
   <p>
     The model method cleans the data before inserting: it trims whitespace and uppercases the country code for consistent formatting. The <code>$this->db->insert()</code> method returns the ID of the newly inserted record.
@@ -132,7 +132,7 @@
 
   <h2>Testing</h2>
 
-  <pre><code class="language-bash"># Successful creation
+  [code=bash]# Successful creation
 curl -X POST \
   -H "Trongatetoken: your-token" \
   -H "Content-Type: application/json" \
@@ -151,7 +151,7 @@ curl -X POST \
   -H "Trongatetoken: your-token" \
   -H "Content-Type: application/json" \
   -d 'not valid json' \
-  http://localhost/countries_api/create</code></pre>
+  http://localhost/countries_api/create[/code]
 
   <p>
     Each of these test cases exercises a different response path: 201 for success, 400 with field errors for validation failure, and 400 for invalid JSON.

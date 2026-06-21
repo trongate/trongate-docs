@@ -8,7 +8,7 @@
 
   <h2>The Complete submit() Method</h2>
 
-  <pre><code class="language-php">public function submit(): void {
+  [code=php]public function submit(): void {
     $this->gatekeeper();
 
     $this->validation->set_rules(
@@ -52,7 +52,7 @@
         $data['view_file'] = 'create';
         $this->templates->admin($data);
     }
-}</code></pre>
+}[/code]
 
   <h2>The Upload Config Array</h2>
 
@@ -63,25 +63,25 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Key</th>
-        <th>Value</th>
-        <th>Effect</th>
+        <th style="white-space: nowrap;">Key</th>
+        <th style="white-space: nowrap;">Value</th>
+        <th style="white-space: nowrap;">Effect</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><code>destination</code></td>
-        <td><code>modules/file_manager/files</code></td>
+        <td style="white-space: nowrap;"><code>destination</code></td>
+        <td style="white-space: nowrap;"><code>modules/file_manager/files</code></td>
         <td>Store files in a dedicated directory within the module</td>
       </tr>
       <tr>
-        <td><code>upload_to_module</code></td>
-        <td><code>true</code></td>
+        <td style="white-space: nowrap;"><code>upload_to_module</code></td>
+        <td style="white-space: nowrap;"><code>true</code></td>
         <td>Tell the File module the destination is relative to the module path</td>
       </tr>
       <tr>
-        <td><code>make_rand_name</code></td>
-        <td><code>true</code></td>
+        <td style="white-space: nowrap;"><code>make_rand_name</code></td>
+        <td style="white-space: nowrap;"><code>true</code></td>
         <td>Generate a random 10-character filename (preserving extension)</td>
       </tr>
     </tbody>
@@ -100,30 +100,30 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Key</th>
-        <th>Example Value</th>
-        <th>Description</th>
+        <th style="white-space: nowrap;">Key</th>
+        <th style="white-space: nowrap;">Example Value</th>
+        <th style="white-space: nowrap;">Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><code>file_name</code></td>
-        <td><code>report_k3m9n1.pdf</code></td>
+        <td style="white-space: nowrap;"><code>file_name</code></td>
+        <td style="white-space: nowrap;"><code>report_k3m9n1.pdf</code></td>
         <td>The random filename on disk</td>
       </tr>
       <tr>
-        <td><code>file_path</code></td>
-        <td><code>../modules/file_manager/files/report_k3m9n1.pdf</code></td>
+        <td style="white-space: nowrap;"><code>file_path</code></td>
+        <td style="white-space: nowrap;"><code>../modules/file_manager/files/report_k3m9n1.pdf</code></td>
         <td>The relative filesystem path</td>
       </tr>
       <tr>
-        <td><code>file_size</code></td>
-        <td><code>89201</code></td>
+        <td style="white-space: nowrap;"><code>file_size</code></td>
+        <td style="white-space: nowrap;"><code>89201</code></td>
         <td>Size in bytes</td>
       </tr>
       <tr>
-        <td><code>file_type</code></td>
-        <td><code>application/pdf</code></td>
+        <td style="white-space: nowrap;"><code>file_type</code></td>
+        <td style="white-space: nowrap;"><code>application/pdf</code></td>
         <td>MIME type detected by the File module</td>
       </tr>
     </tbody>
@@ -145,8 +145,8 @@
     Before the first upload, you need to create the destination directory and ensure it is writable by the web server:
   </p>
 
-  <pre><code class="language-bash">mkdir -p modules/file_manager/files
-chmod 755 modules/file_manager/files</code></pre>
+  [code=bash]mkdir -p modules/file_manager/files
+chmod 755 modules/file_manager/files[/code]
 
   <p>
     The <code>755</code> permission allows the owner full access, and everyone else read and execute access. If the directory does not exist, <code>$this->file->upload()</code> will throw an exception.

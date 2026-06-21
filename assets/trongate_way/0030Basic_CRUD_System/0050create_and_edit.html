@@ -1,157 +1,202 @@
-[meta-description]Build the create and edit forms in Trongate v2: form handling with validation, the create/submit pattern, flashdata for success messages.[/meta-description]
+[meta-description]Build create and edit forms in Trongate v2: form layout, validation rules, flashdata, form_helper functions, and the submit handler for insert and update operations.[/meta-description]
 <div class="container">
-  <h1>Creating and Editing Records</h1>
+  <h1>Create and Edit</h1>
 
   <p>
-    Creating and editing records follows the same form-and-submit pattern used throughout Trongate. A single <code>create()</code> method renders the form (empty for new records, pre-populated for edits), and a <code>submit()</code> method handles validation and persistence.
-  </p>
-
-  <h2>The Create Method</h2>
-
-  <pre><code class="language-php">public function create(): void {
-    $this-&gt;gatekeeper();
-
-    $update_id = segment(3, 'int');
-    $submit = post('submit');
-
-    if (($update_id === 0) || ($submit === 'Submit')) {
-        $data = $this-&gt;model-&gt;get_data_from_post();
-    } else {
-        $data = $this-&gt;model-&gt;get_data_from_db($update_id);
-    }
-
-    $data['headline'] = ($update_id === 0)
-        ? 'Create Country Record'
-        : 'Update Country Record';
-    $data['update_id'] = $update_id;
-    $data['form_location'] = str_replace('/create', '/submit', current_url());
-    $data['view_module'] = 'countries';
-    $data['view_file'] = 'create';
-
-    $this-&gt;templates-&gt;admin($data);
-}</code></pre>
-
-  <p>
-    This method handles three distinct situations:
+    In a Trongate admin CRUD module, a single controller method serves both creation and editing. The same <code>create()</code> method renders the form, and the same <code>submit()</code> method handles the submission. The difference is whether a primary key is present in the URL:
   </p>
 
   <ul>
-    <li>
-      <strong>Creating a new record:</strong> Visiting <code>/countries/create</code> gives <code>update_id</code> of 0, so it calls <code>get_data_from_post()</code> which returns empty strings. The form renders blank.
-    </li>
-    <li>
-      <strong>Editing an existing record:</strong> Visiting <code>/countries/create/5</code> gives <code>update_id</code> of 5. It calls <code>get_data_from_db(5)</code> to pre-populate the form with the current values.
-    </li>
-    <li>
-      <strong>Re-displaying after validation failure:</strong> When <code>submit()</code> detects invalid data, it calls <code>$this-&gt;create()</code> again. This time <code>$submit</code> equals <code>'Submit'</code>, so it uses <code>get_data_from_post()</code> to preserve the user's submitted values rather than the database values.
-    </li>
+    <li><code>/countries/create</code>   -   new record form (empty fields)</li>
+    <li><code>/countries/create/5</code>   -   edit form (pre-populated with record id 5)</li>
+    <li><code>/countries/submit</code>   -   inserts a new record (no update_id in POST)</li>
+    <li><code>/countries/submit/5</code>   -   updates record id 5 (update_id in URL)</li>
   </ul>
+
+  <h2>The Controller Method</h2>
+
+  [code=php]
+/**
+ * Display form for creating or editing a country.
+ *
+ * Shows form with appropriate headline and action URL.
+ * Automatically repopulates form with submitted data on validation errors.
+ *
+ * @return void
+ */
+public function create(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    $update_id = segment(3, &apos;int&apos;);
+
+    if ((REQUEST_TYPE === &apos;GET&apos;) &amp;&amp; ($update_id &gt; 0)) {
+        $data = $this-&gt;model-&gt;get_data_from_db($update_id);
+    } else {
+        $data = $this-&gt;model-&gt;get_data_from_post();
+    }
+
+    // Add view-specific data
+    $data[&apos;headline&apos;] = ($update_id &gt; 0) ? &apos;Update Country Record&apos; : &apos;Create New Country Record&apos;;
+    $data[&apos;cancel_url&apos;] = ($update_id &gt; 0) ? &apos;countries/show/&apos;.$update_id : &apos;countries/manage&apos;;
+    $data[&apos;form_location&apos;] = &apos;countries/submit/&apos;.$update_id;
+    $data[&apos;view_module&apos;] = &apos;countries&apos;;
+    $data[&apos;view_file&apos;] = &apos;create&apos;;
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
+
+  <p>
+    The logic flows as follows:
+  </p>
+
+  <ol>
+    <li>Check authentication via <code>$this->trongate_security->make_sure_allowed()</code>.</li>
+    <li>Extract the <code>update_id</code> from URL segment 3 (0 if absent).</li>
+    <li>If the request is a <strong>GET</strong> and <code>update_id &gt; 0</code> (editing), fetch the existing record from the database using <code>get_data_from_db()</code>. The model returns <code>false</code> if not found, which the template handles gracefully.</li>
+    <li>Otherwise, start with empty data from <code>get_data_from_post()</code>. This covers both a fresh create form and the case where validation failed (the submitted values are preserved).</li>
+    <li>Set the headline, cancel URL, and form action based on whether we are creating or editing.</li>
+    <li>Render the <code>create.php</code> view inside the admin template.</li>
+  </ol>
+
+  <p>
+    This pattern avoids the need for a separate <code>edit()</code> method. One method handles both GET (show form) and POST (show form with errors after failed validation). The submit logic is delegated to <code>submit()</code>.
+  </p>
 
   <h2>The Create View</h2>
 
-  <pre><code class="language-php">&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
-&lt;div class="card"&gt;
-    &lt;div class="card-heading"&gt;Country Details&lt;/div&gt;
-    &lt;div class="card-body"&gt;
+  [code=vf]
+&lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
+&lt;?= validation_errors() ?&gt;
+&lt;div class=&quot;card&quot;&gt;
+    &lt;div class=&quot;card-heading&quot;&gt;
+        Country Details
+    &lt;/div&gt;
+    &lt;div class=&quot;card-body&quot;&gt;
         &lt;?php
         echo form_open($form_location);
-        echo validation_errors();
 
-        echo form_label('Country Name');
-        echo form_input('country_title', $country_title,
-            ["placeholder" =&gt; "Enter Country Name",
-             "autocomplete" =&gt; "off"]);
+        echo form_label(&apos;Country Title&apos;);
+        $country_title_attr = [
+            &apos;placeholder&apos; =&gt; &apos;Enter Country Title&apos;,
+            &apos;required&apos;  =&gt; true,
+            &apos;minlength&apos; =&gt; 2,
+            &apos;maxlength&apos; =&gt; 255
+        ];
+        echo form_input(&apos;country_title&apos;, $country_title, $country_title_attr);
 
-        echo form_label('Country Code');
-        echo form_input('country_code', $country_code,
-            ["placeholder" =&gt; "e.g. GB, FR, DE",
-             "maxlength" =&gt; "2",
-             "autocomplete" =&gt; "off"]);
+        echo form_label(&apos;Country Code&apos;);
+        $country_code_attr = [
+            &apos;placeholder&apos; =&gt; &apos;Enter Country Code&apos;,
+            &apos;required&apos;  =&gt; true,
+            &apos;minlength&apos; =&gt; 2,
+            &apos;maxlength&apos; =&gt; 2
+        ];
+        echo form_input(&apos;country_code&apos;, $country_code, $country_code_attr);
 
-        echo '&lt;div class="text-center"&gt;';
-        echo anchor('countries/manage', 'Cancel',
-            array('class' =&gt; 'button alt'));
-
-        if ($update_id &gt; 0) {
-            echo anchor(
-                'countries/confirm_delete/' . $update_id,
-                'Delete Country',
-                array('class' =&gt; 'button danger')
-            );
-        }
-
-        echo form_submit('submit', 'Submit');
-        echo '&lt;/div&gt;';
-
+        echo &apos;&lt;div class=&quot;text-center&quot;&gt;&apos;;
+        echo anchor($cancel_url, &apos;Cancel&apos;, [&apos;class&apos; =&gt; &apos;button alt&apos;]);
+        echo form_submit(&apos;submit&apos;, &apos;Submit&apos;);
+        echo &apos;&lt;/div&gt;&apos;;
+        
         echo form_close();
         ?&gt;
     &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;
+[/code]
 
   <p>
-    Notice the <strong>Delete Country</strong> link only appears when editing an existing record  -  it would make no sense on the create form. The <code>form_open()</code> helper uses the <code>$form_location</code> URL, which points to <code>/countries/submit</code> (or <code>/countries/submit/5</code> for updates).
+    Key details:
   </p>
-
-  <h2>The Submit Method</h2>
-
-  <pre><code class="language-php">public function submit(): void {
-    $this-&gt;gatekeeper();
-
-    $this-&gt;validation-&gt;set_rules(
-        'country_title', 'Country Name',
-        'required|min_length[2]|max_length[100]'
-    );
-    $this-&gt;validation-&gt;set_rules(
-        'country_code', 'Country Code',
-        'required|min_length[2]|max_length[2]'
-    );
-
-    $result = $this-&gt;validation-&gt;run();
-
-    if ($result === true) {
-        $data = $this-&gt;model-&gt;get_data_from_post();
-        $update_id = segment(3, 'int');
-
-        if ($update_id === 0) {
-            $this-&gt;db-&gt;insert($data, 'countries');
-            set_flashdata(
-                'The new country record was successfully created.'
-            );
-        } else {
-            $this-&gt;db-&gt;update($update_id, $data, 'countries');
-            set_flashdata(
-                'The country record was successfully updated.'
-            );
-        }
-
-        redirect('countries/manage');
-    } else {
-        $this-&gt;create();
-    }
-}</code></pre>
-
-  <p>Key points in this method:</p>
 
   <ul>
-    <li>
-      <strong>Validation rules</strong> are set using <code>set_rules()</code> with the familiar pipe-delimited format. The country name must be 2–100 characters, and the country code must be exactly 2 characters.
-    </li>
-    <li>
-      <strong>If validation passes:</strong> the data is inserted or updated, a flashdata message is set, and the user is redirected back to the manage page.
-    </li>
-    <li>
-      <strong>If validation fails:</strong> the method calls <code>$this-&gt;create()</code> instead of rendering a view directly. This re-displays the form with validation errors shown by <code>validation_errors()</code> in the view, and preserves the user's submitted input.
-    </li>
+    <li><code>validation_errors()</code> renders before the card, so that error messages appear above the form.</li>
+    <li><code>form_open()</code> takes the <code>$form_location</code> set by the controller, which points to <code>countries/submit/{id}</code>.</li>
+    <li>Each <code>form_input()</code> is passed HTML attributes including <code>required</code>, <code>minlength</code>, and <code>maxlength</code> for client-side validation. Note that <code>country_code</code> has <code>maxlength="2"</code> because the database column is <code>VARCHAR(2)</code>.</li>
+    <li>The Cancel button uses <code>anchor()</code> to link back to the manage page (for new records) or the show page (for existing records).</li>
+    <li>The form does <strong>not</strong> include a Delete button   -   deletion is handled separately through the <code>delete_conf()</code> flow from the manage page or the show page.</li>
   </ul>
 
-  <h2>Flashdata</h2>
   <p>
-    The <code>set_flashdata()</code> function stores a one-time message in the session that is displayed on the next page load. In the manage view, <code>flashdata()</code> renders this message. After the page is shown, the message is automatically cleared from the session.
+    The <code>$cancel_url</code> variable is set by the controller depending on the context. When creating a new record, it points back to the manage page. When editing, it points to the show page for that record.
   </p>
 
-  <h2>Next Step</h2>
+  <h2>The Submit Handler</h2>
+
+  [code=php]
+/**
+ * Handle form submission for creating/updating countries.
+ *
+ * Validates input, converts checkbox data, and saves to database.
+ * Includes automatic CSRF validation and proper checkbox conversion.
+ *
+ * @return void
+ */
+public function submit(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
+
+    $submit = post(&apos;submit&apos;, true);
+
+    if ($submit === &apos;Submit&apos;) {
+        $this-&gt;validation-&gt;set_rules(&apos;country_title&apos;, &apos;country title&apos;, &apos;required|min_length[2]|max_length[255]&apos;);
+        $this-&gt;validation-&gt;set_rules(&apos;country_code&apos;, &apos;country code&apos;, &apos;required|min_length[2]|max_length[2]&apos;);
+
+        if ($this-&gt;validation-&gt;run()) {
+            $update_id = segment(3, &apos;int&apos;);
+            $data = $this-&gt;model-&gt;get_data_from_post();
+
+            if ($update_id &gt; 0) {
+                $this-&gt;model-&gt;update_record($update_id, $data);
+                $flash_msg = &apos;Country updated successfully&apos;;
+                $finish_url = &apos;countries/show/&apos;.$update_id;
+            } else {
+                $update_id = $this-&gt;model-&gt;create_new_record($data);
+                $flash_msg = &apos;Country created successfully&apos;;
+                $finish_url = &apos;countries/manage&apos;;
+            }
+
+            set_flashdata($flash_msg);
+            redirect($finish_url);
+        } else {
+            $this-&gt;create();
+        }
+    } else {
+        redirect(&apos;countries/manage&apos;);
+    }
+}[/code]
+
   <p>
-    With create and edit working, the next page covers viewing individual records and deleting them with a confirmation step.
+    The pattern is straightforward:
+  </p>
+
+  <ol>
+    <li>Check authentication.</li>
+    <li>Read the <code>submit</code> button value. If it is not exactly "Submit", redirect to the manage page. This prevents direct URL access from doing anything.</li>
+    <li>Set validation rules using <code>$this->validation->set_rules()</code> with pipe-delimited rules: <code>required|min_length[2]|max_length[255]</code>.</li>
+    <li>If validation passes, gather the sanitised data from the model and insert or update depending on whether <code>$update_id</code> is present.</li>
+    <li>Set a flashdata success message and redirect. For updates, the user is taken back to the show page. For new records, the user is taken to the manage page.</li>
+    <li>If validation fails, re-render the form with error messages by calling <code>$this->create()</code>.</li>
+  </ol>
+
+  <p>
+    The <code>set_flashdata()</code> message is displayed on the next page load via <code>&lt;?= flashdata() ?&gt;</code> in the view.
+  </p>
+
+  <h2>Validation Rules</h2>
+
+  <p>
+    Trongate uses a validation module that is configured declaratively with pipe-delimited rule strings. The rules above say:
+  </p>
+
+  <ul>
+    <li><code>country_title</code> is required, minimum 2 characters, maximum 255 characters.</li>
+    <li><code>country_code</code> is required, minimum 2 characters, maximum 2 characters (matching the VARCHAR(2) column).</li>
+  </ul>
+
+  <p>
+    The validation module checks for a POST field matching the rule name. If the field is missing, empty, or does not meet the length constraints, validation fails and <code>$this->validation->run()</code> returns <code>false</code>. The error messages are collected and displayed by <code>validation_errors()</code> at the top of the form.
+  </p>
+
+  <p>
+    Client-side HTML attributes such as <code>required</code>, <code>minlength</code>, and <code>maxlength</code> provide a first line of defence in the browser, but server-side validation via the validation module is the authoritative check.
   </p>
 
 </div>

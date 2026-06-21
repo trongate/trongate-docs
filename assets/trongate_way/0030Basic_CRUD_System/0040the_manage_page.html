@@ -1,4 +1,4 @@
-[meta-description]Build the admin manage page in Trongate v2: paginated record list, per-page selector, search modal, and view/edit/delete action buttons.[/meta-description]
+[meta-description]Build the admin manage page in Trongate v2: paginated record list, per-page selector, search modal, MX record preview, and view/edit/delete action buttons.[/meta-description]
 <div class="container">
   <h1>The Manage Page</h1>
 
@@ -32,23 +32,27 @@
         </div>
       </div>
       <div style="border: 2px solid #a4a; padding: 10px; margin-bottom: 10px; background: #fef; text-align: center;">
-        <strong>pagination bar</strong> ← 1 2 3 … 5 → &nbsp; Showing 1 to 20 of 100
+        <strong>pagination bar</strong> ← 1 2 3 … 5 → &nbsp; Showing 1 to 20 of 23
       </div>
       <div style="border: 2px solid #a44; padding: 10px; margin-bottom: 10px; background: #fff0f0;">
         <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #a44; font-weight: bold;">
-          <span>Country Name</span>
+          <span>Country Title</span>
+          <span>Country Code</span>
           <span>Actions</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #ddd;">
-          <span>Afghanistan</span>
+          <span>Australia</span>
+          <span>AU</span>
           <span>[👁] [✏] [🗑]</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid #ddd;">
-          <span>Albania</span>
+          <span>Belgium</span>
+          <span>BE</span>
           <span>[👁] [✏] [🗑]</span>
         </div>
         <div style="display: flex; justify-content: space-between; padding: 4px 8px;">
-          <span>Algeria</span>
+          <span>Canada</span>
+          <span>CA</span>
           <span>[👁] [✏] [🗑]</span>
         </div>
       </div>
@@ -61,179 +65,202 @@
     </div>
   </div>
 
+  <p>
+    Two important differences from simpler CRUD examples: the table shows <strong>both</strong> the country title and the country code as visible columns, and the country title links open an <strong>MX record preview</strong> modal rather than navigating away from the list.
+  </p>
+
   <h2>Controller Method</h2>
 
   <p>The <code>manage()</code> method in <code>Countries.php</code> gathers all the data needed by the view:</p>
 
-  <pre><code class="language-php">public function manage(): void {
-    $this->gatekeeper();
+[code=php]
+/**
+ * Display paginated list of countries.
+ *
+ * Shows records in a table with pagination controls. Includes
+ * dropdown for selecting number of records per page.
+ *
+ * @return void
+ */
+public function manage(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
 
-    $search_query = $_GET['search_query'] ?? '';
-    $search_column = $_GET['search_column'] ?? '';
+    $search_query = $_GET[&apos;search_query&apos;] ?? &apos;&apos;;
+    $search_column = $_GET[&apos;search_column&apos;] ?? &apos;&apos;;
 
-    $limit = $this->get_limit();
-    $offset = $this->get_offset();
-    $rows = $this->model->fetch_records($limit, $offset);
-    $rows = $this->model->prepare_records_for_display($rows);
+    // Validate column against known searchable columns.
+    $allowed_columns = $this-&gt;model-&gt;get_searchable_columns();
+    if ($search_column !== &apos;&apos; &amp;&amp; !in_array($search_column, $allowed_columns, true)) {
+        $search_column = &apos;&apos;;
+    }
+
+    $search_active = ($search_query !== &apos;&apos;);
+
+    if ($search_active) {
+        $total_rows = $this-&gt;model-&gt;count_search_results($search_query, $search_column);
+    } else {
+        $total_rows = $this-&gt;model-&gt;count_all();
+    }
+    
+    $limit = $this-&gt;get_limit();
+    $offset = $this-&gt;get_offset();
+
+    if ($search_active) {
+        $rows = $this-&gt;model-&gt;search_records($search_query, $search_column, $limit, $offset);
+    } else {
+        $rows = $this-&gt;model-&gt;fetch_records($limit, $offset);
+    }
+    $rows = $this-&gt;model-&gt;prepare_records_for_display($rows);
 
     $data = [
-        'rows' => $rows,
-        'search_query' => $search_query,
-        'search_column' => $search_column,
-        'pagination_data' => $this->get_pagination_data($limit),
-        'view_module' => 'countries',
-        'view_file' => 'manage',
-        'per_page_options' => $this->per_page_options,
-        'selected_per_page' => $this->get_selected_per_page()
+        &apos;rows&apos; =&gt; $rows,
+        &apos;pagination_data&apos; =&gt; $this-&gt;get_pagination_data($total_rows, $limit, $search_query, $search_column),
+        &apos;view_module&apos; =&gt; &apos;countries&apos;,
+        &apos;view_file&apos; =&gt; &apos;manage&apos;,
+        &apos;per_page_options&apos; =&gt; $this-&gt;per_page_options,
+        &apos;selected_per_page&apos; =&gt; $this-&gt;get_selected_per_page()
     ];
 
-    $this->templates->admin($data);
-}</code></pre>
+    $data[&apos;search_query&apos;] = $search_query;
+    $data[&apos;search_column&apos;] = $search_column;
+    $data[&apos;search_active&apos;] = $search_active;
+    $this-&gt;templates-&gt;admin($data);
+}[/code]
 
   <p>Let us examine each piece.</p>
 
-  <h3>Gatekeeper</h3>
+  <h3>Authentication</h3>
   <p>
-    The <code>gatekeeper()</code> call ensures only logged-in administrators can access this page. If the current user's token does not have <code>admin</code> level, they are redirected to the login page (or given a 403 response for MX requests).
+    The <code>$this->trongate_security->make_sure_allowed()</code> call ensures only logged-in administrators can access this page. This is the standard v2 approach   -   it delegates to the <code>trongate_administrators</code> module which checks the user's token level. In dev mode, it automatically creates a temporary admin session so you don't need to log in repeatedly during development.
   </p>
 
   <h3>Search Parameters</h3>
   <p>
-    The search query and column are read from the URL's query string (<code>?search_query=...&amp;search_column=...</code>). These are passed through to the view but handled at the database level by <code>submit_search()</code>, which redirects back to <code>manage()</code> with the query parameters.
+    The search query and column are read from the URL's query string (<code>?search_query=...&amp;search_column=...</code>). Before using them, the controller validates the column name against the model's <code>get_searchable_columns()</code> whitelist   -   this prevents SQL injection through the column parameter.
+  </p>
+  <p>
+    When a search is active, the controller uses <code>count_search_results()</code> and <code>search_records()</code> instead of <code>count_all()</code> and <code>fetch_records()</code>. The search query string is also passed to the pagination helper so that pagination links preserve the search context.
   </p>
 
-  <h3>Pagination</h3>
+  <h3>Pagination Helpers</h3>
   <p>
     The <code>get_limit()</code> helper reads the user's preferred page size from the session (defaulting to 20). The <code>get_offset()</code> helper calculates how many records to skip based on the current page number, which is extracted from URL segment 3 via <code>segment(3, 'int')</code>.
   </p>
 
-  <pre><code class="language-php">public function get_limit(): int {
-    block_url('countries/get_limit');
-
-    if (isset($_SESSION['selected_per_page'])) {
-        return $this->per_page_options[$_SESSION['selected_per_page']];
-    }
-    return $this->default_limit;
-}
-
-public function get_offset(): int {
-    block_url('countries/get_offset');
-
-    $page_num = segment(3, 'int');
-    return ($page_num > 1)
-        ? ($page_num - 1) * $this->get_limit()
-        : 0;
-}</code></pre>
+  <p>
+    Unlike older Trongate patterns, these helpers are declared as <code>private</code> methods. This means they cannot be invoked via URL, so there is no need for <code>block_url()</code>.
+  </p>
 
   <h3>Pagination Data</h3>
   <p>
     The pagination data array tells the pagination module how to render its controls:
   </p>
 
-  <pre><code class="language-php">public function get_pagination_data(int $limit): array {
-    block_url('countries/get_pagination_data');
+[code=php]
+/**
+ * Generate pagination configuration data.
+ *
+ * @param int    $total_rows    Total number of records
+ * @param int    $limit         Number of records per page
+ * @param string $search_query  The search query string
+ * @param string $search_column The column being searched
+ * @return array Pagination configuration for template
+ */
+private function get_pagination_data(int $total_rows, int $limit, string $search_query = &apos;&apos;, string $search_column = &apos;&apos;): array {
+    $pagination_query = &apos;&apos;;
+    if ($search_query !== &apos;&apos; &amp;&amp; $search_column !== &apos;&apos;) {
+        $pagination_query = &apos;search_query=&apos; . urlencode($search_query) . &apos;&amp;search_column=&apos; . urlencode($search_column);
+    }
 
     return [
-        'total_rows' => $this->model->count_all(),
-        'page_num_segment' => 3,
-        'limit' => $limit,
-        'pagination_root' => 'countries/manage',
-        'record_name_plural' => 'countries',
-        'include_showing_statement' => true
+        &apos;total_rows&apos; =&gt; $total_rows,
+        &apos;limit&apos; =&gt; $limit,
+        &apos;pagination_root&apos; =&gt; &apos;countries/manage&apos;,
+        &apos;pagination_query&apos; =&gt; $pagination_query,
+        &apos;record_name_plural&apos; =&gt; &apos;countries&apos;,
+        &apos;include_showing_statement&apos; =&gt; true
     ];
-}</code></pre>
+}[/code]
 
   <p>
     The pagination module is invoked in the view with <code>Modules::run('pagination/display', $pagination_data)</code>, which renders page numbers and a "Showing X to Y of Z" statement.
   </p>
 
-  <h2>The Manage View (Complete)</h2>
+  <h2>The Manage View</h2>
 
   <p>
-    The view file <code>manage.php</code> renders the full content area shown in the layout diagram above. Here is the complete file with no omissions:
+    The view file <code>manage.php</code> renders the full content area. Here is the complete file:
   </p>
 
-  <pre><code class="language-php">&lt;h1&gt;Manage Countries&lt;/h1&gt;
+[code=vf]
+&lt;h1&gt;Manage Countries&lt;/h1&gt;
 &lt;?= flashdata() ?&gt;
-
+&lt;?php if (!empty($search_query)): ?&gt;
+    &lt;p&gt;Showing results for &lt;strong&gt;&lt;?= out($search_query) ?&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;?php endif; ?&gt;
 &lt;?php
-echo '&lt;p class="flex-row justify-between"&gt;';
-echo anchor('countries/create', 'Create New Country Record', ['class' => 'button alt']);
-if (!empty($rows) || !empty($search_query)) {
+echo &apos;&lt;p class=&quot;flex-row justify-between&quot;&gt;&apos;;
+echo anchor(&apos;countries/create&apos;, &apos;Create New Country Record&apos;, [&apos;class&apos; =&gt; &apos;button alt&apos;]);
+if ((count($rows) &gt; 9) || (!empty($search_query))) {
     $btn_attr = [
-        'class' => 'alt',
-        'mx-get' => 'countries/search_modal',
-        'mx-build-modal' => json_encode([
-            'id' => 'search-modal',
-            'modalHeading' => 'Search Countries',
-            'modalFooter' => '&lt;button class="alt" onclick="closeModal()"&gt;Cancel&lt;/button&gt;&lt;button form="search-form"&gt;Search&lt;/button&gt;'
+        &apos;class&apos; =&gt; &apos;alt&apos;,
+        &apos;mx-get&apos; =&gt; &apos;countries/search_modal&apos;,
+        &apos;mx-build-modal&apos; =&gt; json_encode([
+            &apos;id&apos; =&gt; &apos;search-modal&apos;,
+            &apos;modalHeading&apos; =&gt; &apos;Search Countries&apos;,
+            &apos;modalFooter&apos; =&gt; &apos;&lt;button class=&quot;alt&quot; onclick=&quot;closeModal()&quot;&gt;Cancel&lt;/button&gt;&lt;button form=&quot;search-form&quot;&gt;Search&lt;/button&gt;&apos;
         ])
     ];
-    echo form_button('search_btn', 'Search &lt;i class="tg tg-search"&gt;&lt;/i&gt;', $btn_attr);
+    echo form_button(&apos;search_btn&apos;, &apos;Search &lt;i class=&quot;tg tg-search&quot;&gt;&lt;/i&gt;&apos;, $btn_attr);
 }
-echo '&lt;/p&gt;';
-
+echo &apos;&lt;/p&gt;&apos;;
 if (empty($rows)) {
-    echo '&lt;p&gt;There are currently no records to display.&lt;/p&gt;';
+    echo &apos;&lt;p&gt;There are currently no records to display.&lt;/p&gt;&apos;;
     return;
 }
-echo Modules::run('pagination/display', $pagination_data);
+echo Modules::run(&apos;pagination/display&apos;, $pagination_data);
 ?&gt;
 
-&lt;div class="table-container"&gt;
-    &lt;table class="records-table"&gt;
+&lt;div class=&quot;table-container&quot;&gt;
+    &lt;table class=&quot;records-table&quot;&gt;
         &lt;thead&gt;
             &lt;tr&gt;
-                &lt;th colspan="3"&gt;
+                &lt;th colspan=&quot;3&quot;&gt;
                     &lt;div&gt;
                         &lt;div&gt;&amp;nbsp;&lt;/div&gt;
                         &lt;div&gt;Records Per Page: &lt;?php
-                        $dropdown_attr['onchange'] = 'setPerPage()';
-                        echo form_dropdown('per_page', $per_page_options, $selected_per_page, $dropdown_attr);
+                        $dropdown_attr[&apos;onchange&apos;] = &apos;setPerPage()&apos;;
+                        echo form_dropdown(&apos;per_page&apos;, $per_page_options, $selected_per_page, $dropdown_attr); 
                         ?&gt;&lt;/div&gt;
-                    &lt;/div&gt;
+                    &lt;/div&gt;                    
                 &lt;/th&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th class="text-left"&gt;Country Name&lt;/th&gt;
+                &lt;th class=&quot;text-left&quot;&gt;Country Title&lt;/th&gt;
+            &lt;th class=&quot;text-left&quot;&gt;Country Code&lt;/th&gt;
                 &lt;th&gt;Actions&lt;/th&gt;
             &lt;/tr&gt;
         &lt;/thead&gt;
         &lt;tbody&gt;
-            &lt;?php foreach ($rows as $row): ?&gt;
-                &lt;?php
-                $preview_attr = [
-                    'mx-get' => 'countries/show/' . $row-&gt;id,
-                    'mx-select' => '.detail-grid',
-                    'mx-build-modal' => json_encode([
-                        'id' => 'record-preview-modal',
-                        'width' => '640px',
-                        'modalHeading' => 'Record Preview',
-                        'modalFooter' => '&lt;a href="#" class="button alt mt-0 xs" onclick="event.preventDefault(); closeModal()"&gt;Close&lt;/a&gt; &lt;a href="countries/show/' . $row-&gt;id . '" class="button mt-0 xs"&gt;View Details&lt;/a&gt;'
+            &lt;?php foreach($rows as $row): 
+                $link_attr = [
+                    &apos;mx-get&apos; =&gt; &apos;countries/show/&apos;.$row-&gt;id,
+                    &apos;mx-select&apos; =&gt; &apos;.detail-grid&apos;,
+                    &apos;mx-build-modal&apos; =&gt; json_encode([
+                        &apos;id&apos; =&gt; &apos;record-preview-modal&apos;,
+                        &apos;width&apos; =&gt; &apos;640px&apos;,
+                        &apos;modalHeading&apos; =&gt; &apos;Record Preview&apos;,
+                        &apos;modalFooter&apos; =&gt; &apos;&lt;a href=&quot;countries/show/&apos;.$row-&gt;id.&apos;&quot; class=&quot;button alt mt-0 xs&quot;&gt;View Details&lt;/a&gt;&apos;
                     ])
                 ];
                 ?&gt;
                 &lt;tr&gt;
-                    &lt;td&gt;
-                        &lt;?= anchor('#', out($row-&gt;country_title), $preview_attr) ?&gt;
-                    &lt;/td&gt;
-                    &lt;td&gt;
-                        &lt;div class="actions"&gt;
-                            &lt;a href="countries/show/&lt;?= $row-&gt;id ?&gt;"
-                               class="button alt button-round"
-                               title="View Record"&gt;
-                                &lt;i class="tg tg-eye"&gt;&lt;/i&gt;
-                            &lt;/a&gt;
-                            &lt;a href="countries/create/&lt;?= $row-&gt;id ?&gt;"
-                               class="button alt button-round"
-                               title="Edit Record"&gt;
-                                &lt;i class="tg tg-pencil"&gt;&lt;/i&gt;
-                            &lt;/a&gt;
-                            &lt;a href="countries/confirm_delete/&lt;?= $row-&gt;id ?&gt;"
-                               class="button alt button-round"
-                               title="Delete Record"&gt;
-                                &lt;i class="tg tg-trash"&gt;&lt;/i&gt;
-                            &lt;/a&gt;
+                &lt;td&gt;&lt;?= anchor(&apos;#&apos;, out($row-&gt;country_title), $link_attr) ?&gt;&lt;/td&gt;
+                &lt;td&gt;&lt;?= out($row-&gt;country_code) ?&gt;&lt;/td&gt;                    &lt;td&gt;
+                        &lt;div class=&quot;actions&quot;&gt;
+                            &lt;a href=&quot;countries/show/&lt;?= $row-&gt;id ?&gt;&quot; class=&quot;button alt button-round&quot;&gt;&lt;i class=&quot;tg tg-eye&quot;&gt;&lt;/i&gt;&lt;/a&gt;
+                            &lt;a href=&quot;countries/create/&lt;?= $row-&gt;id ?&gt;&quot; class=&quot;button alt button-round&quot;&gt;&lt;i class=&quot;tg tg-pencil&quot;&gt;&lt;/i&gt;&lt;/a&gt;
+                            &lt;a href=&quot;countries/delete_conf/&lt;?= $row-&gt;id ?&gt;&quot; class=&quot;button alt button-round&quot;&gt;&lt;i class=&quot;tg tg-trash&quot;&gt;&lt;/i&gt;&lt;/a&gt;
                         &lt;/div&gt;
                     &lt;/td&gt;
                 &lt;/tr&gt;
@@ -242,26 +269,27 @@ echo Modules::run('pagination/display', $pagination_data);
     &lt;/table&gt;
 &lt;/div&gt;
 
-&lt;?php
-if (count($rows) &gt; 9) {
-    unset($pagination_data['include_showing_statement']);
-    echo Modules::run('pagination/display', $pagination_data);
+&lt;?php 
+if(count($rows)&gt;9) {
+    unset($pagination_data[&apos;include_showing_statement&apos;]);
+    echo Modules::run(&apos;pagination/display&apos;, $pagination_data);
 }
 ?&gt;
 
 &lt;script&gt;
 function setPerPage() {
-    const selectedIndex = document.querySelector('select[name="per_page"]').value;
-    window.location.href = '&lt;?= BASE_URL ?&gt;countries/set_per_page/' + selectedIndex;
+    const selectedIndex = document.querySelector(&apos;select[name=&quot;per_page&quot;]&apos;).value;
+    window.location.href = &apos;&lt;?= BASE_URL ?&gt;countries/set_per_page/&apos; + selectedIndex;
 }
-&lt;/script&gt;</code></pre>
+&lt;/script&gt;
+[/code]
 
   <p>
-    Note that this is a Trongate view partial  -  it does not include <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, or <code>&lt;body&gt;</code> tags because those are provided by the admin template. The view only supplies the content that appears within the <code>card-body</code> area of the layout diagram above.
+    Note that this is a Trongate view partial   -   it does not include <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, or <code>&lt;body&gt;</code> tags because those are provided by the admin template. The view only supplies the content that appears within the content area of the layout diagram above.
   </p>
 
   <p>
-    Each row in the table has three action buttons: <strong>View</strong> (eye icon), <strong>Edit</strong> (pencil icon), and <strong>Delete</strong> (trash icon). The country name itself doubles as a link that opens a quick-preview modal via Trongate MX.
+    Each row in the table has three action buttons: <strong>View</strong> (eye icon), <strong>Edit</strong> (pencil icon), and <strong>Delete</strong> (trash icon). The country title itself doubles as a link that opens a quick-preview modal via Trongate MX.
   </p>
 
   <h3>Per-Page Selector</h3>
@@ -269,40 +297,57 @@ function setPerPage() {
     A dropdown in the table header lets the user choose between 10, 20, 50, or 100 records per page. When changed, the <code>setPerPage()</code> JavaScript function redirects to <code>/countries/set_per_page/{index}</code>, which stores the preference in the session:
   </p>
 
-  <pre><code class="language-php">public function set_per_page(): void {
-    $this-&gt;gatekeeper();
+[code=php]
+/**
+ * Set number of records per page for pagination.
+ *
+ * Stores user preference in session for consistent pagination across requests.
+ *
+ * @return void
+ */
+public function set_per_page(): void {
+    $this-&gt;trongate_security-&gt;make_sure_allowed();
 
-    $selected_index = segment(3, 'int');
+    $selected_index = segment(3, &apos;int&apos;);
 
     if (!isset($this-&gt;per_page_options[$selected_index])) {
         $selected_index = 1;
     }
 
-    $_SESSION['selected_per_page'] = $selected_index;
-    redirect('countries/manage');
-}</code></pre>
+    $_SESSION[&apos;selected_per_page&apos;] = $selected_index;
+    redirect(&apos;countries/manage&apos;);
+}[/code]
 
   <h2>Search Modal</h2>
   <p>
     The Search button opens an MX-powered modal where the user enters a query and selects which column to search:
   </p>
 
-  <pre><code class="language-php">&lt;?php
-$form_attr = ['id' => 'search-form'];
-echo form_open('countries/submit_search', $form_attr);
+[code=vf]
+&lt;?php
+/**
+ * Search modal form for filtering countries.
+ *
+ * Loaded via MX into a modal when the Search button is clicked.
+ */
+$searchable_columns = [
+    &apos;country_title&apos; =&gt; &apos;Country Title&apos;,
+    &apos;country_code&apos; =&gt; &apos;Country Code&apos;,
+];
+
+$form_attr = [&apos;id&apos; =&gt; &apos;search-form&apos;];
+echo form_open(&apos;countries/submit_search&apos;, $form_attr);
 ?&gt;
-    &lt;div class="form-group"&gt;
-        &lt;?= form_label('Search Query') ?&gt;
-        &lt;?= form_input('search_query', '', [
-            'placeholder' => 'Enter search term...',
-            'autocomplete' => 'off'
-        ]) ?&gt;
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;?= form_label(&apos;Search Query&apos;) ?&gt;
+        &lt;?= form_input(&apos;search_query&apos;, &apos;&apos;, [&apos;placeholder&apos; =&gt; &apos;Enter search term...&apos;, &apos;autocomplete&apos; =&gt; &apos;off&apos;]) ?&gt;
     &lt;/div&gt;
-    &lt;div class="form-group"&gt;
-        &lt;?= form_label('Search In') ?&gt;
-        &lt;?= form_dropdown('search_column', $searchable_columns) ?&gt;
+    &lt;div class=&quot;form-group&quot;&gt;
+        &lt;?= form_label(&apos;Search In&apos;) ?&gt;
+        &lt;?= form_dropdown(&apos;search_column&apos;, $searchable_columns) ?&gt;
     &lt;/div&gt;
-&lt;?= form_close() ?&gt;</code></pre>
+&lt;?= form_close() ?&gt;
+[/code]
 
   <p>
     When the user submits the search form, <code>submit_search()</code> validates the input and redirects back to <code>/countries/manage</code> with the search parameters in the query string. The manage method reads these parameters and passes them to the view, which shows only matching records.
