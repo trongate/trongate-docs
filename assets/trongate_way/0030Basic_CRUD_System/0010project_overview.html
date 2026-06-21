@@ -1,21 +1,21 @@
-[meta-description]Learn CRUD (Create-Read-Update-Delete) in Trongate v2: build a complete countries module with pagination, search, validation, and the standard admin manage page pattern.[/meta-description]
+[meta-description]Learn CRUD (Create-Read-Update-Delete) in Trongate v2: build a complete countries module with pagination, search, validation, MX record preview, and the standard admin manage page pattern.[/meta-description]
 <div class="container">
   <h1>Project Introduction</h1>
 
   <p>
-    CRUD  -  <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate, <strong>D</strong>elete  -  is the foundation of nearly every data-driven web application. In this chapter you will build a complete CRUD module from scratch, using a simple <code>countries</code> table as your data source. By the end you will have a fully functional admin interface with a paginated list, search, create and edit forms, record detail views, and delete with confirmation.
+    CRUD   -   <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate, <strong>D</strong>elete   -   is the foundation of nearly every data-driven web application. In this chapter you will build a complete CRUD module from scratch, using a simple <code>countries</code> table as your data source. By the end you will have a fully functional admin interface with a paginated list, search, create and edit forms, record detail views, and delete with confirmation.
   </p>
 
   <div class="alert alert-info">
-    <p><strong>Want the complete code?</strong> Grab the full example from GitHub:</p>
-    <p><a href="https://github.com/grady-trongate/Trongate-v2-Basic-CRUD" target="_blank">https://github.com/grady-trongate/Trongate-v2-Basic-CRUD</a></p>
-    <p>This repository contains the finished <strong>countries</strong> module (controller, model, all six views), a <strong>countries.sql</strong> file with the full schema and sample data, and a README with quick-start instructions.</p>
+    <p><strong>Want the complete code?</strong> The finished countries module is part of the official Trongate c1 repository:</p>
+    <p><a href="https://github.com/trongate/c1/tree/main/modules/countries" target="_blank">https://github.com/trongate/c1/tree/main/modules/countries</a></p>
+    <p>This directory contains the controller, model, all six views, and the navigation link for the admin sidebar.</p>
   </div>
 
   <h2>What We Are Building</h2>
 
   <p>
-    The module we are building is a standard Trongate admin CRUD module. It follows the same pattern used by every admin-managed module in the framework: a <code>manage()</code> method for the paginated list, <code>show()</code> for individual records, <code>create()</code> and <code>submit()</code> for adding and editing, and <code>confirm_delete()</code> with <code>submit_confirm_delete()</code> for removal.
+    The module we are building is a standard Trongate admin CRUD module. It follows the same pattern used by every admin-managed module in the framework: a <code>manage()</code> method for the paginated list, <code>show()</code> for individual records, <code>create()</code> and <code>submit()</code> for adding and editing, and <code>delete_conf()</code> with <code>submit_delete()</code> for removal.
   </p>
 
   <p>Here is a summary of the methods we will build:</p>
@@ -23,55 +23,65 @@
   <table class="narrow-table">
     <thead>
       <tr>
-        <th>URL</th>
-        <th>Method</th>
+        <th style="white-space: nowrap;">URL</th>
+        <th style="white-space: nowrap;">Method</th>
         <th>Purpose</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><code>/countries/manage</code></td>
-        <td><code>manage()</code></td>
+        <td style="white-space: nowrap;"><code>/countries</code></td>
+        <td style="white-space: nowrap;"><code>index()</code></td>
+        <td style="white-space: nowrap;">Redirects to <code>/countries/manage</code></td>
+      </tr>
+      <tr>
+        <td style="white-space: nowrap;"><code>/countries/manage</code></td>
+        <td style="white-space: nowrap;"><code>manage()</code></td>
         <td>Paginated list of all countries, with search and per-page selector</td>
       </tr>
       <tr>
-        <td><code>/countries/show/&lt;id&gt;</code></td>
-        <td><code>show()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/show/&lt;id&gt;</code></td>
+        <td style="white-space: nowrap;"><code>show()</code></td>
         <td>Detail view of a single country record</td>
       </tr>
       <tr>
-        <td><code>/countries/create</code></td>
-        <td><code>create()</code></td>
-        <td>Form to add a new country (or edit an existing one when an ID is supplied)</td>
+        <td style="white-space: nowrap;"><code>/countries/create</code></td>
+        <td style="white-space: nowrap;"><code>create()</code></td>
+        <td>Form to add a new country</td>
       </tr>
       <tr>
-        <td><code>/countries/submit</code></td>
-        <td><code>submit()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/create/&lt;id&gt;</code></td>
+        <td style="white-space: nowrap;"><code>create()</code></td>
+        <td>Form to edit an existing country (pre-populated)</td>
+      </tr>
+      <tr>
+        <td style="white-space: nowrap;"><code>/countries/submit</code></td>
+        <td style="white-space: nowrap;"><code>submit()</code></td>
         <td>Handle form submission with validation, insert or update the record</td>
       </tr>
       <tr>
-        <td><code>/countries/confirm_delete/&lt;id&gt;</code></td>
-        <td><code>confirm_delete()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/delete_conf/&lt;id&gt;</code></td>
+        <td style="white-space: nowrap;"><code>delete_conf()</code></td>
         <td>Delete confirmation screen</td>
       </tr>
       <tr>
-        <td><code>/countries/submit_confirm_delete</code></td>
-        <td><code>submit_confirm_delete()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/submit_delete/&lt;id&gt;</code></td>
+        <td style="white-space: nowrap;"><code>submit_delete()</code></td>
         <td>Execute the deletion after confirmation</td>
       </tr>
       <tr>
-        <td><code>/countries/set_per_page/&lt;index&gt;</code></td>
-        <td><code>set_per_page()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/set_per_page/&lt;index&gt;</code></td>
+        <td style="white-space: nowrap;"><code>set_per_page()</code></td>
         <td>Change the number of records shown per page</td>
       </tr>
       <tr>
-        <td><code>/countries/search_modal</code></td>
-        <td><code>search_modal()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/search_modal</code></td>
+        <td style="white-space: nowrap;"><code>search_modal()</code></td>
         <td>MX-modal for searching records</td>
       </tr>
       <tr>
-        <td><code>/countries/submit_search</code></td>
-        <td><code>submit_search()</code></td>
+        <td style="white-space: nowrap;"><code>/countries/submit_search</code></td>
+        <td style="white-space: nowrap;"><code>submit_search()</code></td>
         <td>Process search query and redirect to filtered results</td>
       </tr>
     </tbody>
@@ -88,6 +98,7 @@
     <li>The <code>templates->admin()</code> method for rendering admin pages</li>
     <li>Validation rules via <code>$this->validation->set_rules()</code></li>
     <li>Flashdata for displaying success and error messages</li>
+    <li>The <code>trongate_security->make_sure_allowed()</code> pattern for admin authentication</li>
   </ul>
 
   <p>

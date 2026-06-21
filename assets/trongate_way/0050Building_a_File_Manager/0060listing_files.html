@@ -8,7 +8,7 @@
 
   <h2>The Controller Method</h2>
 
-  <pre><code class="language-php">public function manage(): void {
+  [code=php]public function manage(): void {
     $this->gatekeeper();
 
     $search_query = $_GET['search_query'] ?? '';
@@ -36,11 +36,11 @@
     $data['view_file'] = 'manage';
 
     $this->templates->admin($data);
-}</code></pre>
+}[/code]
 
   <h2>The View File</h2>
 
-  <pre><code class="language-php">&lt;div class="container"&gt;
+  [code=php]&lt;div class="container"&gt;
   &lt;h1&gt;File Manager&lt;/h1&gt;
 
   &lt;p&gt;
@@ -125,7 +125,7 @@
       &lt;/tbody&gt;
     &lt;/table&gt;
   &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;[/code]
 
   <h2>Displaying File Size</h2>
 

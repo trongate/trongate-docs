@@ -15,7 +15,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Code</th>
+        <th style="white-space: nowrap;">Code</th>
         <th>Meaning</th>
         <th>When To Use</th>
       </tr>
@@ -61,7 +61,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Code</th>
+        <th style="white-space: nowrap;">Code</th>
         <th>Meaning</th>
         <th>When To Use</th>
       </tr>
@@ -138,7 +138,7 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Code</th>
+        <th style="white-space: nowrap;">Code</th>
         <th>Meaning</th>
         <th>When To Use</th>
       </tr>
@@ -165,7 +165,7 @@
     Trongate uses PHP's built-in <code>http_response_code()</code> function. Simply call it before outputting your response:
   </p>
 
-  <pre><code class="language-php">// Success
+  [code=php]// Success
 http_response_code(200);
 echo json_encode($data);
 
@@ -183,7 +183,7 @@ echo json_encode(['error' => 'Unauthorized.']);
 
 // Not found
 http_response_code(404);
-echo json_encode(['error' => 'Country not found.']);</code></pre>
+echo json_encode(['error' => 'Country not found.']);[/code]
 
   <h2>Quick Reference Card</h2>
 

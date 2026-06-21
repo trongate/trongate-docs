@@ -204,54 +204,54 @@ class Members extends Trongate {
   <table class="table sm">
     <thead>
       <tr>
-        <th>Method</th>
-        <th>URL</th>
+        <th style="white-space: nowrap;">Method</th>
+        <th style="white-space: nowrap;">URL</th>
         <th>Purpose</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><code>welcome()</code></td>
-        <td><code>/members/welcome</code></td>
+        <td style="white-space: nowrap;"><code>welcome()</code></td>
+        <td style="white-space: nowrap;"><code>/members/welcome</code></td>
         <td>Landing page after successful login. Rendered with the public template.</td>
       </tr>
       <tr>
-        <td><code>logout()</code></td>
-        <td><code>/members/logout</code></td>
+        <td style="white-space: nowrap;"><code>logout()</code></td>
+        <td style="white-space: nowrap;"><code>/members/logout</code></td>
         <td>Destroys session tokens and redirects to the login page.</td>
       </tr>
       <tr>
-        <td><code>create_account()</code></td>
-        <td><code>/members/create_account</code></td>
+        <td style="white-space: nowrap;"><code>create_account()</code></td>
+        <td style="white-space: nowrap;"><code>/members/create_account</code></td>
         <td>Displays the registration form.</td>
       </tr>
       <tr>
-        <td><code>submit_create_account()</code></td>
-        <td><code>/members/submit_create_account</code></td>
+        <td style="white-space: nowrap;"><code>submit_create_account()</code></td>
+        <td style="white-space: nowrap;"><code>/members/submit_create_account</code></td>
         <td>Processes registration: validates, creates user and member records.</td>
       </tr>
       <tr>
-        <td><code>your_account()</code></td>
-        <td><code>/members/your_account</code></td>
+        <td style="white-space: nowrap;"><code>your_account()</code></td>
+        <td style="white-space: nowrap;"><code>/members/your_account</code></td>
         <td>Protected member dashboard. Checks for valid token before display.</td>
       </tr>
       <tr>
-        <td><code>update_password()</code></td>
-        <td><code>/members/update_password</code></td>
+        <td style="white-space: nowrap;"><code>update_password()</code></td>
+        <td style="white-space: nowrap;"><code>/members/update_password</code></td>
         <td>Protected password change form.</td>
       </tr>
       <tr>
-        <td><code>unique_username()</code></td>
+        <td style="white-space: nowrap;"><code>unique_username()</code></td>
         <td> - </td>
         <td>Validation callback. Returns error if username is taken.</td>
       </tr>
       <tr>
-        <td><code>unique_email()</code></td>
+        <td style="white-space: nowrap;"><code>unique_email()</code></td>
         <td> - </td>
         <td>Validation callback. Returns error if email is taken.</td>
       </tr>
       <tr>
-        <td><code>password_check()</code></td>
+        <td style="white-space: nowrap;"><code>password_check()</code></td>
         <td> - </td>
         <td>Validation callback. Enforces letter and number requirements.</td>
       </tr>

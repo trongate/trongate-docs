@@ -10,13 +10,13 @@
     For reference, the table structure is:
   </p>
 
-  <pre><code class="language-sql">CREATE TABLE IF NOT EXISTS `countries` (
+  [code=sql]CREATE TABLE IF NOT EXISTS `countries` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `country_title` varchar(100) NOT NULL,
     `country_code` varchar(2) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `country_code` (`country_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</code></pre>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;[/code]
 
   <p>
     The <code>countries.sql</code> file in the repository includes this table plus 60 sample country records.
@@ -32,7 +32,7 @@
     When a user logs in via the Trongate login system, a token is generated automatically and stored in the session (and optionally as a cookie). For the REST API, the same token can be sent as an HTTP header:
   </p>
 
-  <pre><code>Trongatetoken: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4</code></pre>
+  [code]Trongatetoken: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4[/code]
 
   <p>
     The Trongate framework checks for tokens in this order:
@@ -54,13 +54,13 @@
     To obtain a token, log in to your Trongate application as an administrator. The token will be stored in your session automatically. You can also generate tokens programmatically using the <code>Trongate_tokens</code> module:
   </p>
 
-  <pre><code class="language-php">$token_data = [
+  [code=php]$token_data = [
     'user_id' => 1,
     'expiry_date' => strtotime('+30 days'),
     'set_cookie' => false
 ];
 
-$new_token = $this->trongate_tokens->generate_token($token_data);</code></pre>
+$new_token = $this->trongate_tokens->generate_token($token_data);[/code]
 
   <p>
     For the purposes of this chapter, we will assume you have an active admin session and the framework will find your token automatically. Later, when we discuss authentication in depth, we will look at passing tokens explicitly via headers.

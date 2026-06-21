@@ -1,4 +1,4 @@
-[meta-description]Build the Countries_model in Trongate v2: get_data_from_post, get_data_from_db, paginated fetch_records, prepare_for_display, and count_all.[/meta-description]
+[meta-description]Build the Countries_model in Trongate v2: get_data_from_post, get_data_from_db, paginated fetch_records, prepare_records_for_display, search, create, update, and delete methods.[/meta-description]
 <div class="container">
   <h1>Building the Model</h1>
 
@@ -8,81 +8,252 @@
 
   <h2>The Complete Model</h2>
 
-  <pre><code class="language-php">&lt;?php
+  [code=php]
+&lt;?php
+/**
+ * Countries_model - Handles data operations for country records.
+ *
+ * Demonstrates proper data conversion patterns and separation
+ * of concerns between database operations and presentation logic.
+ */
 class Countries_model extends Model {
+    
+    private string $table_name = &apos;countries&apos;;
 
-    private string $table_name = 'countries';
+    /**
+     * Return the list of searchable column names (used by the controller for validation).
+     *
+     * @return array&lt;string&gt;
+     */
+    public function get_searchable_columns(): array {
+        return [&apos;country_title&apos;, &apos;country_code&apos;];
+    }
 
+    /**
+     * Get country form data from POST and prepare it for database or view display.
+     *
+     * @return array Form data with proper types
+     */
     public function get_data_from_post(): array {
         return [
-            'country_title' =&gt; post('country_title', true),
-            'country_code' =&gt; post('country_code', true)
+            &apos;country_title&apos; =&gt; post(&apos;country_title&apos;, true),
+            &apos;country_code&apos; =&gt; post(&apos;country_code&apos;, true)
         ];
     }
 
-    public function get_data_from_db(int $update_id): array {
+    /**
+     * Retrieve a single record from the database by ID.
+     *
+     * @param int $update_id Record ID.
+     * @param bool $prepare_for_display Whether to pass the record through prepare_record_for_display().
+     * @return array|bool Associative array on success or false on failure.
+     */
+    public function get_data_from_db(int $update_id, bool $prepare_for_display = false): array|bool {
         $record_obj = $this-&gt;db-&gt;get_where($update_id, $this-&gt;table_name);
 
         if ($record_obj === false) {
-            http_response_code(404);
-            echo 'Country record not found';
-            die();
+            return false;
+        }
+
+        if ($prepare_for_display === true) {
+            $record_obj = $this-&gt;prepare_record_for_display($record_obj);
         }
 
         return (array) $record_obj;
     }
 
+    /**
+     * Retrieve a record for editing or delete confirmation (no display transformations).
+     *
+     * @param int $update_id Record ID.
+     * @return array|bool Associative array on success or false on failure.
+     */
+    public function get_data_for_edit(int $update_id): array|bool {
+        return $this-&gt;get_data_from_db($update_id, false);
+    }
+
+    /**
+     * Find a record by ID and return it as an object.
+     *
+     * @param int $update_id Record ID.
+     * @return object|bool Record object on success or false on failure.
+     */
+    public function find_by_id(int $update_id): object|bool {
+        return $this-&gt;db-&gt;get_where($update_id, $this-&gt;table_name);
+    }
+
+    /**
+     * Fetch paginated countries records.
+     *
+     * @param int $limit Records per page
+     * @param int $offset Records to skip
+     * @return array&lt;object&gt;
+     */
     public function fetch_records(int $limit, int $offset): array {
-        $rows_to_return = (int) $limit;
-        $rows_to_skip = (int) $offset;
-
-        $sql = 'SELECT * FROM ' . $this-&gt;table_name
-             . ' ORDER BY country_title ASC'
-             . ' LIMIT ' . $rows_to_return
-             . ' OFFSET ' . $rows_to_skip;
-
-        return $this-&gt;db-&gt;query($sql, 'object');
+        $sql = &apos;SELECT * FROM &apos;.$this-&gt;table_name.&apos; ORDER BY id LIMIT &apos;.$limit.&apos; OFFSET &apos;.$offset;
+        return $this-&gt;db-&gt;query($sql, &apos;object&apos;);
     }
-
-    public function prepare_records_for_display(array $rows): array {
-        $prepared = [];
-        foreach ($rows as $row) {
-            $row_array = (array) $row;
-            $prepared[] = (object) $this-&gt;prepare_for_display($row_array);
-        }
-        return $prepared;
-    }
-
-    public function prepare_for_display(array $data): array {
-        return $data;
-    }
-
+    
+    /**
+     * Count all countries records in the database table.
+     *
+     * @return int Total number of countries records.
+     */
     public function count_all(): int {
         return $this-&gt;db-&gt;count($this-&gt;table_name);
     }
 
-}</code></pre>
+    /**
+     * Search countries records across searchable columns.
+     *
+     * @param string $query The search query string.
+     * @param string $column Specific column to search, or empty string to search all.
+     * @param int $limit Maximum records to return.
+     * @param int $offset Records to skip.
+     * @return array&lt;object&gt;
+     */
+    public function search_records(string $query, string $column, int $limit, int $offset): array {
+        $searchable_columns = $this-&gt;get_searchable_columns();
+
+        // Validate column against whitelist before interpolating into SQL.
+        if ($column !== &apos;&apos; &amp;&amp; !in_array($column, $searchable_columns, true)) {
+            $column = &apos;&apos;;
+        }
+
+        if ($column !== &apos;&apos;) {
+            $sql = &apos;SELECT * FROM &apos;.$this-&gt;table_name.&apos; WHERE &apos;.$column.&apos; LIKE :query ORDER BY id LIMIT &apos;.$limit.&apos; OFFSET &apos;.$offset;
+        } else {
+            $conditions = [];
+            foreach ($searchable_columns as $col) {
+                $conditions[] = $col.&apos; LIKE :query&apos;;
+            }
+            $sql = &apos;SELECT * FROM &apos;.$this-&gt;table_name.&apos; WHERE (&apos;.implode(&apos; OR &apos;, $conditions).&apos;) ORDER BY id LIMIT &apos;.$limit.&apos; OFFSET &apos;.$offset;
+        }
+
+        return $this-&gt;db-&gt;query_bind($sql, [&apos;query&apos; =&gt; &apos;%&apos;.$query.&apos;%&apos;], &apos;object&apos;);
+    }
+
+    /**
+     * Count search results for countries records.
+     *
+     * @param string $query The search query string.
+     * @param string $column Specific column to search, or empty string to search all.
+     * @return int Number of matching records.
+     */
+    public function count_search_results(string $query, string $column): int {
+        $searchable_columns = $this-&gt;get_searchable_columns();
+
+        // Validate column against whitelist before interpolating into SQL.
+        if ($column !== &apos;&apos; &amp;&amp; !in_array($column, $searchable_columns, true)) {
+            $column = &apos;&apos;;
+        }
+
+        if ($column !== &apos;&apos;) {
+            $sql = &apos;SELECT COUNT(*) as total FROM &apos;.$this-&gt;table_name.&apos; WHERE &apos;.$column.&apos; LIKE :query&apos;;
+        } else {
+            $conditions = [];
+            foreach ($searchable_columns as $col) {
+                $conditions[] = $col.&apos; LIKE :query&apos;;
+            }
+            $sql = &apos;SELECT COUNT(*) as total FROM &apos;.$this-&gt;table_name.&apos; WHERE (&apos;.implode(&apos; OR &apos;, $conditions).&apos;)&apos;;
+        }
+
+        $result = $this-&gt;db-&gt;query_bind($sql, [&apos;query&apos; =&gt; &apos;%&apos;.$query.&apos;%&apos;], &apos;object&apos;);
+        return (int) ($result[0]-&gt;total ?? 0);
+    }
+
+    /**
+     * Prepare multiple countries records for display in list views.
+     *
+     * @param array $rows Array of country record objects from database
+     * @return array Array of objects with formatted display fields
+     */
+    public function prepare_records_for_display(array $rows): array {
+        $prepared = [];
+        foreach ($rows as $row) {
+            $prepared[] = $this-&gt;prepare_record_for_display($row);
+        }
+        return $prepared;
+    }
+
+    /**
+     * Prepare raw country database data for display in views.
+     *
+     * @param object $record_obj Raw data from database
+     * @return object Enhanced data with formatted fields
+     */
+    public function prepare_record_for_display(object $record_obj): object {
+        $record_obj-&gt;country_title = trim($record_obj-&gt;country_title);
+        $record_obj-&gt;country_code = trim($record_obj-&gt;country_code);
+        return $record_obj;
+    }
+
+    /**
+     * Create a new country record.
+     *
+     * @param array $data Country data
+     * @return int Returns the ID of the newly created record
+     */
+    public function create_new_record(array $data): int {
+        return $this-&gt;db-&gt;insert($data, $this-&gt;table_name);
+    }
+
+    /**
+     * Update an existing country record.
+     *
+     * @param int $update_id The ID of the record to update
+     * @param array $data The data to update
+     * @return void
+     */
+    public function update_record(int $update_id, array $data): void {
+        $this-&gt;db-&gt;update($update_id, $data, $this-&gt;table_name);
+    }
+
+    /**
+     * Delete a country record.
+     *
+     * @param int $update_id The ID of the record to delete
+     * @return void
+     */
+    public function delete_record(int $update_id): void {
+        $this-&gt;db-&gt;delete($update_id, $this-&gt;table_name);
+    }
+}
+[/code]
 
   <h2>Method by Method</h2>
+
+  <h3><code>get_searchable_columns()</code></h3>
+  <p>
+    Returns an array of column names that the search feature can query. Both <code>country_title</code> and <code>country_code</code> are searchable. This method is called by the controller to validate the user's column selection before building SQL, and by the model's own <code>search_records()</code> and <code>count_search_results()</code> methods. Centralising the list here ensures that adding or removing a searchable column only requires one change.
+  </p>
 
   <h3><code>get_data_from_post()</code></h3>
   <p>
     Retrieves submitted form data and sanitises it. The <code>true</code> parameter passed to <code>post()</code> tells Trongate to strip HTML tags and encode special characters. This method is called in two places: when displaying an empty create form (no previous data), and in the <code>submit()</code> method to build the array for database insertion or update.
   </p>
 
-  <h3><code>get_data_from_db(int $update_id)</code></h3>
+  <h3><code>get_data_from_db(int $update_id, bool $prepare_for_display = false)</code></h3>
   <p>
-    Fetches a single record by its primary key using <code>$this->db->get_where()</code>. If no record is found it sends a 404 response and terminates  -  this ensures that your views never receive an empty data set.
+    Fetches a single record by its primary key using <code>$this->db->get_where()</code>. If no record is found it returns <code>false</code> instead of terminating   -   this lets the controller decide how to handle missing records (typically by showing the "not found" page).
+  </p>
+  <p>
+    The optional <code>$prepare_for_display</code> parameter lets callers request display-ready data in a single call. This is useful for the <code>show()</code> method, which needs formatted data for the detail view.
+  </p>
+
+  <h3><code>get_data_for_edit(int $update_id)</code></h3>
+  <p>
+    A convenience wrapper around <code>get_data_from_db()</code> that always returns raw data (no display transformations). Used by the delete confirmation flow to verify the record exists without altering its data.
+  </p>
+
+  <h3><code>find_by_id(int $update_id)</code></h3>
+  <p>
+    Returns the raw database object for a record, or <code>false</code> if not found. Used by <code>submit_delete()</code> to verify that the record still exists before attempting deletion.
   </p>
 
   <h3><code>fetch_records(int $limit, int $offset)</code></h3>
   <p>
-    Returns a paginated set of records sorted alphabetically by country name. The <code>LIMIT</code> and <code>OFFSET</code> values come from the controller's <code>get_limit()</code> and <code>get_offset()</code> helpers, which in turn read the current page number from the URL segment and the user's per-page preference from the session.
-  </p>
-
-  <h3><code>prepare_records_for_display()</code> and <code>prepare_for_display()</code></h3>
-  <p>
-    These methods let you transform raw database data before sending it to the view. In this simple example they pass the data through unchanged, but in a real-world module you might use them to format dates, join related data, or compute derived values. The two-method pattern  -  one for single records, one for collections  -  keeps your code clean and reusable.
+    Returns a paginated set of records sorted by <code>id</code> (the order in which they were inserted). The <code>LIMIT</code> and <code>OFFSET</code> values come from the controller's <code>get_limit()</code> and <code>get_offset()</code> helpers, which in turn read the current page number from the URL segment and the user's per-page preference from the session.
   </p>
 
   <h3><code>count_all()</code></h3>
@@ -90,9 +261,32 @@ class Countries_model extends Model {
     Returns the total number of records. The controller's pagination helper calls this to calculate how many pages are needed.
   </p>
 
+  <h3><code>search_records()</code> and <code>count_search_results()</code></h3>
+  <p>
+    These methods handle searching across the configured searchable columns. They accept a query string and an optional column name. If a specific column is provided, the search is scoped to that column; otherwise all searchable columns are searched with <code>OR</code>.
+  </p>
+  <p>
+    Both methods use <code>query_bind()</code> with named parameters (the <code>:query</code> placeholder) to prevent SQL injection. The column name is validated against the whitelist from <code>get_searchable_columns()</code> before being interpolated into the SQL.
+  </p>
+
+  <h3><code>prepare_records_for_display()</code> and <code>prepare_record_for_display()</code></h3>
+  <p>
+    These methods let you transform raw database data before sending it to the view. In this simple example they trim whitespace from both fields, but in a real-world module you might use them to format dates, join related data, or compute derived values. The plural method iterates over an array and delegates to the singular method, keeping your code clean and reusable.
+  </p>
+
+  <h3><code>create_new_record()</code></h3>
+  <p>
+    Inserts a new record and returns the auto-generated <code>id</code>. The controller uses this return value to redirect the user appropriately after creation.
+  </p>
+
+  <h3><code>update_record()</code> and <code>delete_record()</code></h3>
+  <p>
+    Simple wrappers around <code>$this->db->update()</code> and <code>$this->db->delete()</code>. Keeping these in the model rather than calling the database methods directly from the controller maintains clean separation of concerns.
+  </p>
+
   <h2>Naming Convention</h2>
   <p>
-    Remember that the model file must be named after the module: <code>Countries_model.php</code> (note the singular "Country" becomes "Countries" for the module name, and the model appends <code>_model</code>). The class inside the file must match the filename: <code>class Countries_model extends Model</code>.
+    Remember that the model file must be named after the module: <code>Countries_model.php</code>. The class inside the file must match the filename: <code>class Countries_model extends Model</code>.
   </p>
 
 </div>

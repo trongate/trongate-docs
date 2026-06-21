@@ -15,7 +15,7 @@
 
   <details>
     <summary>Click to expand full controller code</summary>
-    <pre><code class="language-php">&lt;?php
+    [code=php]&lt;?php
 class Countries_api extends Trongate {
 
     public function get_all(): void {
@@ -176,8 +176,7 @@ class Countries_api extends Trongate {
     public function authenticate(): void {
         block_url('countries_api/authenticate');
 
-        $token = $this->trongate_tokens
-            ->attempt_get_valid_token();
+        $token = $this->trongate_tokens->attempt_get_valid_token();
 
         if ($token === false) {
             http_response_code(401);
@@ -275,14 +274,14 @@ class Countries_api extends Trongate {
         return $errors;
     }
 
-}</code></pre>
+}[/code]
   </details>
 
   <h2>Countries_api_model.php</h2>
 
   <details>
     <summary>Click to expand full model code</summary>
-    <pre><code class="language-php">&lt;?php
+    [code=php]&lt;?php
 class Countries_api_model extends Model {
 
     private string $table_name = 'countries';
@@ -347,7 +346,7 @@ class Countries_api_model extends Model {
         );
     }
 
-}</code></pre>
+}[/code]
   </details>
 
   <h2>Summary</h2>

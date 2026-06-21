@@ -8,15 +8,15 @@
 
   <h2>Module Structure</h2>
 
-  <pre><code>modules/countries_api/
+  [code]modules/countries_api/
   Countries_api.php          (controller)
   Countries_api_model.php    (model)
   logs/
-    api_requests.log         (request audit log)</code></pre>
+    api_requests.log         (request audit log)[/code]
 
   <h2>The Controller Skeleton</h2>
 
-  <pre><code class="language-php">&lt;?php
+  [code=php]&lt;?php
 class Countries_api extends Trongate {
 
     public function get_all(): void {
@@ -45,7 +45,7 @@ class Countries_api extends Trongate {
     }
 
 }
-</code></pre>
+[/code]
 
   <p>
     Every public method corresponds to one API endpoint. In this chapter, we focus on the <code>get_all()</code> and <code>get_one()</code> endpoints. In the next chapters we add <code>create()</code>, <code>update()</code>, and <code>destroy()</code>.
@@ -71,7 +71,7 @@ class Countries_api extends Trongate {
     The helper methods  -  <code>authenticate()</code>, <code>log_request()</code>, <code>get_post_data()</code>, and <code>validate()</code>  -  are all declared as <em>public</em> methods, but each one calls <code>block_url()</code> as its first action. This follows the Trongate v2 convention of keeping methods accessible from code while preventing direct URL invocation.
   </p>
 
-  <pre><code class="language-php">public function authenticate(): void {
+  [code=php]public function authenticate(): void {
     block_url('countries_api/authenticate');
 
     $token = $this->trongate_tokens->attempt_get_valid_token();
@@ -81,7 +81,7 @@ class Countries_api extends Trongate {
         echo json_encode(['error' => 'Unauthorized. A valid API token is required.']);
         die();
     }
-}</code></pre>
+}[/code]
 
   <p>
     <strong>Your Security, Your Rules.</strong> In this chapter we apply <code>authenticate()</code> to <em>every</em> endpoint, but that is a design choice, not a requirement. Trongate gives you the token system; you decide which endpoints need it. You may wish to leave <code>get_all()</code> public for fast browsing while requiring a token for <code>create()</code>, <code>update()</code>, and <code>destroy()</code>. The framework makes either approach straightforward.
@@ -96,7 +96,7 @@ class Countries_api extends Trongate {
     Every endpoint follows the same response pattern. Here is the simplest example, from <code>get_all()</code>:
   </p>
 
-  <pre><code class="language-php">public function get_all(): void {
+  [code=php]public function get_all(): void {
     $this->authenticate();
 
     $rows = $this->model->get_all();
@@ -109,7 +109,7 @@ class Countries_api extends Trongate {
 
     http_response_code(200);
     echo json_encode($rows);
-}</code></pre>
+}[/code]
 
   <p>
     Note that we return an empty array <code>[]</code> with a 200 status when there are no records  -  not an error. An empty collection is a valid response. An error would be something like a missing authentication token or an invalid record ID.
