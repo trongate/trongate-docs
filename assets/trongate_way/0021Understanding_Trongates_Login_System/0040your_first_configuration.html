@@ -1,0 +1,175 @@
+[meta-description]Create your login configuration file step by step: user levels, target tables, secret login words, and field mappings in plain English.[/meta-description]
+<div class="container">
+  <h1>Your First Configuration</h1>
+
+  <p>
+    The configuration file is where you tell Trongate's login module everything it needs to know. You write this file once, and the login module does the rest.
+  </p>
+
+  <p>
+    Create a new file at <code>config/login.php</code> and add the following:
+  </p>
+
+  <pre><code>&lt;?php
+$config['login'] = [
+
+    // Global settings
+    'default_view_file'    => 'login_default',
+    'max_failed_attempts'  => 3,
+    'block_duration'       => 900,
+    'password_hash_cost'   => 11,
+    'reset_token_lifespan' => 3600,
+
+    'user_levels' => [
+
+        // Level 1: Administrators
+        1 => [
+            'target_table'           => 'trongate_administrators',
+            'user_ref_field'         => 'trongate_user_id',
+            'secret_login_word'      => 'tg-admin',
+            'redirect_on_success'    => 'trongate_administrators/manage',
+            'allow_remember'         => 0,
+            'remember_days'          => 0,
+            'enable_forgot_password' => false,
+            'view_file'              => 'login_default',
+            'fields' => [
+                'identifiers' => [
+                    'username' => ['column' => 'username', 'label' => 'Username'],
+                    'email'    => ['column' => 'email', 'label' => 'Email']
+                ],
+                'password' => [
+                    'column' => 'password',
+                    'label'  => 'Password'
+                ]
+            ]
+        ],
+
+        // Level 2: Members
+        2 => [
+            'target_table'           => 'members',
+            'user_ref_field'         => 'trongate_user_id',
+            'secret_login_word'      => 'member-login',
+            'redirect_on_success'    => 'members/welcome',
+            'allow_remember'         => 1,
+            'remember_days'          => 30,
+            'enable_forgot_password' => true,
+            'view_file'              => 'login_default',
+            'fields' => [
+                'identifiers' => [
+                    'username' => ['column' => 'username', 'label' => 'Username'],
+                    'email'    => ['column' => 'email_address', 'label' => 'Email Address']
+                ],
+                'password' => [
+                    'column' => 'password',
+                    'label'  => 'Password'
+                ]
+            ]
+        ]
+    ]
+];</code></pre>
+
+  <h2>What Each Setting Means</h2>
+
+  <p>Let us go through the settings one at a time, in plain English.</p>
+
+  <h3>Global Settings (Apply to All User Levels)</h3>
+
+  <table class="table sm">
+    <thead>
+      <tr>
+        <th>Setting</th>
+        <th>What It Does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>max_failed_attempts</code></td>
+        <td>How many wrong passwords someone can try before they get temporarily blocked. Set to 3 in this example.</td>
+      </tr>
+      <tr>
+        <td><code>block_duration</code></td>
+        <td>How long the block lasts, in seconds. 900 seconds = 15 minutes.</td>
+      </tr>
+      <tr>
+        <td><code>password_hash_cost</code></td>
+        <td>How strong the password scrambling should be. Higher = more secure but slower. 11 is a good balance.</td>
+      </tr>
+      <tr>
+        <td><code>reset_token_lifespan</code></td>
+        <td>How long a "forgot password" link works, in seconds. 3600 seconds = 1 hour.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Per-Level Settings</h3>
+
+  <p>Each user level has its own settings. Here is what each one means:</p>
+
+  <table class="table sm">
+    <thead>
+      <tr>
+        <th>Setting</th>
+        <th>What It Does</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>target_table</code></td>
+        <td>The database table that stores this type of user. For administrators, it is <code>trongate_administrators</code>. For members, it is <code>members</code> (the table you created).</td>
+      </tr>
+      <tr>
+        <td><code>user_ref_field</code></td>
+        <td>The column in your table that links back to <code>trongate_users</code>. Almost always <code>trongate_user_id</code>.</td>
+      </tr>
+      <tr>
+        <td><code>secret_login_word</code></td>
+        <td>A word that makes the login URL easy to remember. For example, <code>tg-admin</code> creates a URL like <code>yoursite.com/tg-admin</code>. You can remove this and just use a number instead (we will explain this on the next page).</td>
+      </tr>
+      <tr>
+        <td><code>redirect_on_success</code></td>
+        <td>Where the user is sent after they log in successfully. Format: <code>module/method</code>.</td>
+      </tr>
+      <tr>
+        <td><code>allow_remember</code></td>
+        <td>Show a "Remember Me" checkbox on the login form? 1 = yes, 0 = no. Members usually want this. Administrators usually do not.</td>
+      </tr>
+      <tr>
+        <td><code>remember_days</code></td>
+        <td>If "Remember Me" is enabled, how many days should the user stay logged in? 30 is common.</td>
+      </tr>
+      <tr>
+        <td><code>enable_forgot_password</code></td>
+        <td>Allow users to reset their password via email? <code>true</code> = yes, <code>false</code> = no.</td>
+      </tr>
+      <tr>
+        <td><code>view_file</code></td>
+        <td>Which login form design to use. The options are <code>login_default</code>, <code>login_compact</code>, or <code>login_split</code>. You can also create your own.</td>
+      </tr>
+      <tr>
+        <td><code>fields &rarr; identifiers</code></td>
+        <td>The columns that a user can log in with. In the example above, members can log in with either their <code>username</code> OR their <code>email_address</code>. Each identifier has a <code>column</code> (the database column name) and a <code>label</code> (what the form shows).</td>
+      </tr>
+      <tr>
+        <td><code>fields &rarr; password</code></td>
+        <td>The column that stores the password. The <code>column</code> value must match your database exactly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>An Important Rule</h2>
+
+  <p>
+    The <strong>column names</strong> in your configuration must match the <strong>column names</strong> in your database exactly. If your table has a column called <code>email_address</code> but your config says <code>email</code>, the login module will not find your users.
+  </p>
+
+  <p>
+    Double-check that every column name in the <code>fields</code> section matches a real column in your <code>target_table</code>.
+  </p>
+
+  <h2>What's Next</h2>
+
+  <p>
+    Now that the configuration is ready, we need to set up the URLs so people can actually reach the login form. That is what the next page is about.
+  </p>
+
+</div>

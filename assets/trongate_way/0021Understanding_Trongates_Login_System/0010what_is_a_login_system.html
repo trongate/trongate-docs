@@ -1,0 +1,73 @@
+[meta-description]What is a login system and why do web applications need one? A gentle, beginner-friendly introduction to authentication with Trongate v2.[/meta-description]
+<div class="container">
+  <h1>What Is a Login System?</h1>
+
+  <p>
+    Imagine you have a clubhouse. The clubhouse has a door with a lock on it. Only people who have the key can get inside. That is what a login system does for a website. It is the lock on the door.
+  </p>
+
+  <p>
+    A login system lets a website recognise who you are. When you type your username or email address and your password, the website checks, "Do I know this person? Is this really them?" If yes, you are let in. If no, the door stays locked.
+  </p>
+
+  <h2>Why Do We Need One?</h2>
+
+  <p>
+    Without a login system, every visitor to your website would see everything. There would be no private areas. No way to have a "members only" section, no way to let people save their settings, and no way to know who is who.
+  </p>
+
+  <p>
+    A login system lets you build things like:
+  </p>
+
+  <ul>
+    <li>A members area where only logged-in users can see special content.</li>
+    <li>An admin panel where site managers can update the website.</li>
+    <li>Account pages where users can change their name, email, or password.</li>
+    <li>A shopping cart that remembers what a user put in it (because the website knows who they are).</li>
+  </ul>
+
+  <h2>How Does a Login System Work?</h2>
+
+  <p>
+    At its heart, a login system does three things:
+  </p>
+
+  <ol>
+    <li>
+      <strong>It checks your credentials.</strong> You give the website your username (or email) and your password. The website looks up your account and checks if the password is correct.
+    </li>
+    <li>
+      <strong>It remembers you.</strong> Once the website confirms it is really you, it creates a little "token" &mdash; like a digital hand stamp. Every time you visit a new page, the website checks for that hand stamp. If it is there, you are let in.
+    </li>
+    <li>
+      <strong>It forgets you when you leave.</strong> When you click "log out", the hand stamp is removed. The next time you visit, you will need to log in again.
+    </li>
+  </ol>
+
+  <h2>What Trongate Does for You</h2>
+
+  <p>
+    Building a login system from scratch is a lot of work. You have to write code to check passwords, create tokens, remember users, handle forgotten passwords, and stop people from guessing passwords over and over again.
+  </p>
+
+  <p>
+    Trongate v2 comes with a <strong>login module</strong> that does all of this for you. You do not need to write any authentication code. You just need to:
+  </p>
+
+  <ul>
+    <li>Tell Trongate what your database table looks like (a configuration file).</li>
+    <li>Build a simple controller for your members (a few lines of code).</li>
+  </ul>
+
+  <p>
+    That is it. The login module handles the hard parts. The rest of this chapter will show you exactly how to set everything up.
+  </p>
+
+  <h2>What's Next</h2>
+
+  <p>
+    In the next page, we will look at the pieces you need &mdash; the database tables and the configuration file &mdash; and explain each one simply.
+  </p>
+
+</div>
