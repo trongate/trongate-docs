@@ -16,8 +16,8 @@
     If your <code>config/login.php</code> does <strong>not</strong> have a <code>secret_login_word</code>, you can use the user level's ID number directly:
   </p>
 
-  <pre><code>http://yoursite.com/login/login/1   (for administrators)
-http://yoursite.com/login/login/2   (for members)</code></pre>
+  [code]http://yoursite.com/login/login/1   (for administrators)
+http://yoursite.com/login/login/2   (for members)[/code]
 
   <p>
     The first <code>login</code> is the module name. The second <code>login</code> is the method that shows the form. The number (<code>1</code> or <code>2</code>) tells the module which user level this form is for.
@@ -29,15 +29,15 @@ http://yoursite.com/login/login/2   (for members)</code></pre>
     If you set a <code>secret_login_word</code> in your configuration (like <code>tg-admin</code> or <code>member-login</code>), you can use that word in the URL:
   </p>
 
-  <pre><code>http://yoursite.com/login/login/tg-admin    (for administrators)
-http://yoursite.com/login/login/member-login (for members)</code></pre>
+  [code]http://yoursite.com/login/login/tg-admin    (for administrators)
+http://yoursite.com/login/login/member-login (for members)[/code]
 
   <p>
     The login module looks at that last part of the URL (<code>tg-admin</code> or <code>member-login</code>), finds it in your configuration, and knows which user level to use.
   </p>
 
   <p>
-    If a user level has a <code>secret_login_word</code>, you <strong>cannot</strong> use the number version of the URL. For example, if members have the secret word <code>member-login</code>, going to <code>/login/login/2</code> will show a 404 page. This is a security feature &mdash; it keeps your login URLs unpredictable.
+    If a user level has a <code>secret_login_word</code>, you <strong>cannot</strong> use the number version of the URL. For example, if members have the secret word <code>member-login</code>, going to <code>/login/login/2</code> will show a 404 page. This is a security feature  -  it keeps your login URLs unpredictable.
   </p>
 
   <h2>Making the URL Even Shorter (Custom Routing)</h2>
@@ -50,20 +50,20 @@ http://yoursite.com/login/login/member-login (for members)</code></pre>
     Create a file at <code>config/custom_routing.php</code> and add:
   </p>
 
-  <pre><code>&lt;?php
+  [code=php]&lt;?php
 $routes = [
     'member-login' => 'login/login/member-login',
     'tg-admin'     => 'login/login/tg-admin'
 ];
-define('CUSTOM_ROUTES', $routes);</code></pre>
+define('CUSTOM_ROUTES', $routes);[/code]
 
   <p>
     Now your users can visit:
   </p>
 
   <ul>
-    <li><code>http://yoursite.com/member-login</code> &mdash; the member login form</li>
-    <li><code>http://yoursite.com/tg-admin</code> &mdash; the admin login form</li>
+    <li><code>http://yoursite.com/member-login</code>  -  the member login form</li>
+    <li><code>http://yoursite.com/tg-admin</code>  -  the admin login form</li>
   </ul>
 
   <p>
