@@ -14,7 +14,7 @@
 
   <p>These tables are already in your database. You do not need to create them.</p>
 
-  <h3><code>trongate_user_levels</code> &mdash; The User Types</h3>
+  <h3><code>trongate_user_levels</code>  -  The User Types</h3>
 
   <p>
     This table lists the different kinds of users your website has. Each row is one "user level." For example:
@@ -29,7 +29,7 @@
     You can have as many levels as you need. A school website might have: 1 = Teachers, 2 = Students, 3 = Parents. Each level has its own settings.
   </p>
 
-  <h3><code>trongate_users</code> &mdash; The Master List</h3>
+  <h3><code>trongate_users</code>  -  The Master List</h3>
 
   <p>
     Every person who has an account on your website gets one row in this table. It is a simple list that says, "This person exists, and they belong to this user level." The actual details (name, email, password) live in a separate table.
@@ -39,7 +39,7 @@
     Think of it like a school register. The register (<code>trongate_users</code>) lists each student's name and student ID number. The detailed records (grades, address, phone number) are kept in a different folder.
   </p>
 
-  <h3><code>trongate_tokens</code> &mdash; The Hand Stamps</h3>
+  <h3><code>trongate_tokens</code>  -  The Hand Stamps</h3>
 
   <p>
     When a user logs in successfully, the login module creates a "token." A token is just a long, random string of letters and numbers. It is stored in this table and also in the user's browser (as a cookie or session).
@@ -52,14 +52,14 @@
   <h2>Your Custom Table</h2>
 
   <p>
-    This is the table you create yourself. It stores the actual details of your users. The table name can be anything you like &mdash; <code>members</code>, <code>teachers</code>, <code>customers</code>, <code>accounts</code> &mdash; whatever fits your project.
+    This is the table you create yourself. It stores the actual details of your users. The table name can be anything you like  -  <code>members</code>, <code>teachers</code>, <code>customers</code>, <code>accounts</code>  -  whatever fits your project.
   </p>
 
   <p>
     A typical members table looks like this:
   </p>
 
-  <pre><code>members
+  [code]members
 ├── id                 (unique number for each member)
 ├── username           (the member's display name)
 ├── email_address      (the member's email)
@@ -69,13 +69,13 @@
 ├── trongate_user_id   (links this row back to trongate_users)
 ├── date_created       (when they joined)
 ├── num_logins         (how many times they have logged in)
-└── code               (a random security string)</code></pre>
+└── code               (a random security string)[/code]
 
   <p>
     Here is the SQL to create this table:
   </p>
 
-  <pre><code>CREATE TABLE members (
+  [code=sql]CREATE TABLE members (
     id int(11) NOT NULL AUTO_INCREMENT,
     username varchar(55) DEFAULT NULL UNIQUE,
     email_address varchar(255) DEFAULT NULL,
@@ -88,10 +88,10 @@
     trongate_user_id int(11) NOT NULL,
     code varchar(16) NOT NULL,
     PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;</code></pre>
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;[/code]
 
   <p>
-    You can add more columns for your own needs &mdash; for example, a profile picture, a bio, or a phone number. The login module only needs the <code>password</code> column and the identifier columns (like <code>username</code> or <code>email_address</code>). Everything else is extra.
+    You can add more columns for your own needs  -  for example, a profile picture, a bio, or a phone number. The login module only needs the <code>password</code> column and the identifier columns (like <code>username</code> or <code>email_address</code>). Everything else is extra.
   </p>
 
   <h2>The Configuration File</h2>

@@ -8,11 +8,11 @@
 
   <h2>The Complete Members Controller</h2>
 
-  <pre><code>&lt;?php
+  [code=php]&lt;?php
 class Members extends Trongate {
 
     /**
-     * Welcome page &mdash; shown after successful login.
+     * Welcome page  -  shown after successful login.
      */
     public function welcome(): void {
         $data['view_module'] = 'members';
@@ -29,7 +29,7 @@ class Members extends Trongate {
     }
 
     /**
-     * Protected account page &mdash; only visible to logged-in members.
+     * Protected account page  -  only visible to logged-in members.
      */
     public function your_account(): void {
         $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
@@ -102,13 +102,13 @@ class Members extends Trongate {
             redirect('member-login');
         }
 
-        // Validation failed &mdash; show the form again with errors
+        // Validation failed  -  show the form again with errors
         $data['view_module'] = 'members';
         $data['view_file'] = 'create_account';
         $this-&gt;templates-&gt;public($data);
     }
 
-}</code></pre>
+}[/code]
 
   <h2>What You Have Learned</h2>
 
@@ -139,7 +139,7 @@ class Members extends Trongate {
     <li><strong>Every user needs a trongate_users record.</strong> This is the master list. Their details go in the per-level table (like <code>members</code>).</li>
     <li><strong>Column names must match.</strong> The <code>fields</code> in your config must use the exact column names from your database table.</li>
     <li><strong>Use <code>attempt_get_valid_token()</code> to protect pages.</strong> Check for a valid token at the top of any method that should be member-only.</li>
-    <li><strong>Use <code>$this-&gt;login-&gt;hash_password()</code> when creating users.</strong> Never hash passwords manually &mdash; the login module uses the correct settings from your config.</li>
+    <li><strong>Use <code>$this-&gt;login-&gt;hash_password()</code> when creating users.</strong> Never hash passwords manually  -  the login module uses the correct settings from your config.</li>
   </ul>
 
   <h2>Where to Go Next</h2>
@@ -155,7 +155,7 @@ class Members extends Trongate {
   </ul>
 
   <p>
-    Congratulations &mdash; you have built a complete login system with Trongate v2!
+    Congratulations  -  you have built a complete login system with Trongate v2!
   </p>
 
 </div>
