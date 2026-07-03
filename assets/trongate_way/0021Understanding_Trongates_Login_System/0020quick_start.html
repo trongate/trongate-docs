@@ -1,0 +1,74 @@
+[meta-description]Quick Start guide for Trongate's login module. Find your login credentials, learn the login URL, and what to do if you forget your password.[/meta-description]
+<div class="container">
+  <h1>Quick Start</h1>
+
+  <p>
+    This page gets you logged in right now. There are only three things you need to know.
+  </p>
+
+  <h2>1. What Are My Login Credentials?</h2>
+
+  <p>
+    If you installed Trongate using the setup wizard, you already created an administrator account. You were asked for:
+  </p>
+
+  <ul>
+    <li>A <strong>username</strong> (for example, "admin")</li>
+    <li>An <strong>email address</strong></li>
+    <li>A <strong>password</strong></li>
+  </ul>
+
+  <p>
+    Those are your login credentials. Use them to log in.
+  </p>
+
+  <p>
+    If you did not use the setup wizard, or if you cannot remember what you entered, you can check the <code>trongate_administrators</code> table in your database to see what username and email were saved. The password cannot be recovered (it is scrambled for security), but you can create a new admin account by inserting a row into <code>trongate_administrators</code> with a bcrypt-hashed password.
+  </p>
+
+  <h2>2. What URL Do I Go To?</h2>
+
+  <p>
+    Open your browser and go to:
+  </p>
+
+  <pre><code>http://yoursite.com/tg-admin</code></pre>
+
+  <p>
+    Replace <code>yoursite.com</code> with your actual website address (for example, <code>http://localhost/myproject/tg-admin</code> if you are working locally).
+  </p>
+
+  <p>
+    You will see a login form. Enter your username (or email) and password, then click <strong>Sign In</strong>.
+  </p>
+
+  <p>
+    After a successful login, you will be taken to the admin panel.
+  </p>
+
+  <h2>3. What If I Forgot My Credentials?</h2>
+
+  <p>
+    If you have forgotten your password, you have two options:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Check your database.</strong> Look in the <code>trongate_administrators</code> table to remind yourself of your username or email. Your password is scrambled and cannot be read, but you can create a new administrator account if needed.
+    </li>
+    <li>
+      <strong>Re-run the setup wizard</strong> on a fresh installation, or insert a new row directly into the <code>trongate_administrators</code> table with a bcrypt-hashed password.
+    </li>
+  </ul>
+
+  <h2>That Is It</h2>
+
+  <p>
+    You are now logged in. The login module handles everything else automatically &mdash; remembering you while you browse, logging you out when you click "log out", and blocking people who try too many wrong passwords.
+  </p>
+
+  <p>
+    The rest of this chapter explains how the login system works and how to set up additional user levels (like members or customers).
+  </p>
+
+</div>

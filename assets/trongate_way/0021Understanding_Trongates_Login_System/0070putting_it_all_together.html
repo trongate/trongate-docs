@@ -1,0 +1,161 @@
+[meta-description]Complete Members controller example, recap of everything you have learned, and next steps for your Trongate v2 login system.[/meta-description]
+<div class="container">
+  <h1>Putting It All Together</h1>
+
+  <p>
+    Let us bring everything together. Below is a complete <code>Members</code> controller that includes a welcome page, logout, a protected account page, and registration for new members.
+  </p>
+
+  <h2>The Complete Members Controller</h2>
+
+  <pre><code>&lt;?php
+class Members extends Trongate {
+
+    /**
+     * Welcome page &mdash; shown after successful login.
+     */
+    public function welcome(): void {
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'welcome';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+    /**
+     * Log the member out and redirect to the login page.
+     */
+    public function logout(): void {
+        $this-&gt;trongate_tokens-&gt;destroy();
+        redirect('member-login');
+    }
+
+    /**
+     * Protected account page &mdash; only visible to logged-in members.
+     */
+    public function your_account(): void {
+        $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2);
+
+        if ($token === false) {
+            redirect('member-login');
+        }
+
+        // Fetch the member's data using their user ID from the token
+        $params = ['trongate_user_id' =&gt; $token-&gt;user_id];
+        $sql = 'SELECT * FROM members WHERE trongate_user_id = :trongate_user_id';
+        $member = $this-&gt;db-&gt;query_bind($sql, $params, 'object');
+
+        if (empty($member)) {
+            redirect('member-login');
+        }
+
+        $data = (array) $member[0];
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'your_account';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+    /**
+     * Display the registration form.
+     */
+    public function create_account(): void {
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'create_account';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+    /**
+     * Process the registration form.
+     */
+    public function submit_create_account(): void {
+        $this-&gt;module('login');
+
+        $this-&gt;validation-&gt;set_rules('username', 'username', 'required|min_length[3]|max_length[55]');
+        $this-&gt;validation-&gt;set_rules('email_address', 'email address', 'required|valid_email');
+        $this-&gt;validation-&gt;set_rules('password', 'password', 'required|min_length[5]|max_length[35]');
+        $this-&gt;validation-&gt;set_rules('password_repeat', 'password repeat', 'required|matches[password]');
+
+        $result = $this-&gt;validation-&gt;run();
+
+        if ($result === true) {
+            // Create the trongate_users record
+            $sql = 'INSERT INTO trongate_users (user_level_id, code)
+                    VALUES (:user_level_id, :code)';
+            $params = [
+                'user_level_id' =&gt; 2,
+                'code' =&gt; make_rand_str(32)
+            ];
+            $this-&gt;db-&gt;query_bind($sql, $params);
+            $trongate_user_id = $this-&gt;db-&gt;insert_id();
+
+            // Create the members record
+            $data['username'] = post('username', true);
+            $data['email_address'] = post('email_address', true);
+            $data['password'] = $this-&gt;login-&gt;hash_password(post('password'));
+            $data['trongate_user_id'] = $trongate_user_id;
+            $data['date_created'] = time();
+            $data['num_logins'] = 0;
+            $data['last_login'] = 0;
+            $data['code'] = make_rand_str(16);
+
+            $this-&gt;db-&gt;insert($data, 'members');
+
+            set_flashdata('Your account has been created. Please log in.');
+            redirect('member-login');
+        }
+
+        // Validation failed &mdash; show the form again with errors
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'create_account';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+}</code></pre>
+
+  <h2>What You Have Learned</h2>
+
+  <p>Here is a quick recap of everything we covered in this chapter:</p>
+
+  <ol>
+    <li>
+      <strong>What a login system is.</strong> It is the lock on your website's door. The login module checks who people are, remembers them while they browse, and forgets them when they leave.
+    </li>
+    <li>
+      <strong>The pieces you need.</strong> Three framework tables (<code>trongate_user_levels</code>, <code>trongate_users</code>, <code>trongate_tokens</code>) and one custom table for your users. The configuration file (<code>config/login.php</code>) ties them all together.
+    </li>
+    <li>
+      <strong>How to configure the login module.</strong> You told it which table to use, which columns hold usernames and passwords, where to send people after login, and how strict to be with failed attempts.
+    </li>
+    <li>
+      <strong>How login URLs work.</strong> You can use numbers (<code>/login/login/2</code>) or secret words (<code>/login/login/member-login</code>). Custom routing makes the URLs clean (<code>/member-login</code>).
+    </li>
+    <li>
+      <strong>How to build the Members controller.</strong> A welcome page, a logout method, and protected pages that check for a valid token before showing content.
+    </li>
+  </ol>
+
+  <h2>Key Principles to Remember</h2>
+
+  <ul>
+    <li><strong>The login module is config-driven.</strong> You configure, you do not code authentication logic. The module handles everything.</li>
+    <li><strong>Every user needs a trongate_users record.</strong> This is the master list. Their details go in the per-level table (like <code>members</code>).</li>
+    <li><strong>Column names must match.</strong> The <code>fields</code> in your config must use the exact column names from your database table.</li>
+    <li><strong>Use <code>attempt_get_valid_token()</code> to protect pages.</strong> Check for a valid token at the top of any method that should be member-only.</li>
+    <li><strong>Use <code>$this-&gt;login-&gt;hash_password()</code> when creating users.</strong> Never hash passwords manually &mdash; the login module uses the correct settings from your config.</li>
+  </ul>
+
+  <h2>Where to Go Next</h2>
+
+  <p>
+    Your login system is working. Here are some things you might want to add next:
+  </p>
+
+  <ul>
+    <li><strong>Forgot password.</strong> Set <code>enable_forgot_password</code> to <code>true</code> in your config and configure the <code>trongate_email</code> module with your SMTP settings.</li>
+    <li><strong>Profile pages.</strong> Add more methods to your Members controller for updating names, emails, and passwords.</li>
+    <li><strong>Email confirmation.</strong> Send a confirmation email when a new member registers, and only let them log in after they confirm.</li>
+  </ul>
+
+  <p>
+    Congratulations &mdash; you have built a complete login system with Trongate v2!
+  </p>
+
+</div>

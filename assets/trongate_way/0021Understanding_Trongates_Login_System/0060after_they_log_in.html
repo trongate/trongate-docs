@@ -1,0 +1,130 @@
+[meta-description]Build the Members controller for your Trongate login system: welcome page, logging out, and protecting pages from unauthorised access.[/meta-description]
+<div class="container">
+  <h1>After They Log In</h1>
+
+  <p>
+    Great news! The login module handles all the hard parts &mdash; checking passwords, creating tokens, rate-limiting bad attempts, and remembering logged-in users. Your job now is to build the pages that members see after they log in.
+  </p>
+
+  <p>
+    You do this by creating a simple controller called <code>Members</code>. It lives at <code>modules/members/Members.php</code>.
+  </p>
+
+  <h2>The Welcome Page</h2>
+
+  <p>
+    When a member logs in successfully, the login module sends them to wherever you set in <code>redirect_on_success</code>. In our configuration, that is <code>members/welcome</code>.
+  </p>
+
+  <p>
+    Let us build that welcome page. First, the controller:
+  </p>
+
+  <pre><code>&lt;?php
+class Members extends Trongate {
+
+    /**
+     * Show the welcome page after login.
+     */
+    public function welcome(): void {
+        $data['view_module'] = 'members';
+        $data['view_file'] = 'welcome';
+        $this-&gt;templates-&gt;public($data);
+    }
+
+}</code></pre>
+
+  <p>
+    Then, create the view file at <code>modules/members/views/welcome.php</code>:
+  </p>
+
+  <pre><code>&lt;h1&gt;Welcome!&lt;/h1&gt;
+
+&lt;p&gt;You are now logged in as a member of our site.&lt;/p&gt;
+
+&lt;p&gt;&lt;?= anchor('members/your_account', 'Your Account') ?&gt;&lt;/p&gt;
+&lt;p&gt;&lt;?= anchor('members/logout', 'Logout') ?&gt;&lt;/p&gt;</code></pre>
+
+  <p>
+    That is it. The <code>welcome()</code> method loads the welcome view inside the public template. Your members see a friendly message and links to their account or to log out.
+  </p>
+
+  <h2>Logging Out</h2>
+
+  <p>
+    Logging out is even simpler. Add a <code>logout()</code> method to your Members controller:
+  </p>
+
+  <pre><code>public function logout(): void {
+    $this-&gt;trongate_tokens-&gt;destroy();
+    redirect('member-login');
+}</code></pre>
+
+  <p>
+    That is three lines of code. It destroys the user's token (removes the "digital hand stamp") and sends them back to the login page.
+  </p>
+
+  <h2>Protecting a Page</h2>
+
+  <p>
+    What about pages that should only be visible to logged-in members? You do not want someone to be able to type <code>/members/your_account</code> into their browser and see it without logging in.
+  </p>
+
+  <p>
+    Protecting a page is easy. You check if the user has a valid token. If they do not, you send them to the login page.
+  </p>
+
+  <pre><code>public function your_account(): void {
+    $member_level_id = 2;
+    $token = $this-&gt;trongate_tokens-&gt;attempt_get_valid_token($member_level_id);
+
+    if ($token === false) {
+        redirect('member-login');
+    }
+
+    // The member is authenticated &mdash; show the page
+    $data['view_module'] = 'members';
+    $data['view_file'] = 'your_account';
+    $this-&gt;templates-&gt;public($data);
+}</code></pre>
+
+  <p>
+    Let us break that down:
+  </p>
+
+  <ol>
+    <li><code>$member_level_id = 2</code> &mdash; we are checking for level 2 (members).</li>
+    <li><code>$this-&gt;trongate_tokens-&gt;attempt_get_valid_token(2)</code> &mdash; this looks for a valid token for a member. If found, it returns the token. If not, it returns <code>false</code>.</li>
+    <li>If the token is <code>false</code>, we redirect to the login page. The member never sees the protected content.</li>
+    <li>If the token is valid, we show the page.</li>
+  </ol>
+
+  <p>
+    You can add this same pattern to any method that should be member-only. Just put the token check at the top.
+  </p>
+
+  <h2>A Handy Shortcut</h2>
+
+  <p>
+    There is another way to check if someone is logged in. The login module provides an <code>is_logged_in()</code> method:
+  </p>
+
+  <pre><code>$this-&gt;module('login');
+
+if ($this-&gt;login-&gt;is_logged_in(2) === true) {
+    // Member is logged in!
+} else {
+    // Member is not logged in.
+}</code></pre>
+
+  <p>
+    Use whichever one you prefer. <code>attempt_get_valid_token()</code> gives you the token object (which contains the user's ID), while <code>is_logged_in()</code> simply returns <code>true</code> or an error message.
+  </p>
+
+  <h2>What's Next</h2>
+
+  <p>
+    You now have a working login system. The next page shows you the complete Members controller and a summary of everything we have covered.
+  </p>
+
+</div>

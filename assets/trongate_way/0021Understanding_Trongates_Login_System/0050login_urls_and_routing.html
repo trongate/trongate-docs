@@ -1,0 +1,89 @@
+[meta-description]How login URLs work in Trongate v2: secret login words, numeric IDs, and custom routing. Simple explanation with examples.[/meta-description]
+<div class="container">
+  <h1>Login URLs and Routing</h1>
+
+  <p>
+    Now that you have written your configuration file, the login module knows about your users. But there is one more step: we need a way for people to <em>reach</em> the login form.
+  </p>
+
+  <p>
+    Every login form has a URL. The URL tells Trongate which module to load and which user level the form is for. There are two ways to build this URL.
+  </p>
+
+  <h2>Way 1: Using a Number (Simple)</h2>
+
+  <p>
+    If your <code>config/login.php</code> does <strong>not</strong> have a <code>secret_login_word</code>, you can use the user level's ID number directly:
+  </p>
+
+  <pre><code>http://yoursite.com/login/login/1   (for administrators)
+http://yoursite.com/login/login/2   (for members)</code></pre>
+
+  <p>
+    The first <code>login</code> is the module name. The second <code>login</code> is the method that shows the form. The number (<code>1</code> or <code>2</code>) tells the module which user level this form is for.
+  </p>
+
+  <h2>Way 2: Using a Secret Word (Nicer)</h2>
+
+  <p>
+    If you set a <code>secret_login_word</code> in your configuration (like <code>tg-admin</code> or <code>member-login</code>), you can use that word in the URL:
+  </p>
+
+  <pre><code>http://yoursite.com/login/login/tg-admin    (for administrators)
+http://yoursite.com/login/login/member-login (for members)</code></pre>
+
+  <p>
+    The login module looks at that last part of the URL (<code>tg-admin</code> or <code>member-login</code>), finds it in your configuration, and knows which user level to use.
+  </p>
+
+  <p>
+    If a user level has a <code>secret_login_word</code>, you <strong>cannot</strong> use the number version of the URL. For example, if members have the secret word <code>member-login</code>, going to <code>/login/login/2</code> will show a 404 page. This is a security feature &mdash; it keeps your login URLs unpredictable.
+  </p>
+
+  <h2>Making the URL Even Shorter (Custom Routing)</h2>
+
+  <p>
+    Typing <code>login/login/member-login</code> every time is not very friendly. Would it not be nicer to just go to <code>/member-login</code>? That is what custom routing does.
+  </p>
+
+  <p>
+    Create a file at <code>config/custom_routing.php</code> and add:
+  </p>
+
+  <pre><code>&lt;?php
+$routes = [
+    'member-login' => 'login/login/member-login',
+    'tg-admin'     => 'login/login/tg-admin'
+];
+define('CUSTOM_ROUTES', $routes);</code></pre>
+
+  <p>
+    Now your users can visit:
+  </p>
+
+  <ul>
+    <li><code>http://yoursite.com/member-login</code> &mdash; the member login form</li>
+    <li><code>http://yoursite.com/tg-admin</code> &mdash; the admin login form</li>
+  </ul>
+
+  <p>
+    That is much cleaner, is it not?
+  </p>
+
+  <h2>The Golden Rule of Custom Routing</h2>
+
+  <p>
+    The word you use in <code>secret_login_word</code> (in your config file) and the word you use as the route key (in your custom routing file) <strong>must match exactly</strong>. If one says <code>member-login</code> and the other says <code>members-login</code>, it will not work.
+  </p>
+
+  <div class="alert alert-info">
+    <p><strong>Tip:</strong> If you are not sure which way to go, use secret words with custom routing. It makes your login URLs clean and easy to remember.</p>
+  </div>
+
+  <h2>What's Next</h2>
+
+  <p>
+    The login form is ready and the URL is set up. But what happens after someone logs in? On the next page, we will build the simple controller that welcomes your members and protects your pages.
+  </p>
+
+</div>
