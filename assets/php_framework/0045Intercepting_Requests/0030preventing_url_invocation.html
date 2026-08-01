@@ -263,9 +263,3 @@ class Tax extends Trongate {
 <div class="alert alert-danger">
     <p><strong>Gotcha:</strong> methods whose names contain the literal string <code>_module</code> (for example, <code>submit_module</code>) are intercepted by Trongate's asset-serving route and can never be invoked via the URL. When naming methods, avoid the <code>_module</code> substring.</p>
 </div>
-
-<div class="alert alert-info">
-  <p><b>Attention v1 Veterans</b></p>
-  <p>Trongate v1 prevented URL invocation using the "underscore-first" method naming convention. The technique is alive and well in Trongate v2 - see <b>The Underscore-First Technique</b> above for a full explanation.</p>
-  <p class="mb-0">In August 2026 it was formally restored as a fully documented, first-class option alongside <span class="feature-ref">block_url()</span>. See the essay: <a href="essays/the-return-of-the-underscore-first-technique" target="_blank">The Return Of The Underscore-First Technique</a>.</p>
-</div>
