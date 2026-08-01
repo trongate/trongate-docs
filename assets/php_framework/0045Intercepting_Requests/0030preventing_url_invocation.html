@@ -1,4 +1,4 @@
-[meta-description]Trongate's block_url() helper provides a clear, explicit way to prevent browser access to specific methods or entire modules while keeping them fully callable from code.[/meta-description]
+[meta-description]Trongate offers two ways to prevent browser access to methods: the explicit block_url() helper and the underscore-first naming convention. Both keep methods fully callable from code.[/meta-description]
 
 <h1>Preventing URL Invocation</h1>
 
@@ -193,9 +193,73 @@ class Members extends Trongate {
     </ul>
 </div>
 
+
+<hr>
+
+<h2>An Alternative: The Underscore-First Technique</h2>
+
+<p>Trongate v1 veterans will remember a simpler approach, and it remains fully supported in Trongate v2: prefix any method name with an underscore (<code>_</code>) and the framework will refuse to invoke it via the URL.</p>
+
+<p>Any method whose name begins with an underscore can <b>never</b> be triggered by navigating to a URL. The framework intercepts the request <i>before</i> the controller is even loaded and returns a <code>404 Not Found</code> response.</p>
+
+[code=php]&lt;?php
+class Tax extends Trongate {
+
+  public function index(): void {
+    $total = $this->_calculate_tax(100);
+    echo 'Total: ' . $total;
+  }
+
+  public function _calculate_tax(int $amount): int {
+    return (int) round($amount * 1.2);
+  }
+
+}[/code]
+
+<p>The result:</p>
+
+<ul>
+    <li><code>/tax/index</code> → ✓ Works</li>
+    <li><code>/tax/_calculate_tax</code> → ✗ Returns 404 Not Found</li>
+    <li><code>$this-&gt;_calculate_tax(100)</code> → ✓ Works from code</li>
+    <li><code>Modules::run('tax/_calculate_tax', [100])</code> → ✓ Works from code</li>
+</ul>
+
+<h3>How It Works</h3>
+
+<p>When a request arrives, the framework examines the second URL segment (the method name) before loading the controller file. If the segment begins with an underscore, the request is rejected immediately with a <code>404 Not Found</code> response and execution stops. The method never loads and never runs.</p>
+
+<p>Because enforcement happens at the routing stage, the protection is automatic: every underscore-prefixed method in every module is protected, with no extra code required on your part.</p>
+
+<h3>Why You Might Choose It</h3>
+
+<ul>
+    <li><b>Zero boilerplate</b> - the technique requires no code; the underscore <i>is</i> the declaration</li>
+    <li><b>Automatic</b> - every underscore method is protected, so one cannot be forgotten</li>
+    <li><b>Self-documenting</b> - a glance at the method name tells other developers it is internal</li>
+    <li><b>Familiar to v1 developers</b> - existing conventions carry straight over from Trongate v1</li>
+</ul>
+
 <div class="alert alert-info">
-  <p><b>Attention v1 Veterans</b></p>
-  <p>Trongate v1 prevented URL invocation by usage of an "underscore-first" method naming convention.</p>
-  <p>Trongate v2 removed this approach. To learn why, check out this essay:</p>  
-  <p><a href="essays/why-the-underscore-first-convention-had-to-go" target="_blank">Why The Underscore-First Trick Had To Go</a>.</p>
+    <p><strong>Note:</strong> The underscore is a <i>routing</i> convention, not a visibility marker. Underscore-prefixed methods remain public in the PHP sense - they are simply unreachable via the URL. This is what distinguishes the technique from <code>private</code> and <code>protected</code> methods, which PHP itself prevents from being called from outside the class.</p>
+</div>
+
+<div class="alert alert-success">
+    <p><b>Use the underscore-first technique when:</b></p>
+    <ul>
+        <li>You want a concise, convention-based alternative to <code>block_url()</code></li>
+        <li>Every method in a controller that starts with <code>_</code> should be internal</li>
+        <li>You are migrating from Trongate v1 and wish to keep existing conventions</li>
+    </ul>
+
+    <p><b>Use </b><code>block_url()</code><b> when:</b></p>
+    <ul>
+        <li>You want an explicit, self-documenting declaration at the top of a method</li>
+        <li>You need to protect an entire module from URL access</li>
+        <li>You need to protect a method whose name you cannot change</li>
+    </ul>
+</div>
+
+<div class="alert alert-danger">
+    <p><strong>Gotcha:</strong> methods whose names contain the literal string <code>_module</code> (for example, <code>submit_module</code>) are intercepted by Trongate's asset-serving route and can never be invoked via the URL. When naming methods, avoid the <code>_module</code> substring.</p>
 </div>
