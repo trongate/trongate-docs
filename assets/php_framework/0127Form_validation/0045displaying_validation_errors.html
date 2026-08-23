@@ -2,9 +2,9 @@
 
 <h1>Displaying Validation Errors</h1>
 
-<p>When validation fails, Trongate stores errors in <code>$_SESSION['form_submission_errors']</code> and provides three simple ways to display them.</p>
+<p>When validation fails, Trongate stores errors in <code>$_SESSION['form_submission_errors']</code> and provides four ways to display them.</p>
 
-<h2>The Three Display Methods</h2>
+<h2>The Four Display Methods</h2>
 
 <table class="table sm">
   <thead>
@@ -19,6 +19,11 @@
       <td><strong>General Errors</strong></td>
       <td><code>validation_errors()</code></td>
       <td>Simple forms, login pages, admin panels</td>
+    </tr>
+    <tr>
+      <td><strong>Scoped Errors</strong></td>
+      <td><code>validation_errors('FORM-login')</code></td>
+      <td>Pages with more than one form</td>
     </tr>
     <tr>
       <td><strong>Inline Errors</strong></td>
@@ -75,7 +80,42 @@ define('ERROR_CLOSE', '&lt;/div&gt;');
   </li>
 </ul>
 
-<h2>Method 2: Inline Errors (Field-Specific)</h2>
+<h2>Method 2: Scoped Errors (Form-Specific)</h2>
+
+<p>On pages with more than one form, give each form a <code>form_name</code> and render only that form's errors with the <code>FORM-</code> prefix. This prevents one form's errors from appearing under a different form.</p>
+
+[code=vf]
+&lt;?php
+echo form_open($login_location, ['form_name' =&gt; 'login']);
+echo form_label('Email');
+echo form_input('email', $email);
+echo form_label('Password');
+echo form_password('password');
+echo form_submit('submit', 'Log In');
+echo validation_errors('FORM-login'); // Login form's errors only
+echo form_close();
+
+// Second form on the same page...
+echo form_open($contact_location, ['form_name' =&gt; 'contact']);
+// ... contact fields ...
+echo validation_errors('FORM-contact'); // Contact form's errors only
+echo form_close();
+?&gt;
+[/code]
+
+<p>Scoped rendering uses the default error wrappers. For custom wrappers plus scoping, use the position-3 spelling:</p>
+
+[code=vf]
+&lt;?= validation_errors('&lt;/p&gt;', '&lt;p&gt;', 'login') ?&gt;
+[/code]
+
+<div class="alert alert-warning">
+  <p><strong>Abstain without clearing:</strong> when the requested name does not match the recorded name (wrong name, or no name recorded), the scoped call renders nothing and does <strong>not</strong> clear the error bucket — the correct form's block still renders.</p>
+  <p><strong>Footgun:</strong> a scoped call on a form that declared no <code>form_name</code> renders nothing, silently. Unnamed forms use the global spelling (<code>validation_errors()</code>).</p>
+  <p><strong>POST-only scoping:</strong> the form name is read from the submitted POST data. GET forms never record a name, so scoped calls on GET forms always abstain.</p>
+</div>
+
+<h2>Method 3: Inline Errors (Field-Specific)</h2>
 
 <p>Pass a field name to display errors next to the relevant input. This provides a more precise and user-friendly experience.</p>
 
@@ -98,7 +138,7 @@ echo form_close();
 
 <p>This method is ideal for longer or more complex forms where users benefit from seeing exactly where problems occur.</p>
 
-<h2>Method 3: JSON Errors (APIs and AJAX)</h2>
+<h2>Method 4: JSON Errors (APIs and AJAX)</h2>
 
 <p>Pass an HTTP status code (400–499) to return validation errors as JSON and immediately terminate execution.</p>
 
@@ -153,6 +193,7 @@ echo form_close();
 <ul>
   <li><strong>Simple forms:</strong> Use general errors</li>
   <li><strong>Complex forms:</strong> Use inline errors</li>
+  <li><strong>Multi-form pages:</strong> Use scoped errors</li>
   <li><strong>APIs:</strong> Use JSON responses</li>
 </ul>
 
@@ -169,8 +210,10 @@ echo form_close();
 
   <ul>
     <li><code>validation_errors()</code> displays all errors and clears them</li>
+    <li><code>validation_errors('FORM-login')</code> displays a named form's errors and clears them; on a name mismatch it renders nothing and leaves the bucket intact</li>
     <li><code>validation_errors('field')</code> displays errors for one field and clears only that field’s errors</li>
     <li><code>validation_errors(422)</code> returns JSON, clears all errors, and terminates execution</li>
-    <li><code>$this-&gt;validation-&gt;run()</code> clears previous errors before running validation again</li>
+    <li><code>$this-&gt;validation-&gt;run()</code> clears the bucket and recorded form name on a successful submission (clear-on-pass)</li>
+    <li><code>form_close()</code> does <strong>not</strong> clear validation errors — the summary call is safe <strong>anywhere</strong>: before the form, inside the block, or after <code>form_close()</code></li>
   </ul>
 </div>

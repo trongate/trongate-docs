@@ -110,11 +110,25 @@ public function submit(): void {
   <h2>What Happens When run() is Called</h2>
   <ol>
     <li><strong>CSRF Validation:</strong> Automatically validates CSRF token (unless <code>API_SKIP_CSRF</code> is true)</li>
-    <li><strong>Clear Previous Errors:</strong> Removes any existing validation errors from session</li>
     <li><strong>Process Rules:</strong> Runs validation tests for each field</li>
-    <li><strong>Store Errors:</strong> If errors exist, stores them in <code>$_SESSION['form_submission_errors']</code></li>
-    <li><strong>Return Result:</strong> Returns <code>true</code> (success) or <code>false</code> (failure)</li>
+    <li><strong>On Failure:</strong> Stores the errors in <code>$_SESSION['form_submission_errors']</code>, records which form produced them, and returns <code>false</code></li>
+    <li><strong>On Success:</strong> Clears the error bucket (and the recorded form name) from session, and returns <code>true</code></li>
   </ol>
+
+  <h2>Recording the Form Name (Scoped Validation Errors)</h2>
+  <p>When validation fails, <code>run()</code> also records which form produced the errors, by reading the hidden <code>form_name</code> field injected by <span class="feature-ref">form_open()</span>:</p>
+
+[code=php]
+// The recorded name is stored as:
+$_SESSION['form_submission_name'] = 'login';
+[/code]
+
+  <ul>
+    <li><strong>POST-only:</strong> the name is read from <code>$_POST['form_name']</code>, so GET forms never record a name — consistent with <code>csrf_protect()</code>.</li>
+    <li><strong>Key hygiene:</strong> strings only, trimmed, capped at 64 characters. An array POST (<code>form_name[]=x</code>) or any non-string value can never become a session key.</li>
+    <li>The name is cleared on a successful submission (clear-on-pass) and after errors are rendered.</li>
+    <li>Use the recorded name with the scoped spelling: <code>validation_errors('FORM-login')</code>.</li>
+  </ul>
 
   <h2>Checkbox Validation Example</h2>
   <p>For checkboxes, use <code>required</code> only if the checkbox must be checked:</p>
@@ -141,9 +155,9 @@ public function submit(): void {
   <ul>
     <li>Always compare result with <code>=== true</code> (strict comparison) as <code>run()</code> returns <code>?bool</code></li>
     <li>Errors are automatically stored in session and can be displayed with <code>validation_errors()</code></li>
+    <li>A successful submission clears the error bucket and the recorded form name from session (clear-on-pass)</li>
     <li>For API endpoints where CSRF should be skipped, define <code>define('API_SKIP_CSRF', true);</code></li>
     <li>Empty fields skip validation for most rules (except <code>required</code>)</li>
-    <li>The method clears previous errors from session before running new validation</li>
   </ul>
 
   <div class="alert alert-warning">

@@ -4,13 +4,15 @@
   
   <h2>Description</h2>
   <div class="description">
-    <p>Displays validation errors in one of three formats: general HTML list, inline field‑specific errors, or JSON API response. This method is the object‑oriented counterpart to the <code>validation_errors()</code> helper function.</p>
+    <p>Displays validation errors in one of four formats: general HTML list, scoped list for a named form, inline field‑specific errors, or JSON API response. This method is the object‑oriented counterpart to the <code>validation_errors()</code> helper function.</p>
     <p>The format is determined by the <code>first_arg</code> value in the <code>$data</code> array:</p>
     <ul>
       <li><strong>null or omitted</strong> – General errors for all fields (wrapped in <code>&lt;ul class="validation-errors"&gt;</code>)</li>
+      <li><strong>string starting with <code>FORM-</code></strong> – Scoped errors for a named form (e.g. <code>'FORM-login'</code>)</li>
       <li><strong>string (field name)</strong> – Inline errors for a specific field</li>
       <li><strong>integer (400‑499)</strong> – JSON response with HTTP error code</li>
     </ul>
+    <p>Dispatch order: <code>null</code> → <code>json</code> → <code>scoped</code> → <code>inline</code> → <code>standard</code>.</p>
   </div>
   
   <h2>Parameters</h2>
@@ -28,8 +30,9 @@
         <td>array</td>
         <td>Associative array with optional keys:
           <ul>
-            <li><code>first_arg</code> – string|int|null (field name, HTTP code, or null)</li>
+            <li><code>first_arg</code> – string|int|null (field name, <code>FORM-</code> name, HTTP code, or null)</li>
             <li><code>closing_html</code> – ?string (closing HTML tag for general errors)</li>
+            <li><code>scope</code> – ?string (form name for scoped rendering with custom wrappers; standard mode only)</li>
           </ul>
         </td>
       </tr>
@@ -64,6 +67,17 @@
 $errors = $this->validation->display_errors();
 // Returns: &lt;ul class="validation-errors"&gt;...&lt;/ul&gt; or null
 
+// Scoped errors for a named form (default wrappers)
+$login_errors = $this->validation->display_errors(['first_arg' => 'FORM-login']);
+// Returns only the login form's errors, or null on mismatch (abstains without clearing)
+
+// Scoped errors with custom wrappers (position-3 scope spelling)
+$login_errors = $this->validation->display_errors([
+    'first_arg' => '&lt;/p&gt;',
+    'closing_html' => '&lt;p&gt;',
+    'scope' => 'login'
+]);
+
 // Inline errors for specific field
 $email_errors = $this->validation->display_errors(['first_arg' => 'email']);
 // Returns: &lt;ul class="validation-errors validation-errors--inline"&gt;...&lt;/ul&gt; or empty string
@@ -91,10 +105,11 @@ public function submit() {
   
   <h2>Notes</h2>
   <ul>
-    <li>Errors are retrieved from <code>$_SESSION['form_submission_errors']</code>.</li>
+    <li>Errors are retrieved from <code>$_SESSION['form_submission_errors']</code>; the recorded form name lives in <code>$_SESSION['form_submission_name']</code>.</li>
     <li>In JSON mode (HTTP code), the script terminates after output – no return value.</li>
     <li>For inline errors, an empty string is returned if the field has no errors.</li>
     <li>After errors are displayed, they are cleared from session (to prevent duplicate display).</li>
+    <li>A scoped call that does not match the recorded name returns <code>null</code> <strong>without clearing</strong> the bucket — the correct form's block still renders.</li>
     <li>Use the helper <code>validation_errors()</code> for simpler, function‑based access.</li>
   </ul>
 </div>
