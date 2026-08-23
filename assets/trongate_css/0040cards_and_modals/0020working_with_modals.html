@@ -45,7 +45,7 @@
 <p>To use modals in your project, follow these steps:</p>
 
 <ol>
-    <li>Ensure you've included an appropriate JavaScript file (app.js/admin.js/trongate-mx.js) in your project.</li>
+    <li>Ensure you've included an appropriate JavaScript file (trongate-mx.js/admin.js) in your project.</li>
     <li>Using <code>style="display: none"</code> to hide your modal element upon initial page load.</li>
     <li>Add a trigger element (like a button) that calls <code>openModal()</code>, passing in the 'id' of the modal element that you'd like to have opened.</li>
 </ol>
@@ -359,33 +359,30 @@ Example usage:
 [/code]
 
 <h3 class="mt-3">Loading The JavaScript Code</h3>
-<p>The JavaScript code for handling modals is contained within the following JavaScript files:</p>
+<p>The JavaScript code for handling modals is contained within the following JavaScript file:</p>
 
 <ol>
-    <li>app.js</li>
-    <li>admin.js</li>
     <li>trongate-mx.js</li>
 </ol>
 
-<p>The JavaScript files are located in:</p>
+<p>The JavaScript file is located in:</p>
 [code]public/ 
   js/ 
 [/code]
 
-<p>All three of these files are provided with <i>every</i> installation of Trongate.</p>
+<p><code>trongate-mx.js</code> is provided with <i>every</i> installation of Trongate. It exposes the <code>openModal()</code> and <code>closeModal()</code> functions used by the examples above as global functions, so they work with inline <code>onclick</code> attributes.</p>
 
 <div class="alert alert-info">
-<p>You only have to load <b><i>one</i></b> of the above JavaScript files to enjoy full modal opening and closing functionality.</p>    
+<p>You only have to load <b><i>one</i></b> JavaScript file — <b>trongate-mx.js</b> — to enjoy full modal opening and closing functionality.</p>    
 </div>
 
 <div class="alert alert-success">
     <ul>
-        <li>If you're working with one of Trongate's pre-built admin panels, use <b>admin.js</b>.</li>
-        <li>If you're working with Trongate MX, use <b>trongate-mx.js</b>.</li>
-        <li>For all other situations, use <b>app.js</b>.</li>
+        <li>If you're working with Trongate MX, <b>trongate-mx.js</b> is already required for the MX attributes, and it also provides the modal functions.</li>
+        <li>If you're working with one of Trongate's pre-built admin panels, load <b>trongate-mx.js</b> alongside <b>admin.js</b> — <b>admin.js</b> (in <code>modules/templates/js/</code>) powers the admin panel's slide-nav and dropdown menus, but does not include the modal functions.</li>
     </ul>
 
-    <p><b>IMPORTANT NOTE: </b> It's perfectly acceptable to load Trongate MX ('trongate-mx.js') onto a webpage that <i>already</i> uses either 'app.js' or 'admin.js'.</p>
+    <p><b>IMPORTANT NOTE: </b> It's perfectly acceptable to load Trongate MX ('trongate-mx.js') onto a webpage that <i>already</i> uses 'admin.js'.</p>
 </div>
 
 <p class="mt-3">The following code demonstrates an example of basic HTML boilerplate required for implementing modal functionality with Trongate.</p>
@@ -402,7 +399,7 @@ Example usage:
 &lt;/head&gt;
 &lt;body&gt;
     &lt;h1&gt;Ready!&lt;/h1&gt;
-    &lt;script src="js/app.js"&gt;&lt;/script&gt;
+    &lt;script src="js/trongate-mx.min.js"&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 [/code]
