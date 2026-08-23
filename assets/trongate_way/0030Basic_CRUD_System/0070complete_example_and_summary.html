@@ -23,7 +23,6 @@
 
   [code=vf]
 &lt;h1&gt;&lt;?= $headline ?&gt;&lt;/h1&gt;
-&lt;?= validation_errors() ?&gt;
 &lt;div class=&quot;card&quot;&gt;
     &lt;div class=&quot;card-heading&quot;&gt;
         Country Details
@@ -31,6 +30,7 @@
     &lt;div class=&quot;card-body&quot;&gt;
         &lt;?php
         echo form_open($form_location);
+        echo validation_errors();
 
         echo form_label(&apos;Country Title&apos;);
         $country_title_attr = [
