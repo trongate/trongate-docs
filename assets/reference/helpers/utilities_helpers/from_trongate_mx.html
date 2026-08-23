@@ -18,7 +18,7 @@
     <tbody>
       <tr>
         <td>bool</td>
-        <td>Returns <code>true</code> if the request has the <code>X-Trongate-MX-Request</code> header set to <code>true</code>, otherwise <code>false</code>.</td>
+        <td>Returns <code>true</code> if the request has the <code>Trongate-MX-Request</code> header set to <code>true</code>, otherwise <code>false</code>.</td>
       </tr>
     </tbody>
   </table>
@@ -34,5 +34,5 @@ if (from_trongate_mx()) {
 [/code]
 
   <h2>Notes</h2>
-  <p>The function checks specifically for the <code>X-Trongate-MX-Request</code> header. If the header is not present or is set to a value other than <code>true</code>, the function will return <code>false</code>. Ensure that the header is correctly set in requests where this function needs to be utilized.</p>
+  <p>The function checks specifically for the <code>Trongate-MX-Request</code> header. If the header is not present or is set to a value other than <code>true</code>, the function will return <code>false</code>. Ensure that the header is correctly set in requests where this function needs to be utilized.</p>
 </div>
