@@ -161,6 +161,10 @@ public function submit(): void {
 
 <p>However, this is exactly why you should use <span class="feature-ref">form_open()</span> and <span class="feature-ref">form_close()</span> - they handle the token automatically and consistently.</p>
 
+<div class="alert alert-info">
+    <p><strong>Reserved field names:</strong> <code>csrf_token</code> is injected by <span class="feature-ref">form_close()</span> and <code>form_name</code> is injected by <span class="feature-ref">form_open()</span> (when a <code>form_name</code> attribute is set, for scoped validation errors). Neither should be used as an ordinary field name in your own forms.</p>
+</div>
+
 <div class="alert alert-success">
     <p><strong>Best Practice:</strong> Always use the Trongate form helpers. They ensure CSRF tokens are present and correctly formatted with zero effort on your part.</p>
 </div>

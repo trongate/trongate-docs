@@ -125,7 +125,6 @@ public function submit(): void {
 <ol>
     <li>Injects errors as JavaScript (<code>window.trongateValidationErrors</code>)</li>
     <li>Injects highlighting script that adds the <code>form-field-validation-error</code> class to fields with errors</li>
-    <li>Clears validation errors from the session</li>
 </ol>
 
 <p>Example form with error highlighting:</p>
@@ -150,8 +149,9 @@ echo form_close(); // Adds CSRF token + injects error highlighting if errors exi
     <li>Always use <code>form_close()</code> to close forms opened with <code>form_open()</code></li>
     <li>GET forms (like search forms) don't need CSRF protection - but you should still use <code>form_close()</code> for consistency</li>
     <li>The CSRF token is validated automatically by <code>$this-&gt;validation-&gt;run()</code></li>
-    <li>When validation errors exist in the session, <code>form_close()</code> injects error highlighting JavaScript and clears the errors</li>
+    <li>When validation errors exist in the session, <code>form_close()</code> injects error highlighting JavaScript</li>
     <li>Error highlighting only works when the form has the <code>highlight-errors</code> class</li>
+    <li><code>form_close()</code> does <strong>not</strong> clear validation errors from the session — the error bucket's lifecycle is render-and-clear, owned by the rendering calls (<code>validation_errors()</code> and <code>display_errors()</code>). A summary call may now be placed after <code>form_close()</code> and still render.</li>
 </ul>
 
 <h2>Best Practice Pattern</h2>

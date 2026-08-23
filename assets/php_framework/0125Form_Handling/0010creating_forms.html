@@ -83,6 +83,36 @@ echo form_open('auth/login', $attributes);
 &amp;lt;form action="https://yoursite.com/auth/login" method="post" id="login-form" class="highlight-errors"&amp;gt;
 [/code]
 
+<h2>Naming a Form (Scoped Validation Errors)</h2>
+
+<p>On pages with more than one form, pass a <code>form_name</code> attribute to scope validation errors to a particular form. The name is <strong>never rendered as an HTML attribute</strong> — instead, an escaped hidden input is injected right after the opening tag:</p>
+
+[code=vf]
+$attributes = [
+    'form_name' =&gt; 'login'
+];
+
+echo form_open('auth/login', $attributes);
+[/code]
+
+<p>Output:</p>
+
+[code=html]
+&amp;lt;form action="https://yoursite.com/auth/login" method="post"&amp;gt;
+&amp;lt;input type="hidden" name="form_name" value="login"&amp;gt;
+[/code]
+
+<p>Then render only that form's errors with the scoped spelling:</p>
+
+[code=vf]
+&lt;?= validation_errors('FORM-login') ?&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p><strong>Constraints:</strong> <code>form_name</code> is opt-in, strings only, and capped at 64 characters (mirroring the guard in <code>Validation::run()</code>). A form that declares no <code>form_name</code> renders errors via the global spelling only — a scoped call on an unnamed form renders nothing, silently.</p>
+    <p><strong>Reserved name:</strong> <code>form_name</code> joins <code>csrf_token</code> as a field name reserved by the form helpers. Don't use either as an ordinary field name.</p>
+</div>
+
 <h2>Changing the HTTP Method</h2>
 
 <p>By default, forms use <code>POST</code>. To use <code>GET</code>:</p>
