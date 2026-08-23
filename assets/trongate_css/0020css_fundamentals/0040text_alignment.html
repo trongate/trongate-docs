@@ -7,17 +7,18 @@
   <li><code>.text-center</code></li>
 </ol>
 
-<p>Within the internals of Trongate CSS, each of the above text align classes are written with a declaration of <code>!important</code>.   For example:</p>
+<p>Within the internals of Trongate CSS, each of the above text align classes is a plain rule with no <code>!important</code> declaration:</p>
 
 [code=css]
-.text-left, div.modal-body p.text-left { text-align: left; }
-body .text-left, html .text-left { text-align: left; }
+.text-left  { text-align: left; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
 [/code]
 
-<p>These selectors provide high specificity, ensuring that the alignment rules take precedence over most other conflicting declarations.</p>
+<p>These are intentionally written without <code>!important</code> and with minimal specificity, so they compose cleanly with component styles.</p>
 
-<div class="alert alert-warning">
-  <p>Normally, when working with CSS, using <code>!important</code> should generally be avoided as it can make debugging and maintaining CSS more difficult.</p>
+<div class="alert alert-info">
+  <p>Because these utilities are low-specificity, a component style that sets its own <code>text-align</code> will take precedence. Apply the utility on the element you want aligned — or override the component if you need the alignment to win.</p>
 </div>
 <hr>
 <h2>Left Alignment</h2>
