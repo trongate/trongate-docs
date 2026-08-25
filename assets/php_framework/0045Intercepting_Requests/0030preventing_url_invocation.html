@@ -245,7 +245,7 @@ class Tax extends Trongate {
 <p>For <b>new</b> Trongate v2 code, prefer <code>block_url()</code> for public-but-internal methods (explicit, self-documenting, <code>403</code>) and <code>private</code> visibility for methods that are only ever called from inside their own class — where no guard is needed at all (see below).</p>
 
 <div class="alert alert-info">
-    <p><strong>Note:</strong> The underscore is a <i>routing</i> convention, not a visibility marker. Underscore-prefixed methods remain public in the PHP sense - they are simply unreachable via the URL. This is what distinguishes the technique from <code>private</code> and <code>protected</code> methods, which the framework's dispatcher rejects with a clean <code>404</code> (since release 2.2026.0823) and which PHP itself refuses to call from outside the class.</p>
+    <p><strong>Note:</strong> The underscore is a <i>routing</i> convention, not a visibility marker. Underscore-prefixed methods remain public in the PHP sense - they are simply unreachable via the URL. This is what distinguishes the technique from <code>private</code> and <code>protected</code> methods, which the framework's dispatcher rejects with a clean <code>404</code> (since release 2.2026.0801) and which PHP itself refuses to call from outside the class.</p>
 </div>
 
 <div class="alert alert-success">
@@ -267,7 +267,7 @@ class Tax extends Trongate {
 
 <h2>PHP Method Visibility: The Simplest Guard</h2>
 
-<p>Since release 2.2026.0823, Trongate v2 blocks URL invocation of <code>private</code> and <code>protected</code> controller methods. The dispatcher reflects on the target method and, if it is not public, returns a clean <code>404 Not Found</code> — exactly as if the page did not exist. (Before this release, such a request produced a PHP fatal error and a <code>500</code> response.)</p>
+<p>Since release 2.2026.0801, Trongate v2 blocks URL invocation of <code>private</code> and <code>protected</code> controller methods. The dispatcher reflects on the target method and, if it is not public, returns a clean <code>404 Not Found</code> — exactly as if the page did not exist. (Before this release, such a request produced a PHP fatal error and a <code>500</code> response.)</p>
 
 [code=php]&lt;?php
 class Tax extends Trongate {
@@ -327,7 +327,7 @@ class Tax extends Trongate {
         </tr>
         <tr>
             <td>PHP method visibility (<code>private</code> / <code>protected</code>)</td>
-            <td>404 Not Found (since 2.2026.0823; fatal 500 before)</td>
+            <td>404 Not Found (since 2.2026.0801; fatal 500 before)</td>
             <td>No — own class only</td>
             <td>No — PHP error</td>
             <td>Methods called only from inside their own class; no guard code wanted</td>
