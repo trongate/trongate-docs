@@ -463,6 +463,13 @@ $this->validation->set_rules('avatar', 'avatar', 'is_image');
 The [label] must be a valid image file.
 [/code]
 
+<p><strong>Unsupported formats:</strong> A file that <em>is</em> a valid image but whose format the server cannot process - most often WebP on a PHP installation whose GD build lacks WebP support - is reported separately, so a valid file is not described as an invalid one:</p>
+[code=text]
+The [label] is a valid image, but this server cannot process that image format.
+[/code]
+
+<p>In development mode (<code>ENV</code> set to <code>dev</code>) the underlying reason is appended to the message in square brackets.</p>
+
 <h3>max_width</h3>
 
 <p>The image width cannot exceed the specified number of pixels.</p>
