@@ -12,25 +12,35 @@
 
 <h2>Install and Load a Package</h2>
 
-<p>Install whatever you want from the root of your application, then hand Composer's autoloader to Trongate. That's one command and one line:</p>
+<p>There are exactly two steps: install the package, then tell Trongate where Composer's autoloader lives. Both are shown below.</p>
 
-[code]
-# from your application root
+<p><strong>Step 1  -  install the package.</strong> Open a terminal, <code>cd</code> into the root of your application and run:</p>
+
+[code=bash]
 composer require dompdf/dompdf
+[/code]
 
-# public/index.php
+<p>This is the only command required, and Composer creates everything it needs  -  a <code>vendor/</code> folder, plus a <code>composer.json</code> and a <code>composer.lock</code> if you don't already have them. Nothing else in your application changes.</p>
+
+<p><strong>Step 2  -  load the autoloader.</strong> Open <code>public/index.php</code>. That file already exists in every Trongate v2 installation, so you are editing it, not creating it. Add the highlighted line, so that the whole file looks like this:</p>
+
+[code=php]
+&lt;?php
 require_once '../engine/ignition.php';
+
 require_once APPPATH . 'vendor/autoload.php';   // <- the only addition
+
+//Init Core Library
 $init = new Core;
 [/code]
 
-<p>Those three lines around the new one are the stock contents of <code>public/index.php</code>. Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request.</p>
+<p>Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request.</p>
 
 <p>The two autoloaders keep out of each other's way. Trongate's own loader only ever looks inside <code>engine/</code> and <code>modules/</code>. Composer's loader only ever looks inside <code>vendor/</code>. Composer registers itself first, so anything it can resolve wins  -  which is exactly what you want.</p>
 
 <h2>Use It In Your Module</h2>
 
-<p>Add a <code>use</code> statement at the top of your module and get on with it. This works in controllers, models and views alike:</p>
+<p>Create a module and add a <code>use</code> statement at the top of it. The example below is a new controller file, saved as <code>modules/invoices/Invoices.php</code>  -  you're creating both the folder and the file. This works in controllers, models and views alike:</p>
 
 [code=php]
 &lt;?php
@@ -59,7 +69,7 @@ class Invoices extends Trongate {
 
 <h3>At the top of a module file</h3>
 
-<p>If you're giving a module to somebody else, put the autoloader line at the very top of the module's controller file, immediately after <code>&lt;?php</code> and before your <code>use</code> statements:</p>
+<p>If you're giving a module to somebody else, put the autoloader line at the very top of the module's controller file  -  in <code>modules/invoices/Invoices.php</code>  -  immediately after <code>&lt;?php</code> and before your <code>use</code> statements:</p>
 
 <p><code>require_once APPPATH . 'vendor/autoload.php';</code></p>
 
@@ -67,7 +77,7 @@ class Invoices extends Trongate {
 
 <h3>In a CLI or cron script</h3>
 
-<p>Scripts never touch <code>public/index.php</code>, so they have to bootstrap themselves. Trongate's own requires are path-relative, so <code>chdir()</code> into <code>public/</code> first  -  skip that and you'll meet <code>Failed opening required '../config/config.php'</code>:</p>
+<p>Scripts never touch <code>public/index.php</code>, so they have to bootstrap themselves. A cron script in <code>cli/report.php</code>, for example, needs its own bootstrap. Trongate's own requires are path-relative, so <code>chdir()</code> into <code>public/</code> first  -  skip that and you'll meet <code>Failed opening required '../config/config.php'</code>:</p>
 
 [code=php]
 &lt;?php
