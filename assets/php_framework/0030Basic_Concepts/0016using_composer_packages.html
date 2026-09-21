@@ -1,8 +1,18 @@
-[meta-description]Trongate never needs Composer - but it won't stand in your way. Install a package, load one line in public/index.php, then reach for it with a use statement. Here's the whole contract for using Composer packages in Trongate v2.[/meta-description]
+[meta-description]Composer, Packagist and PSR-4 autoloading explained in plain English, then Trongate's whole Composer contract: install a package, load one line in public/index.php, and reach for it with a use statement.[/meta-description]
 
 <h1>Using Composer Packages</h1>
 
-<p>Trongate works perfectly without Composer. It also works perfectly <em>with</em> it. The previous page covers why and when  -  this one covers how, and the how is short enough to learn in one sitting.</p>
+<p>Trongate works perfectly without Composer. It also works perfectly <em>with</em> it. The previous page covers why and when  -  this one covers how.</p>
+
+<h2>The Three Things You'll Meet</h2>
+
+<p>Three names come up constantly:</p>
+
+<ul>
+    <li><strong>Composer</strong>  -  PHP's dependency manager: a command-line tool that fetches the packages you ask for and records them in <code>composer.json</code>.</li>
+    <li><strong>Packagist</strong>  -  the public catalogue Composer installs from (<a href="https://packagist.org">packagist.org</a>).</li>
+    <li><strong>PSR-4 autoloading</strong>  -  a PHP-FIG standard that maps a namespace prefix to a folder, so a class can be found from its name alone. Composer's autoloader makes those mappings work.</li>
+</ul>
 
 <h2>Composer Is Optional</h2>
 
@@ -12,15 +22,15 @@
 
 <h2>Install and Load a Package</h2>
 
-<p>Three steps, and the job's done.</p>
+<p>For a normal web request, three steps and you're done.</p>
 
 <ol>
     <li>
-        <p><strong>Install the package.</strong> Open a terminal, <code>cd</code> into the root of your application and run this command:</p>
+        <p><strong>Install the package.</strong> If Composer isn't installed yet, get it from <a href="https://getcomposer.org/download/">getcomposer.org/download</a>  -  it's a one-line installer. Then <code>cd</code> into your app's root and run:</p>
 [code]
 composer require dompdf/dompdf
 [/code]
-        <p>Composer handles the rest  -  it creates a <code>vendor/</code> folder, plus <code>composer.json</code> and <code>composer.lock</code> if you don't already have them. Nothing else in your application changes.</p>
+        <p>Composer handles the rest: it creates <code>vendor/</code>, plus <code>composer.json</code> and <code>composer.lock</code> if you don't have them.</p>
     </li>
     <li>
         <p><strong>Add Composer's autoloader to <code>public/index.php</code>.</strong> This file <em>already exists</em> in every Trongate v2 installation  -  you are opening it and editing it, not creating it. Add one line, so that the whole file reads as follows:</p>
@@ -36,18 +46,18 @@ $init = new Core;
         <div class="alert alert-info">
             <p><strong>Look before you edit.</strong> If <code>public/index.php</code> already contains the autoloader line, there's nothing to do here  -  move straight on to step 3.</p>
         </div>
-        <p>Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request. Miss it and the failure is silent: a 500 response with an empty body.</p>
+        <p>Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request. Miss it and the package's classes simply aren't available  -  typically a <code>Class not found</code> error.</p>
     </li>
     <li>
         <p><strong>Use the package in your module.</strong> Add a <code>use</code> statement  -  such as <code>use Dompdf\Dompdf;</code>  -  and call the package's methods as though its classes lived in your own module. The next section has a complete, working example.</p>
     </li>
 </ol>
 
-<p>The two autoloaders keep out of each other's way. Trongate's own loader only ever looks inside <code>engine/</code> and <code>modules/</code>. Composer's loader only ever looks inside <code>vendor/</code>. Composer registers itself first, so anything it can resolve wins  -  which is exactly what you want.</p>
+<p>The two autoloaders keep out of each other's way. Trongate's own loader only ever looks inside <code>engine/</code> and <code>modules/</code>. Composer's loader only ever looks inside <code>vendor/</code>. Both can be registered at once.</p>
 
 <h2>Use It In Your Module</h2>
 
-<p>Create a module and add a <code>use</code> statement at the top of it. The example below is a new controller file, saved as <code>modules/invoices/Invoices.php</code>  -  you're creating both the folder and the file. This works in controllers, models and views alike:</p>
+<p>Create a module and add a <code>use</code> statement at the top of it. The example below is a new controller file at <code>modules/invoices/Invoices.php</code>  -  you're creating both the folder and the file. This works in controllers, models and views alike:</p>
 
 [code=php]
 &lt;?php
@@ -66,11 +76,11 @@ class Invoices extends Trongate {
 }
 [/code]
 
-<p>Visit <code>/invoices/test</code> and you get a real PDF, produced by a Composer-installed package. That is the entire recipe  -  everything else is whatever the package's own documentation tells you to do.</p>
+<p>Visit <code>/invoices/test</code> and you get a real PDF from a Composer-installed package. Everything else is whatever the package's own documentation says.</p>
 
 <p>One rule remains: the class declared in a Trongate module file must stay global (<code>class Invoices extends Trongate</code>). Trongate resolves it by file name, so it can't live inside a namespace. Imported classes can.</p>
 
-<p>If a package ships CSS or JS rather than PHP, reference it straight from <code>/vendor/</code> in your views  -  Trongate serves those files for you, so nothing needs copying around.</p>
+<p>If a package ships CSS, reference it straight from <code>/vendor/</code>  -  Trongate serves it for you. Anything that isn't CSS comes back as plain text, so for JavaScript copy the file into your module's assets instead.</p>
 
 <h2>Two Other Places That Line Goes</h2>
 
@@ -84,7 +94,7 @@ class Invoices extends Trongate {
 
 <h3>In a CLI or cron script</h3>
 
-<p>Scripts never touch <code>public/index.php</code>, so they have to bootstrap themselves. A cron script in <code>cli/report.php</code>, for example, needs its own bootstrap. Trongate's own requires are path-relative, so <code>chdir()</code> into <code>public/</code> first  -  skip that and you'll meet <code>Failed opening required '../config/config.php'</code>:</p>
+<p>Scripts never touch <code>public/index.php</code>, so they bootstrap themselves. A cron script in <code>cli/report.php</code> needs its own bootstrap. Trongate's requires are path-relative, so <code>chdir()</code> into <code>public/</code> first  -  skip that and you'll meet <code>Failed opening required '../config/config.php'</code>:</p>
 
 [code=php]
 &lt;?php
@@ -96,7 +106,7 @@ require_once APPPATH . 'vendor/autoload.php';
 Modules::run('invoices/test');
 [/code]
 
-<p>If your script complains about <code>$_SERVER</code> keys, give it the basics (<code>REQUEST_METHOD</code>, <code>HTTP_HOST</code>, <code>REQUEST_URI</code>). Trongate likes to know what kind of request it's serving.</p>
+<p>If your script complains about <code>$_SERVER</code> keys, give it the basics: <code>REQUEST_METHOD</code>, <code>HTTP_HOST</code>, <code>REQUEST_URI</code>.</p>
 
 <h2>Housekeeping</h2>
 
@@ -107,7 +117,7 @@ Modules::run('invoices/test');
 <p>Two failures account for almost every confused afternoon:</p>
 
 <ul>
-    <li><strong>A 500 with an empty response body</strong> means Composer's autoloader was never loaded. Trongate renders nothing because the failure happens before it gets a chance. Check that line in <code>public/index.php</code> first.</li>
+    <li><strong><code>Class "..." not found</code></strong> means Composer's autoloader was never loaded. The lookup fails before Trongate gets a chance to do anything, so check that line in <code>public/index.php</code> first. With error display off, it looks like a bare 500.</li>
     <li><strong><code>Access denied: assets must be in subdirectories</code></strong> means your module folder name contains <code>_module</code>. That string is reserved by the framework  -  <code>Invoice_module</code> won't work. Call it <code>Invoices</code> instead.</li>
 </ul>
 
