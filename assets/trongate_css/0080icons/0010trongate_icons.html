@@ -1,0 +1,437 @@
+<link rel="stylesheet" href="css/trongate-icons.css">
+<!-- Trongate Icons must be loaded in order for the live examples on this page to render. -->
+
+<h1>Trongate Icons</h1>
+
+<p>Trongate Icons is the icon set that ships with Trongate v2. Every icon is supplied as an individual SVG file and can be displayed using nothing more than an HTML element and a class name - no third-party library, no icon font and no JavaScript required.</p>
+
+<p>Trongate Icons is completely optional and it works independently of the Trongate PHP framework. If you already have an icon library that you are happy with then you are free to carry on using it. If, on the other hand, you would prefer to remove an external dependency from your projects, Trongate Icons has you covered.</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p class="xl"><i class="tg tg-home"></i> Home</p>
+        <p class="lg"><i class="tg tg-search"></i> Search</p>
+        <p><i class="tg tg-user"></i> Profile&nbsp;&nbsp;<i class="tg tg-padlock"></i> Secure&nbsp;&nbsp;<i class="tg tg-trash"></i> Delete</p>
+    </div>
+</div>
+
+<h2>Why Trongate Icons?</h2>
+
+<ul>
+    <li><strong>Zero dependencies</strong>: the icons are part of Trongate and they require no external CDN, no package manager and no build step.</li>
+    <li><strong>No icon font</strong>: each icon is an ordinary SVG file. There are no font files to load and no cryptic entity codes to memorise - just a class name.</li>
+    <li><strong>Colour is inherited</strong>: icons are drawn using the surrounding text colour, so an icon sitting inside a link or a button always matches that element's styling - including hover states.</li>
+    <li><strong>Size is inherited</strong>: icons are sized in <code>em</code> units, so they scale with the text that they sit beside.</li>
+    <li><strong>Lightweight</strong>: only the icons that are actually used on a page are downloaded. There is no giant sprite sheet and no mega stylesheet to wade through.</li>
+    <li><strong>Crisp at any size</strong>: because the icons are vector graphics, they stay sharp on high resolution displays.</li>
+</ul>
+
+<h2>Where The Icon Files Live</h2>
+
+<p>Trongate Icons consists of two things - a directory of SVG files and a stylesheet that refers to them. Both are to be found inside your project's <code>public</code> directory:</p>
+
+[code=text]
+public/
+├── css/
+│   ├── trongate.css
+│   └── trongate-icons.css        <-- the Trongate Icons stylesheet
+└── trongate-icons/               <-- one SVG file per icon
+    ├── envelope.svg
+    ├── home.svg
+    ├── search.svg
+    └── ... (one file for every available icon)
+[/code]
+
+<p>Each icon in the set is represented by exactly one SVG file. The name of the file determines the name of the CSS class that displays it - <code>home.svg</code> becomes <code>.tg-home</code>, and so on.</p>
+
+<div class="alert alert-info">
+    <p>The <code>trongate-icons</code> directory contains an <code>index.php</code> file, which returns a <code>403 Forbidden</code> response. This prevents the contents of the directory from being listed. The SVG files themselves are served in the normal way.</p>
+</div>
+
+<h2>Including The Stylesheet</h2>
+
+<p>Add a single <code>&lt;link&gt;</code> tag to the <code>&lt;head&gt;</code> section of your template:</p>
+
+[code=html]
+&lt;link rel="stylesheet" href="css/trongate-icons.css"&gt;
+[/code]
+
+<p>The complete set of Trongate stylesheets, loaded in the order that they appear inside the admin template that ships with Trongate v2, looks like this:</p>
+
+[code=html]
+&lt;link rel="stylesheet" href="css/trongate-icons.css"&gt;
+&lt;link rel="stylesheet" href="css/trongate.css"&gt;
+[/code]
+
+<div class="alert alert-success">
+    <p>The <b>admin</b> template that comes with Trongate v2 already loads <code>trongate-icons.css</code>, so icons can be used within admin views immediately.</p>
+    <p class="mb-0">The default <b>public</b> template does not, so remember to add the line if you intend to use icons on your site's public pages.</p>
+</div>
+
+<h2>Basic Syntax</h2>
+
+<p>Displaying an icon requires two class names - the base class, <code>.tg</code>, and a second class that identifies which icon is required. The example below produces a home icon:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p><i class="tg tg-home"></i> Home</p>
+    </div>
+</div>
+
+[code=html]
+&lt;i class="tg tg-home"&gt;&lt;/i&gt;
+[/code]
+
+<p>An <code>&lt;i&gt;</code> element is traditionally used, however any inline element will do. The following produces precisely the same icon:</p>
+
+[code=html]
+&lt;span class="tg tg-home"&gt;&lt;/span&gt;
+[/code]
+
+<h2>How The Classes Work</h2>
+
+<p>Every Trongate Icon is produced by combining a base class with an icon-specific class. Understanding what each one does makes the whole system easy to reason about - and easy to extend.</p>
+
+<h3>The Base Class</h3>
+
+<p>The <code>.tg</code> class is shared by every icon in the set. It turns an element into a single, text-sized square and paints that square using the current text colour, masked into the shape of the icon's SVG file:</p>
+
+[code=css]
+.tg {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+[/code]
+
+<p>Three things about that rule are worth noting:</p>
+
+<ul>
+    <li>The width and height of <code>1em</code> means that an icon is exactly as tall as the text that surrounds it.</li>
+    <li><code>background-color: currentColor</code> means that an icon is always drawn in the colour of the text that surrounds it.</li>
+    <li>The masking means that only the <i>shape</i> of the icon is visible - which is what allows a single SVG file to be displayed in any colour.</li>
+</ul>
+
+<h3>The Icon-Specific Class</h3>
+
+<p>The second class selects the icon. Its name always begins with <code>tg-</code> and it always refers to an SVG file of the same name. Here is the rule that displays the home icon:</p>
+
+[code=css]
+.tg-home {
+    -webkit-mask-image: url('../trongate-icons/home.svg');
+    mask-image: url('../trongate-icons/home.svg');
+    transform: translateY(0.03em) scale(1.2);
+}
+[/code]
+
+<p>As you can see, the icon-specific rule does two jobs. First, it points at the required SVG file. Second, it applies a small <code>transform</code> (and, in some cases, a tiny negative margin) in order to nudge that particular shape onto the text baseline. These are optical adjustments and they are applied automatically - there is nothing extra for you to do.</p>
+
+<div class="alert alert-info">
+    <p class="mb-0">Because a transform is used to nudge icons onto the text baseline, an icon's appearance is determined by two classes working together: <code>.tg</code> provides the size and the colour and <code>.tg-{icon}</code> provides the shape and the alignment.</p>
+</div>
+
+<h3>Sizing Icons</h3>
+
+<p>Since an icon occupies <code>1em</code>, its size follows the font size of whatever it sits inside. Placing an icon within a heading, for example, produces a larger icon. An icon can also be enlarged or reduced with the <a href="documentation/display/trongate_css/utility-classes/size-classes">size classes</a>:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p><i class="tg tg-star"></i> Default Size</p>
+        <p class="sm"><i class="tg tg-star"></i> Small (.sm)</p>
+        <p class="xs"><i class="tg tg-star"></i> Extra Small (.xs)</p>
+        <p class="lg"><i class="tg tg-star"></i> Large (.lg)</p>
+        <p class="xl"><i class="tg tg-star"></i> Extra Large (.xl)</p>
+    </div>
+</div>
+
+[code=html]
+&lt;p&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt; Default Size&lt;/p&gt;
+&lt;p class="sm"&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt; Small (.sm)&lt;/p&gt;
+&lt;p class="xs"&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt; Extra Small (.xs)&lt;/p&gt;
+&lt;p class="lg"&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt; Large (.lg)&lt;/p&gt;
+&lt;p class="xl"&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt; Extra Large (.xl)&lt;/p&gt;
+[/code]
+
+<p>For finer control, apply a <code>font-size</code> directly to the icon:</p>
+
+[code=html]
+&lt;i class="tg tg-search" style="font-size: 2.5em;"&gt;&lt;/i&gt;
+[/code]
+
+<h3>Colouring Icons</h3>
+
+<p>Because icons are drawn using the current text colour, changing an icon's colour is simply a matter of setting the CSS <code>color</code> property. This can be done on the icon itself or on any of its ancestors:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p style="color: crimson;"><i class="tg tg-padlock"></i> Crimson padlock</p>
+        <p style="color: seagreen;"><i class="tg tg-eye"></i> Seagreen eye</p>
+        <p style="color: #3498db;"><i class="tg tg-shopping-cart"></i> Blue shopping cart</p>
+    </div>
+</div>
+
+[code=html]
+&lt;p style="color: crimson;"&gt;&lt;i class="tg tg-padlock"&gt;&lt;/i&gt; Crimson padlock&lt;/p&gt;
+&lt;p style="color: seagreen;"&gt;&lt;i class="tg tg-eye"&gt;&lt;/i&gt; Seagreen eye&lt;/p&gt;
+&lt;p style="color: #3498db;"&gt;&lt;i class="tg tg-shopping-cart"&gt;&lt;/i&gt; Blue shopping cart&lt;/p&gt;
+[/code]
+
+<p>The same principle applies to hover states, which makes icons a natural fit within links and buttons:</p>
+
+[code=css]
+a .tg {
+    color: #888;
+}
+
+a:hover .tg {
+    color: #222;
+}
+[/code]
+
+<div class="alert alert-warning">
+    <p class="mb-0">Trongate Icons are <b>monochrome</b>. An icon adopts a single colour - the colour of the surrounding text. Multi-coloured artwork is a matter for ordinary image files and not for Trongate Icons.</p>
+</div>
+
+<h2>Icons With Text</h2>
+
+<p>Icons are usually placed immediately before or after a label, so that they read as part of the sentence. Since each icon carries its own alignment adjustments, no extra markup is required:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p><i class="tg tg-envelope"></i> <a href="#">Read your messages</a></p>
+        <p><i class="tg tg-user-circle"></i> Logged in as david</p>
+        <p><i class="tg tg-star"></i><i class="tg tg-star"></i><i class="tg tg-star"></i><i class="tg tg-star"></i><i class="tg tg-star-half"></i> 4.5 out of 5</p>
+    </div>
+</div>
+
+[code=html]
+&lt;p&gt;&lt;i class="tg tg-envelope"&gt;&lt;/i&gt; &lt;a href="#"&gt;Read your messages&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;i class="tg tg-user-circle"&gt;&lt;/i&gt; Logged in as david&lt;/p&gt;
+&lt;p&gt;
+    &lt;i class="tg tg-star"&gt;&lt;/i&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt;&lt;i class="tg tg-star"&gt;&lt;/i&gt;&lt;i class="tg tg-star-half"&gt;&lt;/i&gt;
+    4.5 out of 5
+&lt;/p&gt;
+[/code]
+
+<h2>Finding Available Icons</h2>
+
+<p>There is no lengthy reference list to consult because the icon set <i>is</i> the file system. Every SVG file inside <code>public/trongate-icons/</code> corresponds to one icon and one class:</p>
+
+<ul>
+    <li>the name of the file gives you the name of the class - <code>shopping-cart.svg</code> becomes <code>.tg-shopping-cart</code>;</li>
+    <li>the same names appear inside <code>css/trongate-icons.css</code>, where each icon has its own rule;</li>
+    <li>a new icon is added simply by dropping an SVG file into the directory and adding a corresponding rule to the stylesheet.</li>
+</ul>
+
+<p>The complete set, as at version 0.1.0, is shown below. Each example is followed by the class name that produced it.</p>
+
+<div class="trongate-css-demo">
+    <div class="flex-row flex-wrap">
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-envelope"></i></span>
+            <p class="xs mb-0">envelope</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-envelope-open"></i></span>
+            <p class="xs mb-0">envelope-open</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-eye"></i></span>
+            <p class="xs mb-0">eye</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-home"></i></span>
+            <p class="xs mb-0">home</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-list"></i></span>
+            <p class="xs mb-0">list</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-padlock"></i></span>
+            <p class="xs mb-0">padlock</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-pencil"></i></span>
+            <p class="xs mb-0">pencil</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-search"></i></span>
+            <p class="xs mb-0">search</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-shopping-basket"></i></span>
+            <p class="xs mb-0">shopping-basket</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-shopping-cart"></i></span>
+            <p class="xs mb-0">shopping-cart</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-sign-in"></i></span>
+            <p class="xs mb-0">sign-in</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-sign-out"></i></span>
+            <p class="xs mb-0">sign-out</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-star"></i></span>
+            <p class="xs mb-0">star</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-star-half"></i></span>
+            <p class="xs mb-0">star-half</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-trash"></i></span>
+            <p class="xs mb-0">trash</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-user"></i></span>
+            <p class="xs mb-0">user</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-user-circle"></i></span>
+            <p class="xs mb-0">user-circle</p>
+        </div>
+        <div class="text-center" style="width: 20%; padding: 0.5em 0;">
+            <span class="xl"><i class="tg tg-users"></i></span>
+            <p class="xs mb-0">users</p>
+        </div>
+    </div>
+</div>
+
+<p>To display any icon from the set, prefix its name with <code>tg-</code> and place it alongside the base class. The example below displays a shopping basket:</p>
+
+[code=html]
+&lt;i class="tg tg-shopping-basket"&gt;&lt;/i&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p class="mb-0">Trongate Icons is currently at version 0.1.0 (Beta). Since the directory of SVG files is the definitive list of what is available, check <code>public/trongate-icons/</code> after updating the framework to see what has changed.</p>
+</div>
+
+<h2>Practical Examples</h2>
+
+<p>The examples below show Trongate Icons at work in situations that are common to just about every web application.</p>
+
+<h3>Table Row Actions</h3>
+
+<p>Icons make short work of the view, edit and delete actions that accompany a database record:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <a href="#" class="button alt button-round"><i class="tg tg-eye"></i></a>
+        <a href="#" class="button alt button-round"><i class="tg tg-pencil"></i></a>
+        <a href="#" class="button danger button-round"><i class="tg tg-trash"></i></a>
+    </div>
+</div>
+
+[code=html]
+&lt;a href="products/show/42" class="button alt button-round"&gt;&lt;i class="tg tg-eye"&gt;&lt;/i&gt;&lt;/a&gt;
+&lt;a href="products/create/42" class="button alt button-round"&gt;&lt;i class="tg tg-pencil"&gt;&lt;/i&gt;&lt;/a&gt;
+&lt;a href="products/delete_conf/42" class="button danger button-round"&gt;&lt;i class="tg tg-trash"&gt;&lt;/i&gt;&lt;/a&gt;
+[/code]
+
+<h3>A Navigation Menu</h3>
+
+<p>Icons sit neatly within navigation lists, providing a visual cue without disturbing the layout:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <ul style="list-style: none; padding-left: 0;">
+            <li><a href="#"><i class="tg tg-home"></i> Dashboard</a></li>
+            <li><a href="#"><i class="tg tg-envelope"></i> Messages</a></li>
+            <li><a href="#"><i class="tg tg-shopping-cart"></i> Orders</a></li>
+            <li><a href="#"><i class="tg tg-users"></i> Manage Users</a></li>
+            <li><a href="#"><i class="tg tg-sign-out"></i> Log Out</a></li>
+        </ul>
+    </div>
+</div>
+
+[code=html]
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href="dashboard"&gt;&lt;i class="tg tg-home"&gt;&lt;/i&gt; Dashboard&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="messages"&gt;&lt;i class="tg tg-envelope"&gt;&lt;/i&gt; Messages&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="orders"&gt;&lt;i class="tg tg-shopping-cart"&gt;&lt;/i&gt; Orders&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="users"&gt;&lt;i class="tg tg-users"&gt;&lt;/i&gt; Manage Users&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="logout"&gt;&lt;i class="tg tg-sign-out"&gt;&lt;/i&gt; Log Out&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+[/code]
+
+<h3>Form Buttons</h3>
+
+<p>Icons can be added to a form button by placing the icon's markup inside the button element:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <button class="success"><i class="tg tg-sign-in"></i> Log In</button>
+        <button class="alt mt-1"><i class="tg tg-search"></i> Search</button>
+    </div>
+</div>
+
+[code=html]
+&lt;button class="success"&gt;&lt;i class="tg tg-sign-in"&gt;&lt;/i&gt; Log In&lt;/button&gt;
+&lt;button class="alt"&gt;&lt;i class="tg tg-search"&gt;&lt;/i&gt; Search&lt;/button&gt;
+[/code]
+
+<div class="alert alert-info">
+    <p class="mb-0">The <code>form_button()</code> helper accepts HTML, so icons can be included when buttons are generated in PHP. For example: <code>form_button('search_btn', 'Search &lt;i class="tg tg-search"&gt;&lt;/i&gt;', $attributes);</code></p>
+</div>
+
+<h3>Status Indicators</h3>
+
+<p>Because icons inherit their colour, a colour change is all that is required to communicate a status:</p>
+
+<div class="trongate-css-demo">
+    <div>
+        <p style="color: seagreen;"><i class="tg tg-padlock"></i> Payment received</p>
+        <p style="color: #d68910;"><i class="tg tg-star-half"></i> Awaiting review</p>
+        <p style="color: crimson;"><i class="tg tg-trash"></i> Scheduled for deletion</p>
+    </div>
+</div>
+
+[code=html]
+&lt;p style="color: seagreen;"&gt;&lt;i class="tg tg-padlock"&gt;&lt;/i&gt; Payment received&lt;/p&gt;
+&lt;p style="color: #d68910;"&gt;&lt;i class="tg tg-star-half"&gt;&lt;/i&gt; Awaiting review&lt;/p&gt;
+&lt;p style="color: crimson;"&gt;&lt;i class="tg tg-trash"&gt;&lt;/i&gt; Scheduled for deletion&lt;/p&gt;
+[/code]
+
+<h3>An Empty State</h3>
+
+<p>A large icon provides a friendly focal point when a list or a table has nothing to display:</p>
+
+<div class="trongate-css-demo">
+    <div class="text-center">
+        <p style="font-size: 3em; color: #bbb; margin-bottom: 0;"><i class="tg tg-envelope-open"></i></p>
+        <p><b>Your inbox is empty.</b></p>
+        <p class="sm">There are no messages to display at this time.</p>
+    </div>
+</div>
+
+[code=html]
+&lt;div class="text-center"&gt;
+    &lt;p style="font-size: 3em; color: #bbb;"&gt;&lt;i class="tg tg-envelope-open"&gt;&lt;/i&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;b&gt;Your inbox is empty.&lt;/b&gt;&lt;/p&gt;
+    &lt;p class="sm"&gt;There are no messages to display at this time.&lt;/p&gt;
+&lt;/div&gt;
+[/code]
+
+<h2>Summary</h2>
+
+<ul>
+    <li>Trongate Icons ships with Trongate v2 and requires no third-party dependencies.</li>
+    <li>The icons live in <code>public/trongate-icons/</code> and their stylesheet is <code>public/css/trongate-icons.css</code>.</li>
+    <li>Display an icon with the base class <code>.tg</code> plus a class that names the icon - for example, <code>&lt;i class="tg tg-home"&gt;&lt;/i&gt;</code>.</li>
+    <li>Icons inherit both colour and size from their surroundings, and they can be resized with the size classes.</li>
+    <li>Every SVG file in the icons directory corresponds to one icon, so the directory itself is the reference.</li>
+</ul>
+
+<div class="alert alert-success">
+    <p class="mb-0">Trongate Icons is entirely optional. Projects that already rely on another icon library can continue to do so, and the two approaches can even be used alongside one another.</p>
+</div>
