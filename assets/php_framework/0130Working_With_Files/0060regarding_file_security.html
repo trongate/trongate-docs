@@ -37,6 +37,8 @@ $this-&gt;file-&gt;read($malicious);
 // Result: "A security threat was detected in the [label]. The upload has been blocked."
 [/code]
 
+<p>A bare short open tag (<code>&lt;?</code>) is treated differently from the patterns above. The byte pair <code>0x3C 0x3F</code> occurs by chance inside compressed binary data, so matching it against every upload would refuse valid images at random. It is therefore applied to <strong>text content only</strong> (content that is valid UTF-8), and every other pattern in the list above spans five or more bytes. An image that happens to contain the pair is not rejected; instead the Image module <strong>re-encodes it before storage</strong>, so no such bytes can survive in the published file.</p>
+
 <div class="alert alert-info">
     <p><strong>How it works:</strong> When you set file validation rules via <code>$this-&gt;validation-&gt;set_rules()</code> followed by <code>$this-&gt;validation-&gt;run()</code>, the Validation module checks the temporary uploaded file for malicious content <strong>before</strong> <span class="feature-ref">included-file-upload()</span> ever touches it. This means a rejected file never leaves the temp directory.</p>
 </div>

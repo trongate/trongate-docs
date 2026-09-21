@@ -152,7 +152,11 @@
     </table>
 
     <div class="alert alert-info">
-        <p><strong>Automatic Security Validation:</strong> The <code>upload()</code> method performs four layers of security checks automatically: (1) MIME type verification using finfo and getimagesize(), (2) File signature validation to prevent extension spoofing, (3) Script injection prevention scanning first 256 bytes for dangerous content, (4) Memory limit enforcement to prevent server overload. These checks run automatically with no configuration required.</p>
+        <p><strong>Automatic Security Validation:</strong> The <code>upload()</code> method performs four layers of security checks automatically: (1) MIME type verification using finfo and getimagesize(), (2) File signature validation to prevent extension spoofing, (3) Script injection prevention scanning first 256 bytes for dangerous content, (4) Memory limit enforcement to prevent server overload. On top of those four checks, an image whose first 4 KB contain a short open tag byte pair (<code>&lt;?</code>) is re-encoded before it is stored, so client-supplied bytes are never published verbatim - a bare <code>&lt;?</code> is not treated as a threat in image data, since the byte pair occurs by chance in compressed files. These checks run automatically with no configuration required.</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <p><strong>Format support depends on your GD build:</strong> The <code>upload()</code> method supports JPEG, PNG, GIF and WebP, subject to your GD build. WebP processing requires GD compiled with WebP support (<code>imagecreatefromwebp()</code>); where a PHP installation lacks it, WebP images cannot be processed and are refused. This is easily missed - XAMPP's bundled GD can be built without it - so check <code>gd_info()</code> if WebP uploads behave unexpectedly.</p>
     </div>
 
     <h2>Example #1</h2>
