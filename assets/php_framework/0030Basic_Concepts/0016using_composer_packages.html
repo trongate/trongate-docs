@@ -12,29 +12,36 @@
 
 <h2>Install and Load a Package</h2>
 
-<p>There are exactly two steps: install the package, then tell Trongate where Composer's autoloader lives. Both are shown below.</p>
+<p>Three steps, and the job's done.</p>
 
-<p><strong>Step 1  -  install the package.</strong> Open a terminal, <code>cd</code> into the root of your application and run:</p>
-
-[code=bash]
+<ol>
+    <li>
+        <p><strong>Install the package.</strong> Open a terminal, <code>cd</code> into the root of your application and run this command:</p>
+[code]
 composer require dompdf/dompdf
 [/code]
-
-<p>This is the only command required, and Composer creates everything it needs  -  a <code>vendor/</code> folder, plus a <code>composer.json</code> and a <code>composer.lock</code> if you don't already have them. Nothing else in your application changes.</p>
-
-<p><strong>Step 2  -  load the autoloader.</strong> Open <code>public/index.php</code>. That file already exists in every Trongate v2 installation, so you are editing it, not creating it. Add the highlighted line, so that the whole file looks like this:</p>
-
+        <p>Composer handles the rest  -  it creates a <code>vendor/</code> folder, plus <code>composer.json</code> and <code>composer.lock</code> if you don't already have them. Nothing else in your application changes.</p>
+    </li>
+    <li>
+        <p><strong>Add Composer's autoloader to <code>public/index.php</code>.</strong> This file <em>already exists</em> in every Trongate v2 installation  -  you are opening it and editing it, not creating it. Add one line, so that the whole file reads as follows:</p>
 [code=php]
 &lt;?php
 require_once '../engine/ignition.php';
 
-require_once APPPATH . 'vendor/autoload.php';   // <- the only addition
+require_once APPPATH . 'vendor/autoload.php';   // <- add this line!
 
 //Init Core Library
 $init = new Core;
 [/code]
-
-<p>Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request.</p>
+        <div class="alert alert-info">
+            <p><strong>Look before you edit.</strong> If <code>public/index.php</code> already contains the autoloader line, there's nothing to do here  -  move straight on to step 3.</p>
+        </div>
+        <p>Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request. Miss it and the failure is silent: a 500 response with an empty body.</p>
+    </li>
+    <li>
+        <p><strong>Use the package in your module.</strong> Add a <code>use</code> statement and you're away  -  see the next section for a complete, working example.</p>
+    </li>
+</ol>
 
 <p>The two autoloaders keep out of each other's way. Trongate's own loader only ever looks inside <code>engine/</code> and <code>modules/</code>. Composer's loader only ever looks inside <code>vendor/</code>. Composer registers itself first, so anything it can resolve wins  -  which is exactly what you want.</p>
 
