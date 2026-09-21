@@ -39,7 +39,7 @@ $init = new Core;
         <p>Trongate does <strong>not</strong> load Composer's autoloader for you, so this line is what wakes it up  -  for every module, on every request. Miss it and the failure is silent: a 500 response with an empty body.</p>
     </li>
     <li>
-        <p><strong>Use the package in your module.</strong> Add a <code>use</code> statement and you're away  -  see the next section for a complete, working example.</p>
+        <p><strong>Use the package in your module.</strong> Add a <code>use</code> statement  -  such as <code>use Dompdf\Dompdf;</code>  -  and call the package's methods as though its classes lived in your own module. The next section has a complete, working example.</p>
     </li>
 </ol>
 
