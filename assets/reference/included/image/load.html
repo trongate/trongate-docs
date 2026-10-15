@@ -65,6 +65,10 @@ $image-&gt;save('output.jpg');
     </ul>
 
     <div class="alert alert-info">
+        <p><strong>Subject to your GD build:</strong> WebP support requires GD to be compiled with WebP support (<code>imagecreatefromwebp()</code>). Where it is absent, a valid WebP cannot be processed and is reported as a valid image that this server cannot process - rather than as an invalid file.</p>
+    </div>
+
+    <div class="alert alert-info">
         <p><strong>Path Type Matters:</strong> Use filesystem paths with <code>load()</code>, not URLs. Correct: <code>'modules/shop/products/widget.jpg'</code> or <code>'../modules/shop/products/widget.jpg'</code>. Incorrect: <code>'shop_module/products/widget.jpg'</code> (that's a URL pattern for browser display, not filesystem access).</p>
     </div>
 

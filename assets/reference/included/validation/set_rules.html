@@ -409,7 +409,8 @@ $this-&gt;validation-&gt;set_rules('price', 'Price', 'required|numeric|greater_t
   <h2>File Upload Validation Details</h2>
 
   <div class="alert alert-info">
-    <p><strong>Automatic File Security:</strong> When validating file uploads, Trongate automatically scans the first 256 bytes of uploaded files for dangerous patterns like PHP code, shell commands, and malicious scripts. This security check happens before any custom validation rules are applied.</p>
+    <p><strong>Automatic File Security:</strong> When validating file uploads, Trongate automatically scans the first 4,096 bytes of uploaded files for dangerous patterns like PHP code, shell commands, and malicious scripts. This security check happens before any custom validation rules are applied.</p>
+    <p><strong>Two separate scans:</strong> That check belongs to the Validation module and reads the first <strong>4,096 bytes</strong> of every uploaded file. The 256-byte opening-bytes check is a different one: it belongs to the Image module and applies only to images passed to <span class="feature-ref">included-image-upload()</span>. A bare short open tag (<code>&lt;?</code>) is not treated as a threat by either scan - it is applied to text content only, because the byte pair occurs by chance in compressed image data. An image that contains it is re-encoded before storage instead.</p>
   </div>
 
   <h3>Complete File Upload Example</h3>

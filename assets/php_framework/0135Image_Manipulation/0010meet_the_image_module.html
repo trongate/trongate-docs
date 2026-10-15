@@ -124,9 +124,12 @@ WEBP: "RIFF" + "WEBP"
 &lt;iframe&gt;
 &lt;object&gt;
 &lt;embed&gt;
+&lt;applet&gt;
 
 // If detected: "Potential security threat detected in image"
 [/code]
+
+<p>A bare short open tag (<code>&lt;?</code>) is deliberately <strong>not</strong> treated as a threat in image data. The byte pair <code>0x3C 0x3F</code> occurs by chance inside compressed image data - roughly one 4 KB window in sixteen contains it - so matching it against binary files would refuse valid images at random. An affected image is therefore <strong>re-encoded before it is stored</strong>, rather than rejected, which means the client-supplied bytes are never published verbatim. Every pattern that <em>is</em> tested for above spans five or more bytes, so a match here is always a genuine one.</p>
 
 <h3>4. Memory Limit Enforcement</h3>
 <p>Calculates required memory before processing to prevent server overload:</p>
