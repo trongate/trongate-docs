@@ -19,7 +19,7 @@
 
     <p>Trongate is designed to be extended through custom modules and the normal application structure, not altered at its core.</p>
 
-    <p><b>One exception:</b> During development, you can temporarily set <code>$debug = true</code> in <code>Model.php</code> to inspect SQL queries. Just remember to set it back to <code>false</code> before production.</p>
+    <p><b>Need to see your SQL?</b> Don't reach for the engine. The <code>db</code> module ships with a built-in <a href="https://trongate.io/documentation/trongate_php_framework/database-operations/using-debug-mode">Debug Mode</a> – set <code>private $debug = false;</code> to <code>true</code> in <code>modules/db/Db.php</code>, then set it back to <code>false</code> before production.</p>
   </details>
 
   <details>
