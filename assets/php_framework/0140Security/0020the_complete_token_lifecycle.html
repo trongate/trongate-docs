@@ -203,7 +203,7 @@ $token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
 // Token stored in $_COOKIE['trongatetoken']
 [/code]
 
-<p><strong>Use case:</strong> "Remember me" functionality. Token persists across browser sessions.</p>
+<p><strong>Use case:</strong> "Remember me" functionality. Token persists across browser sessions. The cookie is written with <code>HttpOnly</code> and <code>SameSite=Lax</code>, and with <code>Secure</code> when <code>BASE_URL</code> is HTTPS.</p>
 
 <h2>Token Validation Priority</h2>
 
