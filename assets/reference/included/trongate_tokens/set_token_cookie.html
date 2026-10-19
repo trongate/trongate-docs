@@ -1,0 +1,81 @@
+<div class="container">
+  <h1>set_token_cookie()</h1>
+  <p class="signature">public function set_token_cookie(string $value, int $expires): void</p>
+
+  <h2>Description</h2>
+  <div class="description">
+    <p>Writes (or clears) the <code>trongatetoken</code> cookie, applying the framework's cookie flags.</p>
+    <p>This is the only place in the framework where the login cookie is written. Setting and clearing a cookie must use the same attributes, so both go through this method.</p>
+  </div>
+
+  <h2>Parameters</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+        <th>Required</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>$value</td>
+        <td>string</td>
+        <td>The token to store. Pass <code>'x'</code> when clearing the cookie.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>$expires</td>
+        <td>int</td>
+        <td>Unix timestamp for expiry. Pass a time in the past to clear the cookie.</td>
+        <td>N/A</td>
+        <td>Yes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Value</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>void</td>
+        <td>This method does not return a value.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Example Usage</h2>
+  [code=php]
+// Remember-me login: generate the token, then store it as a cookie
+$expiry_date = time() + (86400 * 30);
+
+$token = $this->trongate_tokens->generate_token([
+    'user_id' => $trongate_user_id,
+    'expiry_date' => $expiry_date
+]);
+
+$this->trongate_tokens->set_token_cookie($token, $expiry_date);
+
+// Clear the cookie
+$this->trongate_tokens->set_token_cookie('x', time() - 86400);
+[/code]
+
+  <h2>Notes</h2>
+  <ul>
+    <li>Sets <code>HttpOnly</code>, so the cookie cannot be read by JavaScript.</li>
+    <li>Sets <code>SameSite=Lax</code>, so the cookie is sent on same-site requests and on top-level navigation to the site, but not on cross-site POST requests or cross-site subresource loads.</li>
+    <li>Sets <code>path=/</code>, so the cookie is available across the whole application.</li>
+    <li>Sets <code>Secure</code> when <code>BASE_URL</code> begins with <code>https://</code>. A site running on plain HTTP receives the cookie without the flag, exactly as it did before the flags were added.</li>
+    <li>These attributes are not configurable.</li>
+    <li>Normally there is no need to call this method: <code>generate_token()</code> writes the cookie when <code>set_cookie</code> is true, and <code>destroy()</code> clears it. Call it directly only from a module that has to emit the cookie itself.</li>
+  </ul>
+</div>

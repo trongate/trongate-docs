@@ -149,6 +149,19 @@ $token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
 
 <p>The token now stores in <code>$_COOKIE['trongatetoken']</code> and persists even after the browser closes.</p>
 
+<h3>Cookie Flags</h3>
+
+<p>The <code>trongatetoken</code> cookie is always written with the following attributes:</p>
+
+<ul>
+  <li><strong>HttpOnly</strong> &mdash; JavaScript cannot read the cookie, so a cross-site scripting flaw cannot steal the token from it.</li>
+  <li><strong>SameSite=Lax</strong> &mdash; the cookie is sent on same-site requests and on top-level navigation to your site (following a link from an email, for example). It is not sent on cross-site POST requests or cross-site subresource loads. This is also what browsers apply to a cookie that has no <code>SameSite</code> attribute.</li>
+  <li><strong>Secure</strong> &mdash; added when <code>BASE_URL</code> begins with <code>https://</code>. A site running on plain HTTP receives the cookie without the flag.</li>
+  <li><strong>path=/</strong> &mdash; the cookie is available across the whole application.</li>
+</ul>
+
+<p>The attributes are set in one place, <code>Trongate_tokens_model::set_token_cookie()</code>, and are not configurable. Setting and clearing the cookie use the same attributes so that a logout always removes the cookie that was set at login.</p>
+
 <h2>Complete Login Example</h2>
 
 <p>Here's a realistic login controller that validates credentials and generates a token:</p>
