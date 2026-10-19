@@ -89,7 +89,7 @@ public function is_logged_in(): bool {
     <li>This method does not check <code>expiry_date</code>. Use <code>attempt_get_valid_token()</code> when the result has to be expiry‑checked.</li>
     <li>Token search order when <code>$token</code> is null: cookie → session → HTTP header.</li>
     <li>Returns <code>false</code> when no stored token matches.</li>
-    <li>User ID corresponds to the <code>id</code> column in the <code>trongate_users</code> (or custom users) table.</li>
+    <li>User ID corresponds to the <code>id</code> column in the <code>trongate_users</code> table.</li>
     <li>Use <code>get_user_obj()</code> to get the full user object instead of just the ID.</li>
   </ul>
 </div>
