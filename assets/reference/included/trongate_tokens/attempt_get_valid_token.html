@@ -55,7 +55,7 @@
         <td>string|bool</td>
         <td>
           <ul>
-            <li><strong>string</strong> – Valid token (64‑character hex string)</li>
+            <li><strong>string</strong> – Valid token (32‑character alphanumeric string)</li>
             <li><strong>false</strong> – No valid token found</li>
           </ul>
         </td>
@@ -90,9 +90,10 @@ public function api_endpoint() {
   
   <h2>Notes</h2>
   <ul>
-    <li>Tokens are 64‑character hexadecimal strings.</li>
-    <li>User levels are integer values stored in the <code>trongate_tokens</code> database table.</li>
+    <li>Tokens are 32‑character alphanumeric strings.</li>
+    <li>User level IDs are integers, stored in <code>trongate_users.user_level_id</code> → not in <code>trongate_tokens</code>.</li>
     <li>The method calls the model to validate token expiration and user‑level matching.</li>
+    <li>Unlike <code>get_user_id()</code>, <code>get_user_obj()</code> and <code>get_user_level()</code>, this method does check <code>expiry_date</code>.</li>
     <li>Use <code>get_user_id()</code>, <code>get_user_obj()</code>, or <code>get_user_level()</code> to extract user information from a valid token.</li>
   </ul>
 </div>

@@ -23,7 +23,7 @@
       <tr>
         <td>$token</td>
         <td>string|null</td>
-        <td>A 64‑character hexadecimal token. If null, the method searches session, cookie, and HTTP headers.</td>
+        <td>A 32‑character alphanumeric token. If null, the method searches the cookie, then the session, then the HTTP header.</td>
         <td>null</td>
         <td>No</td>
       </tr>
@@ -89,10 +89,11 @@ public function me() {
   
   <h2>Notes</h2>
   <ul>
-    <li>Calls <code>$this->model->get_user_obj($token)</code> which validates token expiration.</li>
-    <li>Token search order when <code>$token</code> is null: HTTP header → cookie → session.</li>
-    <li>The object contains all database columns; be careful not to expose passwords or other sensitive data.</li>
-    <li>Returns <code>false</code> if token is expired, invalid, or not found.</li>
-    <li>User table name is determined by the <code>users_table</code> property in the model (default: <code>trongate_users</code>).</li>
+    <li>Calls <code>$this->model->get_user_obj($token)</code>.</li>
+    <li>This method does not check <code>expiry_date</code>. Use <code>attempt_get_valid_token()</code> when the result has to be expiry‑checked.</li>
+    <li>Token search order when <code>$token</code> is null: cookie → session → HTTP header.</li>
+    <li>The object contains six properties: <code>trongate_user_code</code>, <code>user_level_id</code>, <code>user_level</code>, <code>token</code>, <code>trongate_user_id</code> and <code>expiry_date</code>. No password column is included.</li>
+    <li>Returns <code>false</code> when no stored token matches.</li>
+    <li>The query reads <code>trongate_tokens</code> joined to <code>trongate_users</code> and <code>trongate_user_levels</code>. Those table names are fixed in the model.</li>
   </ul>
 </div>
