@@ -65,26 +65,24 @@ $token = post('token', true);
 $user = $this->trongate_tokens->get_user_obj($token);
 
 // Use in member area controller
+// attempt_get_valid_token() checks expiry_date; get_user_obj() does not.
 public function dashboard() {
-    $user = $this->trongate_tokens->get_user_obj();
-    if ($user === false) {
+    if ($this->trongate_tokens->attempt_get_valid_token() === false) {
         redirect('members/login');
     }
-    $data['user'] = $user;
+    $data['user'] = $this->trongate_tokens->get_user_obj();
     $this->view('dashboard', $data);
 }
 
 // API endpoint returning user profile
+// No password column is returned, so the object can be encoded as it stands.
 public function me() {
-    $user = $this->trongate_tokens->get_user_obj();
-    if ($user === false) {
+    if ($this->trongate_tokens->attempt_get_valid_token() === false) {
         http_response_code(401);
         echo json_encode(['error' => 'Unauthorized']);
         die();
     }
-    // Remove sensitive fields
-    unset($user->password);
-    echo json_encode($user);
+    echo json_encode($this->trongate_tokens->get_user_obj());
 }[/code]
   
   <h2>Notes</h2>

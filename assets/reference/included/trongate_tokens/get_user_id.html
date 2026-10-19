@@ -64,20 +64,23 @@ $token = $_SERVER['HTTP_TRONGATETOKEN'] ?? null;
 $user_id = $this->trongate_tokens->get_user_id($token);
 
 // Protect an API endpoint
+// attempt_get_valid_token() checks expiry_date; get_user_id() does not,
+// so confirm the token is live before trusting the ID it returns.
 public function get_profile() {
-    $user_id = $this->trongate_tokens->get_user_id();
-    if ($user_id === false) {
+    $token = $this->trongate_tokens->attempt_get_valid_token();
+    if ($token === false) {
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid token']);
+        echo json_encode(['error' => 'Invalid or expired token']);
         die();
     }
+    $user_id = $this->trongate_tokens->get_user_id($token);
     $profile = $this->model->get_profile($user_id);
     echo json_encode($profile);
 }
 
 // Check if user is logged in
 public function is_logged_in(): bool {
-    return $this->trongate_tokens->get_user_id() !== false;
+    return $this->trongate_tokens->attempt_get_valid_token() !== false;
 }[/code]
   
   <h2>Notes</h2>
