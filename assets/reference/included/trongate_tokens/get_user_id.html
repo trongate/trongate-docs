@@ -23,7 +23,7 @@
       <tr>
         <td>$token</td>
         <td>string|null</td>
-        <td>A 64‑character hexadecimal token. If null, the method searches session, cookie, and HTTP headers.</td>
+        <td>A 32‑character alphanumeric token. If null, the method searches the cookie, then the session, then the HTTP header.</td>
         <td>null</td>
         <td>No</td>
       </tr>
@@ -64,27 +64,31 @@ $token = $_SERVER['HTTP_TRONGATETOKEN'] ?? null;
 $user_id = $this->trongate_tokens->get_user_id($token);
 
 // Protect an API endpoint
+// attempt_get_valid_token() checks expiry_date; get_user_id() does not,
+// so confirm the token is live before trusting the ID it returns.
 public function get_profile() {
-    $user_id = $this->trongate_tokens->get_user_id();
-    if ($user_id === false) {
+    $token = $this->trongate_tokens->attempt_get_valid_token();
+    if ($token === false) {
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid token']);
+        echo json_encode(['error' => 'Invalid or expired token']);
         die();
     }
+    $user_id = $this->trongate_tokens->get_user_id($token);
     $profile = $this->model->get_profile($user_id);
     echo json_encode($profile);
 }
 
 // Check if user is logged in
 public function is_logged_in(): bool {
-    return $this->trongate_tokens->get_user_id() !== false;
+    return $this->trongate_tokens->attempt_get_valid_token() !== false;
 }[/code]
   
   <h2>Notes</h2>
   <ul>
-    <li>Calls <code>$this->model->get_user_id($token)</code> which validates token expiration.</li>
-    <li>Token search order when <code>$token</code> is null: HTTP header → cookie → session.</li>
-    <li>Returns <code>false</code> if token is expired, invalid, or not found.</li>
+    <li>Calls <code>$this->model->get_user_id($token)</code>.</li>
+    <li>This method does not check <code>expiry_date</code>. Use <code>attempt_get_valid_token()</code> when the result has to be expiry‑checked.</li>
+    <li>Token search order when <code>$token</code> is null: cookie → session → HTTP header.</li>
+    <li>Returns <code>false</code> when no stored token matches.</li>
     <li>User ID corresponds to the <code>id</code> column in the <code>trongate_users</code> (or custom users) table.</li>
     <li>Use <code>get_user_obj()</code> to get the full user object instead of just the ID.</li>
   </ul>

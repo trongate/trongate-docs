@@ -207,11 +207,13 @@ $token = $this-&gt;trongate_tokens-&gt;generate_token($token_data);
 
 <h2>Token Validation Priority</h2>
 
-<p>When validating tokens, Trongate checks two locations in this order:</p>
+<p>A token can arrive in three places: the <code>trongatetoken</code> HTTP header, the <code>trongatetoken</code> cookie, or the session.</p>
+
+<p>The order in which they are checked depends on the method you call:</p>
 
 <ol>
-    <li><strong>Cookies</strong> - <code>$_COOKIE['trongatetoken']</code></li>
-    <li><strong>Session</strong> - <code>$_SESSION['trongatetoken']</code></li>
+    <li><code>attempt_get_valid_token()</code> checks the <strong>HTTP header</strong>, then the <strong>cookie</strong>, then the <strong>session</strong>.</li>
+    <li><code>get_user_id()</code>, <code>get_user_obj()</code> and <code>get_user_level()</code> check the <strong>cookie</strong>, then the <strong>session</strong>, then the <strong>HTTP header</strong>.</li>
 </ol>
 
 <p>The first valid token found wins.</p>

@@ -23,7 +23,7 @@
       <tr>
         <td>$token</td>
         <td>string|null</td>
-        <td>A 64‑character hexadecimal token. If null, the method searches session, cookie, and HTTP headers.</td>
+        <td>A 32‑character alphanumeric token. If null, the method searches the cookie, then the session, then the HTTP header.</td>
         <td>null</td>
         <td>No</td>
       </tr>
@@ -60,9 +60,12 @@ if ($level !== false) {
 }
 
 // Check if user is admin
+// attempt_get_valid_token() checks expiry_date; get_user_level() does not.
 public function admin_area() {
-    $level = $this->trongate_tokens->get_user_level();
-    if ($level !== 'admin') {
+    if ($this->trongate_tokens->attempt_get_valid_token() === false) {
+        redirect('members/login');
+    }
+    if ($this->trongate_tokens->get_user_level() !== 'admin') {
         redirect('members/not_allowed');
     }
     // Show admin content...
@@ -70,10 +73,16 @@ public function admin_area() {
 
 // Role‑based access control
 public function edit_post(int $post_id) {
-    $level = $this->trongate_tokens->get_user_level();
+    $token = $this->trongate_tokens->attempt_get_valid_token();
+    if ($token === false) {
+        redirect('members/login');
+    }
+
+    $level = $this->trongate_tokens->get_user_level($token);
+    $user_id = $this->trongate_tokens->get_user_id($token);
     $post = $this->model->get_post($post_id);
-    
-    if ($level === 'admin' || ($level === 'editor' && $post->author_id === $this->trongate_tokens->get_user_id())) {
+
+    if ($level === 'admin' || ($level === 'editor' && $post->author_id === $user_id)) {
         // Allow edit
     } else {
         redirect('posts/view/' . $post_id);
@@ -82,7 +91,9 @@ public function edit_post(int $post_id) {
 
 // API endpoint for admins only
 public function delete_user(int $user_id) {
-    if ($this->trongate_tokens->get_user_level() !== 'admin') {
+    $token = $this->trongate_tokens->attempt_get_valid_token();
+
+    if ($token === false || $this->trongate_tokens->get_user_level($token) !== 'admin') {
         http_response_code(403);
         echo json_encode(['error' => 'Forbidden']);
         die();
@@ -93,9 +104,10 @@ public function delete_user(int $user_id) {
   <h2>Notes</h2>
   <ul>
     <li>Internally calls <code>get_user_obj()</code> to retrieve the full user object, then extracts the <code>user_level</code> property.</li>
-    <li>Token search order when <code>$token</code> is null: HTTP header → cookie → session.</li>
-    <li>Returns <code>false</code> if token is expired, invalid, or not found.</li>
+    <li>Token search order when <code>$token</code> is null: cookie → session → HTTP header.</li>
+    <li>This method does not check <code>expiry_date</code>. Use <code>attempt_get_valid_token()</code> when the result has to be expiry‑checked.</li>
+    <li>Returns <code>false</code> when no stored token matches.</li>
     <li>User level is a string; for integer‑based levels, you may need to cast or use a different approach.</li>
-    <li>The <code>user_level</code> column must exist in your user table (default: <code>trongate_users</code>).</li>
+    <li>The <code>user_level</code> value comes from <code>trongate_user_levels.level_title</code>, joined through <code>trongate_users.user_level_id</code>.</li>
   </ul>
 </div>
