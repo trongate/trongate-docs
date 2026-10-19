@@ -90,11 +90,12 @@ public function submit_login() {
 
 // Create long‑lived API token
 public function create_api_key() {
-    $user_id = $this->trongate_tokens->get_user_id();
-    if ($user_id === false) {
+    $valid_token = $this->trongate_tokens->attempt_get_valid_token();
+    if ($valid_token === false) {
         http_response_code(401);
         die();
     }
+    $user_id = $this->trongate_tokens->get_user_id($valid_token);
     $token = $this->trongate_tokens->generate_token([
         'user_id' => $user_id,
         'expiry_date' => time() + (365 * 24 * 60 * 60),

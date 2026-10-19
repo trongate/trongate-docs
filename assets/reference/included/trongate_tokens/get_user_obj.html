@@ -5,7 +5,7 @@
   <h2>Description</h2>
   <div class="description">
     <p>Retrieves the full user object associated with a token. If no token is provided, checks session, cookie, and HTTP headers automatically.</p>
-    <p>The user object contains all columns from the user record (typically from <code>trongate_users</code> or your custom users table).</p>
+    <p>This is not a full user record. The object carries six properties: <code>trongate_user_code</code>, <code>user_level_id</code>, <code>user_level</code>, <code>token</code>, <code>trongate_user_id</code> and <code>expiry_date</code>. No password column is included.</p>
   </div>
   
   <h2>Parameters</h2>
@@ -43,7 +43,7 @@
         <td>object|bool</td>
         <td>
           <ul>
-            <li><strong>object</strong> – User record as a standard object (properties correspond to table columns)</li>
+            <li><strong>object</strong> – Standard object carrying the six properties listed above</li>
             <li><strong>false</strong> – Token not found or invalid</li>
           </ul>
         </td>
@@ -56,8 +56,8 @@
 // Get current user object
 $user = $this->trongate_tokens->get_user_obj();
 if ($user !== false) {
-    echo "Welcome, " . $user->username;
-    echo "Email: " . $user->email;
+    echo "User level: " . $user->user_level;
+    echo "Token expires: " . date('Y-m-d H:i', $user->expiry_date);
 }
 
 // Get user object from specific token
