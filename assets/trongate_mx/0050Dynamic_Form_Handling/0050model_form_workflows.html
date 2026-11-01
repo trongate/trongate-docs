@@ -69,7 +69,7 @@ public function draw_form(): void {
 [/code]
 
 <div class="alert alert-info">
-    <p>Notice how this method follows <a href="https://trongate.io/documentation/display/php_framework/understanding-routing/automatic-url-routing">standard Trongate automatic routing patterns</a> - it fetches data from <a href="https://trongate.io/documentation/display/php_framework/database-operations/introducing-the-model-class">the model</a>, prepares it for the view, and then loads a <a href="https://trongate.io/documentation/display/php_framework/views/understanding-view-files">view file</a>. The only difference is that the rendered HTML will appear inside a modal instead of a full page.</p>
+    <p>Notice how this method follows <a href="https://trongateframework.com/documentation/trongate_php_framework/understanding-routing/automatic-url-routing">standard Trongate automatic routing patterns</a> - it fetches data from <a href="https://trongateframework.com/documentation/trongate_php_framework/module-fundamentals/model-files">the model</a>, prepares it for the view, and then loads a <a href="https://trongateframework.com/documentation/trongate_php_framework/module-fundamentals/view-files">view file</a>. The only difference is that the rendered HTML will appear inside a modal instead of a full page.</p>
 </div>
 
 <h3 class="mt-3">Modal Form View</h3>
@@ -134,7 +134,7 @@ echo form_close();
 
 <h3 class="mt-3">Form Submission Handler</h3>
 
-<p>When the form is submitted, a POST request gets sent the endpoint specified by <code>$form_location</code>. This invokes a controller method that handles validation and processing using familiar <a href="https://trongate.io/documentation/display/php_framework/form-handling">Trongate form handling patterns</a>:</p>
+<p>When the form is submitted, a POST request gets sent the endpoint specified by <code>$form_location</code>. This invokes a controller method that handles validation and processing using familiar <a href="https://trongateframework.com/documentation/trongate_php_framework/form-handling">Trongate form handling patterns</a>:</p>
 
 [code=php]
 public function submit(): void {
