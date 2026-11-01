@@ -9,28 +9,18 @@
   <h2>Reading JSON Input</h2>
 
   <p>
-    HTML forms send data as <code>application/x-www-form-urlencoded</code>, which PHP reads via <code>$_POST</code> or the <code>post()</code> helper. But API clients send data as <code>application/json</code>, which arrives as a raw request body accessed via <code>php://input</code>.
+    HTML forms send data as <code>application/x-www-form-urlencoded</code>, which PHP reads via <code>$_POST</code>. API clients send <code>application/json</code> instead, which fills neither <code>$_POST</code> nor <code>$_REQUEST</code>. You could reach for <code>php://input</code> and <code>json_decode()</code> by hand, but Trongate's <code>post()</code> helper already does it: it reads whichever input the request carries  -  <code>application/x-www-form-urlencoded</code>, <code>multipart/form-data</code> or <code>application/json</code>  -  and hands it back as an associative array.
+  </p>
+
+  [code=php]$data = post();              // the whole payload
+$title = post('country_title'); // a single field[/code]
+
+  <p>
+    So there is no JSON parsing helper to write. The controller calls <code>post()</code> directly and handles the two ways a payload can be unusable: malformed JSON, which <code>post()</code> reports by throwing an exception, and an empty body, which comes back as an empty array.
   </p>
 
   <p>
-    Our controller includes a helper method to parse JSON input:
-  </p>
-
-  [code=php]public function get_post_data(): array|null {
-    block_url('countries_api/get_post_data');
-
-    $raw_input = file_get_contents('php://input');
-    $data = json_decode($raw_input, true);
-
-    if (!is_array($data) || empty($data)) {
-        return null;
-    }
-
-    return $data;
-}[/code]
-
-  <p>
-    This method reads the raw request body, decodes it from JSON, and returns an associative array. If the JSON is invalid or empty, it returns <code>null</code>, which the controller interprets as a 400 Bad Request.
+    <code>post()</code> also supports dot notation for nested keys  -  <code>post('country.name')</code>  -  trims and collapses whitespace with <code>post(null, true)</code>, and can cast numeric strings with <code>post(null, false, true)</code>. For this endpoint the plain form is enough.
   </p>
 
   <h2>Validation</h2>
@@ -75,12 +65,20 @@
   [code=php]public function create(): void {
     $this->authenticate();
 
-    $data = $this->get_post_data();
-
-    if ($data === null) {
+    try {
+        $data = post();
+    } catch (Exception $e) {
         http_response_code(400);
         echo json_encode([
-            'error' => 'Invalid or missing JSON payload.'
+            'error' => 'Invalid JSON payload.'
+        ]);
+        return;
+    }
+
+    if (!is_array($data) || empty($data)) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Missing JSON payload.'
         ]);
         return;
     }
@@ -151,10 +149,16 @@ curl -X POST \
   -H "Trongatetoken: your-token" \
   -H "Content-Type: application/json" \
   -d 'not valid json' \
+  http://localhost/countries_api/create
+
+# Empty body
+curl -X POST \
+  -H "Trongatetoken: your-token" \
+  -H "Content-Type: application/json" \
   http://localhost/countries_api/create[/code]
 
   <p>
-    Each of these test cases exercises a different response path: 201 for success, 400 with field errors for validation failure, and 400 for invalid JSON.
+    Each test case exercises a different response path: 201 for success, 400 with field errors for validation failure, 400 for malformed JSON, and 400 for an empty body. The last two are worth testing deliberately  -  they are the paths where a clumsy implementation returns a 200 with a PHP warning inside the JSON instead of a clean error.
   </p>
 
 </div>
