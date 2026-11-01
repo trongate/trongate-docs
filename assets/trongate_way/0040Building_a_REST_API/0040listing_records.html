@@ -32,9 +32,7 @@
     $rows = $this->model->get_all();
 
     if (empty($rows)) {
-        http_response_code(200);
-        echo json_encode([]);
-        return;
+        $rows = [];
     }
 
     http_response_code(200);
@@ -44,7 +42,11 @@
 }[/code]
 
   <p>
-    The flow is simple: authenticate, fetch, check for empty results, encode, and log. No views, no templates, no HTML.
+    The flow is simple: authenticate, fetch, encode, log. No views, no templates, no HTML.
+  </p>
+
+  <p>
+    An empty collection is still a valid response  -  it is a 200 with <code>[]</code>, not a 404. Notice that the empty case does not return early: the response is the same shape either way, so there is nothing to guard against, and the request still gets logged. Logging after the response has been sent and on every successful path keeps the audit trail complete.
   </p>
 
   <h2>Testing with cURL</h2>

@@ -71,13 +71,13 @@ $token = $this->trongate_tokens->attempt_get_valid_token(1);[/code]
   </p>
 
   <p>
-    For a full understanding of how tokens work, see <a href="https://trongate.io/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
+    For a full understanding of how tokens work, see <a href="https://trongateframework.com/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
   </p>
 
   <h2>The After Hook: Request Logging</h2>
 
   <p>
-    The <code>log_request()</code> method appends an entry to a log file after every successful API call:
+    The <code>log_request()</code> method appends an entry to a log file after every successful API call. You already added it to the controller on <a href="https://trongateframework.com/documentation/trongate_way/building-a-rest-api/the-api-controller" target="_blank">The API Controller</a> page, which is why the endpoints on the preceding pages could call it  -  the listing is repeated here so that this section stands on its own:
   </p>
 
   [code=php]public function log_request(
@@ -95,17 +95,30 @@ $token = $this->trongate_tokens->attempt_get_valid_token(1);[/code]
                . ($_SERVER['REMOTE_ADDR'] ?? 'unknown')
                . PHP_EOL;
 
-    $log_file = APPPATH
-              . 'modules/countries_api/logs/'
-              . 'api_requests.log';
+    $log_dir = APPPATH
+             . 'modules/countries_api/logs/';
+
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0755, true);
+    }
 
     file_put_contents(
-        $log_file, $log_entry, FILE_APPEND | LOCK_EX
+        $log_dir . 'api_requests.log',
+        $log_entry,
+        FILE_APPEND | LOCK_EX
     );
 }[/code]
 
   <p>
+    The <code>is_dir()</code> check matters. Without it the first request writes to a folder that does not exist yet, and the <code>file_put_contents()</code> warning lands <em>after</em> the JSON body has been sent  -  so the client receives a 200 whose payload no longer parses.
+  </p>
+
+  <p>
     Each log entry records the timestamp, HTTP method, action name, affected record ID (if any), and the client's IP address. Over time, this builds a complete audit trail of API activity.
+  </p>
+
+  <p>
+    Because the call sits at the end of the method, the error paths that return early  -  a 400 for a bad ID, a 404 for a missing record  -  are not logged. This chapter deliberately logs successful calls only; if you need failed attempts in your audit trail, move the <code>log_request()</code> call so that it runs before each <code>return</code>, or pass the response status through to it.
   </p>
 
   <h2>Extending the Pattern</h2>

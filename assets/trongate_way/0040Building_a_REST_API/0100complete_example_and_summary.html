@@ -24,9 +24,7 @@ class Countries_api extends Trongate {
         $rows = $this->model->get_all();
 
         if (empty($rows)) {
-            http_response_code(200);
-            echo json_encode([]);
-            return;
+            $rows = [];
         }
 
         http_response_code(200);
@@ -63,11 +61,17 @@ class Countries_api extends Trongate {
     public function create(): void {
         $this->authenticate();
 
-        $data = $this->get_post_data();
-
-        if ($data === null) {
+        try {
+            $data = post();
+        } catch (Exception $e) {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid or missing JSON payload.']);
+            echo json_encode(['error' => 'Invalid JSON payload.']);
+            return;
+        }
+
+        if (!is_array($data) || empty($data)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing JSON payload.']);
             return;
         }
 
@@ -113,11 +117,17 @@ class Countries_api extends Trongate {
             return;
         }
 
-        $data = $this->get_post_data();
-
-        if ($data === null) {
+        try {
+            $data = post();
+        } catch (Exception $e) {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid or missing JSON payload.']);
+            echo json_encode(['error' => 'Invalid JSON payload.']);
+            return;
+        }
+
+        if (!is_array($data) || empty($data)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing JSON payload.']);
             return;
         }
 
@@ -220,19 +230,6 @@ class Countries_api extends Trongate {
     }
 
     // -- Helpers ---------------------------------------------------------
-
-    public function get_post_data(): array|null {
-        block_url('countries_api/get_post_data');
-
-        $raw_input = file_get_contents('php://input');
-        $data = json_decode($raw_input, true);
-
-        if (!is_array($data) || empty($data)) {
-            return null;
-        }
-
-        return $data;
-    }
 
     public function validate(array $data): array {
         block_url('countries_api/validate');
@@ -363,7 +360,7 @@ class Countries_api_model extends Model {
       <strong>Token Authentication:</strong> Secured every endpoint with Trongate's built-in token system, supporting both header-based and session-based authentication.
     </li>
     <li>
-      <strong>JSON Input Parsing:</strong> Read and validated JSON request bodies from <code>php://input</code>, a pattern distinct from HTML form handling.
+      <strong>JSON Input Parsing:</strong> Read JSON request bodies with the framework's <code>post()</code> helper, which parses <code>application/json</code>, form-encoded and multipart input alike  -  no hand-rolled <code>php://input</code> parsing required.
     </li>
     <li>
       <strong>HTTP Status Codes:</strong> Used appropriate codes for every response  -  200 for success, 201 for creation, 400 for bad requests, 401 for authentication failures, and 404 for missing resources.

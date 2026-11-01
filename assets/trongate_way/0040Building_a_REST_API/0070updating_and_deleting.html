@@ -9,7 +9,7 @@
   <h2>Updating a Record  -  PUT</h2>
 
   <p>
-    The <code>update()</code> endpoint combines patterns from <code>get_one()</code> (ID extraction, existence check) and <code>create()</code> (JSON parsing, validation):
+    The <code>update()</code> endpoint combines patterns from <code>get_one()</code> (ID extraction, existence check) and <code>create()</code> (<code>post()</code> for the JSON body, validation):
   </p>
 
   [code=php]public function update(): void {
@@ -35,12 +35,20 @@
         return;
     }
 
-    $data = $this->get_post_data();
-
-    if ($data === null) {
+    try {
+        $data = post();
+    } catch (Exception $e) {
         http_response_code(400);
         echo json_encode([
-            'error' => 'Invalid or missing JSON payload.'
+            'error' => 'Invalid JSON payload.'
+        ]);
+        return;
+    }
+
+    if (!is_array($data) || empty($data)) {
+        http_response_code(400);
+        echo json_encode([
+            'error' => 'Missing JSON payload.'
         ]);
         return;
     }

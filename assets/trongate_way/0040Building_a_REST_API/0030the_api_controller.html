@@ -68,7 +68,11 @@ class Countries_api extends Trongate {
 
   <h3>Using <code>block_url()</code> for Helper Methods</h3>
   <p>
-    The helper methods  -  <code>authenticate()</code>, <code>log_request()</code>, <code>get_post_data()</code>, and <code>validate()</code>  -  are all declared as <em>public</em> methods, but each one calls <code>block_url()</code> as its first action. This follows the Trongate v2 convention of keeping methods accessible from code while preventing direct URL invocation.
+    The helper methods  -  <code>authenticate()</code>, <code>log_request()</code> and <code>validate()</code>  -  are declared as <em>public</em> methods, and each one calls <code>block_url()</code> as its first action. This follows the Trongate v2 convention of keeping methods accessible from code while preventing direct URL invocation.
+  </p>
+
+  <p>
+    Declaring them <code>private</code> instead is equally safe, and gives you the same protection without the <code>block_url()</code> call: Trongate's dispatcher only invokes public methods, and returns a 404 for anything else. This chapter uses the <code>public</code> + <code>block_url()</code> form so that all the helpers look alike; see <a href="https://trongateframework.com/documentation/trongate_php_framework/intercepting-requests/preventing-url-invocation" target="_blank">Preventing URL Invocation</a> for the full comparison.
   </p>
 
   [code=php]public function authenticate(): void {
@@ -88,7 +92,50 @@ class Countries_api extends Trongate {
   </p>
 
   <p>
-    For a full understanding of how tokens work, see <a href="https://trongate.io/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
+    For a full understanding of how tokens work, see <a href="https://trongateframework.com/documentation/trongate_php_framework/security/understanding-trongates-token-system" target="_blank">Understanding Trongate's Token System</a> in the framework documentation.
+  </p>
+
+  <h3>The Request Logging Helper</h3>
+
+  <p>
+    Every endpoint in this chapter finishes by calling <code>log_request()</code>, which appends one line to a log file: the timestamp, the HTTP method, the action name, the affected record ID (if any) and the client's IP address. Add the method to the controller now, alongside <code>authenticate()</code>, before you start on the endpoints  -  every page from here on calls it:
+  </p>
+
+  [code=php]public function log_request(
+    string $action, ?int $record_id = null
+): void {
+    block_url('countries_api/log_request');
+
+    $log_entry = date('Y-m-d H:i:s') . ' | '
+               . $_SERVER['REQUEST_METHOD'] . ' | '
+               . $action
+               . ($record_id !== null
+                   ? ' | id: ' . $record_id
+                   : '')
+               . ' | '
+               . ($_SERVER['REMOTE_ADDR'] ?? 'unknown')
+               . PHP_EOL;
+
+    $log_dir = APPPATH
+             . 'modules/countries_api/logs/';
+
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0755, true);
+    }
+
+    file_put_contents(
+        $log_dir . 'api_requests.log',
+        $log_entry,
+        FILE_APPEND | LOCK_EX
+    );
+}[/code]
+
+  <p>
+    The <code>is_dir()</code> check creates the <code>logs/</code> folder on the first request, so you do not have to create it by hand  -  and more importantly, the first API response does not end up with a <code>file_put_contents()</code> warning in it.
+  </p>
+
+  <p>
+    Note that <code>log_request()</code> runs <em>after</em> the response has been sent. If it ever fails, the error output lands after the JSON body and the client can no longer parse the payload  -  so treat a broken log call as a broken endpoint, not a cosmetic problem.
   </p>
 
   <h3>JSON Response Pattern</h3>
