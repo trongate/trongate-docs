@@ -1,6 +1,6 @@
 <h1>Server-side Form Validation</h1>
 
-<p>One of the advantages of using Trongate MX is its seamless integration with Trongate's <a href="https://trongate.io/documentation-ref/list_refs/class_reference/the-validation-class">Form Validation Class</a>. This gives developers the opportunity to define and apply validation rules using Trongate’s default (traditional) <a href="https://trongate.io/documentation/display/php_framework/form-handling/setting-form-validation-rules">form validation techniques</a>.</p>
+<p>One of the advantages of using Trongate MX is its seamless integration with Trongate's <a href="https://trongateframework.com/documentation-ref/list_refs/class_reference/the-validation-class">Form Validation Class</a>. This gives developers the opportunity to define and apply validation rules using Trongate’s default (traditional) <a href="https://trongateframework.com/documentation/trongate_php_framework/form-validation/form-validation-basics">form validation techniques</a>.</p>
 
 <p>With Trongate MX, you have full control over how server-side validation is handled. As a bonus, all submitted forms are automatically passed through Trongate's built-in CSRF protection protocol, ensuring your applications are safeguarded against malicious cross-site requests - all without any additional setup.</p>
 
@@ -12,7 +12,7 @@
 
 <h3>Step 1: Define Your Validation Rules</h3>
 
-<p>Inside your method that handles the form submission, you can define form validation rules using the <span class="feature-ref">set_rules()</span> method, which is part of Trongate's <a href="https://trongate.io/documentation-ref/list_refs/class_reference/the-validation-class">Validation class</a>. For example:</p>
+<p>Inside your method that handles the form submission, you can define form validation rules using the <span class="feature-ref">set_rules()</span> method, which is part of Trongate's <a href="https://trongateframework.com/documentation-ref/list_refs/class_reference/the-validation-class">Validation class</a>. For example:</p>
 
 [code=php]
 $this->validation->set_rules('name', 'Name', 'required|min_length[2]');
@@ -61,15 +61,15 @@ if ($result === false) {
 <p>Whenever a form is submitted and validation is triggered using Trongate's Validation class, the framework silently enforces CSRF protection behind the scenes. This security measure requires the presence of a valid CSRF token, which ensures that only legitimate form submissions originating from your application will be accepted.</p>
 
 <div class="alert alert-danger">
-  <p>If you submit a form and use Trongate's <a href="https://trongate.io/documentation-ref/list_refs/class_reference/the-validation-class">Form Validation Class</a> to perform form validation tests, automatic CSRF protection will be activated. This means that the Trongate framework will check for the existence of a valid, posted CSRF token field.</p>
+  <p>If you submit a form and use Trongate's <a href="https://trongateframework.com/documentation-ref/list_refs/class_reference/the-validation-class">Form Validation Class</a> to perform form validation tests, automatic CSRF protection will be activated. This means that the Trongate framework will check for the existence of a valid, posted CSRF token field.</p>
 
   <p><b>Without posting a valid CSRF token, forms will not be processed!</b></p>
 
-  <p>Therefore, if you plan on using Trongate's Validation class, it's imperative to close forms by using Trongate's <code>form_close()</code> function. Trongate's <span class="feature-ref">form_close()</span> function automatically generates a valid, hidden CSRF token field. For more details, please refer to the Trongate PHP Framework documentation on '<a href="https://trongate.io/documentation/display/php_framework/form-handling/creating-forms">Creating Forms</a>'.</p>
+  <p>Therefore, if you plan on using Trongate's Validation class, it's imperative to close forms by using Trongate's <code>form_close()</code> function. Trongate's <span class="feature-ref">form_close()</span> function automatically generates a valid, hidden CSRF token field. For more details, please refer to the Trongate PHP Framework documentation on '<a href="https://trongateframework.com/documentation/trongate_php_framework/form-handling/creating-forms">Creating Forms</a>'.</p>
 </div>
 
 <div class="alert alert-info">
-  <p><strong>Learn More:</strong> For comprehensive information about CSRF protection in Trongate MX, including detailed security concepts and implementation details, visit the <a href="https://trongate.io/documentation/display/trongate_mx/trongate-mx-security/csrf-protection">CSRF Protection</a> page in the Trongate MX Security chapter.</p>
+  <p><strong>Learn More:</strong> For comprehensive information about CSRF protection in Trongate MX, including detailed security concepts and implementation details, visit the <a href="https://trongateframework.com/documentation/trongate_mx/trongate-mx-security/csrf-protection">CSRF Protection</a> page in the Trongate MX Security chapter.</p>
 </div>
 
 <h2>Conclusion</h2>

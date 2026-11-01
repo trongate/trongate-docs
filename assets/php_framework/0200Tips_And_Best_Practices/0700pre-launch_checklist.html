@@ -26,16 +26,16 @@ define('ENV', 'live'); // This is okay.
 </div>
 
 <h2>Check 3</h2>
-<p>Improve your site security by hiding your main admin login URL. Not sure how to do that? No problem: <a href="https://trongate.io/documentation/display/php_framework/best-practices/hiding-the-admin-login-url">here’s a guide on how to hide the admin login URL</a>.</p>
+<p>Improve your site security by hiding your main admin login URL. Not sure how to do that? No problem: <a href="https://trongateframework.com/documentation/trongate_php_framework/tips-and-best-practices/hiding-the-admin-login-url">here’s a guide on how to hide the admin login URL</a>.</p>
 <div class="alert alert-danger">
   <p>Leaving your admin login URL unchanged makes it easier for bots and bad actors to find and target your site. Obscuring the login URL adds an important extra layer of protection. Don’t skip this step!</p>
 </div>
 
 <h2>Check 4</h2>
-<p>Make sure your <code>BASE_URL</code> is set to the full base URL that corresponds with your live website homepage. For example, <code>https://trongate.io/</code>.</p>
+<p>Make sure your <code>BASE_URL</code> is set to the full base URL that corresponds with your live website homepage. For example, <code>https://trongateframework.com/</code>.</p>
 <p>Your <code>BASE_URL</code> should <em>always</em> end with a forward slash. For example:</p>
 
-[code=php]define('BASE_URL', 'https://trongate.io/');[/code]
+[code=php]define('BASE_URL', 'https://trongateframework.com/');[/code]
 
 <div class="alert alert-danger">
   <p>An incorrect <code>BASE_URL</code> can cause broken links, missing assets, and malfunctioning redirects.</p>
@@ -54,7 +54,7 @@ define('ENV', 'live'); // This is okay.
 [code=vf]&lt;base href="&lt;?= BASE_URL ?&gt;"&gt;[/code]
 
 <div class="alert alert-info">
-  <p>Strictly speaking, there’s no obligation to include <code>&lt;base&gt;</code> tags in your HTML templates. However, if your site uses <a href="https://trongate.io/documentation/display/trongate_mx" target="_blank">Trongate MX</a>, then it <em>is</em> an essential requirement. All things considered, it’s a good practice to get into the habit of using the <code>&lt;base&gt;</code> tag within your HTML templates.</p>
+  <p>Strictly speaking, there’s no obligation to include <code>&lt;base&gt;</code> tags in your HTML templates. However, if your site uses <a href="https://trongateframework.com/documentation/trongate_mx" target="_blank">Trongate MX</a>, then it <em>is</em> an essential requirement. All things considered, it’s a good practice to get into the habit of using the <code>&lt;base&gt;</code> tag within your HTML templates.</p>
 </div>
 
 <h2>Check 7</h2>
@@ -77,7 +77,7 @@ define('OUR_EMAIL_ADDRESS', '');
 </div>
 
 <div class="alert alert-success">
-  <p>Please <em>do</em> feel free to add additional owner-related settings to this file as you see fit. Remember, all of the constants that are set can be referenced from any <a href="https://trongate.io/documentation/display/php_framework/controllers/introduction-to-controllers" target="_blank">controller files</a> or <a href="https://trongate.io/documentation/display/php_framework/views/understanding-view-files" target="_blank">view files</a> within your Trongate application. For example:</p>
+  <p>Please <em>do</em> feel free to add additional owner-related settings to this file as you see fit. Remember, all of the constants that are set can be referenced from any <a href="https://trongateframework.com/documentation/trongate_php_framework/module-fundamentals/controller-files" target="_blank">controller files</a> or <a href="https://trongateframework.com/documentation/trongate_php_framework/module-fundamentals/view-files" target="_blank">view files</a> within your Trongate application. For example:</p>
 
 [code=vf]&lt;h2&gt;How To Get In Touch&lt;/h2&gt;
 
