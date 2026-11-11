@@ -9,7 +9,7 @@
 
 <h2>How It Works</h2>
 
-<p>If a file URL contains <code>_module</code> → the file is served from the corresponding module.</p>
+<p>If the module-name part of a URL ends with <code>_module</code> → the file is served from the corresponding module.</p>
 
 <p>Example structure:</p>
 
@@ -45,6 +45,8 @@ modules/
 <p>The key to having beautiful URLs that serve module assets is to use the <b>module assets trigger</b>. Here's how URLs, with a module assets trigger, get structured:</p>
 
 [code]&lt;module-name&gt;_module/&lt;sub-directory&gt;/filename[/code]
+
+<p>The trigger has to <strong>end</strong> the module-name part. A <code>_module</code> that appears anywhere else in a URL, such as in a page slug, a method name or a query string, is treated as an ordinary page request.</p>
 
 <p>For example:</p>
 
