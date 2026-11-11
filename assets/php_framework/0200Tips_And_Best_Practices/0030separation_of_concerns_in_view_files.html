@@ -1,0 +1,262 @@
+[meta-description]Learn where PHP logic belongs in a Trongate application: why view files should not declare functions or closures, how controllers prepare data for views, and how Modules::run() fits in.[/meta-description]
+
+<h1>Separation Of Concerns: What Belongs In A View File</h1>
+
+<p>Sooner or later, every view file picks up a function. It starts innocently enough - a date needs formatting, or an avatar needs an initial - and it seems cruel to open a second file to hold four lines of code. So the four lines go in the view.</p>
+
+<p>Nothing breaks. That is the problem. Nothing breaks today, and then six months later two views show the same record differently, or the page fatals with <em>Cannot redeclare function</em> and nobody can explain why.</p>
+
+<p>This page is about where PHP belongs in a Trongate application, and just as importantly, where it does not. It is guidance, not a framework rule - Trongate will not stop you. It will, eventually, make you regret it.</p>
+
+<h2>Three Jobs, One File Each</h2>
+
+<p>Trongate applications have three roles, and each of them has one job.</p>
+
+<p><strong>The model</strong> knows the shape of the data. It runs the queries, and it decides what a row looks like when it arrives. Databases are careless: a column may come back as <code>null</code>, as an empty string, as an integer that has been politely disguised as a string. Turning those into predictable PHP values is model work, because every consumer of that data wants the same answer.</p>
+
+<p><strong>The controller</strong> knows the context of one request. Who is asking, what they are allowed to see, which records get fetched, and what should appear on screen. It assembles a data array and hands that array to the view. That is the controller's job, and it is a bigger job than it sounds.</p>
+
+<p><strong>The view</strong> knows the markup. Given the data it has been handed, it decides what the page looks like.</p>
+
+<p>Separation of concerns means one thing in practice: <strong>each file has one job, so a change to one job touches one file</strong>. If the date format used across a list of messages needs to change, exactly one file should open, and it should be obvious which one. The moment the same rule lives in three views, that promise is broken - not because the code is ugly, but because three files now have to be found, edited and re-tested for a one-line change.</p>
+
+<p>Trongate does not enforce any of this with a rigid class hierarchy or a dependency injection container. That is deliberate. Trongate is native PHP and explicit code, which means the discipline belongs to you, not to the framework. The upside is that there is nothing to learn before you can be productive. The downside is that nothing stops you from pasting a function into a view.</p>
+
+<h2>The Rule</h2>
+
+<div class="alert alert-info">
+    <p><strong>A view file should not declare a PHP function, and should not assign a closure.</strong> If a view needs functionality of that kind, define it elsewhere and invoke it.</p>
+</div>
+
+<p>The reason is mechanical, not aesthetic. There are two distinct problems, and it is worth understanding both.</p>
+
+<h3>Problem One: A Function Declared In A View Is Global</h3>
+
+<p>When PHP includes a file, any function declared in that file is declared in the global scope. It is not scoped to the file, it is not scoped to the view, and it is not scoped to the request that happens to be rendering it. It is simply declared, once, for the whole request.</p>
+
+<p>Include the same view twice in a single request and PHP stops with a fatal error: <em>Cannot redeclare function</em>. In Trongate, this is not a hypothetical. A partial rendered inside a <code>foreach</code> loop, a Trongate MX response that draws the same fragment a second time, a view that gets loaded again after a redirect - any of these will do it. And the failure arrives at runtime, in production, for whichever unlucky user triggers the second render.</p>
+
+<h3>Problem Two: A View May Be Included On Its Own</h3>
+
+<p>A view included on its own - which is exactly what a Trongate MX partial is - cannot see a function declared by a parent view that never ran alongside it. The partial is fetched, rendered, and returned to the browser without the surrounding page ever being built. Whatever helper the parent view declared is not available, because the parent view was never included.</p>
+
+<p>A developer who hits that wall has one obvious fix: copy the function into the partial as well. Now the same display rule exists in two files, and the two copies are free to drift apart - silently, until a user notices that the same record is being rendered two different ways on the same site.</p>
+
+<h3>An Example</h3>
+
+<p>Here is the shape of the mistake. Two closures, defined inside a view, doing work that belongs below it:</p>
+
+[code=php]
+&lt;?php
+// WRONG - definitions inside the view
+$format_date = function (int $timestamp): string {
+    return ($timestamp &lt; 1) ? '' : date('jS M Y', $timestamp);
+};
+
+$initial = function (string $name): string {
+    $name = trim($name);
+    return ($name === '') ? '?' : strtoupper(mb_substr($name, 0, 1));
+};
+?&gt;
+[/code]
+
+<p>And here is the view doing its actual job - echoing values it was given:</p>
+
+[code=php]
+&lt;?= out($row-&gt;date_display) ?&gt;
+&lt;span class="avatar"&gt;&lt;?= out($row-&gt;avatar_initial) ?&gt;&lt;/span&gt;
+[/code]
+
+<p>Same output. One of those two views can be rendered twice, or on its own, without incident.</p>
+
+<h3>About Closures</h3>
+
+<p>Someone will notice, correctly, that a closure avoids the redeclare fatal. That is true, and it is the reason closures turn up in view files in the first place. It does not solve the second problem. A closure is invisible to the rest of the application: it cannot be reached by a sibling partial, it cannot be reached by a controller, it cannot be unit tested, and it will be copied the moment a second file needs the same rule. A closure in a view is the same mistake wearing a seatbelt.</p>
+
+<div class="alert alert-success">
+    <p><strong>This is not "views must contain no logic".</strong> A view that declares nothing can still be a hundred lines of loops, conditionals and attribute arrays, and that is exactly right. The rule is about <em>definitions</em>, not about control flow.</p>
+</div>
+
+<h2>Where The Functionality Goes Instead</h2>
+
+<p>There are three legitimate destinations, plus one that is commonly suggested and mostly wrong. This is the part of the page to come back to.</p>
+
+<h3>(a) Existing PHP, Unchanged</h3>
+
+<p>Before anything is moved anywhere, check whether PHP already does it. <code>date()</code>, <code>count()</code>, <code>number_format()</code>, <code>strtoupper()</code>, <code>mb_substr()</code>, <code>array_column()</code>. A surprising number of "helper functions" living in view files are a thin wrapper around a one-line built-in.</p>
+
+<p>Calling a built-in from a view is normal and needs no ceremony whatsoever:</p>
+
+[code=php]
+&lt;p&gt;&lt;?= count($messages) ?&gt; messages&lt;/p&gt;
+&lt;p&gt;&lt;?= number_format((float) $order-&gt;total, 2) ?&gt;&lt;/p&gt;
+[/code]
+
+<p>If the built-in does the job, the built-in is the answer. Do not invent a layer to avoid calling <code>date()</code>.</p>
+
+<h3>(b) A Method On The Controller</h3>
+
+<p>Trongate controllers are ordinary classes. A public method on a module controller is reachable from a view via <code>Modules::run()</code> - no registration, no autoloading, no service container, no configuration file. This makes the controller the natural home for a display rule that a <em>view</em> must be able to call, because it is the only layer a view can reach.</p>
+
+[code=php]
+&lt;?php
+// modules/messages/Messages.php
+
+/**
+ * Format a stored unix timestamp for display.
+ *
+ * @param int    $timestamp Required. A value below 1 returns ''.
+ * @param string $format    Optional. Any format string accepted by PHP's
+ *                          date(). Two formats are used by this module:
+ *                          'jS M Y'           a conversation in the list
+ *                          'jS M Y \a\t H:i'  a message in a conversation
+ * @return string
+ */
+public function format_date(int $timestamp, string $format = 'jS M Y'): string
+{
+    if ($timestamp &lt; 1) {
+        return '';
+    }
+
+    return date($format, $timestamp);
+}
+[/code]
+
+<p>Invoked from a view:</p>
+
+[code=php]
+&lt;?= Modules::run('messages/format_date', (int) $row-&gt;last_updated) ?&gt;
+[/code]
+
+<p>Two details in that doc block are the general lesson, not local detail:</p>
+
+<ul>
+    <li><strong>The format is an argument, not a second function.</strong> Two callers wanting two date formats is a reason for a parameter, never a reason for two definitions in two view files.</li>
+    <li><strong>Document the accepted values.</strong> The doc block is where a reader learns which formats the application actually uses. If a format string is accepted by a method, the list of formats in use belongs beside it.</li>
+</ul>
+
+<h3>(c) Data Prepared By The Controller</h3>
+
+<p>When a controller already has the rows in hand - and it nearly always does - it can attach the display values before the view is drawn. The view then becomes a plain echo. This is the cheapest route, it results in the least code, and it should be your default.</p>
+
+[code=php]
+// controller
+$conversations = $this-&gt;messages-&gt;model-&gt;get_conversations($member_id);
+
+foreach ($conversations as $conversation) {
+    $conversation-&gt;date_display = $this-&gt;messages-&gt;format_date((int) $conversation-&gt;last_updated);
+    $conversation-&gt;avatar_initial = $this-&gt;messages-&gt;initial_of((string) $conversation-&gt;with_username);
+}
+
+$data['conversations'] = $conversations;
+$this-&gt;view('panel', $data);
+[/code]
+
+[code=php]
+// view
+&lt;?= out($conversation-&gt;date_display) ?&gt;
+[/code]
+
+<p>Note what happened to the model there. The model supplied the rows, unchanged. The controller asked a display question about those rows, using its own method. The view echoed a string. Three files, three jobs, and no copy of the rule anywhere.</p>
+
+<h3>(d) A Model Method - Only Where A Controller Calls It</h3>
+
+<p>A view cannot call a model. Model methods are reached through the controller (<code>$this-&gt;model_name-&gt;method()</code>), so a display rule placed in a model is available to controllers and to nothing else. If a view must be able to call it, it belongs on the controller - route (b).</p>
+
+<p>This is the correction most readers need, because "get it out of the view" is usually mis-heard as "put it in the model", and the two are not the same instruction. Section 6 deals with that in full.</p>
+
+<h2>Modules::run() - What It Is, And When It Is Appropriate</h2>
+
+<p><code>Modules::run()</code> is documented properly in <a href="documentation/trongate_php_framework/basic-concepts/loading-modules">Loading Modules</a>, so this page will not repeat the fundamentals. What matters here is the guidance that page does not cover.</p>
+
+<ul>
+    <li><strong>It takes the module and method as one string</strong> - <code>'messages/format_date'</code> - and <strong>one</strong> data argument. A method with two parameters needs either an array that the method unpacks, or, better, route (c): prepare the value in the controller and pass it in.</li>
+    <li><strong>It instantiates the controller</strong>, not the model. That is the whole reason it can be called from a view at all.</li>
+    <li><strong>It is for invoking behaviour that already exists elsewhere.</strong> It is not a mechanism for reaching into another module's internals, and it is not a general-purpose way to keep views short. If a view is calling <code>Modules::run()</code> six times to assemble one row, the controller should have prepared that row.</li>
+    <li><strong>A public controller method is also a URL destination.</strong> That is worth knowing <em>before</em> you move logic onto a controller. A method that returns a string and echoes nothing is harmless if somebody reaches it by URL - the string simply goes nowhere. A method that draws output, or changes data, needs its own guard. See <a href="documentation/trongate_php_framework/intercepting-requests/preventing-url-invocation">Preventing URL Invocation</a>.</li>
+</ul>
+
+<h3>Prepared Data Or Modules::run()?</h3>
+
+<p>Both routes are legitimate. Choose between them on one question: <em>must this fragment be able to render itself?</em></p>
+
+<ul>
+    <li><strong>Prepared data</strong> when the controller is already iterating the rows and the value is cheap to produce. There is no extra call, nothing to remember, and nothing to trace when the page behaves oddly. This is the default.</li>
+    <li><strong><code>Modules::run()</code></strong> when the view is a standalone fragment that must be able to render itself - an MX partial, a widget, a component that appears on pages it does not own - and therefore cannot depend on a parent having prepared anything.</li>
+</ul>
+
+<p>The second case is the general principle worth carrying away: <strong>a fragment that can be rendered on its own must be able to reach what it needs.</strong> A partial with no parent has no <code>$data</code> array to inherit, so it has to either prepare its own values or call for them.</p>
+
+<h2>What Is Perfectly Acceptable In A View</h2>
+
+<p>Nothing above should leave you thinking your views need a purge. They do not. The following are ordinary, good practice and should be left exactly where they are:</p>
+
+<ul>
+    <li><strong><code>if</code> / <code>else</code>, ternaries and conditional rendering.</strong> Deciding which markup to draw is the view's job.</li>
+    <li><strong><code>for</code> / <code>foreach</code> loops.</strong> Loops are how markup is repeated.</li>
+    <li><strong>Simple variable declarations and assignments.</strong> <code>$is_own_message = ($message-&gt;member_id === $member_id);</code> is view work.</li>
+    <li><strong>Attribute arrays</strong> passed to <code>form_open()</code>, <code>form_input()</code>, <code>form_button()</code>, <code>anchor()</code> and friends. This is the Trongate form pattern. Prising these away from the helper they configure is a step backwards, not a step forwards.</li>
+    <li><strong>Trongate MX usage</strong> - <code>mx-get</code>, <code>mx-target</code>, <code>mx-push-url</code>, CSRF tokens, <code>json_encode()</code>d modal configuration. All of it belongs in the markup.</li>
+    <li><strong>String concatenation that builds markup.</strong></li>
+    <li><strong>Function calls such as</strong> <code>out()</code>, <code>anchor()</code>, <code>file_path()</code>, <code>count()</code>, <code>date()</code> and <code>number_format()</code>.</li>
+    <li><strong><code>Modules::run()</code></strong>, used as described above.</li>
+    <li><strong>Echoing prepared values</strong>, including inside table cells.</li>
+</ul>
+
+<h3>The One Test</h3>
+
+<div class="alert alert-info">
+    <p><strong>Would this line change if the same data were presented differently - as JSON, an email, a sidebar badge?</strong> If yes, it is not view work.</p>
+</div>
+
+<p>A date format, a plural, a "You" label, an avatar initial: all of these change with the presentation, but they change <em>once for the whole application</em>, which is why they must be defined somewhere that every presentation can reach them. A branch that decides between two <code>&lt;div&gt;</code>s, or an array of <code>class</code> and <code>data-</code> attributes, changes only with this markup. That is view work, and it can stay.</p>
+
+<h2>Why It Does Not Automatically Go To The Model</h2>
+
+<p>This is the most likely misreading of everything above, so it gets its own section. Relocating code out of a view does not make it model code.</p>
+
+<p><strong>Not everything that leaves a view is a model concern.</strong> A model describes the data. A date format is not a fact about the data; it is a decision about the display. Put it in the model and the model now knows how a page wants its dates written - which is precisely the coupling separation of concerns exists to prevent.</p>
+
+<p><strong>The test should be "where does this belong?", not "what is the least-view place I can put it?"</strong> Relocating code into a model to satisfy a rule produces the worst of both worlds: the model has been given a presentation concern, and the view still has no legal way to reach it.</p>
+
+<p><strong>Abstraction has a cost.</strong> Another file to open, another layer to trace, another name to remember, another place a bug can hide. Pay that cost only when it buys something: reuse across two or more callers, or a genuine boundary between the data and the page.</p>
+
+<p>A short contrast makes the distinction concrete. Here is the same length of code, one line each, going to two different destinations:</p>
+
+<ul>
+    <li><em>"Show <code>null</code> usernames as <code>A member</code>."</em> That is about the shape of the data, and every consumer needs it - so it belongs where the rows are created, in the query or the model.</li>
+    <li><em>"Show the timestamp as <code>11th Nov 2026</code>."</em> That is a display rule, so it belongs in a controller-side method or a prepared value. Never in the model.</li>
+</ul>
+
+<h2>The Principle Worth Carrying Away</h2>
+
+<div class="alert alert-success">
+    <p><strong>A rule that two views depend on must live below both of them.</strong></p>
+</div>
+
+<p>That single sentence resolves almost every case on this page. If two views need the same derivation, the definition cannot sit in either view, because a view is not below anything - it is the top of the stack, and it cannot be reached by its siblings. The rule has to live in the controller (or lower), where both views can get at it.</p>
+
+<p><strong>Duplication is the diagnostic.</strong> One occurrence is a style opinion. The same derivation written twice is a defect waiting to surface, because the two copies will drift and the drift will be invisible until a user sees the same record rendered two ways.</p>
+
+<h3>A Real Example</h3>
+
+<p>In a messaging module with two render paths - the full page listing every conversation, and an MX fragment that redraws a single message after sending - an avatar rule existed twice. Once as a closure in the full-page view, once written inline in the partial. Both worked. Both passed testing, because both paths were tested with data that had a username.</p>
+
+<p>Then a sender's member record was missing, and the two paths disagreed. One drew <code>Y</code> from a fallback that had been typed into the partial. The other drew <code>?</code> because the closure's empty-string check caught it first. The same message, rendered twice, carrying two different avatars - and no error anywhere, because neither branch was wrong on its own terms.</p>
+
+<p>Deleting both definitions and preparing the value once, in the controller, made the two paths identical by construction. Not identical by review. Identical because there was only one place left that the value could come from.</p>
+
+<h2>Checklist Before You Commit A View</h2>
+
+<ul>
+    <li><strong>No <code>function</code> keyword, and no <code>= function (</code>.</strong> One grep will tell you:
+        [code=text]
+grep -nE '(= function \(|function [a-z_]+\()' modules/messages/views/panel.php
+[/code]
+    </li>
+    <li><strong>Every variable the view echoes exists</strong> in the <code>$data</code> array the controller passed, or is prepared deliberately by a method the view calls.</li>
+    <li><strong>If a value is derived rather than displayed,</strong> ask whether a second view would derive it the same way. If it would, the rule belongs below both of them.</li>
+    <li><strong>The view contains no knowledge of the database's shape</strong> - no <code>null</code> versus <code>''</code> checks, no string-versus-integer decisions. Those were settled before the data arrived.</li>
+</ul>
+
+<p>None of this is enforced by the framework, and none of it is a new requirement. It is what keeps a Trongate application readable a year after it was written, when the person changing the date format has fifteen minutes and no memory of the original developer's reasoning.</p>
